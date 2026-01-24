@@ -1,0 +1,41 @@
+---
+description: "Core AI context rules for task management, coding standards, and project information"
+alwaysApply: true
+---
+
+# Project Rules
+
+Before starting any task, read the project rules in this order:
+
+1. `.ai/rules/process.md` - Task management, TDD process
+2. `.ai/rules/standards.md` - Coding standards, safety rules, AI behavior
+3. `.ai/project.md` - Project overview, tech stack, architecture
+4. `.ai/local.md` - Personal/local settings (optional, gitignored)
+
+For detailed commands and folder structure, see `.ai/structure.md`.
+
+## Context Priority
+
+| Priority | Files | When |
+|----------|-------|------|
+| Always | `rules/process.md`, `rules/standards.md` | Every session |
+| For tasks | `project.md`, task file in `.ai/tasks/` | When implementing |
+| Reference | `structure.md` | When needing commands/paths |
+
+## Key Rules Summary
+
+### Safety
+- Never run destructive commands without permission
+- Never start implementation without explicit approval
+- Always use test environment for investigation
+
+### Coding
+- DRY: Extract code only when used 3+ times
+- KISS: Simplest solution that works
+- Early returns for edge cases
+- No over-engineering
+
+### Process
+- Complete question phase before implementation
+- Present plan and wait for approval
+- TDD: Write failing test first
