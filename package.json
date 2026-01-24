@@ -47,7 +47,6 @@
     ".claude/",
     ".cursor/",
     ".github/copilot-instructions.md",
-    ".github/instructions/",
     "setup/generate.md"
   ],
   "engines": {

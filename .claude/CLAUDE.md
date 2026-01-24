@@ -14,5 +14,5 @@ For detailed commands and folder structure, see `.ai/structure.md`.
 | Priority | Files | When |
 |----------|-------|------|
 | Always | `rules/process.md`, `rules/standards.md` | Every session |
-| For tasks | `project.md`, task file in `.ai/tasks/` | When implementing |
-| Reference | `structure.md` | When needing commands/paths |
+| For tasks | `project.md`, task file in `.ai/tasks/` | When planning or implementing |
+| Reference | `structure.md` | When creating files or needing commands/paths |

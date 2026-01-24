@@ -19,23 +19,5 @@ For detailed commands and folder structure, see `.ai/structure.md`.
 | Priority | Files | When |
 |----------|-------|------|
 | Always | `rules/process.md`, `rules/standards.md` | Every session |
-| For tasks | `project.md`, task file in `.ai/tasks/` | When implementing |
-| Reference | `structure.md` | When needing commands/paths |
-
-## Key Rules Summary
-
-### Safety
-- Never run destructive commands without permission
-- Never start implementation without explicit approval
-- Always use test environment for investigation
-
-### Coding
-- DRY: Extract code only when used 3+ times
-- KISS: Simplest solution that works
-- Early returns for edge cases
-- No over-engineering
-
-### Process
-- Complete question phase before implementation
-- Present plan and wait for approval
-- TDD: Write failing test first
+| For tasks | `project.md`, task file in `.ai/tasks/` | When planning or implementing |
+| Reference | `structure.md` | When creating files or needing commands/paths |

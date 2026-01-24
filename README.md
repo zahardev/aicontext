@@ -124,7 +124,7 @@ Add project-specific rules to:
 ### Tool-Specific Customization
 
 - **Cursor**: Add more `.mdc` files to `.cursor/rules/`
-- **Copilot**: Add path-specific files to `.github/instructions/`
+- **Copilot**: Create `.github/instructions/` for path-specific rules
 
 ## Version History
 

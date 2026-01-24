@@ -46,7 +46,6 @@ function getExistingFiles(target) {
     '.claude',
     '.cursor',
     '.github/copilot-instructions.md',
-    '.github/instructions',
   ];
 
   for (const p of checkPaths) {
@@ -125,7 +124,6 @@ async function init(targetDir, skipConfirm = false) {
   copyRecursive(path.join(packageRoot, '.claude'), path.join(target, '.claude'));
   copyRecursive(path.join(packageRoot, '.cursor'), path.join(target, '.cursor'));
   copyRecursive(path.join(packageRoot, '.github', 'copilot-instructions.md'), path.join(target, '.github', 'copilot-instructions.md'));
-  copyRecursive(path.join(packageRoot, '.github', 'instructions'), path.join(target, '.github', 'instructions'));
 
   // Write version file
   fs.writeFileSync(path.join(target, '.ai', '.version'), VERSION);
@@ -165,7 +163,6 @@ async function update(targetDir, skipConfirm = false) {
   log('  - .claude/', 'yellow');
   log('  - .cursor/', 'yellow');
   log('  - .github/copilot-instructions.md', 'yellow');
-  log('  - .github/instructions/', 'yellow');
   log('\nPreserved (not modified):', 'green');
   log('  - .ai/project.md', 'green');
   log('  - .ai/structure.md', 'green');
@@ -201,7 +198,6 @@ async function update(targetDir, skipConfirm = false) {
   copyRecursive(path.join(packageRoot, '.claude'), path.join(target, '.claude'));
   copyRecursive(path.join(packageRoot, '.cursor'), path.join(target, '.cursor'));
   copyRecursive(path.join(packageRoot, '.github', 'copilot-instructions.md'), path.join(target, '.github', 'copilot-instructions.md'));
-  copyRecursive(path.join(packageRoot, '.github', 'instructions'), path.join(target, '.github', 'instructions'));
 
   // Update version
   fs.writeFileSync(versionFile, VERSION);
