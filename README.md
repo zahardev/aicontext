@@ -18,20 +18,20 @@ AIContext gives your AI coding assistants persistent memory about your project â
 
 ## Installation
 
-### Option A: npx (Recommended)
+### Option A: Global Install (Recommended)
 
 ```bash
-npx aicontext init
-```
-
-Or install globally:
-
-```bash
-npm install -g aicontext
+npm install -g @zahardev/aicontext
 aicontext init
 ```
 
-### Option B: Manual Clone
+### Option B: npx (One-time use)
+
+```bash
+npx @zahardev/aicontext init
+```
+
+### Option C: Manual Clone
 
 ```bash
 git clone https://github.com/zahardev/aicontext.git
@@ -102,13 +102,13 @@ See [.ai/examples/](.ai/examples/) for complete example configurations.
 ## Updating the Framework
 
 ```bash
-npx aicontext update
+npx @zahardev/aicontext update
 ```
 
 Or check your current version:
 
 ```bash
-npx aicontext version
+npx @zahardev/aicontext version
 ```
 
 This updates the framework files while preserving your `project.md`, `structure.md`, and `changelog.md`.
