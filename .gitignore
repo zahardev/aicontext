@@ -14,3 +14,6 @@ Thumbs.db
 
 # Local testing
 test-project/
+
+# Claude Code local settings
+.claude/settings.local.json
