@@ -32,6 +32,9 @@
   "bin": {
     "aicontext": "./bin/aicontext.js"
   },
+  "scripts": {
+    "test": "node --test test/*.test.js"
+  },
   "files": [
     "bin/",
     ".ai/rules/",

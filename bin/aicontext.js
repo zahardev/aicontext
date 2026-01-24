@@ -277,42 +277,54 @@ Documentation: ${REPO_URL}
 `, 'reset');
 }
 
-// Main CLI
-const args = process.argv.slice(2);
-const command = args[0];
-const hasYesFlag = args.includes('-y') || args.includes('--yes');
-const targetPath = args.find((arg) => arg !== '-y' && arg !== '--yes' && arg !== command);
+// Export for testing
+module.exports = {
+  VERSION,
+  copyRecursive,
+  getExistingFiles,
+  init,
+  update,
+  checkVersion,
+};
 
-async function main() {
-  switch (command) {
-    case 'init':
-      await init(targetPath, hasYesFlag);
-      break;
-    case 'update':
-      await update(targetPath, hasYesFlag);
-      break;
-    case 'version':
-    case '-v':
-    case '--version':
-      checkVersion(targetPath);
-      break;
-    case 'contribute':
-      contribute();
-      break;
-    case 'help':
-    case '-h':
-    case '--help':
-      showHelp();
-      break;
-    default:
-      if (command) {
-        log(`Unknown command: ${command}`, 'red');
-      }
-      showHelp();
+// Main CLI (only run when executed directly)
+if (require.main === module) {
+  const args = process.argv.slice(2);
+  const command = args[0];
+  const hasYesFlag = args.includes('-y') || args.includes('--yes');
+  const targetPath = args.find((arg) => arg !== '-y' && arg !== '--yes' && arg !== command);
+
+  async function main() {
+    switch (command) {
+      case 'init':
+        await init(targetPath, hasYesFlag);
+        break;
+      case 'update':
+        await update(targetPath, hasYesFlag);
+        break;
+      case 'version':
+      case '-v':
+      case '--version':
+        checkVersion(targetPath);
+        break;
+      case 'contribute':
+        contribute();
+        break;
+      case 'help':
+      case '-h':
+      case '--help':
+        showHelp();
+        break;
+      default:
+        if (command) {
+          log(`Unknown command: ${command}`, 'red');
+        }
+        showHelp();
+    }
   }
-}
 
-main().catch((err) => {
-  log(`Error: ${err.message}`, 'red');
-  process.exit(1);
-});
+  main().catch((err) => {
+    log(`Error: ${err.message}`, 'red');
+    process.exit(1);
+  });
+}

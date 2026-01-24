@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "WebFetch(domain:www.npmjs.com)",
-      "WebFetch(domain:registry.npmjs.org)"
+      "WebFetch(domain:registry.npmjs.org)",
+      "Bash(npm test:*)",
+      "Bash(node --test:*)"
     ]
   }
 }
