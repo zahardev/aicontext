@@ -71,6 +71,7 @@ After installation, generate project-specific files:
 │   └── cli-tool/       # Rust CLI tool
 ├── tasks/
 │   └── .template.md    # Task file template
+├── data/               # Screenshots, specs, reference files
 ├── project.md          # [Generated] Project-specific
 ├── structure.md        # [Generated] Project-specific
 ├── changelog.md        # Task completion history

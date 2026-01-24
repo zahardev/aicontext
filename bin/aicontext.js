@@ -112,6 +112,7 @@ async function init(targetDir, skipConfirm = false) {
   copyRecursive(path.join(packageRoot, '.ai', 'templates'), path.join(target, '.ai', 'templates'));
   fs.mkdirSync(path.join(target, '.ai', 'tasks'), { recursive: true });
   copyRecursive(path.join(packageRoot, '.ai', 'tasks', '.template.md'), path.join(target, '.ai', 'tasks', '.template.md'));
+  fs.mkdirSync(path.join(target, '.ai', 'data'), { recursive: true });
   copyRecursive(path.join(packageRoot, '.ai', 'readme.md'), path.join(target, '.ai', 'readme.md'));
   copyRecursive(path.join(packageRoot, '.ai', 'changelog.md'), path.join(target, '.ai', 'changelog.md'));
   copyRecursive(path.join(packageRoot, '.ai', '.gitignore'), path.join(target, '.ai', '.gitignore'));
