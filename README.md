@@ -12,26 +12,34 @@ A universal AI context management framework that works across multiple AI coding
 
 ## Installation
 
-### Option 1: Copy (Recommended)
+```bash
+git clone https://github.com/YOUR_USERNAME/aicontext.git
+```
+
+> Replace `YOUR_USERNAME` with the actual GitHub username/organization.
+
+Then choose one of the following:
+
+### Option A: Install Script (Recommended)
 
 ```bash
-# Clone the framework
-git clone https://github.com/user/ai-context-framework.git
+./aicontext/setup/install.sh /path/to/your-project
+```
 
-# Copy to your project
-cp -r ai-context-framework/.ai your-project/
-cp -r ai-context-framework/.claude your-project/
-cp -r ai-context-framework/.cursor your-project/
-cp -r ai-context-framework/.github your-project/
+### Option B: Manual Copy
 
-# Track the version
+```bash
+cp -r aicontext/.ai your-project/
+cp -r aicontext/.claude your-project/
+cp -r aicontext/.cursor your-project/
+cp -r aicontext/.github your-project/
 echo "1.0.0" > your-project/.ai/.version
 ```
 
-### Option 2: Install Script
+Clean up when done:
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/user/ai-context-framework/main/setup/install.sh | bash
+rm -rf aicontext
 ```
 
 ## Post-Installation Setup
@@ -59,6 +67,9 @@ After copying the framework, generate project-specific files:
 ├── templates/
 │   ├── project.template.md
 │   └── structure.template.md
+├── examples/           # Example configurations
+│   ├── web-api/        # REST API example
+│   └── cli-tool/       # CLI tool example
 ├── tasks/
 │   └── .template.md    # Task file template
 ├── project.md          # [Generated] Project-specific
@@ -67,6 +78,8 @@ After copying the framework, generate project-specific files:
 ├── local.md            # Personal settings (gitignored)
 └── readme.md           # Framework documentation
 ```
+
+See [.ai/examples/](.ai/examples/) for complete example configurations.
 
 ## Workflow
 
