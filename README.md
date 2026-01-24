@@ -1,8 +1,14 @@
 # AI Context Framework
 
-A universal AI context management framework that works across multiple AI coding assistants.
+**Tired of explaining your project to AI assistants over and over again?**
 
-## Supported Tools
+AIContext gives your AI coding assistants persistent memory about your project — your tech stack, coding standards, folder structure, and workflows. Set it up once, and every AI session starts with full context.
+
+**Works with any language or framework** — PHP, Python, JavaScript, TypeScript, Rust, Go, and more. Built-in detection for Laravel, WordPress, Django, Next.js, NestJS, Flutter, and other popular frameworks.
+
+**Supports multiple AI tools** — Claude Code, Cursor, and GitHub Copilot.
+
+## Supported AI Tools
 
 | Tool | Entry Point | Format |
 |------|-------------|--------|
@@ -12,42 +18,33 @@ A universal AI context management framework that works across multiple AI coding
 
 ## Installation
 
+### Option A: npx (Recommended)
+
 ```bash
-git clone https://github.com/YOUR_USERNAME/aicontext.git
+npx aicontext init
 ```
 
-> Replace `YOUR_USERNAME` with the actual GitHub username/organization.
-
-Then choose one of the following:
-
-### Option A: Install Script (Recommended)
+Or install globally:
 
 ```bash
+npm install -g aicontext
+aicontext init
+```
+
+### Option B: Manual Clone
+
+```bash
+git clone https://github.com/zahardev/aicontext.git
 ./aicontext/setup/install.sh /path/to/your-project
-```
-
-### Option B: Manual Copy
-
-```bash
-cp -r aicontext/.ai your-project/
-cp -r aicontext/.claude your-project/
-cp -r aicontext/.cursor your-project/
-cp -r aicontext/.github your-project/
-echo "1.0.0" > your-project/.ai/.version
-```
-
-Clean up when done:
-
-```bash
 rm -rf aicontext
 ```
 
 ## Post-Installation Setup
 
-After copying the framework, generate project-specific files:
+After installation, generate project-specific files:
 
 1. Open your AI assistant (Claude Code, Cursor, etc.)
-2. Paste the contents of `setup/generate.md`
+2. Paste the contents of `.ai/templates/generate.md`
 3. The AI will analyze your codebase and generate:
    - `.ai/project.md` - Project overview
    - `.ai/structure.md` - Commands and folder structure
@@ -67,9 +64,11 @@ After copying the framework, generate project-specific files:
 ├── templates/
 │   ├── project.template.md
 │   └── structure.template.md
-├── examples/           # Example configurations
-│   ├── web-api/        # REST API example
-│   └── cli-tool/       # CLI tool example
+├── examples/           # Example configurations (reference only)
+│   ├── laravel-api/    # Laravel REST API
+│   ├── wordpress-plugin/  # WordPress plugin
+│   ├── web-api/        # Node.js/NestJS API
+│   └── cli-tool/       # Rust CLI tool
 ├── tasks/
 │   └── .template.md    # Task file template
 ├── project.md          # [Generated] Project-specific
@@ -102,13 +101,17 @@ See [.ai/examples/](.ai/examples/) for complete example configurations.
 
 ## Updating the Framework
 
-Check your installed version:
-
 ```bash
-cat .ai/.version
+npx aicontext update
 ```
 
-Compare with latest release and manually update files as needed.
+Or check your current version:
+
+```bash
+npx aicontext version
+```
+
+This updates the framework files while preserving your `project.md`, `structure.md`, and `changelog.md`.
 
 ## Customization
 

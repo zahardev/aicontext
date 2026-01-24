@@ -1,0 +1,53 @@
+{
+  "name": "aicontext",
+  "version": "1.0.0",
+  "description": "Give your AI coding assistants persistent memory about your project. Works with any language (PHP, Python, JS, Rust, Go) and framework (Laravel, Django, Next.js, WordPress). Supports Claude Code, Cursor, and GitHub Copilot.",
+  "keywords": [
+    "ai",
+    "claude",
+    "cursor",
+    "copilot",
+    "context",
+    "coding-assistant",
+    "developer-tools",
+    "laravel",
+    "wordpress",
+    "django",
+    "nextjs",
+    "nestjs",
+    "flutter",
+    "ai-context",
+    "project-context"
+  ],
+  "author": "Serhiy Zakharchenko (zahardev)",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zahardev/aicontext.git"
+  },
+  "homepage": "https://github.com/zahardev/aicontext#readme",
+  "bugs": {
+    "url": "https://github.com/zahardev/aicontext/issues"
+  },
+  "bin": {
+    "aicontext": "./bin/aicontext.js"
+  },
+  "files": [
+    "bin/",
+    ".ai/rules/",
+    ".ai/prompts/",
+    ".ai/templates/",
+    ".ai/tasks/.template.md",
+    ".ai/readme.md",
+    ".ai/changelog.md",
+    ".ai/.gitignore",
+    ".claude/",
+    ".cursor/",
+    ".github/copilot-instructions.md",
+    ".github/instructions/",
+    "setup/generate.md"
+  ],
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}

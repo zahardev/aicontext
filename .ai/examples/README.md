@@ -15,6 +15,8 @@ Use these examples to:
 
 | Example | Type | Stack |
 |---------|------|-------|
+| [laravel-api/](laravel-api/) | REST API | PHP, Laravel, MySQL |
+| [wordpress-plugin/](wordpress-plugin/) | WordPress Plugin | PHP, WordPress |
 | [web-api/](web-api/) | REST API | Node.js, NestJS, PostgreSQL |
 | [cli-tool/](cli-tool/) | CLI Application | Rust, Cargo |
 
