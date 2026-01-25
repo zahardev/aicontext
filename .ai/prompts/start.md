@@ -1,4 +1,4 @@
-# Session Init
+# Session Start
 
 Read the following files in order:
 

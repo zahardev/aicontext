@@ -34,7 +34,7 @@ Located in `rules/`:
 
 | File | When to Use |
 |------|-------------|
-| `init.md` | Start of session - read rules and confirm |
+| `start.md` | Start of session - read rules and confirm |
 | `check_task.md` | Before starting work on a task |
 | `check_plan.md` | Review a task plan for issues |
 | `review.md` | Code review after implementation |
@@ -42,7 +42,7 @@ Located in `rules/`:
 ## Workflow
 
 ### Starting a Session
-1. Paste `prompts/init.md` content
+1. Paste `prompts/start.md` content
 2. AI reads rules and project files
 3. AI confirms readiness
 
