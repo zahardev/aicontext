@@ -4,7 +4,7 @@
 
 AIContext gives your AI coding assistants persistent memory about your project — your tech stack, coding standards, folder structure, and workflows. Set it up once, and every AI session starts with full context.
 
-**Works with any language or framework** — PHP, Python, JavaScript, TypeScript, Rust, Go, and more. Built-in detection for Laravel, WordPress, Django, Next.js, NestJS, Flutter, and other popular frameworks.
+**Works with any language or framework** — PHP, Python, JavaScript, TypeScript, Rust, Go, and more. Includes detection prompts for Laravel, WordPress, Django, Next.js, NestJS, Flutter, and other popular frameworks.
 
 **Supports multiple AI tools** — Claude Code, Cursor, and GitHub Copilot.
 
@@ -16,20 +16,30 @@ AIContext gives your AI coding assistants persistent memory about your project �
 | Cursor | `.cursor/rules/*.mdc` | MDC (Markdown + YAML) |
 | GitHub Copilot | `.github/copilot-instructions.md` | Markdown |
 
+## Requirements
+
+- Node.js 16.0.0 or higher
+
 ## Installation
 
 ### Option A: Global Install (Recommended)
 
 ```bash
 npm install -g @zahardev/aicontext
+cd /path/to/your-project
 aicontext init
 ```
 
 ### Option B: npx (One-time use)
 
 ```bash
+cd /path/to/your-project
 npx @zahardev/aicontext init
 ```
+
+You can also specify the project path explicitly: `aicontext init /path/to/your-project`
+
+**Note:** If `.claude/`, `.cursor/`, or `.ai/` already exist, you'll be prompted before overwriting. If you use git, uncommitted changes can be reverted with `git checkout`.
 
 ### Option C: Manual Clone
 
@@ -39,15 +49,28 @@ git clone https://github.com/zahardev/aicontext.git
 rm -rf aicontext
 ```
 
-## Post-Installation Setup
+### What `aicontext init` Creates
+
+The command creates the following in your project:
+
+| Path | Purpose |
+|------|---------|
+| `.ai/` | Framework files (rules, prompts, templates) |
+| `.claude/CLAUDE.md` | Entry point for Claude Code |
+| `.cursor/rules/` | Entry point for Cursor |
+| `.github/copilot-instructions.md` | Entry point for GitHub Copilot |
+
+## Generate Project Context
 
 After installation, generate project-specific files:
 
 1. Open your AI assistant (Claude Code, Cursor, etc.)
 2. Paste the contents of `.ai/templates/generate.md`
 3. The AI will analyze your codebase and generate:
-   - `.ai/project.md` - Project overview
-   - `.ai/structure.md` - Commands and folder structure
+   - `.ai/project.md` - Project overview, tech stack, architecture
+   - `.ai/structure.md` - Commands, folder structure, environment
+
+These generated files are what give your AI assistant "memory" about your project.
 
 ## Structure
 
@@ -57,18 +80,18 @@ After installation, generate project-specific files:
 │   ├── process.md      # Task management, TDD workflow
 │   └── standards.md    # Coding standards, safety rules
 ├── prompts/
-│   ├── init.md         # Session initialization
+│   ├── start.md        # Start a session
 │   ├── check_task.md   # Before starting a task
 │   ├── check_plan.md   # Review implementation plan
 │   └── review.md       # Code review
 ├── templates/
 │   ├── project.template.md
 │   └── structure.template.md
-├── examples/           # Example configurations (reference only)
-│   ├── laravel-api/    # Laravel REST API
-│   ├── wordpress-plugin/  # WordPress plugin
-│   ├── web-api/        # Node.js/NestJS API
-│   └── cli-tool/       # Rust CLI tool
+├── examples/           # Example configs (GitHub repo only)
+│   ├── laravel-api/
+│   ├── wordpress-plugin/
+│   ├── web-api/
+│   └── cli-tool/
 ├── tasks/
 │   └── .template.md    # Task file template
 ├── data/               # Screenshots, specs, reference files
@@ -79,13 +102,13 @@ After installation, generate project-specific files:
 └── readme.md           # Framework documentation
 ```
 
-See [.ai/examples/](.ai/examples/) for complete example configurations.
+Example configurations are available in the [GitHub repository](https://github.com/zahardev/aicontext/tree/main/.ai/examples).
 
 ## Workflow
 
 ### Starting a Session
 
-1. Paste contents of `.ai/prompts/init.md`
+1. Paste contents of `.ai/prompts/start.md`
 2. AI reads rules and confirms readiness
 
 ### Working on a Task
@@ -103,16 +126,25 @@ See [.ai/examples/](.ai/examples/) for complete example configurations.
 ## Updating the Framework
 
 ```bash
-npx @zahardev/aicontext update
+aicontext update
 ```
 
 Or check your current version:
 
 ```bash
-npx @zahardev/aicontext version
+aicontext version
 ```
 
-This updates the framework files while preserving your `project.md`, `structure.md`, and `changelog.md`.
+### What `aicontext update` Does
+
+Updates framework files (rules, prompts, templates, tool entry points) while preserving your project-specific files:
+
+| Updated | Preserved |
+|---------|-----------|
+| `.ai/rules/` | `.ai/project.md` |
+| `.ai/prompts/` | `.ai/structure.md` |
+| `.ai/templates/` | `.ai/changelog.md` |
+| `.claude/`, `.cursor/`, `.github/` | `.ai/local.md` |
 
 ## Customization
 
