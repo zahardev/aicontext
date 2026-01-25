@@ -144,28 +144,6 @@ Using the templates in `.ai/templates/`, generate:
 - Environment variables
 - Test structure
 
-## Step 5: Present for Review
-
-Show me the generated files and ask for approval before saving.
-
-Format:
-
-```
-## Generated: .ai/project.md
-
-[content]
-
----
-
-## Generated: .ai/structure.md
-
-[content]
-
----
-
-Should I save these files? Any modifications needed?
-```
-
 ## Notes
 
 - Ask clarifying questions if project type is ambiguous

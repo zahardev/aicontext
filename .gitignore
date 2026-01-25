@@ -17,3 +17,7 @@ test-project/
 
 # Claude Code local settings
 .claude/settings.local.json
+
+# Project file
+.ai/project.md
+.ai/structure.md

@@ -11,7 +11,7 @@ For detailed commands and folder structure, see `.ai/structure.md`.
 
 ## Auto-Setup
 
-If `.ai/project.md` does not exist, read and follow `.ai/prompts/generate.md` to generate project context files.
+**Important:** If `.ai/project.md` is missing, read `.ai/prompts/generate.md` and create the missing files before proceeding.
 
 ## Context Priority
 
