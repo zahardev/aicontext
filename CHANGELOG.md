@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.1.0] - 2026-01-25
+
+### Added
+- `.ai/data/` folder for additional task data ( screenshots, specs, etc. )
+- Documentation for removing unused AI tool configurations
+
+### Fixed
+- `changelog.md` no longer overwritten during init if it already exists
+- `.claude/settings.local.json` excluded from git and npm package
+
+### Changed
+- Renamed `.cursor/rules/ai-context.mdc` to `aicontext.mdc` for consistency
+
 ## [1.0.0] - 2026-01-24
 
 ### Added

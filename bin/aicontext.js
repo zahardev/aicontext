@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const readline = require('readline');
 
-const VERSION = '1.0.0';
+const VERSION = '1.1.0';
 const REPO_URL = 'https://github.com/zahardev/aicontext';
 
 // Colors for terminal output
@@ -112,8 +112,11 @@ async function init(targetDir, skipConfirm = false) {
   copyRecursive(path.join(packageRoot, '.ai', 'templates'), path.join(target, '.ai', 'templates'));
   fs.mkdirSync(path.join(target, '.ai', 'tasks'), { recursive: true });
   copyRecursive(path.join(packageRoot, '.ai', 'tasks', '.template.md'), path.join(target, '.ai', 'tasks', '.template.md'));
+  fs.mkdirSync(path.join(target, '.ai', 'data'), { recursive: true });
   copyRecursive(path.join(packageRoot, '.ai', 'readme.md'), path.join(target, '.ai', 'readme.md'));
-  copyRecursive(path.join(packageRoot, '.ai', 'changelog.md'), path.join(target, '.ai', 'changelog.md'));
+  if (!fs.existsSync(path.join(target, '.ai', 'changelog.md'))) {
+    copyRecursive(path.join(packageRoot, '.ai', 'changelog.md'), path.join(target, '.ai', 'changelog.md'));
+  }
   copyRecursive(path.join(packageRoot, '.ai', '.gitignore'), path.join(target, '.ai', '.gitignore'));
 
   // Copy generate.md to templates
@@ -132,7 +135,11 @@ async function init(targetDir, skipConfirm = false) {
   log('\nNext steps:', 'cyan');
   log('1. Open your AI assistant (Claude Code, Cursor, etc.)');
   log('2. Paste the contents of .ai/templates/generate.md');
-  log('3. The AI will generate project.md and structure.md\n');
+  log('3. The AI will generate project.md and structure.md');
+  log('\nNot using all AI tools? You can safely delete:', 'dim');
+  log('  - .cursor/                         (if not using Cursor)', 'dim');
+  log('  - .github/copilot-instructions.md  (if not using Copilot)', 'dim');
+  log('  - .claude/                         (if not using Claude Code)\n', 'dim');
 }
 
 async function update(targetDir, skipConfirm = false) {

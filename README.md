@@ -71,6 +71,7 @@ After installation, generate project-specific files:
 │   └── cli-tool/       # Rust CLI tool
 ├── tasks/
 │   └── .template.md    # Task file template
+├── data/               # Screenshots, specs, reference files
 ├── project.md          # [Generated] Project-specific
 ├── structure.md        # [Generated] Project-specific
 ├── changelog.md        # Task completion history
@@ -125,6 +126,13 @@ Add project-specific rules to:
 
 - **Cursor**: Add more `.mdc` files to `.cursor/rules/`
 - **Copilot**: Create `.github/instructions/` for path-specific rules
+
+### Removing Unused Tools
+
+Not using all AI tools? You can safely delete:
+- `.cursor/` — if not using Cursor
+- `.github/copilot-instructions.md` — if not using GitHub Copilot
+- `.claude/` — if not using Claude Code
 
 ## Version History
 

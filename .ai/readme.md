@@ -18,6 +18,7 @@ This folder contains AI assistant configuration and project documentation.
 | `rules/` | Behavioral rules for AI assistants |
 | `tasks/` | Individual task tracking files |
 | `prompts/` | Prompt templates for common workflows |
+| `data/` | Screenshots, specs, research notes, and other reference files |
 | `templates/` | Templates for generating project-specific files |
 
 ## Rules Files
