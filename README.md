@@ -127,6 +127,13 @@ Add project-specific rules to:
 - **Cursor**: Add more `.mdc` files to `.cursor/rules/`
 - **Copilot**: Create `.github/instructions/` for path-specific rules
 
+### Removing Unused Tools
+
+Not using all AI tools? You can safely delete:
+- `.cursor/` — if not using Cursor
+- `.github/copilot-instructions.md` — if not using GitHub Copilot
+- `.claude/` — if not using Claude Code
+
 ## Version History
 
 See [CHANGELOG.md](CHANGELOG.md) for release notes.

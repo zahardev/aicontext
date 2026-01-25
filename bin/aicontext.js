@@ -135,7 +135,11 @@ async function init(targetDir, skipConfirm = false) {
   log('\nNext steps:', 'cyan');
   log('1. Open your AI assistant (Claude Code, Cursor, etc.)');
   log('2. Paste the contents of .ai/templates/generate.md');
-  log('3. The AI will generate project.md and structure.md\n');
+  log('3. The AI will generate project.md and structure.md');
+  log('\nNot using all AI tools? You can safely delete:', 'dim');
+  log('  - .cursor/                         (if not using Cursor)', 'dim');
+  log('  - .github/copilot-instructions.md  (if not using Copilot)', 'dim');
+  log('  - .claude/                         (if not using Claude Code)\n', 'dim');
 }
 
 async function update(targetDir, skipConfirm = false) {
