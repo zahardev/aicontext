@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const readline = require('readline');
 
-const VERSION = '1.0.0';
+const VERSION = '1.1.0';
 const REPO_URL = 'https://github.com/zahardev/aicontext';
 
 // Colors for terminal output
