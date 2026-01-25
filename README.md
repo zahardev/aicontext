@@ -150,7 +150,13 @@ aicontext version
 To upgrade the aicontext CLI tool itself:
 
 ```bash
-npm update -g @zahardev/aicontext
+aicontext upgrade
+```
+
+Or upgrade to a specific version:
+
+```bash
+aicontext upgrade 1.2.0
 ```
 
 ### What `aicontext update` Does

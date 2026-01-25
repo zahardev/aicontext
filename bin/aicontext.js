@@ -97,7 +97,7 @@ async function checkForUpdates() {
 
   if (latestVersion && isNewerVersion(latestVersion, VERSION)) {
     log(`\nUpdate available: v${VERSION} → v${latestVersion}`, 'yellow');
-    log(`Run: npm update -g ${NPM_PACKAGE}\n`, 'dim');
+    log(`Run: aicontext upgrade\n`, 'dim');
   }
 }
 
@@ -309,6 +309,29 @@ function checkVersion(targetDir) {
   }
 }
 
+function upgrade(targetVersion) {
+  const { execSync } = require('child_process');
+
+  if (targetVersion) {
+    log(`\nUpgrading to v${targetVersion}...`, 'cyan');
+  } else {
+    log(`\nUpgrading to latest version...`, 'cyan');
+  }
+
+  const pkg = targetVersion ? `${NPM_PACKAGE}@${targetVersion}` : NPM_PACKAGE;
+  const command = `npm install -g ${pkg}`;
+
+  log(`Running: ${command}`, 'dim');
+
+  try {
+    execSync(command, { stdio: 'inherit' });
+    log(`\nUpgrade complete!`, 'green');
+  } catch {
+    log(`\nUpgrade failed. You may need to run with sudo:`, 'red');
+    log(`  sudo ${command}`, 'dim');
+  }
+}
+
 function contribute() {
   const url = `${REPO_URL}/issues/new?template=example_contribution.md`;
   log(`\nOpening GitHub to contribute...`, 'cyan');
@@ -340,6 +363,7 @@ Universal AI context management framework
 Usage:
   aicontext init [path]      Install AIContext to a project
   aicontext update [path]    Update framework files (preserves your config)
+  aicontext upgrade [ver]    Upgrade the CLI tool itself (default: latest)
   aicontext version [path]   Show installed version
   aicontext contribute       Open GitHub to contribute examples or improvements
   aicontext help             Show this help message
@@ -385,6 +409,9 @@ if (require.main === module) {
         break;
       case 'update':
         await update(targetPath, hasYesFlag);
+        break;
+      case 'upgrade':
+        upgrade(targetPath);
         break;
       case 'version':
       case '-v':
