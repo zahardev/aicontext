@@ -46,8 +46,7 @@
     ".ai/.gitignore",
     ".claude/",
     ".cursor/",
-    ".github/copilot-instructions.md",
-    "setup/generate.md"
+    ".github/copilot-instructions.md"
   ],
   "engines": {
     "node": ">=16.0.0"

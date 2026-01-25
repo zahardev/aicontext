@@ -119,9 +119,6 @@ async function init(targetDir, skipConfirm = false) {
   }
   copyRecursive(path.join(packageRoot, '.ai', '.gitignore'), path.join(target, '.ai', '.gitignore'));
 
-  // Copy generate.md to templates
-  copyRecursive(path.join(packageRoot, 'setup', 'generate.md'), path.join(target, '.ai', 'templates', 'generate.md'));
-
   // Copy tool-specific files
   log('Copying tool entry points...', 'dim');
   copyRecursive(path.join(packageRoot, '.claude'), path.join(target, '.claude'));
@@ -134,8 +131,8 @@ async function init(targetDir, skipConfirm = false) {
   log('\nInstallation complete!', 'green');
   log('\nNext steps:', 'cyan');
   log('1. Open your AI assistant (Claude Code, Cursor, etc.)');
-  log('2. Paste the contents of .ai/templates/generate.md');
-  log('3. The AI will generate project.md and structure.md');
+  log('2. Start a conversation - the AI will auto-detect missing project.md');
+  log('3. The AI will analyze your codebase and generate project context');
   log('\nNot using all AI tools? You can safely delete:', 'dim');
   log('  - .cursor/                         (if not using Cursor)', 'dim');
   log('  - .github/copilot-instructions.md  (if not using Copilot)', 'dim');

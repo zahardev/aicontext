@@ -34,6 +34,7 @@ Located in `rules/`:
 
 | File | When to Use |
 |------|-------------|
+| `generate.md` | Auto-runs when `project.md` is missing |
 | `start.md` | Start of session - read rules and confirm |
 | `check_task.md` | Before starting work on a task |
 | `check_plan.md` | Review a task plan for issues |

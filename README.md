@@ -41,12 +41,25 @@ You can also specify the project path explicitly: `aicontext init /path/to/your-
 
 **Note:** If `.claude/`, `.cursor/`, or `.ai/` already exist, you'll be prompted before overwriting. If you use git, uncommitted changes can be reverted with `git checkout`.
 
-### Option C: Manual Clone
+### Option C: Manual Copy
+
+If you prefer not to use npm, clone the [GitHub repository](https://github.com/zahardev/aicontext) and copy the needed files:
 
 ```bash
-git clone https://github.com/zahardev/aicontext.git
-./aicontext/setup/install.sh /path/to/your-project
-rm -rf aicontext
+# Clone to a temporary location
+git clone https://github.com/zahardev/aicontext.git /tmp/aicontext
+
+# Copy needed files to your project
+cd /path/to/your-project
+cp -r /tmp/aicontext/.ai .
+
+# Copy entry points for your AI tool(s) — pick what you use:
+cp -r /tmp/aicontext/.claude .   # Claude Code
+cp -r /tmp/aicontext/.cursor .   # Cursor
+cp -r /tmp/aicontext/.github .   # GitHub Copilot
+
+# Clean up
+rm -rf /tmp/aicontext
 ```
 
 ### What `aicontext init` Creates
@@ -62,15 +75,13 @@ The command creates the following in your project:
 
 ## Generate Project Context
 
-After installation, generate project-specific files:
-
 1. Open your AI assistant (Claude Code, Cursor, etc.)
-2. Paste the contents of `.ai/templates/generate.md`
-3. The AI will analyze your codebase and generate:
+2. Start a conversation with `.ai/prompts/start.md` prompt
+3. On first run, the AI will analyze your codebase and generate:
    - `.ai/project.md` - Project overview, tech stack, architecture
    - `.ai/structure.md` - Commands, folder structure, environment
 
-These generated files are what give your AI assistant "memory" about your project.
+These files give your AI assistant "memory" about your project. Once generated, future sessions start with full context automatically.
 
 ## Structure
 
@@ -80,6 +91,7 @@ These generated files are what give your AI assistant "memory" about your projec
 │   ├── process.md      # Task management, TDD workflow
 │   └── standards.md    # Coding standards, safety rules
 ├── prompts/
+│   ├── generate.md     # Generate project context (auto-runs if project.md missing)
 │   ├── start.md        # Start a session
 │   ├── check_task.md   # Before starting a task
 │   ├── check_plan.md   # Review implementation plan
