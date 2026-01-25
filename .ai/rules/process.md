@@ -3,8 +3,8 @@
 ## Before Starting Any Task
 
 1. **Create a task file** in `.ai/tasks/` using the template at `.ai/tasks/.template.md`
-   - Check `project.md` → "Task Naming Convention" section for the naming pattern
-   - If not specified, use version-based: `{version}-{task-name}.md` (e.g., `1.3.0-user-auth.md`)
+   - Check `project.md` → "Task Naming Convention" for the pattern and ID rules
+   - If rules are missing or unclear, ask user and update `project.md` with the rules
    - This is the primary record of work - update it throughout the task
 2. Read `.ai/project.md` to understand current project state
 3. Check task dependencies and prerequisites

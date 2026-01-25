@@ -131,11 +131,14 @@ From your analysis, identify:
    - Ask the user how they want to name task files in `.ai/tasks/`
    - Common patterns:
      - Version-based: `{version}-{task-name}.md` (e.g., `1.3.0-feature-name.md`)
-     - ID-based: `{issue-id}-{task-name}.md` (e.g., `JIRA-123-feature-name.md`)
+     - Issue ID-based: `{issue-id}-{task-name}.md` (e.g., `JIRA-123-feature-name.md`)
      - Date-based: `{date}-{task-name}.md` (e.g., `2026-01-25-feature-name.md`)
-   - Accept custom patterns if the user has a preference
-   - Default to `{version}-{task-name}.md` if user has no preference
-   - Store as `{{TASK_NAMING_PATTERN}}` in project.md
+   - After choosing pattern, ask about **ID source and rules**:
+     - **Version-based**: Where to get version? (git branch pattern, package.json, manual)
+     - **Issue ID-based**: What's the issue tracker? (Jira, GitHub, Linear, etc.) What's the project prefix?
+     - **Date-based**: No additional rules needed (use current date)
+   - Store both pattern AND rules in project.md so AI can follow them automatically
+   - Default to version-based with git branch detection if user has no preference
 
 ## Step 4: Generate Files
 

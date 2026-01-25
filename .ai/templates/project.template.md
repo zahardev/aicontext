@@ -90,11 +90,26 @@ Task files in `.ai/tasks/` should follow this pattern:
 
 `{{TASK_NAMING_PATTERN}}`
 
-<!-- Examples:
-- Version-based: `1.3.0-feature-name.md`
-- ID-based: `JIRA-123-feature-name.md` or `GH-42-feature-name.md`
-- Date-based: `2026-01-25-feature-name.md`
-- Custom: `sprint-5-feature-name.md`
+**How to determine the prefix:**
+{{TASK_ID_RULES}}
+
+<!-- Example for version-based:
+**How to determine the prefix:**
+- Source: Git branch name
+- Pattern: Extract from `version/{version}` or `release/{version}`
+- Fallback: Check `package.json` → `version` field
+- If unclear: Ask user
+
+Example for issue ID-based:
+**How to determine the prefix:**
+- Source: User provides issue ID
+- Tracker: Jira (project key: PROJ)
+- Format: `PROJ-XXX`
+
+Example for date-based:
+**How to determine the prefix:**
+- Source: Current date
+- Format: YYYY-MM-DD
 -->
 
 ---
