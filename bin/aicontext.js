@@ -155,7 +155,36 @@ function copyRecursive(src, dest) {
   }
 }
 
-async function init(targetDir, skipConfirm = false) {
+function hasExistingPrompts(target) {
+  const promptsDir = path.join(target, '.ai', 'prompts');
+  if (!fs.existsSync(promptsDir)) return false;
+  return FRAMEWORK_PROMPTS.some((file) => fs.existsSync(path.join(promptsDir, file)));
+}
+
+function copyFrameworkPrompts(packageRoot, target) {
+  const srcDir = path.join(packageRoot, '.ai', 'prompts');
+  const destDir = path.join(target, '.ai', 'prompts');
+  fs.mkdirSync(destDir, { recursive: true });
+  for (const file of FRAMEWORK_PROMPTS) {
+    const src = path.join(srcDir, file);
+    const dest = path.join(destDir, file);
+    if (fs.existsSync(src)) {
+      fs.copyFileSync(src, dest);
+    }
+  }
+}
+
+async function promptYesNo(question) {
+  while (true) {
+    const answer = await prompt(question);
+    if (answer === 'y' || answer === 'yes') return true;
+    if (answer === 'n' || answer === 'no') return false;
+    if (answer === '') return true; // Default Y
+    log('Please enter Y or N.', 'yellow');
+  }
+}
+
+async function init(targetDir, skipConfirm = false, keepPrompts = false) {
   const target = path.resolve(targetDir || '.');
   const packageRoot = getPackageRoot();
 
@@ -186,10 +215,23 @@ async function init(targetDir, skipConfirm = false) {
     log('');
   }
 
+  // Determine whether to update prompts
+  let shouldUpdatePrompts = true;
+  if (keepPrompts) {
+    shouldUpdatePrompts = false;
+  } else if (hasExistingPrompts(target) && !skipConfirm) {
+    shouldUpdatePrompts = await promptYesNo(
+      'Would you like to rewrite the existing prompt files (check_plan, check_task, generate, review, start)? ' +
+        "I won't remove any other prompt files. (Y/n): "
+    );
+  }
+
   // Copy .ai folder
   log('Copying .ai files...', 'dim');
   copyRecursive(path.join(packageRoot, '.ai', 'rules'), path.join(target, '.ai', 'rules'));
-  copyRecursive(path.join(packageRoot, '.ai', 'prompts'), path.join(target, '.ai', 'prompts'));
+  if (shouldUpdatePrompts) {
+    copyFrameworkPrompts(packageRoot, target);
+  }
   copyRecursive(path.join(packageRoot, '.ai', 'templates'), path.join(target, '.ai', 'templates'));
   fs.mkdirSync(path.join(target, '.ai', 'tasks'), { recursive: true });
   copyRecursive(path.join(packageRoot, '.ai', 'tasks', '.template.md'), path.join(target, '.ai', 'tasks', '.template.md'));
@@ -220,7 +262,7 @@ async function init(targetDir, skipConfirm = false) {
   log('  - .claude/                         (if not using Claude Code)\n', 'dim');
 }
 
-async function update(targetDir, skipConfirm = false) {
+async function update(targetDir, skipConfirm = false, keepPrompts = false) {
   const target = path.resolve(targetDir || '.');
   const packageRoot = getPackageRoot();
   const versionFile = path.join(target, '.ai', '.version');
@@ -239,10 +281,23 @@ async function update(targetDir, skipConfirm = false) {
     return;
   }
 
+  // Determine whether to update prompts
+  let shouldUpdatePrompts = true;
+  if (keepPrompts) {
+    shouldUpdatePrompts = false;
+  } else if (hasExistingPrompts(target) && !skipConfirm) {
+    shouldUpdatePrompts = await promptYesNo(
+      'Would you like to rewrite the existing prompt files (check_plan, check_task, generate, review, start)? ' +
+        "I won't remove any other prompt files. (Y/n): "
+    );
+  }
+
   log(`Updating from v${currentVersion} to v${VERSION}...`, 'dim');
   log('\nThe following will be updated:', 'yellow');
   log('  - .ai/rules/', 'yellow');
-  log('  - .ai/prompts/', 'yellow');
+  if (shouldUpdatePrompts) {
+    log('  - .ai/prompts/ (framework prompts only)', 'yellow');
+  }
   log('  - .ai/templates/', 'yellow');
   log('  - .ai/tasks/.template.md', 'yellow');
   log('  - .claude/', 'yellow');
@@ -254,6 +309,9 @@ async function update(targetDir, skipConfirm = false) {
   log('  - .ai/changelog.md', 'green');
   log('  - .ai/local.md', 'green');
   log('  - .ai/tasks/*.md (your tasks)', 'green');
+  if (!shouldUpdatePrompts) {
+    log('  - .ai/prompts/ (kept by your choice)', 'green');
+  }
   log('');
 
   if (!skipConfirm) {
@@ -269,8 +327,10 @@ async function update(targetDir, skipConfirm = false) {
   log('Updating rules...', 'dim');
   copyRecursive(path.join(packageRoot, '.ai', 'rules'), path.join(target, '.ai', 'rules'));
 
-  log('Updating prompts...', 'dim');
-  copyRecursive(path.join(packageRoot, '.ai', 'prompts'), path.join(target, '.ai', 'prompts'));
+  if (shouldUpdatePrompts) {
+    log('Updating prompts...', 'dim');
+    copyFrameworkPrompts(packageRoot, target);
+  }
 
   log('Updating templates...', 'dim');
   copyRecursive(path.join(packageRoot, '.ai', 'templates'), path.join(target, '.ai', 'templates'));
@@ -371,6 +431,7 @@ Usage:
 
 Options:
   -y, --yes                  Skip confirmation prompts
+  --keep-prompts             Keep existing prompt files (don't overwrite)
 
 Examples:
   npx aicontext init                  # Install to current directory
@@ -387,8 +448,11 @@ module.exports = {
   VERSION,
   CACHE_FILE,
   CACHE_TTL,
+  FRAMEWORK_PROMPTS,
   copyRecursive,
+  copyFrameworkPrompts,
   getExistingFiles,
+  hasExistingPrompts,
   readCache,
   writeCache,
   init,
@@ -401,15 +465,16 @@ if (require.main === module) {
   const args = process.argv.slice(2);
   const command = args[0];
   const hasYesFlag = args.includes('-y') || args.includes('--yes');
-  const targetPath = args.find((arg) => arg !== '-y' && arg !== '--yes' && arg !== command);
+  const hasKeepPromptsFlag = args.includes('--keep-prompts');
+  const targetPath = args.find((arg) => !['--yes', '-y', '--keep-prompts', command].includes(arg));
 
   async function main() {
     switch (command) {
       case 'init':
-        await init(targetPath, hasYesFlag);
+        await init(targetPath, hasYesFlag, hasKeepPromptsFlag);
         break;
       case 'update':
-        await update(targetPath, hasYesFlag);
+        await update(targetPath, hasYesFlag, hasKeepPromptsFlag);
         break;
       case 'upgrade':
         upgrade(targetPath);
