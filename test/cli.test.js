@@ -3,11 +3,16 @@ const assert = require('node:assert');
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
+const { execSync } = require('child_process');
 
 const {
   VERSION,
+  CACHE_FILE,
+  CACHE_TTL,
   copyRecursive,
   getExistingFiles,
+  readCache,
+  writeCache,
   init,
   update,
 } = require('../bin/aicontext.js');
@@ -291,5 +296,83 @@ describe('update', () => {
     await update(uninitializedDir, true);
 
     removeTempDir(uninitializedDir);
+  });
+});
+
+describe('version cache', () => {
+  beforeEach(() => {
+    // Clean up cache file before each test
+    if (fs.existsSync(CACHE_FILE)) {
+      fs.unlinkSync(CACHE_FILE);
+    }
+  });
+
+  afterEach(() => {
+    // Clean up cache file after each test
+    if (fs.existsSync(CACHE_FILE)) {
+      fs.unlinkSync(CACHE_FILE);
+    }
+  });
+
+  it('should return null when cache file does not exist', () => {
+    const result = readCache();
+    assert.strictEqual(result, null);
+  });
+
+  it('should write and read cache correctly', () => {
+    writeCache('2.0.0');
+
+    const result = readCache();
+    assert.strictEqual(result, '2.0.0');
+  });
+
+  it('should return null when cache is expired', () => {
+    // Write cache with old timestamp
+    const oldData = {
+      latestVersion: '2.0.0',
+      timestamp: Date.now() - CACHE_TTL - 1000, // Expired
+    };
+    fs.writeFileSync(CACHE_FILE, JSON.stringify(oldData));
+
+    const result = readCache();
+    assert.strictEqual(result, null);
+  });
+
+  it('should return version when cache is not expired', () => {
+    // Write cache with recent timestamp
+    const recentData = {
+      latestVersion: '2.0.0',
+      timestamp: Date.now() - CACHE_TTL + 60000, // 1 minute before expiry
+    };
+    fs.writeFileSync(CACHE_FILE, JSON.stringify(recentData));
+
+    const result = readCache();
+    assert.strictEqual(result, '2.0.0');
+  });
+
+  it('should return null when cache file is corrupted', () => {
+    fs.writeFileSync(CACHE_FILE, 'not valid json');
+
+    const result = readCache();
+    assert.strictEqual(result, null);
+  });
+
+  it('should run version check when CLI command executes', () => {
+    // Delete cache to force a fresh check
+    if (fs.existsSync(CACHE_FILE)) {
+      fs.unlinkSync(CACHE_FILE);
+    }
+
+    // Run CLI command (help is quick and doesn't modify anything)
+    const cliPath = path.join(__dirname, '..', 'bin', 'aicontext.js');
+    execSync(`node ${cliPath} help`, { stdio: 'pipe' });
+
+    // Cache file should be created (proves checkForUpdates ran)
+    assert.strictEqual(fs.existsSync(CACHE_FILE), true);
+
+    // Verify cache has valid structure
+    const cacheData = JSON.parse(fs.readFileSync(CACHE_FILE, 'utf8'));
+    assert.strictEqual(typeof cacheData.latestVersion, 'string');
+    assert.strictEqual(typeof cacheData.timestamp, 'number');
   });
 });

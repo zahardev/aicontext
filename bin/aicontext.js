@@ -3,9 +3,14 @@
 const fs = require('fs');
 const path = require('path');
 const readline = require('readline');
+const os = require('os');
+const https = require('https');
 
-const VERSION = '1.1.0';
+const { version: VERSION } = require('../package.json');
 const REPO_URL = 'https://github.com/zahardev/aicontext';
+const NPM_PACKAGE = '@zahardev/aicontext';
+const CACHE_FILE = path.join(os.tmpdir(), 'aicontext-version-cache.json');
+const CACHE_TTL = 60 * 60 * 1000; // 1 hour in milliseconds
 
 // Colors for terminal output
 const colors = {
@@ -19,6 +24,81 @@ const colors = {
 
 function log(message, color = 'reset') {
   console.log(`${colors[color]}${message}${colors.reset}`);
+}
+
+function isNewerVersion(latest, current) {
+  const latestParts = latest.split('.').map(Number);
+  const currentParts = current.split('.').map(Number);
+
+  for (let i = 0; i < 3; i++) {
+    if (latestParts[i] > currentParts[i]) return true;
+    if (latestParts[i] < currentParts[i]) return false;
+  }
+  return false;
+}
+
+function fetchLatestVersion() {
+  return new Promise((resolve) => {
+    const url = `https://registry.npmjs.org/${NPM_PACKAGE}/latest`;
+    https
+      .get(url, { timeout: 3000 }, (res) => {
+        let data = '';
+        res.on('data', (chunk) => (data += chunk));
+        res.on('end', () => {
+          try {
+            const json = JSON.parse(data);
+            resolve(json.version || null);
+          } catch {
+            resolve(null);
+          }
+        });
+      })
+      .on('error', () => resolve(null))
+      .on('timeout', function () {
+        this.destroy();
+        resolve(null);
+      });
+  });
+}
+
+function readCache() {
+  try {
+    if (fs.existsSync(CACHE_FILE)) {
+      const data = JSON.parse(fs.readFileSync(CACHE_FILE, 'utf8'));
+      if (Date.now() - data.timestamp < CACHE_TTL) {
+        return data.latestVersion;
+      }
+    }
+  } catch {
+    // Ignore cache errors
+  }
+  return null;
+}
+
+function writeCache(latestVersion) {
+  try {
+    fs.writeFileSync(CACHE_FILE, JSON.stringify({ latestVersion, timestamp: Date.now() }));
+  } catch {
+    // Ignore cache write errors
+  }
+}
+
+async function checkForUpdates() {
+  // Check cache first
+  let latestVersion = readCache();
+
+  if (!latestVersion) {
+    // Fetch from npm registry
+    latestVersion = await fetchLatestVersion();
+    if (latestVersion) {
+      writeCache(latestVersion);
+    }
+  }
+
+  if (latestVersion && isNewerVersion(latestVersion, VERSION)) {
+    log(`\nUpdate available: v${VERSION} → v${latestVersion}`, 'yellow');
+    log(`Run: npm update -g ${NPM_PACKAGE}\n`, 'dim');
+  }
 }
 
 function getPackageRoot() {
@@ -280,8 +360,12 @@ Documentation: ${REPO_URL}
 // Export for testing
 module.exports = {
   VERSION,
+  CACHE_FILE,
+  CACHE_TTL,
   copyRecursive,
   getExistingFiles,
+  readCache,
+  writeCache,
   init,
   update,
   checkVersion,
@@ -323,8 +407,10 @@ if (require.main === module) {
     }
   }
 
-  main().catch((err) => {
-    log(`Error: ${err.message}`, 'red');
-    process.exit(1);
-  });
+  main()
+    .then(() => checkForUpdates())
+    .catch((err) => {
+      log(`Error: ${err.message}`, 'red');
+      process.exit(1);
+    });
 }

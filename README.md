@@ -147,6 +147,12 @@ Or check your current version:
 aicontext version
 ```
 
+To upgrade the aicontext CLI tool itself:
+
+```bash
+npm update -g @zahardev/aicontext
+```
+
 ### What `aicontext update` Does
 
 Updates framework files (rules, prompts, templates, tool entry points) while preserving your project-specific files:
