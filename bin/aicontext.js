@@ -11,6 +11,7 @@ const REPO_URL = 'https://github.com/zahardev/aicontext';
 const NPM_PACKAGE = '@zahardev/aicontext';
 const CACHE_FILE = path.join(os.tmpdir(), 'aicontext-version-cache.json');
 const CACHE_TTL = 60 * 60 * 1000; // 1 hour in milliseconds
+const FRAMEWORK_PROMPTS = ['check_plan.md', 'check_task.md', 'generate.md', 'review.md', 'start.md'];
 
 // Colors for terminal output
 const colors = {

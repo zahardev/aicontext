@@ -127,6 +127,16 @@ From your analysis, identify:
    - Dangerous commands for this stack
    - Production vs development concerns
 
+6. **Task Naming Convention**
+   - Ask the user how they want to name task files in `.ai/tasks/`
+   - Common patterns:
+     - Version-based: `{version}-{task-name}.md` (e.g., `1.3.0-feature-name.md`)
+     - ID-based: `{issue-id}-{task-name}.md` (e.g., `JIRA-123-feature-name.md`)
+     - Date-based: `{date}-{task-name}.md` (e.g., `2026-01-25-feature-name.md`)
+   - Accept custom patterns if the user has a preference
+   - Default to `{version}-{task-name}.md` if user has no preference
+   - Store as `{{TASK_NAMING_PATTERN}}` in project.md
+
 ## Step 4: Generate Files
 
 Using the templates in `.ai/templates/`, generate:
@@ -137,6 +147,7 @@ Using the templates in `.ai/templates/`, generate:
 - Key features
 - Architecture overview
 - Project-specific safety rules
+- Task naming convention (from user's preference)
 
 ### `.ai/structure.md`
 - Folder tree (key directories only)

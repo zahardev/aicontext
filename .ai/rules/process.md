@@ -2,11 +2,17 @@
 
 ## Before Starting Any Task
 
-1. Read `.ai/project.md` to understand current project state
-2. Check task dependencies and prerequisites
-3. Verify scope understanding
-4. Review related code and existing tests
-5. Ask clarifying questions if requirements are ambiguous
+1. **Create a task file** in `.ai/tasks/` using the template at `.ai/tasks/.template.md`
+   - Check `project.md` → "Task Naming Convention" section for the naming pattern
+   - If not specified, use version-based: `{version}-{task-name}.md` (e.g., `1.3.0-user-auth.md`)
+   - This is the primary record of work - update it throughout the task
+2. Read `.ai/project.md` to understand current project state
+3. Check task dependencies and prerequisites
+4. Verify scope understanding
+5. Review related code and existing tests
+6. Ask clarifying questions if requirements are ambiguous
+
+**Note:** If your AI tool has in-session task tracking (like Claude Code's todo list), use it as a supplement for real-time progress, but the task file remains the source of truth.
 
 ## Task Execution Protocol
 
@@ -30,7 +36,9 @@ When asked for a feature or bug fix:
 
 ## Task File Management
 
-Create task files in `.ai/tasks/` folder using the template at `.ai/tasks/.template.md`.
+**REQUIRED**: Create a task file BEFORE starting any feature or bug fix. This ensures work is tracked persistently across sessions and visible to the team.
+
+Use the template at `.ai/tasks/.template.md`. Skip task files only for trivial changes (typo fixes, single-line edits).
 
 ### Date Requirements
 
