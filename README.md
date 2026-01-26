@@ -98,14 +98,14 @@ These files give your AI assistant "memory" about your project. Once generated, 
 │   └── review.md       # Code review
 ├── templates/
 │   ├── project.template.md
-│   └── structure.template.md
+│   ├── structure.template.md
+│   └── task.template.md
 ├── examples/           # Example configs (GitHub repo only)
 │   ├── laravel-api/
 │   ├── wordpress-plugin/
 │   ├── web-api/
 │   └── cli-tool/
-├── tasks/
-│   └── .template.md    # Task file template
+├── tasks/              # Task tracking files
 ├── data/               # Screenshots, specs, reference files
 ├── project.md          # [Generated] Project-specific
 ├── structure.md        # [Generated] Project-specific

@@ -49,7 +49,7 @@ Located in `rules/`:
 
 ### Working on a Task
 1. Paste `prompts/check_task.md` content
-2. Create/update task file in `tasks/` using `.template.md`
+2. Create/update task file in `tasks/` using `templates/task.template.md`
 3. Follow TDD process from `rules/process.md`
 4. Update `changelog.md` when complete
 

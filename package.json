@@ -40,7 +40,7 @@
     ".ai/rules/",
     ".ai/prompts/",
     ".ai/templates/",
-    ".ai/tasks/.template.md",
+    ".ai/tasks/.gitkeep",
     ".ai/readme.md",
     ".ai/changelog.md",
     ".ai/.gitignore",

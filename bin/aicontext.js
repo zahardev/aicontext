@@ -233,8 +233,7 @@ async function init(targetDir, skipConfirm = false, keepPrompts = false) {
     copyFrameworkPrompts(packageRoot, target);
   }
   copyRecursive(path.join(packageRoot, '.ai', 'templates'), path.join(target, '.ai', 'templates'));
-  fs.mkdirSync(path.join(target, '.ai', 'tasks'), { recursive: true });
-  copyRecursive(path.join(packageRoot, '.ai', 'tasks', '.template.md'), path.join(target, '.ai', 'tasks', '.template.md'));
+  copyRecursive(path.join(packageRoot, '.ai', 'tasks', '.gitkeep'), path.join(target, '.ai', 'tasks', '.gitkeep'));
   fs.mkdirSync(path.join(target, '.ai', 'data'), { recursive: true });
   copyRecursive(path.join(packageRoot, '.ai', 'readme.md'), path.join(target, '.ai', 'readme.md'));
   if (!fs.existsSync(path.join(target, '.ai', 'changelog.md'))) {
@@ -299,7 +298,6 @@ async function update(targetDir, skipConfirm = false, keepPrompts = false) {
     log('  - .ai/prompts/ (framework prompts only)', 'yellow');
   }
   log('  - .ai/templates/', 'yellow');
-  log('  - .ai/tasks/.template.md', 'yellow');
   log('  - .claude/', 'yellow');
   log('  - .cursor/', 'yellow');
   log('  - .github/copilot-instructions.md', 'yellow');
@@ -335,9 +333,6 @@ async function update(targetDir, skipConfirm = false, keepPrompts = false) {
   log('Updating templates...', 'dim');
   copyRecursive(path.join(packageRoot, '.ai', 'templates'), path.join(target, '.ai', 'templates'));
   copyRecursive(path.join(packageRoot, 'setup', 'generate.md'), path.join(target, '.ai', 'templates', 'generate.md'));
-
-  log('Updating task template...', 'dim');
-  copyRecursive(path.join(packageRoot, '.ai', 'tasks', '.template.md'), path.join(target, '.ai', 'tasks', '.template.md'));
 
   log('Updating tool entry points...', 'dim');
   copyRecursive(path.join(packageRoot, '.claude'), path.join(target, '.claude'));

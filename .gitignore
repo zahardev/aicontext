@@ -24,7 +24,7 @@ test-project/
 
 # Project tasks
 .ai/tasks
-!.ai/tasks/.template.md
+!.ai/tasks/.gitkeep
 
 
 # Generated Version File

@@ -2,7 +2,7 @@
 
 ## Before Starting Any Task
 
-1. **Create a task file** in `.ai/tasks/` using the template at `.ai/tasks/.template.md`
+1. **Create a task file** in `.ai/tasks/` using the template at `.ai/templates/task.template.md`
    - Check `project.md` → "Task Naming Convention" for the pattern and ID rules
    - If rules are missing or unclear, ask user and update `project.md` with the rules
    - This is the primary record of work - update it throughout the task
@@ -38,7 +38,7 @@ When asked for a feature or bug fix:
 
 **REQUIRED**: Create a task file BEFORE starting any feature or bug fix. This ensures work is tracked persistently across sessions and visible to the team.
 
-Use the template at `.ai/tasks/.template.md`. Skip task files only for trivial changes (typo fixes, single-line edits).
+Use the template at `.ai/templates/task.template.md`. Skip task files only for trivial changes (typo fixes, single-line edits).
 
 ### Date Requirements
 
