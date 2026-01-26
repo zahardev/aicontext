@@ -41,6 +41,7 @@
     ".aicontext/prompts/",
     ".aicontext/templates/",
     ".aicontext/tasks/.gitkeep",
+    ".aicontext/data/.gitkeep",
     ".aicontext/readme.md",
     ".aicontext/changelog.md",
     ".aicontext/.gitignore",

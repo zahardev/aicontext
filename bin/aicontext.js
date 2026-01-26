@@ -226,15 +226,15 @@ async function init(targetDir, skipConfirm = false, keepPrompts = false) {
     );
   }
 
-  // Copy .ai folder
-  log('Copying .ai files...', 'dim');
+  // Copy .aicontext folder
+  log('Copying .aicontext files...', 'dim');
   copyRecursive(path.join(packageRoot, '.aicontext', 'rules'), path.join(target, '.aicontext', 'rules'));
   if (shouldUpdatePrompts) {
     copyFrameworkPrompts(packageRoot, target);
   }
   copyRecursive(path.join(packageRoot, '.aicontext', 'templates'), path.join(target, '.aicontext', 'templates'));
   copyRecursive(path.join(packageRoot, '.aicontext', 'tasks', '.gitkeep'), path.join(target, '.aicontext', 'tasks', '.gitkeep'));
-  fs.mkdirSync(path.join(target, '.aicontext', 'data'), { recursive: true });
+  copyRecursive(path.join(packageRoot, '.aicontext', 'data', '.gitkeep'), path.join(target, '.aicontext', 'data', '.gitkeep'));
   copyRecursive(path.join(packageRoot, '.aicontext', 'readme.md'), path.join(target, '.aicontext', 'readme.md'));
   if (!fs.existsSync(path.join(target, '.aicontext', 'changelog.md'))) {
     copyRecursive(path.join(packageRoot, '.aicontext', 'changelog.md'), path.join(target, '.aicontext', 'changelog.md'));

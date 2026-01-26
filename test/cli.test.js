@@ -107,7 +107,7 @@ describe('getExistingFiles', () => {
     assert.deepStrictEqual(result, []);
   });
 
-  it('should detect .ai directory', () => {
+  it('should detect .aicontext directory', () => {
     fs.mkdirSync(path.join(tempDir, '.aicontext'));
     const result = getExistingFiles(tempDir);
     assert.deepStrictEqual(result, ['.aicontext']);
@@ -155,7 +155,7 @@ describe('init', () => {
     removeTempDir(tempDir);
   });
 
-  it('should create .ai directory with version file', async () => {
+  it('should create .aicontext directory with version file', async () => {
     await init(tempDir, true);
 
     assert.strictEqual(fs.existsSync(path.join(tempDir, '.aicontext')), true);
