@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.2.0] - 2026-01-26
+
+### Added
+- `upgrade` command to update the CLI tool itself
+- Automatic version update checking on CLI startup
+- Confirmation prompt before overwriting framework prompt files during `init` and `update`
+
+### Changed
+- Renamed `init.md` prompt to `start.md`
+- Improved prompts and initial file generation
+- Improved task name generation rules
+
+### Removed
+- `setup/install.sh` (replaced by `npx @zahardev/aicontext init`)
+- `VERSION` file (now uses `package.json`)
+
 ## [1.1.0] - 2026-01-25
 
 ### Added
