@@ -86,7 +86,7 @@ Part of the **{{ORGANIZATION}}** ecosystem.
 
 ## Task Naming Convention
 
-Task files in `.ai/tasks/` should follow this pattern:
+Task files in `.aicontext/tasks/` should follow this pattern:
 
 `{{TASK_NAMING_PATTERN}}`
 

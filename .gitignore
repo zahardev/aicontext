@@ -19,13 +19,13 @@ test-project/
 .claude/settings.local.json
 
 # Project file
-.ai/project.md
-.ai/structure.md
+.aicontext/project.md
+.aicontext/structure.md
 
 # Project tasks
-.ai/tasks
-!.ai/tasks/.gitkeep
+.aicontext/tasks
+!.aicontext/tasks/.gitkeep
 
 
 # Generated Version File
-.ai/.version
+.aicontext/.version

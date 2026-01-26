@@ -39,7 +39,7 @@ npx @zahardev/aicontext init
 
 You can also specify the project path explicitly: `aicontext init /path/to/your-project`
 
-**Note:** If `.claude/`, `.cursor/`, or `.ai/` already exist, you'll be prompted before overwriting. If you use git, uncommitted changes can be reverted with `git checkout`.
+**Note:** If `.claude/`, `.cursor/`, or `.aicontext/` already exist, you'll be prompted before overwriting. If you use git, uncommitted changes can be reverted with `git checkout`.
 
 ### Option C: Manual Copy
 
@@ -68,7 +68,7 @@ The command creates the following in your project:
 
 | Path | Purpose |
 |------|---------|
-| `.ai/` | Framework files (rules, prompts, templates) |
+| `.aicontext/` | Framework files (rules, prompts, templates) |
 | `.claude/CLAUDE.md` | Entry point for Claude Code |
 | `.cursor/rules/` | Entry point for Cursor |
 | `.github/copilot-instructions.md` | Entry point for GitHub Copilot |
@@ -76,17 +76,17 @@ The command creates the following in your project:
 ## Generate Project Context
 
 1. Open your AI assistant (Claude Code, Cursor, etc.)
-2. Start a conversation with `.ai/prompts/start.md` prompt
+2. Start a conversation with `.aicontext/prompts/start.md` prompt
 3. On first run, the AI will analyze your codebase and generate:
-   - `.ai/project.md` - Project overview, tech stack, architecture
-   - `.ai/structure.md` - Commands, folder structure, environment
+   - `.aicontext/project.md` - Project overview, tech stack, architecture
+   - `.aicontext/structure.md` - Commands, folder structure, environment
 
 These files give your AI assistant "memory" about your project. Once generated, future sessions start with full context automatically.
 
 ## Structure
 
 ```
-.ai/
+.aicontext/
 ├── rules/
 │   ├── process.md      # Task management, TDD workflow
 │   └── standards.md    # Coding standards, safety rules
@@ -114,25 +114,25 @@ These files give your AI assistant "memory" about your project. Once generated, 
 └── readme.md           # Framework documentation
 ```
 
-Example configurations are available in the [GitHub repository](https://github.com/zahardev/aicontext/tree/main/.ai/examples).
+Example configurations are available in the [GitHub repository](https://github.com/zahardev/aicontext/tree/main/.aicontext/examples).
 
 ## Workflow
 
 ### Starting a Session
 
-1. Paste contents of `.ai/prompts/start.md`
+1. Paste contents of `.aicontext/prompts/start.md`
 2. AI reads rules and confirms readiness
 
 ### Working on a Task
 
-1. Paste contents of `.ai/prompts/check_task.md`
+1. Paste contents of `.aicontext/prompts/check_task.md`
 2. AI analyzes the task and asks clarifying questions
 3. Implement with AI assistance
-4. Update `.ai/changelog.md` when complete
+4. Update `.aicontext/changelog.md` when complete
 
 ### Code Review
 
-1. Paste contents of `.ai/prompts/review.md`
+1. Paste contents of `.aicontext/prompts/review.md`
 2. AI reviews changes against task requirements
 
 ## Updating the Framework
@@ -165,18 +165,18 @@ Updates framework files (rules, prompts, templates, tool entry points) while pre
 
 | Updated | Preserved |
 |---------|-----------|
-| `.ai/rules/` | `.ai/project.md` |
-| `.ai/prompts/` | `.ai/structure.md` |
-| `.ai/templates/` | `.ai/changelog.md` |
-| `.claude/`, `.cursor/`, `.github/` | `.ai/local.md` |
+| `.aicontext/rules/` | `.aicontext/project.md` |
+| `.aicontext/prompts/` | `.aicontext/structure.md` |
+| `.aicontext/templates/` | `.aicontext/changelog.md` |
+| `.claude/`, `.cursor/`, `.github/` | `.aicontext/local.md` |
 
 ## Customization
 
 ### Project-Specific Rules
 
 Add project-specific rules to:
-- `.ai/project.md` - Project overview and safety rules
-- `.ai/local.md` - Personal preferences (gitignored)
+- `.aicontext/project.md` - Project overview and safety rules
+- `.aicontext/local.md` - Personal preferences (gitignored)
 
 ### Tool-Specific Customization
 
