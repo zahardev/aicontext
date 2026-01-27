@@ -51,7 +51,7 @@ git clone https://github.com/zahardev/aicontext.git /tmp/aicontext
 
 # Copy needed files to your project
 cd /path/to/your-project
-cp -r /tmp/aicontext/.ai .
+cp -r /tmp/aicontext/.aicontext .
 
 # Copy entry points for your AI tool(s) — pick what you use:
 cp -r /tmp/aicontext/.claude .   # Claude Code

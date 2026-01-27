@@ -21,7 +21,7 @@
 ## [1.1.0] - 2026-01-25
 
 ### Added
-- `.aicontext/data/` folder for additional task data ( screenshots, specs, etc. )
+- `data` folder for additional task data ( screenshots, specs, etc. )
 - Documentation for removing unused AI tool configurations
 
 ### Fixed
