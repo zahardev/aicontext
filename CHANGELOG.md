@@ -14,6 +14,7 @@
 - Moved task template from `.aicontext/tasks/.template.md` to `.aicontext/templates/task.template.md` for consistency
 - Renamed `init.md` prompt to `start.md`
 - Improved prompts and initial file generation
+- Improved entry point files: added `structure.md` to loading list, removed redundant Context Priority table
 - Improved task name generation rules
 
 ### Fixed
