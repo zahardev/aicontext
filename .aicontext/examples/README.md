@@ -4,7 +4,7 @@ This folder contains example `project.md` and `structure.md` files showing what 
 
 ## Purpose
 
-These examples are **for reference only**. Your actual `project.md` and `structure.md` files should be **generated automatically** by your AI assistant using the `setup/generate.md` prompt.
+These examples are **for reference only**. Your actual `project.md` and `structure.md` files should be **generated automatically** by your AI assistant when it detects they are missing.
 
 Use these examples to:
 - Understand what information to include
@@ -23,7 +23,7 @@ Use these examples to:
 ## Generating Your Files
 
 1. Open your AI assistant (Claude Code, Cursor, etc.)
-2. Paste the contents of `setup/generate.md`
+2. Start a conversation - the AI will auto-detect that `project.md` is missing
 3. The AI will analyze your codebase and generate the files automatically
 
 ## Contributing Examples

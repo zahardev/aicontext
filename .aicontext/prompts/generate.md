@@ -74,7 +74,7 @@ Read and analyze the following files (if they exist):
 ### Documentation
 - `README.md`
 - `docs/` folder
-- Existing `.ai/` files
+- Existing `.aicontext/` files
 
 ## Step 2: Identify Project Type
 
@@ -127,44 +127,36 @@ From your analysis, identify:
    - Dangerous commands for this stack
    - Production vs development concerns
 
+6. **Task Naming Convention**
+   - Ask the user how they want to name task files in `.aicontext/tasks/`
+   - Common patterns:
+     - Version-based: `{version}-{task-name}.md` (e.g., `1.3.0-feature-name.md`)
+     - Issue ID-based: `{issue-id}-{task-name}.md` (e.g., `JIRA-123-feature-name.md`)
+     - Date-based: `{date}-{task-name}.md` (e.g., `2026-01-25-feature-name.md`)
+   - After choosing pattern, ask about **ID source and rules**:
+     - **Version-based**: Where to get version? (git branch pattern, package.json, manual)
+     - **Issue ID-based**: What's the issue tracker? (Jira, GitHub, Linear, etc.) What's the project prefix?
+     - **Date-based**: No additional rules needed (use current date)
+   - Store both pattern AND rules in project.md so AI can follow them automatically
+   - Default to version-based with git branch detection if user has no preference
+
 ## Step 4: Generate Files
 
-Using the templates in `.ai/templates/`, generate:
+Using the templates in `.aicontext/templates/`, generate:
 
-### `.ai/project.md`
+### `.aicontext/project.md`
 - Project name and description
 - Complete technology stack
 - Key features
 - Architecture overview
 - Project-specific safety rules
+- Task naming convention (from user's preference)
 
-### `.ai/structure.md`
+### `.aicontext/structure.md`
 - Folder tree (key directories only)
 - All relevant commands
 - Environment variables
 - Test structure
-
-## Step 5: Present for Review
-
-Show me the generated files and ask for approval before saving.
-
-Format:
-
-```
-## Generated: .ai/project.md
-
-[content]
-
----
-
-## Generated: .ai/structure.md
-
-[content]
-
----
-
-Should I save these files? Any modifications needed?
-```
 
 ## Notes
 

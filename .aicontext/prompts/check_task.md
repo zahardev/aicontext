@@ -2,10 +2,9 @@
 
 Read and analyze:
 
-1. `.ai/rules/process.md` - Refresh task protocol
-2. Current task file in `.ai/tasks/` (ask which one if unclear)
-3. Related source files mentioned in the task
-4. `.ai/structure.md` - Only if you need command references
+1. Current task file in `.aicontext/tasks/` (ask which one if unclear)
+2. `.aicontext/structure.md` file
+3. Source files related to the task
 
 Then:
 

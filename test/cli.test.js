@@ -3,11 +3,19 @@ const assert = require('node:assert');
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
+const { execSync } = require('child_process');
 
 const {
   VERSION,
+  CACHE_FILE,
+  CACHE_TTL,
+  FRAMEWORK_PROMPTS,
   copyRecursive,
+  copyFrameworkPrompts,
   getExistingFiles,
+  hasExistingPrompts,
+  readCache,
+  writeCache,
   init,
   update,
 } = require('../bin/aicontext.js');
@@ -99,10 +107,10 @@ describe('getExistingFiles', () => {
     assert.deepStrictEqual(result, []);
   });
 
-  it('should detect .ai directory', () => {
-    fs.mkdirSync(path.join(tempDir, '.ai'));
+  it('should detect .aicontext directory', () => {
+    fs.mkdirSync(path.join(tempDir, '.aicontext'));
     const result = getExistingFiles(tempDir);
-    assert.deepStrictEqual(result, ['.ai']);
+    assert.deepStrictEqual(result, ['.aicontext']);
   });
 
   it('should detect .claude directory', () => {
@@ -125,12 +133,12 @@ describe('getExistingFiles', () => {
   });
 
   it('should detect multiple existing paths', () => {
-    fs.mkdirSync(path.join(tempDir, '.ai'));
+    fs.mkdirSync(path.join(tempDir, '.aicontext'));
     fs.mkdirSync(path.join(tempDir, '.claude'));
     fs.mkdirSync(path.join(tempDir, '.cursor'));
 
     const result = getExistingFiles(tempDir);
-    assert.strictEqual(result.includes('.ai'), true);
+    assert.strictEqual(result.includes('.aicontext'), true);
     assert.strictEqual(result.includes('.claude'), true);
     assert.strictEqual(result.includes('.cursor'), true);
   });
@@ -147,12 +155,12 @@ describe('init', () => {
     removeTempDir(tempDir);
   });
 
-  it('should create .ai directory with version file', async () => {
+  it('should create .aicontext directory with version file', async () => {
     await init(tempDir, true);
 
-    assert.strictEqual(fs.existsSync(path.join(tempDir, '.ai')), true);
-    assert.strictEqual(fs.existsSync(path.join(tempDir, '.ai', '.version')), true);
-    assert.strictEqual(fs.readFileSync(path.join(tempDir, '.ai', '.version'), 'utf8'), VERSION);
+    assert.strictEqual(fs.existsSync(path.join(tempDir, '.aicontext')), true);
+    assert.strictEqual(fs.existsSync(path.join(tempDir, '.aicontext', '.version')), true);
+    assert.strictEqual(fs.readFileSync(path.join(tempDir, '.aicontext', '.version'), 'utf8'), VERSION);
   });
 
   it('should create .claude directory', async () => {
@@ -174,40 +182,40 @@ describe('init', () => {
     assert.strictEqual(fs.existsSync(path.join(tempDir, '.github', 'copilot-instructions.md')), true);
   });
 
-  it('should create .ai/rules directory', async () => {
+  it('should create .aicontext/rules directory', async () => {
     await init(tempDir, true);
 
-    assert.strictEqual(fs.existsSync(path.join(tempDir, '.ai', 'rules')), true);
+    assert.strictEqual(fs.existsSync(path.join(tempDir, '.aicontext', 'rules')), true);
   });
 
-  it('should create .ai/prompts directory', async () => {
+  it('should create .aicontext/prompts directory', async () => {
     await init(tempDir, true);
 
-    assert.strictEqual(fs.existsSync(path.join(tempDir, '.ai', 'prompts')), true);
+    assert.strictEqual(fs.existsSync(path.join(tempDir, '.aicontext', 'prompts')), true);
   });
 
-  it('should create .ai/templates directory', async () => {
+  it('should create .aicontext/templates directory', async () => {
     await init(tempDir, true);
 
-    assert.strictEqual(fs.existsSync(path.join(tempDir, '.ai', 'templates')), true);
+    assert.strictEqual(fs.existsSync(path.join(tempDir, '.aicontext', 'templates')), true);
   });
 
-  it('should create .ai/tasks directory', async () => {
+  it('should create .aicontext/tasks directory', async () => {
     await init(tempDir, true);
 
-    assert.strictEqual(fs.existsSync(path.join(tempDir, '.ai', 'tasks')), true);
+    assert.strictEqual(fs.existsSync(path.join(tempDir, '.aicontext', 'tasks')), true);
   });
 
   it('should not reinitialize if already initialized', async () => {
     await init(tempDir, true);
 
     // Modify version to check it's not overwritten
-    fs.writeFileSync(path.join(tempDir, '.ai', '.version'), '0.0.1');
+    fs.writeFileSync(path.join(tempDir, '.aicontext', '.version'), '0.0.1');
 
     await init(tempDir, true);
 
     // Version should remain unchanged
-    assert.strictEqual(fs.readFileSync(path.join(tempDir, '.ai', '.version'), 'utf8'), '0.0.1');
+    assert.strictEqual(fs.readFileSync(path.join(tempDir, '.aicontext', '.version'), 'utf8'), '0.0.1');
   });
 });
 
@@ -226,60 +234,60 @@ describe('update', () => {
 
   it('should not update if already at current version', async () => {
     // Version is already current after init
-    const versionBefore = fs.readFileSync(path.join(tempDir, '.ai', '.version'), 'utf8');
+    const versionBefore = fs.readFileSync(path.join(tempDir, '.aicontext', '.version'), 'utf8');
     await update(tempDir, true);
-    const versionAfter = fs.readFileSync(path.join(tempDir, '.ai', '.version'), 'utf8');
+    const versionAfter = fs.readFileSync(path.join(tempDir, '.aicontext', '.version'), 'utf8');
 
     assert.strictEqual(versionBefore, versionAfter);
   });
 
   it('should update version when outdated', async () => {
     // Set an older version
-    fs.writeFileSync(path.join(tempDir, '.ai', '.version'), '0.0.1');
+    fs.writeFileSync(path.join(tempDir, '.aicontext', '.version'), '0.0.1');
 
     await update(tempDir, true);
 
-    assert.strictEqual(fs.readFileSync(path.join(tempDir, '.ai', '.version'), 'utf8'), VERSION);
+    assert.strictEqual(fs.readFileSync(path.join(tempDir, '.aicontext', '.version'), 'utf8'), VERSION);
   });
 
   it('should preserve project.md if it exists', async () => {
     // Set an older version
-    fs.writeFileSync(path.join(tempDir, '.ai', '.version'), '0.0.1');
+    fs.writeFileSync(path.join(tempDir, '.aicontext', '.version'), '0.0.1');
     // Create user file
-    fs.writeFileSync(path.join(tempDir, '.ai', 'project.md'), 'my project content');
+    fs.writeFileSync(path.join(tempDir, '.aicontext', 'project.md'), 'my project content');
 
     await update(tempDir, true);
 
     assert.strictEqual(
-      fs.readFileSync(path.join(tempDir, '.ai', 'project.md'), 'utf8'),
+      fs.readFileSync(path.join(tempDir, '.aicontext', 'project.md'), 'utf8'),
       'my project content'
     );
   });
 
   it('should preserve structure.md if it exists', async () => {
     // Set an older version
-    fs.writeFileSync(path.join(tempDir, '.ai', '.version'), '0.0.1');
+    fs.writeFileSync(path.join(tempDir, '.aicontext', '.version'), '0.0.1');
     // Create user file
-    fs.writeFileSync(path.join(tempDir, '.ai', 'structure.md'), 'my structure content');
+    fs.writeFileSync(path.join(tempDir, '.aicontext', 'structure.md'), 'my structure content');
 
     await update(tempDir, true);
 
     assert.strictEqual(
-      fs.readFileSync(path.join(tempDir, '.ai', 'structure.md'), 'utf8'),
+      fs.readFileSync(path.join(tempDir, '.aicontext', 'structure.md'), 'utf8'),
       'my structure content'
     );
   });
 
   it('should preserve user task files', async () => {
     // Set an older version
-    fs.writeFileSync(path.join(tempDir, '.ai', '.version'), '0.0.1');
+    fs.writeFileSync(path.join(tempDir, '.aicontext', '.version'), '0.0.1');
     // Create user task
-    fs.writeFileSync(path.join(tempDir, '.ai', 'tasks', 'my-task.md'), 'task content');
+    fs.writeFileSync(path.join(tempDir, '.aicontext', 'tasks', 'my-task.md'), 'task content');
 
     await update(tempDir, true);
 
     assert.strictEqual(
-      fs.readFileSync(path.join(tempDir, '.ai', 'tasks', 'my-task.md'), 'utf8'),
+      fs.readFileSync(path.join(tempDir, '.aicontext', 'tasks', 'my-task.md'), 'utf8'),
       'task content'
     );
   });
@@ -291,5 +299,291 @@ describe('update', () => {
     await update(uninitializedDir, true);
 
     removeTempDir(uninitializedDir);
+  });
+});
+
+describe('version cache', () => {
+  beforeEach(() => {
+    // Clean up cache file before each test
+    if (fs.existsSync(CACHE_FILE)) {
+      fs.unlinkSync(CACHE_FILE);
+    }
+  });
+
+  afterEach(() => {
+    // Clean up cache file after each test
+    if (fs.existsSync(CACHE_FILE)) {
+      fs.unlinkSync(CACHE_FILE);
+    }
+  });
+
+  it('should return null when cache file does not exist', () => {
+    const result = readCache();
+    assert.strictEqual(result, null);
+  });
+
+  it('should write and read cache correctly', () => {
+    writeCache('2.0.0');
+
+    const result = readCache();
+    assert.strictEqual(result, '2.0.0');
+  });
+
+  it('should return null when cache is expired', () => {
+    // Write cache with old timestamp
+    const oldData = {
+      latestVersion: '2.0.0',
+      timestamp: Date.now() - CACHE_TTL - 1000, // Expired
+    };
+    fs.writeFileSync(CACHE_FILE, JSON.stringify(oldData));
+
+    const result = readCache();
+    assert.strictEqual(result, null);
+  });
+
+  it('should return version when cache is not expired', () => {
+    // Write cache with recent timestamp
+    const recentData = {
+      latestVersion: '2.0.0',
+      timestamp: Date.now() - CACHE_TTL + 60000, // 1 minute before expiry
+    };
+    fs.writeFileSync(CACHE_FILE, JSON.stringify(recentData));
+
+    const result = readCache();
+    assert.strictEqual(result, '2.0.0');
+  });
+
+  it('should return null when cache file is corrupted', () => {
+    fs.writeFileSync(CACHE_FILE, 'not valid json');
+
+    const result = readCache();
+    assert.strictEqual(result, null);
+  });
+
+  it('should run version check when CLI command executes', () => {
+    // Delete cache to force a fresh check
+    if (fs.existsSync(CACHE_FILE)) {
+      fs.unlinkSync(CACHE_FILE);
+    }
+
+    // Run CLI command (help is quick and doesn't modify anything)
+    const cliPath = path.join(__dirname, '..', 'bin', 'aicontext.js');
+    execSync(`node ${cliPath} help`, { stdio: 'pipe' });
+
+    // Cache file should be created (proves checkForUpdates ran)
+    assert.strictEqual(fs.existsSync(CACHE_FILE), true);
+
+    // Verify cache has valid structure
+    const cacheData = JSON.parse(fs.readFileSync(CACHE_FILE, 'utf8'));
+    assert.strictEqual(typeof cacheData.latestVersion, 'string');
+    assert.strictEqual(typeof cacheData.timestamp, 'number');
+  });
+});
+
+describe('FRAMEWORK_PROMPTS', () => {
+  it('should contain exactly 5 framework prompt files', () => {
+    assert.strictEqual(FRAMEWORK_PROMPTS.length, 5);
+  });
+
+  it('should contain the expected prompt files', () => {
+    const expected = ['check_plan.md', 'check_task.md', 'generate.md', 'review.md', 'start.md'];
+    assert.deepStrictEqual(FRAMEWORK_PROMPTS.sort(), expected.sort());
+  });
+});
+
+describe('hasExistingPrompts', () => {
+  let tempDir;
+
+  beforeEach(() => {
+    tempDir = createTempDir();
+  });
+
+  afterEach(() => {
+    removeTempDir(tempDir);
+  });
+
+  it('should return false when .aicontext/prompts directory does not exist', () => {
+    assert.strictEqual(hasExistingPrompts(tempDir), false);
+  });
+
+  it('should return false when .aicontext/prompts exists but is empty', () => {
+    fs.mkdirSync(path.join(tempDir, '.aicontext', 'prompts'), { recursive: true });
+    assert.strictEqual(hasExistingPrompts(tempDir), false);
+  });
+
+  it('should return false when only custom prompts exist', () => {
+    fs.mkdirSync(path.join(tempDir, '.aicontext', 'prompts'), { recursive: true });
+    fs.writeFileSync(path.join(tempDir, '.aicontext', 'prompts', 'custom.md'), 'content');
+    assert.strictEqual(hasExistingPrompts(tempDir), false);
+  });
+
+  it('should return true when at least one framework prompt exists', () => {
+    fs.mkdirSync(path.join(tempDir, '.aicontext', 'prompts'), { recursive: true });
+    fs.writeFileSync(path.join(tempDir, '.aicontext', 'prompts', 'start.md'), 'content');
+    assert.strictEqual(hasExistingPrompts(tempDir), true);
+  });
+
+  it('should return true when all framework prompts exist', () => {
+    fs.mkdirSync(path.join(tempDir, '.aicontext', 'prompts'), { recursive: true });
+    for (const file of FRAMEWORK_PROMPTS) {
+      fs.writeFileSync(path.join(tempDir, '.aicontext', 'prompts', file), 'content');
+    }
+    assert.strictEqual(hasExistingPrompts(tempDir), true);
+  });
+});
+
+describe('copyFrameworkPrompts', () => {
+  let tempDir;
+  let srcDir;
+  let destDir;
+
+  beforeEach(() => {
+    tempDir = createTempDir();
+    srcDir = path.join(tempDir, 'source');
+    destDir = path.join(tempDir, 'dest');
+
+    // Create source .aicontext/prompts with framework prompts
+    fs.mkdirSync(path.join(srcDir, '.aicontext', 'prompts'), { recursive: true });
+    for (const file of FRAMEWORK_PROMPTS) {
+      fs.writeFileSync(path.join(srcDir, '.aicontext', 'prompts', file), `content of ${file}`);
+    }
+    // Add a non-framework file to source
+    fs.writeFileSync(path.join(srcDir, '.aicontext', 'prompts', 'extra.md'), 'extra content');
+  });
+
+  afterEach(() => {
+    removeTempDir(tempDir);
+  });
+
+  it('should copy all framework prompts to destination', () => {
+    copyFrameworkPrompts(srcDir, destDir);
+
+    for (const file of FRAMEWORK_PROMPTS) {
+      const destFile = path.join(destDir, '.aicontext', 'prompts', file);
+      assert.strictEqual(fs.existsSync(destFile), true);
+      assert.strictEqual(fs.readFileSync(destFile, 'utf8'), `content of ${file}`);
+    }
+  });
+
+  it('should not copy non-framework prompts', () => {
+    copyFrameworkPrompts(srcDir, destDir);
+
+    const extraFile = path.join(destDir, '.aicontext', 'prompts', 'extra.md');
+    assert.strictEqual(fs.existsSync(extraFile), false);
+  });
+
+  it('should create destination directory if it does not exist', () => {
+    assert.strictEqual(fs.existsSync(path.join(destDir, '.aicontext', 'prompts')), false);
+
+    copyFrameworkPrompts(srcDir, destDir);
+
+    assert.strictEqual(fs.existsSync(path.join(destDir, '.aicontext', 'prompts')), true);
+  });
+
+  it('should preserve existing custom prompts in destination', () => {
+    // Create destination with custom prompt
+    fs.mkdirSync(path.join(destDir, '.aicontext', 'prompts'), { recursive: true });
+    fs.writeFileSync(path.join(destDir, '.aicontext', 'prompts', 'custom.md'), 'custom content');
+
+    copyFrameworkPrompts(srcDir, destDir);
+
+    // Custom prompt should still exist
+    assert.strictEqual(
+      fs.readFileSync(path.join(destDir, '.aicontext', 'prompts', 'custom.md'), 'utf8'),
+      'custom content'
+    );
+  });
+});
+
+describe('init with keepPrompts', () => {
+  let tempDir;
+
+  beforeEach(() => {
+    tempDir = createTempDir();
+  });
+
+  afterEach(() => {
+    removeTempDir(tempDir);
+  });
+
+  it('should create prompts when keepPrompts is false', async () => {
+    await init(tempDir, true, false);
+
+    for (const file of FRAMEWORK_PROMPTS) {
+      assert.strictEqual(fs.existsSync(path.join(tempDir, '.aicontext', 'prompts', file)), true);
+    }
+  });
+
+  it('should not overwrite prompts when keepPrompts is true and prompts exist', async () => {
+    // First init to create structure
+    await init(tempDir, true, false);
+
+    // Modify a prompt file
+    fs.writeFileSync(path.join(tempDir, '.aicontext', 'prompts', 'start.md'), 'user modified content');
+
+    // Remove .aicontext/.version to allow reinit
+    fs.unlinkSync(path.join(tempDir, '.aicontext', '.version'));
+
+    // Reinit with keepPrompts
+    await init(tempDir, true, true);
+
+    // User content should be preserved
+    assert.strictEqual(
+      fs.readFileSync(path.join(tempDir, '.aicontext', 'prompts', 'start.md'), 'utf8'),
+      'user modified content'
+    );
+  });
+});
+
+describe('update with keepPrompts', () => {
+  let tempDir;
+
+  beforeEach(async () => {
+    tempDir = createTempDir();
+    await init(tempDir, true, false);
+  });
+
+  afterEach(() => {
+    removeTempDir(tempDir);
+  });
+
+  it('should update prompts when keepPrompts is false', async () => {
+    // Set older version and modify prompt
+    fs.writeFileSync(path.join(tempDir, '.aicontext', '.version'), '0.0.1');
+    fs.writeFileSync(path.join(tempDir, '.aicontext', 'prompts', 'start.md'), 'old content');
+
+    await update(tempDir, true, false);
+
+    // Prompt should be updated (not 'old content')
+    const content = fs.readFileSync(path.join(tempDir, '.aicontext', 'prompts', 'start.md'), 'utf8');
+    assert.notStrictEqual(content, 'old content');
+  });
+
+  it('should preserve prompts when keepPrompts is true', async () => {
+    // Set older version and modify prompt
+    fs.writeFileSync(path.join(tempDir, '.aicontext', '.version'), '0.0.1');
+    fs.writeFileSync(path.join(tempDir, '.aicontext', 'prompts', 'start.md'), 'user content');
+
+    await update(tempDir, true, true);
+
+    // User content should be preserved
+    assert.strictEqual(
+      fs.readFileSync(path.join(tempDir, '.aicontext', 'prompts', 'start.md'), 'utf8'),
+      'user content'
+    );
+  });
+
+  it('should preserve custom prompts regardless of keepPrompts flag', async () => {
+    // Set older version and add custom prompt
+    fs.writeFileSync(path.join(tempDir, '.aicontext', '.version'), '0.0.1');
+    fs.writeFileSync(path.join(tempDir, '.aicontext', 'prompts', 'my-custom.md'), 'custom content');
+
+    await update(tempDir, true, false);
+
+    // Custom prompt should still exist
+    assert.strictEqual(
+      fs.readFileSync(path.join(tempDir, '.aicontext', 'prompts', 'my-custom.md'), 'utf8'),
+      'custom content'
+    );
   });
 });

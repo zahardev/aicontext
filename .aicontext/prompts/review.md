@@ -3,22 +3,14 @@
 As a senior developer, review the implementation:
 
 ## 1. Gather Context
-
-Run these commands:
-```bash
-git status
-git diff --stat
-git diff
-```
-
-Read the current task file in `.ai/tasks/`.
+- Read the current task file in `.aicontext/tasks/`.
+- Review the recent changes (git diff) against the task requirements.
 
 ## 2. Evaluate
 
 | Criteria | Check |
 |----------|-------|
 | Requirements | All task requirements implemented? |
-| Tests | Tests cover the new functionality? |
 | DRY | No unnecessary duplication? |
 | KISS | Simplest solution that works? |
 | Security | No vulnerabilities introduced? |
@@ -32,3 +24,4 @@ For each issue found:
 - **Fix** - How to resolve
 
 If no issues: confirm "Implementation looks good" with a brief summary.
+Save results to `.aicontext/data/reviews`

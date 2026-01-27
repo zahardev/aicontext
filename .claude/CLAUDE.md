@@ -1,18 +1,15 @@
 # Project Rules
 
-Before starting any task, read the project rules in this order:
+Before starting any session, read the project rules in this order:
 
-1. `.ai/rules/process.md` - Task management, TDD process
-2. `.ai/rules/standards.md` - Coding standards, safety rules, AI behavior
-3. `.ai/project.md` - Project overview, tech stack, architecture
-4. `.ai/local.md` - Personal/local settings (optional, gitignored)
+1. `.aicontext/rules/process.md` - Task management, TDD process
+2. `.aicontext/rules/standards.md` - Coding standards, safety rules, AI behavior
+3. `.aicontext/project.md` - Project overview, tech stack, architecture
+4. `.aicontext/structure.md` - Commands, folder structure, environment
+5. `.aicontext/local.md` - Personal/local settings (optional, gitignored)
 
-For detailed commands and folder structure, see `.ai/structure.md`.
+Files are listed in override order — later files take precedence over earlier ones.
 
-## Context Priority
+## Auto-Setup
 
-| Priority | Files | When |
-|----------|-------|------|
-| Always | `rules/process.md`, `rules/standards.md` | Every session |
-| For tasks | `project.md`, task file in `.ai/tasks/` | When planning or implementing |
-| Reference | `structure.md` | When creating files or needing commands/paths |
+**Important:** If `.aicontext/project.md` is missing, read `.aicontext/prompts/generate.md` and create the missing files before proceeding.

@@ -2,11 +2,17 @@
 
 ## Before Starting Any Task
 
-1. Read `.ai/project.md` to understand current project state
-2. Check task dependencies and prerequisites
-3. Verify scope understanding
-4. Review related code and existing tests
-5. Ask clarifying questions if requirements are ambiguous
+1. **Create a task file** in `.aicontext/tasks/` using the template at `.aicontext/templates/task.template.md`
+   - Check `project.md` → "Task Naming Convention" for the pattern and ID rules
+   - If rules are missing or unclear, ask user and update `project.md` with the rules
+   - This is the primary record of work - update it throughout the task
+2. Read `.aicontext/project.md` to understand current project state
+3. Check task dependencies and prerequisites
+4. Verify scope understanding
+5. Review related code and existing tests
+6. Ask clarifying questions if requirements are ambiguous
+
+**Note:** If your AI tool has in-session task tracking (like Claude Code's todo list), use it as a supplement for real-time progress, but the task file remains the source of truth.
 
 ## Task Execution Protocol
 
@@ -20,17 +26,19 @@ When asked for a feature or bug fix:
 - Get explicit permission before creating implementation plan
 
 ### 2. Project Structure Compliance
-- Consult `.ai/structure.md` before creating files/folders
+- Consult `.aicontext/structure.md` before creating files/folders
 - Update structure.md if you create new components
 - Follow established project conventions
 
 ### 3. Error Handling
-- Document bugs and solutions in task files (`.ai/tasks/{version}-{task_name}.md`)
+- Document bugs and solutions in task files (`.aicontext/tasks/{version}-{task_name}.md`)
 - Include error details, root cause, and resolution steps
 
 ## Task File Management
 
-Create task files in `.ai/tasks/` folder using the template at `.ai/tasks/.template.md`.
+**REQUIRED**: Create a task file BEFORE starting any feature or bug fix. This ensures work is tracked persistently across sessions and visible to the team.
+
+Use the template at `.aicontext/templates/task.template.md`. Skip task files only for trivial changes (typo fixes, single-line edits).
 
 ### Date Requirements
 
@@ -101,7 +109,7 @@ Mark tasks complete only when:
 
 ### After Task Completion
 
-Update `.ai/changelog.md` with the completed task:
+Update `.aicontext/changelog.md` with the completed task:
 ```markdown
 ## YYYY-MM-DD
 

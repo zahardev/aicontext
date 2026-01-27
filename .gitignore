@@ -17,3 +17,15 @@ test-project/
 
 # Claude Code local settings
 .claude/settings.local.json
+
+# Project file
+.aicontext/project.md
+.aicontext/structure.md
+
+# Project tasks
+.aicontext/tasks/*
+!.aicontext/tasks/.gitkeep
+
+
+# Generated Version File
+.aicontext/.version

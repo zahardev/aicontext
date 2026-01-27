@@ -84,6 +84,34 @@ Part of the **{{ORGANIZATION}}** ecosystem.
 - Changing authentication logic
 -->
 
+## Task Naming Convention
+
+Task files in `.aicontext/tasks/` should follow this pattern:
+
+`{{TASK_NAMING_PATTERN}}`
+
+**How to determine the prefix:**
+{{TASK_ID_RULES}}
+
+<!-- Example for version-based:
+**How to determine the prefix:**
+- Source: Git branch name
+- Pattern: Extract from `version/{version}` or `release/{version}`
+- Fallback: Check `package.json` → `version` field
+- If unclear: Ask user
+
+Example for issue ID-based:
+**How to determine the prefix:**
+- Source: User provides issue ID
+- Tracker: Jira (project key: PROJ)
+- Format: `PROJ-XXX`
+
+Example for date-based:
+**How to determine the prefix:**
+- Source: Current date
+- Format: YYYY-MM-DD
+-->
+
 ---
 
 For commands and folder structure, see `structure.md`.

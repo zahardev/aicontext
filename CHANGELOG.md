@@ -1,9 +1,36 @@
 # Changelog
 
+## [1.2.0] - 2026-01-27
+
+### Added
+- Automatic version update checking on CLI startup
+- Command `aicontext upgrade` to update the CLI tool itself
+- Confirmation prompts before overwriting existing files during `init` and `update`
+- Rules override priority: `rules/` → `project.md` → `local.md` (low to high)
+- Documentation for `local.md` gitignore caveat and workarounds
+- GitHub Actions workflow for automated testing on pull requests
+
+### Changed
+- **Renamed `.ai/` folder to `.aicontext/`** - Decided to rename the context folder to better match the project name and make its purpose clearer. Since the project is still in an early stage and not widely used yet, this feels like a good time to make the change.
+- Moved task template from `.aicontext/tasks/.template.md` to `.aicontext/templates/task.template.md` for consistency
+- Renamed `init.md` prompt to `start.md`
+- Improved prompts and initial file generation
+- Improved entry point files: added `structure.md` to loading list, removed redundant Context Priority table
+- Improved task name generation rules
+
+### Fixed
+- Input validation for `upgrade` command version parameter
+- Dead `setup/generate.md` copy operation in `update` command
+- Stale `.ai` reference in README manual install instructions
+
+### Removed
+- `setup/install.sh` (replaced by `aicontext init`)
+- `VERSION` file (now uses `package.json`)
+
 ## [1.1.0] - 2026-01-25
 
 ### Added
-- `.ai/data/` folder for additional task data ( screenshots, specs, etc. )
+- `data` folder for additional task data ( screenshots, specs, etc. )
 - Documentation for removing unused AI tool configurations
 
 ### Fixed
