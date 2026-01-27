@@ -123,7 +123,7 @@ function prompt(question) {
 function getExistingFiles(target) {
   const existing = [];
   const checkPaths = [
-    '.ai',
+    '.aicontext',
     '.claude',
     '.cursor',
     '.github/copilot-instructions.md',
@@ -156,14 +156,14 @@ function copyRecursive(src, dest) {
 }
 
 function hasExistingPrompts(target) {
-  const promptsDir = path.join(target, '.ai', 'prompts');
+  const promptsDir = path.join(target, '.aicontext', 'prompts');
   if (!fs.existsSync(promptsDir)) return false;
   return FRAMEWORK_PROMPTS.some((file) => fs.existsSync(path.join(promptsDir, file)));
 }
 
 function copyFrameworkPrompts(packageRoot, target) {
-  const srcDir = path.join(packageRoot, '.ai', 'prompts');
-  const destDir = path.join(target, '.ai', 'prompts');
+  const srcDir = path.join(packageRoot, '.aicontext', 'prompts');
+  const destDir = path.join(target, '.aicontext', 'prompts');
   fs.mkdirSync(destDir, { recursive: true });
   for (const file of FRAMEWORK_PROMPTS) {
     const src = path.join(srcDir, file);
@@ -192,8 +192,8 @@ async function init(targetDir, skipConfirm = false, keepPrompts = false) {
   log(`Installing to: ${target}\n`, 'dim');
 
   // Check if already initialized
-  if (fs.existsSync(path.join(target, '.ai', '.version'))) {
-    const existingVersion = fs.readFileSync(path.join(target, '.ai', '.version'), 'utf8').trim();
+  if (fs.existsSync(path.join(target, '.aicontext', '.version'))) {
+    const existingVersion = fs.readFileSync(path.join(target, '.aicontext', '.version'), 'utf8').trim();
     log(`Already initialized (v${existingVersion}). Use 'aicontext update' to update.`, 'yellow');
     return;
   }
@@ -226,20 +226,20 @@ async function init(targetDir, skipConfirm = false, keepPrompts = false) {
     );
   }
 
-  // Copy .ai folder
-  log('Copying .ai files...', 'dim');
-  copyRecursive(path.join(packageRoot, '.ai', 'rules'), path.join(target, '.ai', 'rules'));
+  // Copy .aicontext folder
+  log('Copying .aicontext files...', 'dim');
+  copyRecursive(path.join(packageRoot, '.aicontext', 'rules'), path.join(target, '.aicontext', 'rules'));
   if (shouldUpdatePrompts) {
     copyFrameworkPrompts(packageRoot, target);
   }
-  copyRecursive(path.join(packageRoot, '.ai', 'templates'), path.join(target, '.ai', 'templates'));
-  copyRecursive(path.join(packageRoot, '.ai', 'tasks', '.gitkeep'), path.join(target, '.ai', 'tasks', '.gitkeep'));
-  fs.mkdirSync(path.join(target, '.ai', 'data'), { recursive: true });
-  copyRecursive(path.join(packageRoot, '.ai', 'readme.md'), path.join(target, '.ai', 'readme.md'));
-  if (!fs.existsSync(path.join(target, '.ai', 'changelog.md'))) {
-    copyRecursive(path.join(packageRoot, '.ai', 'changelog.md'), path.join(target, '.ai', 'changelog.md'));
+  copyRecursive(path.join(packageRoot, '.aicontext', 'templates'), path.join(target, '.aicontext', 'templates'));
+  copyRecursive(path.join(packageRoot, '.aicontext', 'tasks', '.gitkeep'), path.join(target, '.aicontext', 'tasks', '.gitkeep'));
+  copyRecursive(path.join(packageRoot, '.aicontext', 'data', '.gitkeep'), path.join(target, '.aicontext', 'data', '.gitkeep'));
+  copyRecursive(path.join(packageRoot, '.aicontext', 'readme.md'), path.join(target, '.aicontext', 'readme.md'));
+  if (!fs.existsSync(path.join(target, '.aicontext', 'changelog.md'))) {
+    copyRecursive(path.join(packageRoot, '.aicontext', 'changelog.md'), path.join(target, '.aicontext', 'changelog.md'));
   }
-  copyRecursive(path.join(packageRoot, '.ai', '.gitignore'), path.join(target, '.ai', '.gitignore'));
+  copyRecursive(path.join(packageRoot, '.aicontext', '.gitignore'), path.join(target, '.aicontext', '.gitignore'));
 
   // Copy tool-specific files
   log('Copying tool entry points...', 'dim');
@@ -248,7 +248,7 @@ async function init(targetDir, skipConfirm = false, keepPrompts = false) {
   copyRecursive(path.join(packageRoot, '.github', 'copilot-instructions.md'), path.join(target, '.github', 'copilot-instructions.md'));
 
   // Write version file
-  fs.writeFileSync(path.join(target, '.ai', '.version'), VERSION);
+  fs.writeFileSync(path.join(target, '.aicontext', '.version'), VERSION);
 
   log('\nInstallation complete!', 'green');
   log('\nNext steps:', 'cyan');
@@ -264,9 +264,20 @@ async function init(targetDir, skipConfirm = false, keepPrompts = false) {
 async function update(targetDir, skipConfirm = false, keepPrompts = false) {
   const target = path.resolve(targetDir || '.');
   const packageRoot = getPackageRoot();
-  const versionFile = path.join(target, '.ai', '.version');
+  const versionFile = path.join(target, '.aicontext', '.version');
+  const oldAiFolder = path.join(target, '.ai');
 
   log(`\nAIContext v${VERSION}`, 'cyan');
+
+  // Check for old .ai folder (migration from pre-1.2.0)
+  if (fs.existsSync(oldAiFolder) && !fs.existsSync(versionFile)) {
+    log('\nDetected old .ai/ folder from a previous version.', 'yellow');
+    log('Starting from v1.2.0, the folder has been renamed to .aicontext/', 'yellow');
+    log('\nPlease rename the folder manually before updating:', 'cyan');
+    log('  mv .ai .aicontext', 'dim');
+    log('\nThen run: aicontext update', 'dim');
+    return;
+  }
 
   if (!fs.existsSync(versionFile)) {
     log('Not initialized. Run "aicontext init" first.', 'red');
@@ -293,22 +304,22 @@ async function update(targetDir, skipConfirm = false, keepPrompts = false) {
 
   log(`Updating from v${currentVersion} to v${VERSION}...`, 'dim');
   log('\nThe following will be updated:', 'yellow');
-  log('  - .ai/rules/', 'yellow');
+  log('  - .aicontext/rules/', 'yellow');
   if (shouldUpdatePrompts) {
-    log('  - .ai/prompts/ (framework prompts only)', 'yellow');
+    log('  - .aicontext/prompts/ (framework prompts only)', 'yellow');
   }
-  log('  - .ai/templates/', 'yellow');
+  log('  - .aicontext/templates/', 'yellow');
   log('  - .claude/', 'yellow');
   log('  - .cursor/', 'yellow');
   log('  - .github/copilot-instructions.md', 'yellow');
   log('\nPreserved (not modified):', 'green');
-  log('  - .ai/project.md', 'green');
-  log('  - .ai/structure.md', 'green');
-  log('  - .ai/changelog.md', 'green');
-  log('  - .ai/local.md', 'green');
-  log('  - .ai/tasks/*.md (your tasks)', 'green');
+  log('  - .aicontext/project.md', 'green');
+  log('  - .aicontext/structure.md', 'green');
+  log('  - .aicontext/changelog.md', 'green');
+  log('  - .aicontext/local.md', 'green');
+  log('  - .aicontext/tasks/*.md (your tasks)', 'green');
   if (!shouldUpdatePrompts) {
-    log('  - .ai/prompts/ (kept by your choice)', 'green');
+    log('  - .aicontext/prompts/ (kept by your choice)', 'green');
   }
   log('');
 
@@ -323,7 +334,7 @@ async function update(targetDir, skipConfirm = false, keepPrompts = false) {
 
   // Update framework files (not user-generated ones)
   log('Updating rules...', 'dim');
-  copyRecursive(path.join(packageRoot, '.ai', 'rules'), path.join(target, '.ai', 'rules'));
+  copyRecursive(path.join(packageRoot, '.aicontext', 'rules'), path.join(target, '.aicontext', 'rules'));
 
   if (shouldUpdatePrompts) {
     log('Updating prompts...', 'dim');
@@ -331,8 +342,7 @@ async function update(targetDir, skipConfirm = false, keepPrompts = false) {
   }
 
   log('Updating templates...', 'dim');
-  copyRecursive(path.join(packageRoot, '.ai', 'templates'), path.join(target, '.ai', 'templates'));
-  copyRecursive(path.join(packageRoot, 'setup', 'generate.md'), path.join(target, '.ai', 'templates', 'generate.md'));
+  copyRecursive(path.join(packageRoot, '.aicontext', 'templates'), path.join(target, '.aicontext', 'templates'));
 
   log('Updating tool entry points...', 'dim');
   copyRecursive(path.join(packageRoot, '.claude'), path.join(target, '.claude'));
@@ -348,7 +358,7 @@ async function update(targetDir, skipConfirm = false, keepPrompts = false) {
 
 function checkVersion(targetDir) {
   const target = path.resolve(targetDir || '.');
-  const versionFile = path.join(target, '.ai', '.version');
+  const versionFile = path.join(target, '.aicontext', '.version');
 
   log(`\nAIContext CLI v${VERSION}`, 'cyan');
 

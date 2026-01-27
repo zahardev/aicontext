@@ -74,7 +74,7 @@ Read and analyze the following files (if they exist):
 ### Documentation
 - `README.md`
 - `docs/` folder
-- Existing `.ai/` files
+- Existing `.aicontext/` files
 
 ## Step 2: Identify Project Type
 
@@ -128,7 +128,7 @@ From your analysis, identify:
    - Production vs development concerns
 
 6. **Task Naming Convention**
-   - Ask the user how they want to name task files in `.ai/tasks/`
+   - Ask the user how they want to name task files in `.aicontext/tasks/`
    - Common patterns:
      - Version-based: `{version}-{task-name}.md` (e.g., `1.3.0-feature-name.md`)
      - Issue ID-based: `{issue-id}-{task-name}.md` (e.g., `JIRA-123-feature-name.md`)
@@ -142,9 +142,9 @@ From your analysis, identify:
 
 ## Step 4: Generate Files
 
-Using the templates in `.ai/templates/`, generate:
+Using the templates in `.aicontext/templates/`, generate:
 
-### `.ai/project.md`
+### `.aicontext/project.md`
 - Project name and description
 - Complete technology stack
 - Key features
@@ -152,7 +152,7 @@ Using the templates in `.ai/templates/`, generate:
 - Project-specific safety rules
 - Task naming convention (from user's preference)
 
-### `.ai/structure.md`
+### `.aicontext/structure.md`
 - Folder tree (key directories only)
 - All relevant commands
 - Environment variables

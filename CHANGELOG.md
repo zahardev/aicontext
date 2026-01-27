@@ -1,25 +1,27 @@
 # Changelog
 
-## [1.2.0] - 2026-01-26
+## [1.2.0] - 2026-01-27
 
 ### Added
-- `upgrade` command to update the CLI tool itself
+- `aicontext upgrade` command to update the CLI tool itself
 - Automatic version update checking on CLI startup
-- Confirmation prompt before overwriting framework prompt files during `init` and `update`
+- Confirmation prompts before overwriting existing files during `init` and `update`
 
 ### Changed
+- **Renamed `.ai/` folder to `.aicontext/`** - Decided to rename the context folder to better match the project name and make its purpose clearer. Since the project is still in an early stage and not widely used yet, this feels like a good time to make the change.
+- Moved task template from `.aicontext/tasks/.template.md` to `.aicontext/templates/task.template.md` for consistency
 - Renamed `init.md` prompt to `start.md`
 - Improved prompts and initial file generation
 - Improved task name generation rules
 
 ### Removed
-- `setup/install.sh` (replaced by `npx @zahardev/aicontext init`)
+- `setup/install.sh` (replaced by `aicontext init`)
 - `VERSION` file (now uses `package.json`)
 
 ## [1.1.0] - 2026-01-25
 
 ### Added
-- `.ai/data/` folder for additional task data ( screenshots, specs, etc. )
+- `data` folder for additional task data ( screenshots, specs, etc. )
 - Documentation for removing unused AI tool configurations
 
 ### Fixed

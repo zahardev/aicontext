@@ -20,10 +20,10 @@ Thank you for your interest in contributing to AIContext. This document provides
 
 Add example configurations for different tech stacks:
 
-1. Create a folder in `.ai/examples/` (e.g., `python-django/`)
+1. Create a folder in `.aicontext/examples/` (e.g., `python-django/`)
 2. Add `project.md` and `structure.md` files
 3. Follow the structure of existing examples
-4. Update `.ai/examples/README.md`
+4. Update `.aicontext/examples/README.md`
 
 ### 4. Enhance Rules and Prompts
 
