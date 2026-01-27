@@ -16,6 +16,11 @@
 - Improved prompts and initial file generation
 - Improved task name generation rules
 
+### Fixed
+- Input validation for `upgrade` command version parameter
+- Dead `setup/generate.md` copy operation in `update` command
+- Stale `.ai` reference in README manual install instructions
+
 ### Removed
 - `setup/install.sh` (replaced by `aicontext init`)
 - `VERSION` file (now uses `package.json`)

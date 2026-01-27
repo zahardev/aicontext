@@ -378,6 +378,12 @@ function checkVersion(targetDir) {
 function upgrade(targetVersion) {
   const { execSync } = require('child_process');
 
+  if (targetVersion && !/^[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.]+)?$/.test(targetVersion)) {
+    log(`Invalid version format: ${targetVersion}`, 'red');
+    log('Version should be in format: X.Y.Z (e.g., 1.2.0)', 'dim');
+    return;
+  }
+
   if (targetVersion) {
     log(`\nUpgrading to v${targetVersion}...`, 'cyan');
   } else {
