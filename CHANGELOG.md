@@ -1,6 +1,6 @@
 # Changelog
 
-## [1.2.0] - 2026-01-26
+## [1.2.0] - 2026-01-27
 
 ### Added
 - `aicontext upgrade` command to update the CLI tool itself
