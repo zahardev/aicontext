@@ -18,7 +18,7 @@ AIContext gives your AI coding assistants persistent memory about your project â
 
 ## Requirements
 
-- Node.js 16.0.0 or higher
+- Node.js 18.0.0 or higher (for npm install only â€” not needed for [manual copy](#option-c-manual-copy))
 
 ## Installation
 
