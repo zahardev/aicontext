@@ -23,7 +23,7 @@ test-project/
 .aicontext/structure.md
 
 # Project tasks
-.aicontext/tasks
+.aicontext/tasks/*
 !.aicontext/tasks/.gitkeep
 
 
