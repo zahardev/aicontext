@@ -343,7 +343,6 @@ async function update(targetDir, skipConfirm = false, keepPrompts = false) {
 
   log('Updating templates...', 'dim');
   copyRecursive(path.join(packageRoot, '.aicontext', 'templates'), path.join(target, '.aicontext', 'templates'));
-  copyRecursive(path.join(packageRoot, 'setup', 'generate.md'), path.join(target, '.aicontext', 'templates', 'generate.md'));
 
   log('Updating tool entry points...', 'dim');
   copyRecursive(path.join(packageRoot, '.claude'), path.join(target, '.claude'));
