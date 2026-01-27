@@ -20,5 +20,5 @@ For detailed commands and folder structure, see `.aicontext/structure.md`.
 | Priority | Files | When |
 |----------|-------|------|
 | Always | `rules/process.md`, `rules/standards.md` | Every session |
-| For tasks | `project.md`, task file in `.aicontext/tasks/` | When planning or implementing |
+| For tasks | `project.md`, task file in `tasks/` | When planning or implementing |
 | Reference | `structure.md` | When creating files or needing commands/paths |
