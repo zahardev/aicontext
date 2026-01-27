@@ -9,7 +9,26 @@ This folder contains AI assistant configuration and project documentation.
 | `project.md` | Project identity, tech stack, architecture |
 | `structure.md` | Folder structure, commands, environment |
 | `changelog.md` | Completed tasks history |
-| `local.md` | Personal/local settings (gitignored) |
+| `local.md` | Personal/local settings (gitignored, see below) |
+
+## Override Priority
+
+Files are loaded in override order (low → high):
+
+1. **`rules/process.md`, `rules/standards.md`** — Framework defaults. Shared across all projects using AIContext.
+2. **`project.md`** — Project-specific overrides. Committed to the repo, shared with the team.
+3. **`local.md`** — Personal overrides. Gitignored, only for your own preferences.
+
+If `project.md` defines a rule that conflicts with `rules/`, `project.md` wins. If `local.md` conflicts with either, `local.md` wins.
+
+### About local.md
+
+`local.md` is gitignored so each team member can have personal settings (e.g., preferred language, verbosity, shortcuts) without affecting others.
+
+**Important:** Some AI tools skip gitignored files by default. If your tool doesn't pick up `local.md`:
+- **Claude Code:** Disable the "Respect Git Ignore" setting, or add `!.aicontext/local.md` to your `.gitignore` unignore rules.
+- **Other tools:** Check your tool's settings to ensure it reads gitignored files.
+- **Alternative:** If you can't change the setting, put your personal rules in `project.md` instead (note: these will be shared with the team).
 
 ## Folder Overview
 

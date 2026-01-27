@@ -172,16 +172,12 @@ Updates framework files (rules, prompts, templates, tool entry points) while pre
 
 ## Customization
 
-### Project-Specific Rules
+### Adding Your Own Rules
 
-Add project-specific rules to:
-- `.aicontext/project.md` - Project overview and safety rules
-- `.aicontext/local.md` - Personal preferences (gitignored)
+- **Team rules**: Add to `.aicontext/project.md` — works across all AI tools
+- **Personal rules**: Add to `.aicontext/local.md` — gitignored, see `.aicontext/readme.md` for setup notes
 
-### Tool-Specific Customization
-
-- **Cursor**: Add more `.mdc` files to `.cursor/rules/`
-- **Copilot**: Create `.github/instructions/` for path-specific rules
+For large or domain-specific rule sets, create separate files in `.aicontext/rules` and reference them from `project.md` or `local.md` files.
 
 ### Removing Unused Tools
 

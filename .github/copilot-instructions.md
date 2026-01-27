@@ -7,6 +7,8 @@ Before starting any task, read the project rules in this order:
 3. `.aicontext/project.md` - Project overview, tech stack, architecture
 4. `.aicontext/local.md` - Personal/local settings (optional, gitignored)
 
+Files are listed in override order — later files take precedence over earlier ones.
+
 For detailed commands and folder structure, see `.aicontext/structure.md`.
 
 ## Auto-Setup

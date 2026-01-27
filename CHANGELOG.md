@@ -6,6 +6,8 @@
 - `aicontext upgrade` command to update the CLI tool itself
 - Automatic version update checking on CLI startup
 - Confirmation prompts before overwriting existing files during `init` and `update`
+- Rules override priority: `rules/` → `project.md` → `local.md` (low to high)
+- Documentation for `local.md` gitignore caveat and workarounds
 
 ### Changed
 - **Renamed `.ai/` folder to `.aicontext/`** - Decided to rename the context folder to better match the project name and make its purpose clearer. Since the project is still in an early stage and not widely used yet, this feels like a good time to make the change.
