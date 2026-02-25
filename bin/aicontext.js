@@ -11,7 +11,16 @@ const REPO_URL = 'https://github.com/zahardev/aicontext';
 const NPM_PACKAGE = '@zahardev/aicontext';
 const CACHE_FILE = path.join(os.tmpdir(), 'aicontext-version-cache.json');
 const CACHE_TTL = 60 * 60 * 1000; // 1 hour in milliseconds
-const FRAMEWORK_PROMPTS = ['check_plan.md', 'check_task.md', 'generate.md', 'review.md', 'start.md'];
+const FRAMEWORK_PROMPTS = ['after_step.md', 'generate.md', 'plan.md', 'review.md', 'start.md', 'task.md'];
+const DEPRECATED_PROMPTS = ['check_plan.md', 'check_task.md'];
+const FRAMEWORK_AGENTS = [
+  'researcher.md',
+  'reviewer.md',
+  'test-runner.md',
+  'test-writer.md',
+  'standards-checker.md',
+  'pr-review-summarizer.md',
+];
 
 // Colors for terminal output
 const colors = {
@@ -158,7 +167,18 @@ function copyRecursive(src, dest) {
 function hasExistingPrompts(target) {
   const promptsDir = path.join(target, '.aicontext', 'prompts');
   if (!fs.existsSync(promptsDir)) return false;
-  return FRAMEWORK_PROMPTS.some((file) => fs.existsSync(path.join(promptsDir, file)));
+  const allKnownPrompts = [...FRAMEWORK_PROMPTS, ...DEPRECATED_PROMPTS];
+  return allKnownPrompts.some((file) => fs.existsSync(path.join(promptsDir, file)));
+}
+
+function removeDeprecatedPrompts(target) {
+  const promptsDir = path.join(target, '.aicontext', 'prompts');
+  for (const file of DEPRECATED_PROMPTS) {
+    const filePath = path.join(promptsDir, file);
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+    }
+  }
 }
 
 function copyFrameworkPrompts(packageRoot, target) {
@@ -174,17 +194,49 @@ function copyFrameworkPrompts(packageRoot, target) {
   }
 }
 
-async function promptYesNo(question) {
+async function copyFrameworkAgents(packageRoot, target, overrideAgents = false, skipConfirm = false) {
+  const srcDir = path.join(packageRoot, '.claude', 'agents');
+  const destDir = path.join(target, '.claude', 'agents');
+  fs.mkdirSync(destDir, { recursive: true });
+
+  for (const file of FRAMEWORK_AGENTS) {
+    const src = path.join(srcDir, file);
+    if (!fs.existsSync(src)) continue;
+
+    const dest = path.join(destDir, file);
+    if (fs.existsSync(dest)) {
+      if (overrideAgents) {
+        fs.copyFileSync(src, dest);
+        log(`  Overridden: agents/${file}`, 'yellow');
+      } else if (skipConfirm) {
+        log(`  Skipped: agents/${file} (already exists)`, 'dim');
+      } else {
+        const shouldOverride = await promptYesNo(`  agents/${file} already exists. Override? (y/N): `, false);
+        if (shouldOverride) {
+          fs.copyFileSync(src, dest);
+          log(`  Overridden: agents/${file}`, 'yellow');
+        } else {
+          log(`  Skipped: agents/${file}`, 'dim');
+        }
+      }
+    } else {
+      fs.copyFileSync(src, dest);
+      log(`  Copied: agents/${file}`, 'dim');
+    }
+  }
+}
+
+async function promptYesNo(question, defaultYes = true) {
   while (true) {
     const answer = await prompt(question);
     if (answer === 'y' || answer === 'yes') return true;
     if (answer === 'n' || answer === 'no') return false;
-    if (answer === '') return true; // Default Y
+    if (answer === '') return defaultYes;
     log('Please enter Y or N.', 'yellow');
   }
 }
 
-async function init(targetDir, skipConfirm = false, keepPrompts = false) {
+async function init(targetDir, skipConfirm = false, keepPrompts = false, overrideAgents = false) {
   const target = path.resolve(targetDir || '.');
   const packageRoot = getPackageRoot();
 
@@ -221,7 +273,7 @@ async function init(targetDir, skipConfirm = false, keepPrompts = false) {
     shouldUpdatePrompts = false;
   } else if (hasExistingPrompts(target) && !skipConfirm) {
     shouldUpdatePrompts = await promptYesNo(
-      'Would you like to rewrite the existing prompt files (check_plan, check_task, generate, review, start)? ' +
+      'Would you like to rewrite the existing prompt files (after_step, generate, plan, review, start, task)? ' +
         "I won't remove any other prompt files. (Y/n): "
     );
   }
@@ -243,7 +295,8 @@ async function init(targetDir, skipConfirm = false, keepPrompts = false) {
 
   // Copy tool-specific files
   log('Copying tool entry points...', 'dim');
-  copyRecursive(path.join(packageRoot, '.claude'), path.join(target, '.claude'));
+  copyRecursive(path.join(packageRoot, '.claude', 'CLAUDE.md'), path.join(target, '.claude', 'CLAUDE.md'));
+  await copyFrameworkAgents(packageRoot, target, overrideAgents, skipConfirm);
   copyRecursive(path.join(packageRoot, '.cursor'), path.join(target, '.cursor'));
   copyRecursive(path.join(packageRoot, '.github', 'copilot-instructions.md'), path.join(target, '.github', 'copilot-instructions.md'));
 
@@ -261,7 +314,7 @@ async function init(targetDir, skipConfirm = false, keepPrompts = false) {
   log('  - .claude/                         (if not using Claude Code)\n', 'dim');
 }
 
-async function update(targetDir, skipConfirm = false, keepPrompts = false) {
+async function update(targetDir, skipConfirm = false, keepPrompts = false, overrideAgents = false) {
   const target = path.resolve(targetDir || '.');
   const packageRoot = getPackageRoot();
   const versionFile = path.join(target, '.aicontext', '.version');
@@ -297,7 +350,7 @@ async function update(targetDir, skipConfirm = false, keepPrompts = false) {
     shouldUpdatePrompts = false;
   } else if (hasExistingPrompts(target) && !skipConfirm) {
     shouldUpdatePrompts = await promptYesNo(
-      'Would you like to rewrite the existing prompt files (check_plan, check_task, generate, review, start)? ' +
+      'Would you like to rewrite the existing prompt files (after_step, generate, plan, review, start, task)? ' +
         "I won't remove any other prompt files. (Y/n): "
     );
   }
@@ -309,7 +362,8 @@ async function update(targetDir, skipConfirm = false, keepPrompts = false) {
     log('  - .aicontext/prompts/ (framework prompts only)', 'yellow');
   }
   log('  - .aicontext/templates/', 'yellow');
-  log('  - .claude/', 'yellow');
+  log('  - .claude/CLAUDE.md', 'yellow');
+  log('  - .claude/agents/ (new agents only, existing will be prompted)', 'yellow');
   log('  - .cursor/', 'yellow');
   log('  - .github/copilot-instructions.md', 'yellow');
   log('\nPreserved (not modified):', 'green');
@@ -339,13 +393,15 @@ async function update(targetDir, skipConfirm = false, keepPrompts = false) {
   if (shouldUpdatePrompts) {
     log('Updating prompts...', 'dim');
     copyFrameworkPrompts(packageRoot, target);
+    removeDeprecatedPrompts(target);
   }
 
   log('Updating templates...', 'dim');
   copyRecursive(path.join(packageRoot, '.aicontext', 'templates'), path.join(target, '.aicontext', 'templates'));
 
   log('Updating tool entry points...', 'dim');
-  copyRecursive(path.join(packageRoot, '.claude'), path.join(target, '.claude'));
+  copyRecursive(path.join(packageRoot, '.claude', 'CLAUDE.md'), path.join(target, '.claude', 'CLAUDE.md'));
+  await copyFrameworkAgents(packageRoot, target, overrideAgents, skipConfirm);
   copyRecursive(path.join(packageRoot, '.cursor'), path.join(target, '.cursor'));
   copyRecursive(path.join(packageRoot, '.github', 'copilot-instructions.md'), path.join(target, '.github', 'copilot-instructions.md'));
 
@@ -443,6 +499,7 @@ Usage:
 Options:
   -y, --yes                  Skip confirmation prompts
   --keep-prompts             Keep existing prompt files (don't overwrite)
+  --override-agents          Override existing agent files without prompting
 
 Examples:
   npx aicontext init                  # Install to current directory
@@ -460,8 +517,12 @@ module.exports = {
   CACHE_FILE,
   CACHE_TTL,
   FRAMEWORK_PROMPTS,
+  DEPRECATED_PROMPTS,
+  FRAMEWORK_AGENTS,
   copyRecursive,
   copyFrameworkPrompts,
+  copyFrameworkAgents,
+  removeDeprecatedPrompts,
   getExistingFiles,
   hasExistingPrompts,
   readCache,
@@ -477,15 +538,16 @@ if (require.main === module) {
   const command = args[0];
   const hasYesFlag = args.includes('-y') || args.includes('--yes');
   const hasKeepPromptsFlag = args.includes('--keep-prompts');
-  const targetPath = args.find((arg) => !['--yes', '-y', '--keep-prompts', command].includes(arg));
+  const hasOverrideAgentsFlag = args.includes('--override-agents');
+  const targetPath = args.find((arg) => !['--yes', '-y', '--keep-prompts', '--override-agents', command].includes(arg));
 
   async function main() {
     switch (command) {
       case 'init':
-        await init(targetPath, hasYesFlag, hasKeepPromptsFlag);
+        await init(targetPath, hasYesFlag, hasKeepPromptsFlag, hasOverrideAgentsFlag);
         break;
       case 'update':
-        await update(targetPath, hasYesFlag, hasKeepPromptsFlag);
+        await update(targetPath, hasYesFlag, hasKeepPromptsFlag, hasOverrideAgentsFlag);
         break;
       case 'upgrade':
         upgrade(targetPath);
