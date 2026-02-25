@@ -915,4 +915,15 @@ describe('update with agent override protection', () => {
     const content = fs.readFileSync(path.join(tempDir, '.claude', 'CLAUDE.md'), 'utf8');
     assert.notStrictEqual(content, 'old content');
   });
+
+  it('should override agents even when version is current with --override-agents', async () => {
+    // Version is current (set by init in beforeEach), but agent was customized
+    fs.writeFileSync(path.join(tempDir, '.claude', 'agents', 'reviewer.md'), 'customized reviewer');
+
+    await update(tempDir, true, false, true);
+
+    // Agent should be overridden despite version being current
+    const content = fs.readFileSync(path.join(tempDir, '.claude', 'agents', 'reviewer.md'), 'utf8');
+    assert.notStrictEqual(content, 'customized reviewer');
+  });
 });

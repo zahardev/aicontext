@@ -340,7 +340,12 @@ async function update(targetDir, skipConfirm = false, keepPrompts = false, overr
   const currentVersion = fs.readFileSync(versionFile, 'utf8').trim();
 
   if (currentVersion === VERSION) {
-    log(`Already up to date (v${VERSION}).`, 'green');
+    if (!overrideAgents) {
+      log(`Already up to date (v${VERSION}).`, 'green');
+      return;
+    }
+    log(`Already up to date (v${VERSION}), re-copying agents...`, 'yellow');
+    await copyFrameworkAgents(packageRoot, target, overrideAgents, skipConfirm);
     return;
   }
 
