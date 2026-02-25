@@ -345,6 +345,7 @@ async function update(targetDir, skipConfirm = false, keepPrompts = false, overr
       return;
     }
     log(`Already up to date (v${VERSION}), re-copying agents...`, 'yellow');
+    copyRecursive(path.join(packageRoot, '.claude', 'CLAUDE.md'), path.join(target, '.claude', 'CLAUDE.md'));
     await copyFrameworkAgents(packageRoot, target, overrideAgents, skipConfirm);
     return;
   }
@@ -398,8 +399,8 @@ async function update(targetDir, skipConfirm = false, keepPrompts = false, overr
   if (shouldUpdatePrompts) {
     log('Updating prompts...', 'dim');
     copyFrameworkPrompts(packageRoot, target);
-    removeDeprecatedPrompts(target);
   }
+  removeDeprecatedPrompts(target);
 
   log('Updating templates...', 'dim');
   copyRecursive(path.join(packageRoot, '.aicontext', 'templates'), path.join(target, '.aicontext', 'templates'));

@@ -35,7 +35,7 @@ Before reviewing, read these files to understand the project:
 
 ## Output Format
 
-```
+```text
 ## Result: [APPROVED / X issues found]
 
 ### Critical

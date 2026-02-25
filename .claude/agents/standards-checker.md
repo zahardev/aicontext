@@ -34,7 +34,7 @@ First, read these files to understand the rules:
 
 ## Output Format
 
-```
+```text
 ## Result: [CLEAN / X violations found]
 
 ### Violation 1: [Rule violated]

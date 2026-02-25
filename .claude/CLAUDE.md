@@ -29,8 +29,8 @@ When subagents are available, **delegate these tasks instead of performing them 
 - NEVER perform a review or standards check inline when the corresponding agent exists
 - NEVER read large amounts of code into main context for review — delegate to the agent
 - Run multiple agents in parallel when tasks are independent (e.g., `reviewer` + `standards-checker` + `test-runner` after implementation)
-- NEVER use `EnterPlanMode` or the `Plan` subagent — all planning is done in `.aicontext/tasks/` task files per `process.md`
-- **Transparency:** Always tell the user when launching a subagent — state which agent and what it will do (e.g., "Asking subagent `test-runner` to execute the full test suite.")
+- NEVER use `EnterPlanMode` — all planning is done in `.aicontext/tasks/` task files per `process.md`
+- NEVER launch a subagent without telling the user first — state which agent and what it will do (e.g., "Asking subagent `test-runner` to execute the full test suite.")
 
 **Model defaults:** All agents default to `haiku`. For higher-quality output, consider upgrading in `.claude/agents/*.md`: `reviewer` → opus, `test-writer` → sonnet. The `generate.md` prompt will ask about model preferences during project setup.
 

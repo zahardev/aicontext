@@ -11,22 +11,34 @@ Your job is to fetch all review comments from a GitHub PR and return a **structu
 
 ## How to Fetch Reviews
 
-Use `gh` CLI commands:
-
-```bash
-# Get PR review comments (inline code comments)
-gh api repos/{owner}/{repo}/pulls/{number}/comments
-
-# Get PR reviews (top-level review bodies)
-gh api repos/{owner}/{repo}/pulls/{number}/reviews
-
-# Get general issue comments on the PR
-gh pr view {number} --comments --json comments
-```
-
 Determine the repo owner and name from the git remote:
 ```bash
 gh repo view --json nameWithOwner -q .nameWithOwner
+```
+
+Use GraphQL to fetch review threads (includes resolved state):
+```bash
+gh api graphql -f query='{
+  repository(owner: "{owner}", name: "{repo}") {
+    pullRequest(number: {number}) {
+      reviewThreads(first: 100) {
+        nodes {
+          isResolved
+          comments(first: 10) {
+            nodes { body path line author { login } }
+          }
+        }
+      }
+    }
+  }
+}'
+```
+
+Filter out threads where `isResolved: true`.
+
+For general issue comments (non-inline):
+```bash
+gh pr view {number} --comments --json comments
 ```
 
 ## Rules
@@ -40,7 +52,7 @@ gh repo view --json nameWithOwner -q .nameWithOwner
 
 ## Output Format
 
-```
+```text
 ## PR #[number]: [title]
 Reviews from: [list of reviewers]
 

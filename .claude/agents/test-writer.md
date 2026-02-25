@@ -30,7 +30,7 @@ Before writing any test, read:
 ## Output Format
 
 Return the complete test file content with:
-```
+```text
 ## Test File: path/to/TestFile
 
 ## What's Tested

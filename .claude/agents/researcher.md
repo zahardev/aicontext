@@ -25,7 +25,7 @@ Before starting, read these files to understand the project:
 
 ## Output Format
 
-```
+```text
 ## Summary
 [1-3 sentence overview]
 

@@ -173,9 +173,9 @@ describe('init', () => {
     assert.strictEqual(fs.existsSync(path.join(tempDir, '.claude')), true);
     assert.strictEqual(fs.existsSync(path.join(tempDir, '.claude', 'CLAUDE.md')), true);
     assert.strictEqual(fs.existsSync(path.join(tempDir, '.claude', 'agents')), true);
-    assert.strictEqual(fs.existsSync(path.join(tempDir, '.claude', 'agents', 'reviewer.md')), true);
-    assert.strictEqual(fs.existsSync(path.join(tempDir, '.claude', 'agents', 'test-runner.md')), true);
-    assert.strictEqual(fs.existsSync(path.join(tempDir, '.claude', 'agents', 'researcher.md')), true);
+    for (const file of FRAMEWORK_AGENTS) {
+      assert.strictEqual(fs.existsSync(path.join(tempDir, '.claude', 'agents', file)), true, `Missing agent: ${file}`);
+    }
   });
 
   it('should create .cursor directory', async () => {
@@ -306,15 +306,21 @@ describe('update', () => {
     fs.writeFileSync(path.join(tempDir, '.aicontext', 'prompts', 'check_task.md'), 'old content');
     fs.writeFileSync(path.join(tempDir, '.aicontext', 'prompts', 'check_plan.md'), 'old content');
 
+    // Remove new prompts to verify they get recreated by update
+    const taskPrompt = path.join(tempDir, '.aicontext', 'prompts', 'task.md');
+    const planPrompt = path.join(tempDir, '.aicontext', 'prompts', 'plan.md');
+    if (fs.existsSync(taskPrompt)) fs.unlinkSync(taskPrompt);
+    if (fs.existsSync(planPrompt)) fs.unlinkSync(planPrompt);
+
     await update(tempDir, true);
 
     // Deprecated files should be removed
     assert.strictEqual(fs.existsSync(path.join(tempDir, '.aicontext', 'prompts', 'check_task.md')), false);
     assert.strictEqual(fs.existsSync(path.join(tempDir, '.aicontext', 'prompts', 'check_plan.md')), false);
 
-    // New prompts should exist
-    assert.strictEqual(fs.existsSync(path.join(tempDir, '.aicontext', 'prompts', 'task.md')), true);
-    assert.strictEqual(fs.existsSync(path.join(tempDir, '.aicontext', 'prompts', 'plan.md')), true);
+    // New prompts should be created by update
+    assert.strictEqual(fs.existsSync(taskPrompt), true);
+    assert.strictEqual(fs.existsSync(planPrompt), true);
   });
 
   it('should fail gracefully if not initialized', async () => {
@@ -412,14 +418,14 @@ describe('FRAMEWORK_PROMPTS', () => {
 
   it('should contain the expected prompt files', () => {
     const expected = ['after_step.md', 'generate.md', 'plan.md', 'review.md', 'start.md', 'task.md'];
-    assert.deepStrictEqual(FRAMEWORK_PROMPTS.sort(), expected.sort());
+    assert.deepStrictEqual([...FRAMEWORK_PROMPTS].sort(), [...expected].sort());
   });
 });
 
 describe('DEPRECATED_PROMPTS', () => {
   it('should contain the old prompt file names', () => {
     const expected = ['check_plan.md', 'check_task.md'];
-    assert.deepStrictEqual(DEPRECATED_PROMPTS.sort(), expected.sort());
+    assert.deepStrictEqual([...DEPRECATED_PROMPTS].sort(), [...expected].sort());
   });
 });
 
@@ -682,7 +688,7 @@ describe('FRAMEWORK_AGENTS', () => {
       'standards-checker.md',
       'pr-review-summarizer.md',
     ];
-    assert.deepStrictEqual(FRAMEWORK_AGENTS.sort(), expected.sort());
+    assert.deepStrictEqual([...FRAMEWORK_AGENTS].sort(), [...expected].sort());
   });
 });
 

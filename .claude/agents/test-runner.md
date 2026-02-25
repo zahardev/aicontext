@@ -26,7 +26,7 @@ Before running tests, read these files to discover available commands:
 
 Return ONLY this structure:
 
-```
+```text
 ## Result: [PASS / FAIL]
 
 ## Stats
