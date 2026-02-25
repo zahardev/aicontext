@@ -55,8 +55,9 @@ Located in `rules/`:
 |------|-------------|
 | `generate.md` | Auto-runs when `project.md` is missing |
 | `start.md` | Start of session - read rules and confirm |
-| `check_task.md` | Before starting work on a task |
-| `check_plan.md` | Review a task plan for issues |
+| `task.md` | Before starting work on a task |
+| `plan.md` | Review a task plan for issues |
+| `after_step.md` | After completing a plan step - reflect and adjust |
 | `review.md` | Code review after implementation |
 
 ## Workflow
@@ -67,14 +68,34 @@ Located in `rules/`:
 3. AI confirms readiness
 
 ### Working on a Task
-1. Paste `prompts/check_task.md` content
+1. Paste `prompts/task.md` content
 2. Create/update task file in `tasks/` using `templates/task.template.md`
 3. Follow TDD process from `rules/process.md`
-4. Update `changelog.md` when complete
+4. After each step, use `prompts/after_step.md` to reflect
+5. Update `changelog.md` when complete
 
 ### Reviewing Work
 1. Paste `prompts/review.md` for code review
-2. Paste `prompts/check_plan.md` to validate plans
+2. Paste `prompts/plan.md` to validate plans
+
+## Tool-Specific: Claude Code
+
+If you use Claude Code (CLI or VSCode extension), the framework includes predefined subagents in `.claude/agents/`. These are auto-discovered at session start and help save context tokens by delegating research, testing, and review tasks to specialized agents.
+
+| Agent | Default Model | Recommended | Role |
+|-------|---------------|-------------|------|
+| `researcher` | haiku | | Explore codebase, return concise summaries |
+| `test-runner` | haiku | | Run tests, report only failures |
+| `test-writer` | haiku | sonnet | Draft test files in parallel with implementation |
+| `standards-checker` | haiku | | Check code against project rules |
+| `reviewer` | haiku | opus | Review code for bugs, edge cases, security |
+| `pr-review-summarizer` | haiku | | Fetch and summarize GitHub PR review comments |
+
+All agents default to `haiku`. To upgrade a model, edit the `model:` field in `.claude/agents/<agent>.md`. The `generate.md` prompt will ask about model preferences during project setup.
+
+**Override protection:** During `init` and `update`, existing agent files are never silently overwritten. If an agent file already exists, you'll be prompted whether to override or skip it. Use `--override-agents` to force-override all agents without prompting.
+
+These agents are not used by Cursor, Copilot, or other tools — they are Claude Code specific.
 
 ## File Maintenance
 

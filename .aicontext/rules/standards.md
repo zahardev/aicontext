@@ -105,3 +105,7 @@
 - Don't keep trying to fix broken approaches - suggest better methods upfront
 - When debugging reveals fundamental issues, step back and recommend different strategies
 - Prioritize suggesting the best solution over fixing a suboptimal one
+
+### Question Numbering
+- Number questions sequentially across entire conversation (never restart at 1)
+- One question per number; keep same numbers when answering to maintain thread

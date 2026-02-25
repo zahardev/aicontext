@@ -10,8 +10,12 @@ const {
   CACHE_FILE,
   CACHE_TTL,
   FRAMEWORK_PROMPTS,
+  DEPRECATED_PROMPTS,
+  FRAMEWORK_AGENTS,
   copyRecursive,
   copyFrameworkPrompts,
+  copyFrameworkAgents,
+  removeDeprecatedPrompts,
   getExistingFiles,
   hasExistingPrompts,
   readCache,
@@ -163,11 +167,15 @@ describe('init', () => {
     assert.strictEqual(fs.readFileSync(path.join(tempDir, '.aicontext', '.version'), 'utf8'), VERSION);
   });
 
-  it('should create .claude directory', async () => {
+  it('should create .claude directory with agents', async () => {
     await init(tempDir, true);
 
     assert.strictEqual(fs.existsSync(path.join(tempDir, '.claude')), true);
     assert.strictEqual(fs.existsSync(path.join(tempDir, '.claude', 'CLAUDE.md')), true);
+    assert.strictEqual(fs.existsSync(path.join(tempDir, '.claude', 'agents')), true);
+    for (const file of FRAMEWORK_AGENTS) {
+      assert.strictEqual(fs.existsSync(path.join(tempDir, '.claude', 'agents', file)), true, `Missing agent: ${file}`);
+    }
   });
 
   it('should create .cursor directory', async () => {
@@ -292,6 +300,29 @@ describe('update', () => {
     );
   });
 
+  it('should remove deprecated prompts during update', async () => {
+    // Set older version and create deprecated prompt files
+    fs.writeFileSync(path.join(tempDir, '.aicontext', '.version'), '0.0.1');
+    fs.writeFileSync(path.join(tempDir, '.aicontext', 'prompts', 'check_task.md'), 'old content');
+    fs.writeFileSync(path.join(tempDir, '.aicontext', 'prompts', 'check_plan.md'), 'old content');
+
+    // Remove new prompts to verify they get recreated by update
+    const taskPrompt = path.join(tempDir, '.aicontext', 'prompts', 'task.md');
+    const planPrompt = path.join(tempDir, '.aicontext', 'prompts', 'plan.md');
+    if (fs.existsSync(taskPrompt)) fs.unlinkSync(taskPrompt);
+    if (fs.existsSync(planPrompt)) fs.unlinkSync(planPrompt);
+
+    await update(tempDir, true);
+
+    // Deprecated files should be removed
+    assert.strictEqual(fs.existsSync(path.join(tempDir, '.aicontext', 'prompts', 'check_task.md')), false);
+    assert.strictEqual(fs.existsSync(path.join(tempDir, '.aicontext', 'prompts', 'check_plan.md')), false);
+
+    // New prompts should be created by update
+    assert.strictEqual(fs.existsSync(taskPrompt), true);
+    assert.strictEqual(fs.existsSync(planPrompt), true);
+  });
+
   it('should fail gracefully if not initialized', async () => {
     const uninitializedDir = createTempDir();
 
@@ -381,13 +412,20 @@ describe('version cache', () => {
 });
 
 describe('FRAMEWORK_PROMPTS', () => {
-  it('should contain exactly 5 framework prompt files', () => {
-    assert.strictEqual(FRAMEWORK_PROMPTS.length, 5);
+  it('should contain exactly 6 framework prompt files', () => {
+    assert.strictEqual(FRAMEWORK_PROMPTS.length, 6);
   });
 
   it('should contain the expected prompt files', () => {
-    const expected = ['check_plan.md', 'check_task.md', 'generate.md', 'review.md', 'start.md'];
-    assert.deepStrictEqual(FRAMEWORK_PROMPTS.sort(), expected.sort());
+    const expected = ['after_step.md', 'generate.md', 'plan.md', 'review.md', 'start.md', 'task.md'];
+    assert.deepStrictEqual([...FRAMEWORK_PROMPTS].sort(), [...expected].sort());
+  });
+});
+
+describe('DEPRECATED_PROMPTS', () => {
+  it('should contain the old prompt file names', () => {
+    const expected = ['check_plan.md', 'check_task.md'];
+    assert.deepStrictEqual([...DEPRECATED_PROMPTS].sort(), [...expected].sort());
   });
 });
 
@@ -429,6 +467,54 @@ describe('hasExistingPrompts', () => {
       fs.writeFileSync(path.join(tempDir, '.aicontext', 'prompts', file), 'content');
     }
     assert.strictEqual(hasExistingPrompts(tempDir), true);
+  });
+
+  it('should return true when deprecated prompts exist', () => {
+    fs.mkdirSync(path.join(tempDir, '.aicontext', 'prompts'), { recursive: true });
+    fs.writeFileSync(path.join(tempDir, '.aicontext', 'prompts', 'check_task.md'), 'content');
+    assert.strictEqual(hasExistingPrompts(tempDir), true);
+  });
+});
+
+describe('removeDeprecatedPrompts', () => {
+  let tempDir;
+
+  beforeEach(() => {
+    tempDir = createTempDir();
+  });
+
+  afterEach(() => {
+    removeTempDir(tempDir);
+  });
+
+  it('should remove deprecated prompt files', () => {
+    fs.mkdirSync(path.join(tempDir, '.aicontext', 'prompts'), { recursive: true });
+    for (const file of DEPRECATED_PROMPTS) {
+      fs.writeFileSync(path.join(tempDir, '.aicontext', 'prompts', file), 'content');
+    }
+
+    removeDeprecatedPrompts(tempDir);
+
+    for (const file of DEPRECATED_PROMPTS) {
+      assert.strictEqual(fs.existsSync(path.join(tempDir, '.aicontext', 'prompts', file)), false);
+    }
+  });
+
+  it('should not fail when deprecated files do not exist', () => {
+    fs.mkdirSync(path.join(tempDir, '.aicontext', 'prompts'), { recursive: true });
+
+    assert.doesNotThrow(() => removeDeprecatedPrompts(tempDir));
+  });
+
+  it('should not remove non-deprecated files', () => {
+    fs.mkdirSync(path.join(tempDir, '.aicontext', 'prompts'), { recursive: true });
+    fs.writeFileSync(path.join(tempDir, '.aicontext', 'prompts', 'start.md'), 'content');
+    fs.writeFileSync(path.join(tempDir, '.aicontext', 'prompts', 'check_task.md'), 'old');
+
+    removeDeprecatedPrompts(tempDir);
+
+    assert.strictEqual(fs.existsSync(path.join(tempDir, '.aicontext', 'prompts', 'start.md')), true);
+    assert.strictEqual(fs.existsSync(path.join(tempDir, '.aicontext', 'prompts', 'check_task.md')), false);
   });
 });
 
@@ -585,5 +671,265 @@ describe('update with keepPrompts', () => {
       fs.readFileSync(path.join(tempDir, '.aicontext', 'prompts', 'my-custom.md'), 'utf8'),
       'custom content'
     );
+  });
+});
+
+describe('FRAMEWORK_AGENTS', () => {
+  it('should contain exactly 6 agent files', () => {
+    assert.strictEqual(FRAMEWORK_AGENTS.length, 6);
+  });
+
+  it('should contain the expected agent files', () => {
+    const expected = [
+      'researcher.md',
+      'reviewer.md',
+      'test-runner.md',
+      'test-writer.md',
+      'standards-checker.md',
+      'pr-review-summarizer.md',
+    ];
+    assert.deepStrictEqual([...FRAMEWORK_AGENTS].sort(), [...expected].sort());
+  });
+});
+
+describe('copyFrameworkAgents', () => {
+  let tempDir;
+  let srcDir;
+  let destDir;
+
+  beforeEach(() => {
+    tempDir = createTempDir();
+    srcDir = path.join(tempDir, 'source');
+    destDir = path.join(tempDir, 'dest');
+
+    // Create source .claude/agents with framework agents
+    fs.mkdirSync(path.join(srcDir, '.claude', 'agents'), { recursive: true });
+    for (const file of FRAMEWORK_AGENTS) {
+      fs.writeFileSync(path.join(srcDir, '.claude', 'agents', file), `content of ${file}`);
+    }
+  });
+
+  afterEach(() => {
+    removeTempDir(tempDir);
+  });
+
+  it('should copy all agents when destination is empty', async () => {
+    await copyFrameworkAgents(srcDir, destDir);
+
+    for (const file of FRAMEWORK_AGENTS) {
+      const destFile = path.join(destDir, '.claude', 'agents', file);
+      assert.strictEqual(fs.existsSync(destFile), true);
+      assert.strictEqual(fs.readFileSync(destFile, 'utf8'), `content of ${file}`);
+    }
+  });
+
+  it('should skip existing agents when skipConfirm is true', async () => {
+    // Create existing agent with user content
+    fs.mkdirSync(path.join(destDir, '.claude', 'agents'), { recursive: true });
+    fs.writeFileSync(path.join(destDir, '.claude', 'agents', 'reviewer.md'), 'user custom agent');
+
+    await copyFrameworkAgents(srcDir, destDir, false, true);
+
+    // User agent should be preserved
+    assert.strictEqual(
+      fs.readFileSync(path.join(destDir, '.claude', 'agents', 'reviewer.md'), 'utf8'),
+      'user custom agent'
+    );
+
+    // Other agents should be copied
+    assert.strictEqual(fs.existsSync(path.join(destDir, '.claude', 'agents', 'researcher.md')), true);
+  });
+
+  it('should override existing agents when overrideAgents is true', async () => {
+    // Create existing agent with user content
+    fs.mkdirSync(path.join(destDir, '.claude', 'agents'), { recursive: true });
+    fs.writeFileSync(path.join(destDir, '.claude', 'agents', 'reviewer.md'), 'user custom agent');
+
+    await copyFrameworkAgents(srcDir, destDir, true);
+
+    // Agent should be overridden
+    assert.strictEqual(
+      fs.readFileSync(path.join(destDir, '.claude', 'agents', 'reviewer.md'), 'utf8'),
+      'content of reviewer.md'
+    );
+  });
+
+  it('should preserve non-framework agent files', async () => {
+    // Create user's own agent
+    fs.mkdirSync(path.join(destDir, '.claude', 'agents'), { recursive: true });
+    fs.writeFileSync(path.join(destDir, '.claude', 'agents', 'my-custom-agent.md'), 'custom content');
+
+    await copyFrameworkAgents(srcDir, destDir);
+
+    // User agent should still exist
+    assert.strictEqual(
+      fs.readFileSync(path.join(destDir, '.claude', 'agents', 'my-custom-agent.md'), 'utf8'),
+      'custom content'
+    );
+  });
+
+  it('should create agents directory if it does not exist', async () => {
+    assert.strictEqual(fs.existsSync(path.join(destDir, '.claude', 'agents')), false);
+
+    await copyFrameworkAgents(srcDir, destDir);
+
+    assert.strictEqual(fs.existsSync(path.join(destDir, '.claude', 'agents')), true);
+  });
+
+  it('should skip missing source agents gracefully', async () => {
+    // Remove one source agent
+    fs.unlinkSync(path.join(srcDir, '.claude', 'agents', 'researcher.md'));
+
+    await copyFrameworkAgents(srcDir, destDir);
+
+    // Missing agent should not be copied
+    assert.strictEqual(fs.existsSync(path.join(destDir, '.claude', 'agents', 'researcher.md')), false);
+    // Other agents should still be copied
+    assert.strictEqual(fs.existsSync(path.join(destDir, '.claude', 'agents', 'reviewer.md')), true);
+  });
+});
+
+describe('init with agent override protection', () => {
+  let tempDir;
+
+  beforeEach(() => {
+    tempDir = createTempDir();
+  });
+
+  afterEach(() => {
+    removeTempDir(tempDir);
+  });
+
+  it('should copy all agents on fresh init', async () => {
+    await init(tempDir, true);
+
+    for (const file of FRAMEWORK_AGENTS) {
+      assert.strictEqual(fs.existsSync(path.join(tempDir, '.claude', 'agents', file)), true);
+    }
+  });
+
+  it('should preserve existing user agents on init with skipConfirm', async () => {
+    // Create pre-existing user agent with framework name
+    fs.mkdirSync(path.join(tempDir, '.claude', 'agents'), { recursive: true });
+    fs.writeFileSync(path.join(tempDir, '.claude', 'agents', 'reviewer.md'), 'my custom reviewer');
+
+    await init(tempDir, true);
+
+    // User agent should be preserved
+    assert.strictEqual(
+      fs.readFileSync(path.join(tempDir, '.claude', 'agents', 'reviewer.md'), 'utf8'),
+      'my custom reviewer'
+    );
+  });
+
+  it('should override existing agents on init with overrideAgents flag', async () => {
+    // Create pre-existing user agent
+    fs.mkdirSync(path.join(tempDir, '.claude', 'agents'), { recursive: true });
+    fs.writeFileSync(path.join(tempDir, '.claude', 'agents', 'reviewer.md'), 'my custom reviewer');
+
+    await init(tempDir, true, false, true);
+
+    // Agent should be overridden with framework content
+    const content = fs.readFileSync(path.join(tempDir, '.claude', 'agents', 'reviewer.md'), 'utf8');
+    assert.notStrictEqual(content, 'my custom reviewer');
+  });
+
+  it('should preserve non-framework agents on init', async () => {
+    // Create user's custom agent
+    fs.mkdirSync(path.join(tempDir, '.claude', 'agents'), { recursive: true });
+    fs.writeFileSync(path.join(tempDir, '.claude', 'agents', 'my-agent.md'), 'custom agent');
+
+    await init(tempDir, true);
+
+    assert.strictEqual(
+      fs.readFileSync(path.join(tempDir, '.claude', 'agents', 'my-agent.md'), 'utf8'),
+      'custom agent'
+    );
+  });
+});
+
+describe('update with agent override protection', () => {
+  let tempDir;
+
+  beforeEach(async () => {
+    tempDir = createTempDir();
+    await init(tempDir, true);
+  });
+
+  afterEach(() => {
+    removeTempDir(tempDir);
+  });
+
+  it('should preserve customized agents on update with skipConfirm', async () => {
+    // Customize an agent and set older version
+    fs.writeFileSync(path.join(tempDir, '.claude', 'agents', 'reviewer.md'), 'customized reviewer');
+    fs.writeFileSync(path.join(tempDir, '.aicontext', '.version'), '0.0.1');
+
+    await update(tempDir, true);
+
+    // Customized agent should be preserved
+    assert.strictEqual(
+      fs.readFileSync(path.join(tempDir, '.claude', 'agents', 'reviewer.md'), 'utf8'),
+      'customized reviewer'
+    );
+  });
+
+  it('should override agents on update with overrideAgents flag', async () => {
+    // Customize an agent and set older version
+    fs.writeFileSync(path.join(tempDir, '.claude', 'agents', 'reviewer.md'), 'customized reviewer');
+    fs.writeFileSync(path.join(tempDir, '.aicontext', '.version'), '0.0.1');
+
+    await update(tempDir, true, false, true);
+
+    // Agent should be overridden
+    const content = fs.readFileSync(path.join(tempDir, '.claude', 'agents', 'reviewer.md'), 'utf8');
+    assert.notStrictEqual(content, 'customized reviewer');
+  });
+
+  it('should preserve non-framework agents on update', async () => {
+    // Add custom agent and set older version
+    fs.writeFileSync(path.join(tempDir, '.claude', 'agents', 'my-agent.md'), 'custom agent');
+    fs.writeFileSync(path.join(tempDir, '.aicontext', '.version'), '0.0.1');
+
+    await update(tempDir, true, false, true);
+
+    assert.strictEqual(
+      fs.readFileSync(path.join(tempDir, '.claude', 'agents', 'my-agent.md'), 'utf8'),
+      'custom agent'
+    );
+  });
+
+  it('should install new framework agents added in update', async () => {
+    // Remove one agent to simulate it being new in the update
+    fs.unlinkSync(path.join(tempDir, '.claude', 'agents', 'standards-checker.md'));
+    fs.writeFileSync(path.join(tempDir, '.aicontext', '.version'), '0.0.1');
+
+    await update(tempDir, true);
+
+    // New agent should be installed
+    assert.strictEqual(fs.existsSync(path.join(tempDir, '.claude', 'agents', 'standards-checker.md')), true);
+  });
+
+  it('should always update CLAUDE.md on update', async () => {
+    // Modify CLAUDE.md and set older version
+    fs.writeFileSync(path.join(tempDir, '.claude', 'CLAUDE.md'), 'old content');
+    fs.writeFileSync(path.join(tempDir, '.aicontext', '.version'), '0.0.1');
+
+    await update(tempDir, true);
+
+    // CLAUDE.md should be overwritten
+    const content = fs.readFileSync(path.join(tempDir, '.claude', 'CLAUDE.md'), 'utf8');
+    assert.notStrictEqual(content, 'old content');
+  });
+
+  it('should override agents even when version is current with --override-agents', async () => {
+    // Version is current (set by init in beforeEach), but agent was customized
+    fs.writeFileSync(path.join(tempDir, '.claude', 'agents', 'reviewer.md'), 'customized reviewer');
+
+    await update(tempDir, true, false, true);
+
+    // Agent should be overridden despite version being current
+    const content = fs.readFileSync(path.join(tempDir, '.claude', 'agents', 'reviewer.md'), 'utf8');
+    assert.notStrictEqual(content, 'customized reviewer');
   });
 });

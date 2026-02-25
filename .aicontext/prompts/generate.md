@@ -140,7 +140,23 @@ From your analysis, identify:
    - Store both pattern AND rules in project.md so AI can follow them automatically
    - Default to version-based with git branch detection if user has no preference
 
-## Step 4: Generate Files
+## Step 4: Configure Claude Code Agents (if applicable)
+
+If the project uses Claude Code, configure agent models based on available capabilities:
+
+1. **Detect your current model** from the system prompt (e.g., "Opus 4.6", "Sonnet 4.6", "Haiku 4.5")
+2. **Apply recommended upgrades** based on what's available:
+
+| Your model | `reviewer` | `test-writer` | Others |
+|------------|------------|---------------|--------|
+| opus       | opus       | sonnet        | haiku  |
+| sonnet     | sonnet     | sonnet        | haiku  |
+| haiku      | haiku      | haiku         | haiku  |
+
+3. **Confirm with the user** before updating: show the proposed model assignments and ask if they'd like to adjust
+4. Update the `model:` field in `.claude/agents/*.md` files accordingly
+
+## Step 5: Generate Files
 
 Using the templates in `.aicontext/templates/`, generate:
 

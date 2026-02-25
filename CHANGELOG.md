@@ -1,5 +1,23 @@
 # Changelog
 
+## [1.3.0] - 2026-02-25
+
+### Added
+- Claude Code subagents: 6 predefined agents (`researcher`, `reviewer`, `test-runner`, `test-writer`, `standards-checker`, `pr-review-summarizer`) in `.claude/agents/`
+- Agent delegation rules in `.claude/CLAUDE.md` for automatic task routing to subagents
+- Agent model configuration step in `generate.md` prompt (auto-detects model and suggests upgrades)
+- Agent override protection — existing agent files are never silently overwritten during `init` and `update`
+- Interactive per-file prompt when an agent file already exists: "Override? (y/N)"
+- `--override-agents` flag to force-override all existing agents without prompting
+- New prompt `after_step.md` for reflecting after completing a plan step
+- Question numbering rule in `standards.md`
+
+### Changed
+- Renamed prompt `check_task.md` → `task.md`
+- Renamed prompt `check_plan.md` → `plan.md`
+- `.claude/` directory is now copied selectively: `CLAUDE.md` always updated, agents handled individually
+- Deprecated prompts (`check_plan.md`, `check_task.md`) are automatically removed during `update`
+
 ## [1.2.0] - 2026-01-27
 
 ### Added
