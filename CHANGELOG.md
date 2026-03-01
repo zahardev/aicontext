@@ -13,6 +13,8 @@
 ### Changed
 - Agent model defaults upgraded from `haiku` to `sonnet` (reviewer to `opus`), with interactive `haiku` opt-in during `init`
 - Replaced `.aicontext/data/.gitkeep` with `.aicontext/data/.gitignore`
+- README: added Features section, improved Quick Start, expanded PR workflow docs, removed redundancies
+- Lowered minimum Node.js requirement from 18 to 14.14 (tests still require 18+)
 
 ### Removed
 - Deprecated `pr-review-summarizer` agent (replaced by `/pr-review-check` skill + PR scripts)
