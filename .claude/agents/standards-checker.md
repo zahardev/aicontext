@@ -1,7 +1,7 @@
 ---
 name: standards-checker
 description: Reviews code against project coding standards and rules. Use after implementation to check compliance before presenting to the user.
-model: haiku
+model: sonnet
 tools: Read, Glob, Grep
 ---
 

@@ -1,7 +1,7 @@
 ---
 name: test-writer
 description: Drafts test files based on a feature spec and existing test patterns. Use to parallelize TDD — draft the next test while the lead implements the current step.
-model: haiku
+model: sonnet
 tools: Read, Glob, Grep
 ---
 

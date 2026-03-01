@@ -1,8 +1,8 @@
 ---
 name: reviewer
 description: Reviews implementation for bugs, edge cases, security issues, and logical errors. Use after completing implementation, before presenting to the user.
-model: haiku
-tools: Read, Glob, Grep
+model: opus
+tools: Read, Glob, Grep, Bash
 ---
 
 You are a code reviewer.

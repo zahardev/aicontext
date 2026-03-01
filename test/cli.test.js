@@ -12,10 +12,15 @@ const {
   FRAMEWORK_PROMPTS,
   DEPRECATED_PROMPTS,
   FRAMEWORK_AGENTS,
+  DEPRECATED_AGENTS,
+  FRAMEWORK_SKILLS,
+  DEPRECATED_SKILLS,
   copyRecursive,
   copyFrameworkPrompts,
   copyFrameworkAgents,
   removeDeprecatedPrompts,
+  removeDeprecatedAgents,
+  removeDeprecatedSkills,
   getExistingFiles,
   hasExistingPrompts,
   readCache,
@@ -675,8 +680,8 @@ describe('update with keepPrompts', () => {
 });
 
 describe('FRAMEWORK_AGENTS', () => {
-  it('should contain exactly 6 agent files', () => {
-    assert.strictEqual(FRAMEWORK_AGENTS.length, 6);
+  it('should contain exactly 5 agent files', () => {
+    assert.strictEqual(FRAMEWORK_AGENTS.length, 5);
   });
 
   it('should contain the expected agent files', () => {
@@ -686,9 +691,122 @@ describe('FRAMEWORK_AGENTS', () => {
       'test-runner.md',
       'test-writer.md',
       'standards-checker.md',
-      'pr-review-summarizer.md',
     ];
     assert.deepStrictEqual([...FRAMEWORK_AGENTS].sort(), [...expected].sort());
+  });
+
+  it('should not contain deprecated agents', () => {
+    for (const deprecated of DEPRECATED_AGENTS) {
+      assert.strictEqual(FRAMEWORK_AGENTS.includes(deprecated), false, `Deprecated agent still in FRAMEWORK_AGENTS: ${deprecated}`);
+    }
+  });
+});
+
+describe('removeDeprecatedAgents', () => {
+  let tempDir;
+
+  beforeEach(() => {
+    tempDir = createTempDir();
+  });
+
+  afterEach(() => {
+    removeTempDir(tempDir);
+  });
+
+  it('should remove deprecated agent files', () => {
+    fs.mkdirSync(path.join(tempDir, '.claude', 'agents'), { recursive: true });
+    for (const file of DEPRECATED_AGENTS) {
+      fs.writeFileSync(path.join(tempDir, '.claude', 'agents', file), 'content');
+    }
+
+    removeDeprecatedAgents(tempDir);
+
+    for (const file of DEPRECATED_AGENTS) {
+      assert.strictEqual(fs.existsSync(path.join(tempDir, '.claude', 'agents', file)), false);
+    }
+  });
+
+  it('should not fail when deprecated agents do not exist', () => {
+    fs.mkdirSync(path.join(tempDir, '.claude', 'agents'), { recursive: true });
+    assert.doesNotThrow(() => removeDeprecatedAgents(tempDir));
+  });
+
+  it('should not remove non-deprecated agents', () => {
+    fs.mkdirSync(path.join(tempDir, '.claude', 'agents'), { recursive: true });
+    fs.writeFileSync(path.join(tempDir, '.claude', 'agents', 'reviewer.md'), 'content');
+    fs.writeFileSync(path.join(tempDir, '.claude', 'agents', 'pr-review-summarizer.md'), 'old');
+
+    removeDeprecatedAgents(tempDir);
+
+    assert.strictEqual(fs.existsSync(path.join(tempDir, '.claude', 'agents', 'reviewer.md')), true);
+    assert.strictEqual(fs.existsSync(path.join(tempDir, '.claude', 'agents', 'pr-review-summarizer.md')), false);
+  });
+});
+
+describe('FRAMEWORK_SKILLS', () => {
+  it('should contain exactly 8 skill names', () => {
+    assert.strictEqual(FRAMEWORK_SKILLS.length, 8);
+  });
+
+  it('should contain the expected skills', () => {
+    const expected = [
+      'start', 'check-task', 'check-plan', 'diff-review', 'branch-review', 'next-step', 'draft-pr', 'pr-review-check',
+    ];
+    assert.deepStrictEqual([...FRAMEWORK_SKILLS].sort(), [...expected].sort());
+  });
+
+  it('should not contain deprecated skills', () => {
+    for (const deprecated of DEPRECATED_SKILLS) {
+      assert.strictEqual(FRAMEWORK_SKILLS.includes(deprecated), false, `Deprecated skill still in FRAMEWORK_SKILLS: ${deprecated}`);
+    }
+  });
+});
+
+describe('DEPRECATED_SKILLS', () => {
+  it('should contain the old skill names', () => {
+    const expected = ['task', 'review', 'after-step', 'next', 'pr'];
+    assert.deepStrictEqual([...DEPRECATED_SKILLS].sort(), [...expected].sort());
+  });
+});
+
+describe('removeDeprecatedSkills', () => {
+  let tempDir;
+
+  beforeEach(() => {
+    tempDir = createTempDir();
+  });
+
+  afterEach(() => {
+    removeTempDir(tempDir);
+  });
+
+  it('should remove deprecated skill directories', () => {
+    fs.mkdirSync(path.join(tempDir, '.claude', 'skills', 'task'), { recursive: true });
+    fs.writeFileSync(path.join(tempDir, '.claude', 'skills', 'task', 'SKILL.md'), 'content');
+    fs.mkdirSync(path.join(tempDir, '.claude', 'skills', 'review'), { recursive: true });
+    fs.writeFileSync(path.join(tempDir, '.claude', 'skills', 'review', 'SKILL.md'), 'content');
+
+    removeDeprecatedSkills(tempDir);
+
+    assert.strictEqual(fs.existsSync(path.join(tempDir, '.claude', 'skills', 'task')), false);
+    assert.strictEqual(fs.existsSync(path.join(tempDir, '.claude', 'skills', 'review')), false);
+  });
+
+  it('should not fail when deprecated skills do not exist', () => {
+    fs.mkdirSync(path.join(tempDir, '.claude', 'skills'), { recursive: true });
+    assert.doesNotThrow(() => removeDeprecatedSkills(tempDir));
+  });
+
+  it('should not remove non-deprecated skills', () => {
+    fs.mkdirSync(path.join(tempDir, '.claude', 'skills', 'start'), { recursive: true });
+    fs.writeFileSync(path.join(tempDir, '.claude', 'skills', 'start', 'SKILL.md'), 'content');
+    fs.mkdirSync(path.join(tempDir, '.claude', 'skills', 'task'), { recursive: true });
+    fs.writeFileSync(path.join(tempDir, '.claude', 'skills', 'task', 'SKILL.md'), 'old');
+
+    removeDeprecatedSkills(tempDir);
+
+    assert.strictEqual(fs.existsSync(path.join(tempDir, '.claude', 'skills', 'start')), true);
+    assert.strictEqual(fs.existsSync(path.join(tempDir, '.claude', 'skills', 'task')), false);
   });
 });
 

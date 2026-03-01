@@ -1,7 +1,7 @@
 ---
 name: test-runner
 description: Runs backend and frontend tests, analyzes output, and returns only failures and relevant diagnostics. Use after writing or modifying code.
-model: haiku
+model: sonnet
 tools: Bash, Read, Glob, Grep
 ---
 
