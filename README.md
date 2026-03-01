@@ -144,9 +144,23 @@ The AI analyzes the task, asks clarifying questions, and creates a task file. Af
 
 ### Pull Request Workflow (Claude Code)
 
-1. `/draft-pr` — draft a PR from task file and git changes
-2. `/pr-review-check` — fetch and triage PR review comments after review
-3. Fix valid issues, resolve false positives directly on GitHub
+**1. Draft a PR:** `/draft-pr` — generates a PR title and description from your task file and git history, saved to `.aicontext/data/pr-drafts/`.
+
+**2. Triage review comments:** `/pr-review-check` — fetches all unresolved PR review threads, the AI evaluates each against the actual code and groups them as valid, false positive, or low priority.
+
+**3. Decide and resolve:** The AI presents a table where you set the action for each comment:
+
+| # | Status | Action | Reply |
+|---|--------|--------|-------|
+| 1 | Valid | `fix` | |
+| 2 | False positive | `resolve` | Already handled in abc123 |
+| 3 | Low priority | `resolve` | |
+
+- `fix` — the AI addresses the issue in code
+- `resolve` — dismisses the thread on GitHub (with optional reply)
+- `skip` — leave for human discussion
+
+The AI then fixes valid issues and bulk-resolves dismissed threads on GitHub in one step.
 
 ## Updating the Framework
 

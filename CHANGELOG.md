@@ -7,12 +7,12 @@
 - PR workflow scripts in `.claude/scripts/`: `pr-reviews.js` (fetch unresolved threads via GitHub GraphQL API) and `pr-resolve.js` (resolve threads and post replies)
 - `--override-skills` flag to force-override existing skill files during `init` and `update`
 - Skill override protection — existing skill files are never silently overwritten
-- Data directory conventions: `code-reviews/`, `pr-drafts/`, `pr-reviews/` subdirectories
+- Data directory conventions: `code-reviews/`, `pr-drafts/`, `github-pr-reviews/` subdirectories
 - `.aicontext/data/.gitignore` for ignoring user data while preserving directory structure
 
 ### Changed
 - Agent model defaults upgraded from `haiku` to `sonnet` (reviewer to `opus`), with interactive `haiku` opt-in during `init`
-- Renamed data subdirectories for clarity: `reviews/` → `code-reviews/`, `pr/` → `pr-drafts/`, `github-pr-reviews/` → `pr-reviews/`
+- Renamed data subdirectories for clarity: `reviews/` → `code-reviews/`, `pr/` → `pr-drafts/`
 - Replaced `.aicontext/data/.gitkeep` with `.aicontext/data/.gitignore`
 
 ### Removed
