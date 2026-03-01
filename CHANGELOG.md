@@ -12,12 +12,11 @@
 
 ### Changed
 - Agent model defaults upgraded from `haiku` to `sonnet` (reviewer to `opus`), with interactive `haiku` opt-in during `init`
-- Renamed data subdirectories for clarity: `reviews/` → `code-reviews/`, `pr/` → `pr-drafts/`
 - Replaced `.aicontext/data/.gitkeep` with `.aicontext/data/.gitignore`
 
 ### Removed
 - Deprecated `pr-review-summarizer` agent (replaced by `/pr-review-check` skill + PR scripts)
-- Deprecated skills cleaned up during `update`: `after-step`, `task`, `review`, `next`, `pr`
+
 
 ## [1.3.0] - 2026-02-25
 
