@@ -12,10 +12,19 @@ const {
   FRAMEWORK_PROMPTS,
   DEPRECATED_PROMPTS,
   FRAMEWORK_AGENTS,
+  DEPRECATED_AGENTS,
+  FRAMEWORK_SKILLS,
+  DEPRECATED_SKILLS,
+  FRAMEWORK_SCRIPTS,
   copyRecursive,
   copyFrameworkPrompts,
   copyFrameworkAgents,
+  copyFrameworkSkills,
+  copyFrameworkScripts,
+  setAgentModel,
   removeDeprecatedPrompts,
+  removeDeprecatedAgents,
+  removeDeprecatedSkills,
   getExistingFiles,
   hasExistingPrompts,
   readCache,
@@ -675,8 +684,8 @@ describe('update with keepPrompts', () => {
 });
 
 describe('FRAMEWORK_AGENTS', () => {
-  it('should contain exactly 6 agent files', () => {
-    assert.strictEqual(FRAMEWORK_AGENTS.length, 6);
+  it('should contain exactly 5 agent files', () => {
+    assert.strictEqual(FRAMEWORK_AGENTS.length, 5);
   });
 
   it('should contain the expected agent files', () => {
@@ -686,9 +695,122 @@ describe('FRAMEWORK_AGENTS', () => {
       'test-runner.md',
       'test-writer.md',
       'standards-checker.md',
-      'pr-review-summarizer.md',
     ];
     assert.deepStrictEqual([...FRAMEWORK_AGENTS].sort(), [...expected].sort());
+  });
+
+  it('should not contain deprecated agents', () => {
+    for (const deprecated of DEPRECATED_AGENTS) {
+      assert.strictEqual(FRAMEWORK_AGENTS.includes(deprecated), false, `Deprecated agent still in FRAMEWORK_AGENTS: ${deprecated}`);
+    }
+  });
+});
+
+describe('removeDeprecatedAgents', () => {
+  let tempDir;
+
+  beforeEach(() => {
+    tempDir = createTempDir();
+  });
+
+  afterEach(() => {
+    removeTempDir(tempDir);
+  });
+
+  it('should remove deprecated agent files', () => {
+    fs.mkdirSync(path.join(tempDir, '.claude', 'agents'), { recursive: true });
+    for (const file of DEPRECATED_AGENTS) {
+      fs.writeFileSync(path.join(tempDir, '.claude', 'agents', file), 'content');
+    }
+
+    removeDeprecatedAgents(tempDir);
+
+    for (const file of DEPRECATED_AGENTS) {
+      assert.strictEqual(fs.existsSync(path.join(tempDir, '.claude', 'agents', file)), false);
+    }
+  });
+
+  it('should not fail when deprecated agents do not exist', () => {
+    fs.mkdirSync(path.join(tempDir, '.claude', 'agents'), { recursive: true });
+    assert.doesNotThrow(() => removeDeprecatedAgents(tempDir));
+  });
+
+  it('should not remove non-deprecated agents', () => {
+    fs.mkdirSync(path.join(tempDir, '.claude', 'agents'), { recursive: true });
+    fs.writeFileSync(path.join(tempDir, '.claude', 'agents', 'reviewer.md'), 'content');
+    fs.writeFileSync(path.join(tempDir, '.claude', 'agents', 'pr-review-summarizer.md'), 'old');
+
+    removeDeprecatedAgents(tempDir);
+
+    assert.strictEqual(fs.existsSync(path.join(tempDir, '.claude', 'agents', 'reviewer.md')), true);
+    assert.strictEqual(fs.existsSync(path.join(tempDir, '.claude', 'agents', 'pr-review-summarizer.md')), false);
+  });
+});
+
+describe('FRAMEWORK_SKILLS', () => {
+  it('should contain exactly 8 skill names', () => {
+    assert.strictEqual(FRAMEWORK_SKILLS.length, 8);
+  });
+
+  it('should contain the expected skills', () => {
+    const expected = [
+      'start', 'check-task', 'check-plan', 'diff-review', 'branch-review', 'next-step', 'draft-pr', 'pr-review-check',
+    ];
+    assert.deepStrictEqual([...FRAMEWORK_SKILLS].sort(), [...expected].sort());
+  });
+
+  it('should not contain deprecated skills', () => {
+    for (const deprecated of DEPRECATED_SKILLS) {
+      assert.strictEqual(FRAMEWORK_SKILLS.includes(deprecated), false, `Deprecated skill still in FRAMEWORK_SKILLS: ${deprecated}`);
+    }
+  });
+});
+
+describe('DEPRECATED_SKILLS', () => {
+  it('should contain the old skill names', () => {
+    const expected = ['task', 'review', 'after-step', 'next', 'pr'];
+    assert.deepStrictEqual([...DEPRECATED_SKILLS].sort(), [...expected].sort());
+  });
+});
+
+describe('removeDeprecatedSkills', () => {
+  let tempDir;
+
+  beforeEach(() => {
+    tempDir = createTempDir();
+  });
+
+  afterEach(() => {
+    removeTempDir(tempDir);
+  });
+
+  it('should remove deprecated skill directories', () => {
+    fs.mkdirSync(path.join(tempDir, '.claude', 'skills', 'task'), { recursive: true });
+    fs.writeFileSync(path.join(tempDir, '.claude', 'skills', 'task', 'SKILL.md'), 'content');
+    fs.mkdirSync(path.join(tempDir, '.claude', 'skills', 'review'), { recursive: true });
+    fs.writeFileSync(path.join(tempDir, '.claude', 'skills', 'review', 'SKILL.md'), 'content');
+
+    removeDeprecatedSkills(tempDir);
+
+    assert.strictEqual(fs.existsSync(path.join(tempDir, '.claude', 'skills', 'task')), false);
+    assert.strictEqual(fs.existsSync(path.join(tempDir, '.claude', 'skills', 'review')), false);
+  });
+
+  it('should not fail when deprecated skills do not exist', () => {
+    fs.mkdirSync(path.join(tempDir, '.claude', 'skills'), { recursive: true });
+    assert.doesNotThrow(() => removeDeprecatedSkills(tempDir));
+  });
+
+  it('should not remove non-deprecated skills', () => {
+    fs.mkdirSync(path.join(tempDir, '.claude', 'skills', 'start'), { recursive: true });
+    fs.writeFileSync(path.join(tempDir, '.claude', 'skills', 'start', 'SKILL.md'), 'content');
+    fs.mkdirSync(path.join(tempDir, '.claude', 'skills', 'task'), { recursive: true });
+    fs.writeFileSync(path.join(tempDir, '.claude', 'skills', 'task', 'SKILL.md'), 'old');
+
+    removeDeprecatedSkills(tempDir);
+
+    assert.strictEqual(fs.existsSync(path.join(tempDir, '.claude', 'skills', 'start')), true);
+    assert.strictEqual(fs.existsSync(path.join(tempDir, '.claude', 'skills', 'task')), false);
   });
 });
 
@@ -931,5 +1053,199 @@ describe('update with agent override protection', () => {
     // Agent should be overridden despite version being current
     const content = fs.readFileSync(path.join(tempDir, '.claude', 'agents', 'reviewer.md'), 'utf8');
     assert.notStrictEqual(content, 'customized reviewer');
+  });
+});
+
+describe('copyFrameworkSkills', () => {
+  let tempDir;
+  let srcDir;
+  let destDir;
+
+  beforeEach(() => {
+    tempDir = createTempDir();
+    srcDir = path.join(tempDir, 'source');
+    destDir = path.join(tempDir, 'dest');
+
+    // Create source skills
+    for (const skill of FRAMEWORK_SKILLS) {
+      const skillDir = path.join(srcDir, '.claude', 'skills', skill);
+      fs.mkdirSync(skillDir, { recursive: true });
+      fs.writeFileSync(path.join(skillDir, 'SKILL.md'), `content of ${skill}`);
+    }
+  });
+
+  afterEach(() => {
+    removeTempDir(tempDir);
+  });
+
+  it('should copy all skills when destination is empty', async () => {
+    await copyFrameworkSkills(srcDir, destDir);
+
+    for (const skill of FRAMEWORK_SKILLS) {
+      const dest = path.join(destDir, '.claude', 'skills', skill, 'SKILL.md');
+      assert.strictEqual(fs.existsSync(dest), true);
+      assert.strictEqual(fs.readFileSync(dest, 'utf8'), `content of ${skill}`);
+    }
+  });
+
+  it('should skip existing skills when skipConfirm is true', async () => {
+    // Create existing skill with user content
+    const skillDir = path.join(destDir, '.claude', 'skills', 'start');
+    fs.mkdirSync(skillDir, { recursive: true });
+    fs.writeFileSync(path.join(skillDir, 'SKILL.md'), 'user custom skill');
+
+    await copyFrameworkSkills(srcDir, destDir, false, true);
+
+    assert.strictEqual(
+      fs.readFileSync(path.join(skillDir, 'SKILL.md'), 'utf8'),
+      'user custom skill'
+    );
+    // Other skills should be copied
+    assert.strictEqual(
+      fs.existsSync(path.join(destDir, '.claude', 'skills', 'check-task', 'SKILL.md')),
+      true
+    );
+  });
+
+  it('should override existing skills when overrideSkills is true', async () => {
+    const skillDir = path.join(destDir, '.claude', 'skills', 'start');
+    fs.mkdirSync(skillDir, { recursive: true });
+    fs.writeFileSync(path.join(skillDir, 'SKILL.md'), 'user custom skill');
+
+    await copyFrameworkSkills(srcDir, destDir, true);
+
+    assert.strictEqual(
+      fs.readFileSync(path.join(skillDir, 'SKILL.md'), 'utf8'),
+      'content of start'
+    );
+  });
+
+  it('should preserve non-framework skill directories', async () => {
+    const customDir = path.join(destDir, '.claude', 'skills', 'my-custom');
+    fs.mkdirSync(customDir, { recursive: true });
+    fs.writeFileSync(path.join(customDir, 'SKILL.md'), 'custom content');
+
+    await copyFrameworkSkills(srcDir, destDir);
+
+    assert.strictEqual(
+      fs.readFileSync(path.join(customDir, 'SKILL.md'), 'utf8'),
+      'custom content'
+    );
+  });
+
+  it('should create skills directory if it does not exist', async () => {
+    assert.strictEqual(fs.existsSync(path.join(destDir, '.claude', 'skills')), false);
+
+    await copyFrameworkSkills(srcDir, destDir);
+
+    assert.strictEqual(fs.existsSync(path.join(destDir, '.claude', 'skills')), true);
+  });
+
+  it('should skip missing source skills gracefully', async () => {
+    // Remove one source skill
+    fs.rmSync(path.join(srcDir, '.claude', 'skills', 'start'), { recursive: true });
+
+    await copyFrameworkSkills(srcDir, destDir);
+
+    assert.strictEqual(fs.existsSync(path.join(destDir, '.claude', 'skills', 'start')), false);
+    assert.strictEqual(fs.existsSync(path.join(destDir, '.claude', 'skills', 'check-task', 'SKILL.md')), true);
+  });
+});
+
+describe('copyFrameworkScripts', () => {
+  let tempDir;
+  let srcDir;
+  let destDir;
+
+  beforeEach(() => {
+    tempDir = createTempDir();
+    srcDir = path.join(tempDir, 'source');
+    destDir = path.join(tempDir, 'dest');
+
+    fs.mkdirSync(path.join(srcDir, '.claude', 'scripts'), { recursive: true });
+    for (const file of FRAMEWORK_SCRIPTS) {
+      fs.writeFileSync(path.join(srcDir, '.claude', 'scripts', file), `content of ${file}`);
+    }
+  });
+
+  afterEach(() => {
+    removeTempDir(tempDir);
+  });
+
+  it('should copy all scripts to destination', () => {
+    copyFrameworkScripts(srcDir, destDir);
+
+    for (const file of FRAMEWORK_SCRIPTS) {
+      const dest = path.join(destDir, '.claude', 'scripts', file);
+      assert.strictEqual(fs.existsSync(dest), true);
+      assert.strictEqual(fs.readFileSync(dest, 'utf8'), `content of ${file}`);
+    }
+  });
+
+  it('should create scripts directory if it does not exist', () => {
+    assert.strictEqual(fs.existsSync(path.join(destDir, '.claude', 'scripts')), false);
+
+    copyFrameworkScripts(srcDir, destDir);
+
+    assert.strictEqual(fs.existsSync(path.join(destDir, '.claude', 'scripts')), true);
+  });
+
+  it('should overwrite existing scripts', () => {
+    fs.mkdirSync(path.join(destDir, '.claude', 'scripts'), { recursive: true });
+    fs.writeFileSync(path.join(destDir, '.claude', 'scripts', 'pr-reviews.js'), 'old content');
+
+    copyFrameworkScripts(srcDir, destDir);
+
+    assert.strictEqual(
+      fs.readFileSync(path.join(destDir, '.claude', 'scripts', 'pr-reviews.js'), 'utf8'),
+      'content of pr-reviews.js'
+    );
+  });
+
+  it('should skip missing source scripts gracefully', () => {
+    fs.unlinkSync(path.join(srcDir, '.claude', 'scripts', 'pr-resolve.js'));
+
+    copyFrameworkScripts(srcDir, destDir);
+
+    assert.strictEqual(fs.existsSync(path.join(destDir, '.claude', 'scripts', 'pr-reviews.js')), true);
+    assert.strictEqual(fs.existsSync(path.join(destDir, '.claude', 'scripts', 'pr-resolve.js')), false);
+  });
+});
+
+describe('setAgentModel', () => {
+  let tempDir;
+
+  beforeEach(async () => {
+    tempDir = createTempDir();
+    await init(tempDir, true);
+  });
+
+  afterEach(() => {
+    removeTempDir(tempDir);
+  });
+
+  it('should change model for all agent files', () => {
+    setAgentModel(tempDir, 'haiku');
+
+    for (const file of FRAMEWORK_AGENTS) {
+      const content = fs.readFileSync(path.join(tempDir, '.claude', 'agents', file), 'utf8');
+      assert.match(content, /^model:\s*haiku$/m);
+    }
+  });
+
+  it('should do nothing if agents directory does not exist', () => {
+    const emptyDir = createTempDir();
+    assert.doesNotThrow(() => setAgentModel(emptyDir, 'haiku'));
+    removeTempDir(emptyDir);
+  });
+
+  it('should skip missing agent files', () => {
+    fs.unlinkSync(path.join(tempDir, '.claude', 'agents', 'researcher.md'));
+
+    assert.doesNotThrow(() => setAgentModel(tempDir, 'haiku'));
+
+    // Remaining agents should be updated
+    const content = fs.readFileSync(path.join(tempDir, '.claude', 'agents', 'reviewer.md'), 'utf8');
+    assert.match(content, /^model:\s*haiku$/m);
   });
 });

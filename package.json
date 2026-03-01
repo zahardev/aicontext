@@ -41,7 +41,7 @@
     ".aicontext/prompts/",
     ".aicontext/templates/",
     ".aicontext/tasks/.gitkeep",
-    ".aicontext/data/.gitkeep",
+    ".aicontext/data/.gitignore",
     ".aicontext/readme.md",
     ".aicontext/changelog.md",
     ".aicontext/.gitignore",
@@ -50,6 +50,6 @@
     ".github/copilot-instructions.md"
   ],
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=14.14.0"
   }
 }

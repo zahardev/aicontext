@@ -19,8 +19,13 @@ const FRAMEWORK_AGENTS = [
   'test-runner.md',
   'test-writer.md',
   'standards-checker.md',
-  'pr-review-summarizer.md',
 ];
+const DEPRECATED_AGENTS = ['pr-review-summarizer.md'];
+const FRAMEWORK_SKILLS = [
+  'start', 'check-task', 'check-plan', 'diff-review', 'branch-review', 'next-step', 'draft-pr', 'pr-review-check',
+];
+const DEPRECATED_SKILLS = ['task', 'review', 'after-step', 'next', 'pr'];
+const FRAMEWORK_SCRIPTS = ['pr-reviews.js', 'pr-resolve.js'];
 
 // Colors for terminal output
 const colors = {
@@ -181,6 +186,42 @@ function removeDeprecatedPrompts(target) {
   }
 }
 
+function removeDeprecatedAgents(target) {
+  const agentsDir = path.join(target, '.claude', 'agents');
+  for (const file of DEPRECATED_AGENTS) {
+    const filePath = path.join(agentsDir, file);
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+      log(`  Removed deprecated: agents/${file}`, 'dim');
+    }
+  }
+}
+
+function removeDeprecatedSkills(target) {
+  const skillsDir = path.join(target, '.claude', 'skills');
+  for (const skill of DEPRECATED_SKILLS) {
+    const skillPath = path.join(skillsDir, skill);
+    if (fs.existsSync(skillPath)) {
+      fs.rmSync(skillPath, { recursive: true });
+      log(`  Removed deprecated: skills/${skill}/`, 'dim');
+    }
+  }
+}
+
+function setAgentModel(target, model) {
+  const agentsDir = path.join(target, '.claude', 'agents');
+  if (!fs.existsSync(agentsDir)) return;
+
+  for (const file of FRAMEWORK_AGENTS) {
+    const filePath = path.join(agentsDir, file);
+    if (!fs.existsSync(filePath)) continue;
+
+    let content = fs.readFileSync(filePath, 'utf8');
+    content = content.replace(/^model:\s*\w+/m, `model: ${model}`);
+    fs.writeFileSync(filePath, content);
+  }
+}
+
 function copyFrameworkPrompts(packageRoot, target) {
   const srcDir = path.join(packageRoot, '.aicontext', 'prompts');
   const destDir = path.join(target, '.aicontext', 'prompts');
@@ -226,6 +267,54 @@ async function copyFrameworkAgents(packageRoot, target, overrideAgents = false, 
   }
 }
 
+async function copyFrameworkSkills(packageRoot, target, overrideSkills = false, skipConfirm = false) {
+  const srcDir = path.join(packageRoot, '.claude', 'skills');
+  const destDir = path.join(target, '.claude', 'skills');
+  fs.mkdirSync(destDir, { recursive: true });
+
+  for (const skill of FRAMEWORK_SKILLS) {
+    const src = path.join(srcDir, skill, 'SKILL.md');
+    if (!fs.existsSync(src)) continue;
+
+    const destSkillDir = path.join(destDir, skill);
+    const dest = path.join(destSkillDir, 'SKILL.md');
+
+    if (fs.existsSync(dest)) {
+      if (overrideSkills) {
+        fs.mkdirSync(destSkillDir, { recursive: true });
+        fs.copyFileSync(src, dest);
+        log(`  Overridden: skills/${skill}/SKILL.md`, 'yellow');
+      } else if (skipConfirm) {
+        log(`  Skipped: skills/${skill}/SKILL.md (already exists)`, 'dim');
+      } else {
+        const shouldOverride = await promptYesNo(`  skills/${skill}/SKILL.md already exists. Override? (y/N): `, false);
+        if (shouldOverride) {
+          fs.copyFileSync(src, dest);
+          log(`  Overridden: skills/${skill}/SKILL.md`, 'yellow');
+        } else {
+          log(`  Skipped: skills/${skill}/SKILL.md`, 'dim');
+        }
+      }
+    } else {
+      fs.mkdirSync(destSkillDir, { recursive: true });
+      fs.copyFileSync(src, dest);
+      log(`  Copied: skills/${skill}/SKILL.md`, 'dim');
+    }
+  }
+}
+
+function copyFrameworkScripts(packageRoot, target) {
+  const srcDir = path.join(packageRoot, '.claude', 'scripts');
+  const destDir = path.join(target, '.claude', 'scripts');
+  fs.mkdirSync(destDir, { recursive: true });
+
+  for (const file of FRAMEWORK_SCRIPTS) {
+    const src = path.join(srcDir, file);
+    if (!fs.existsSync(src)) continue;
+    fs.copyFileSync(src, path.join(destDir, file));
+  }
+}
+
 async function promptYesNo(question, defaultYes = true) {
   while (true) {
     const answer = await prompt(question);
@@ -236,7 +325,7 @@ async function promptYesNo(question, defaultYes = true) {
   }
 }
 
-async function init(targetDir, skipConfirm = false, keepPrompts = false, overrideAgents = false) {
+async function init(targetDir, skipConfirm = false, keepPrompts = false, overrideAgents = false, overrideSkills = false) {
   const target = path.resolve(targetDir || '.');
   const packageRoot = getPackageRoot();
 
@@ -286,7 +375,7 @@ async function init(targetDir, skipConfirm = false, keepPrompts = false, overrid
   }
   copyRecursive(path.join(packageRoot, '.aicontext', 'templates'), path.join(target, '.aicontext', 'templates'));
   copyRecursive(path.join(packageRoot, '.aicontext', 'tasks', '.gitkeep'), path.join(target, '.aicontext', 'tasks', '.gitkeep'));
-  copyRecursive(path.join(packageRoot, '.aicontext', 'data', '.gitkeep'), path.join(target, '.aicontext', 'data', '.gitkeep'));
+  copyRecursive(path.join(packageRoot, '.aicontext', 'data', '.gitignore'), path.join(target, '.aicontext', 'data', '.gitignore'));
   copyRecursive(path.join(packageRoot, '.aicontext', 'readme.md'), path.join(target, '.aicontext', 'readme.md'));
   if (!fs.existsSync(path.join(target, '.aicontext', 'changelog.md'))) {
     copyRecursive(path.join(packageRoot, '.aicontext', 'changelog.md'), path.join(target, '.aicontext', 'changelog.md'));
@@ -297,6 +386,18 @@ async function init(targetDir, skipConfirm = false, keepPrompts = false, overrid
   log('Copying tool entry points...', 'dim');
   copyRecursive(path.join(packageRoot, '.claude', 'CLAUDE.md'), path.join(target, '.claude', 'CLAUDE.md'));
   await copyFrameworkAgents(packageRoot, target, overrideAgents, skipConfirm);
+  if (!skipConfirm) {
+    const useHaiku = await promptYesNo(
+      '\nAgent model: agents default to sonnet for reliable results. Downgrade to haiku? (y/N): ',
+      false
+    );
+    if (useHaiku) {
+      setAgentModel(target, 'haiku');
+      log('  Agents set to haiku. Upgrade individual agents in .claude/agents/*.md anytime.', 'yellow');
+    }
+  }
+  await copyFrameworkSkills(packageRoot, target, overrideSkills, skipConfirm);
+  copyFrameworkScripts(packageRoot, target);
   copyRecursive(path.join(packageRoot, '.cursor'), path.join(target, '.cursor'));
   copyRecursive(path.join(packageRoot, '.github', 'copilot-instructions.md'), path.join(target, '.github', 'copilot-instructions.md'));
 
@@ -314,7 +415,7 @@ async function init(targetDir, skipConfirm = false, keepPrompts = false, overrid
   log('  - .claude/                         (if not using Claude Code)\n', 'dim');
 }
 
-async function update(targetDir, skipConfirm = false, keepPrompts = false, overrideAgents = false) {
+async function update(targetDir, skipConfirm = false, keepPrompts = false, overrideAgents = false, overrideSkills = false) {
   const target = path.resolve(targetDir || '.');
   const packageRoot = getPackageRoot();
   const versionFile = path.join(target, '.aicontext', '.version');
@@ -340,13 +441,14 @@ async function update(targetDir, skipConfirm = false, keepPrompts = false, overr
   const currentVersion = fs.readFileSync(versionFile, 'utf8').trim();
 
   if (currentVersion === VERSION) {
-    if (!overrideAgents) {
+    if (!overrideAgents && !overrideSkills) {
       log(`Already up to date (v${VERSION}).`, 'green');
       return;
     }
-    log(`Already up to date (v${VERSION}), re-copying agents...`, 'yellow');
+    log(`Already up to date (v${VERSION}), re-copying...`, 'yellow');
     copyRecursive(path.join(packageRoot, '.claude', 'CLAUDE.md'), path.join(target, '.claude', 'CLAUDE.md'));
-    await copyFrameworkAgents(packageRoot, target, overrideAgents, skipConfirm);
+    if (overrideAgents) await copyFrameworkAgents(packageRoot, target, overrideAgents, skipConfirm);
+    if (overrideSkills) await copyFrameworkSkills(packageRoot, target, overrideSkills, skipConfirm);
     return;
   }
 
@@ -370,6 +472,8 @@ async function update(targetDir, skipConfirm = false, keepPrompts = false, overr
   log('  - .aicontext/templates/', 'yellow');
   log('  - .claude/CLAUDE.md', 'yellow');
   log('  - .claude/agents/ (new agents only, existing will be prompted)', 'yellow');
+  log('  - .claude/skills/ (new skills only, existing will be prompted)', 'yellow');
+  log('  - .claude/scripts/', 'yellow');
   log('  - .cursor/', 'yellow');
   log('  - .github/copilot-instructions.md', 'yellow');
   log('\nPreserved (not modified):', 'green');
@@ -401,13 +505,20 @@ async function update(targetDir, skipConfirm = false, keepPrompts = false, overr
     copyFrameworkPrompts(packageRoot, target);
   }
   removeDeprecatedPrompts(target);
+  removeDeprecatedAgents(target);
+  removeDeprecatedSkills(target);
 
   log('Updating templates...', 'dim');
   copyRecursive(path.join(packageRoot, '.aicontext', 'templates'), path.join(target, '.aicontext', 'templates'));
 
+  log('Updating data directory...', 'dim');
+  copyRecursive(path.join(packageRoot, '.aicontext', 'data', '.gitignore'), path.join(target, '.aicontext', 'data', '.gitignore'));
+
   log('Updating tool entry points...', 'dim');
   copyRecursive(path.join(packageRoot, '.claude', 'CLAUDE.md'), path.join(target, '.claude', 'CLAUDE.md'));
   await copyFrameworkAgents(packageRoot, target, overrideAgents, skipConfirm);
+  await copyFrameworkSkills(packageRoot, target, overrideSkills, skipConfirm);
+  copyFrameworkScripts(packageRoot, target);
   copyRecursive(path.join(packageRoot, '.cursor'), path.join(target, '.cursor'));
   copyRecursive(path.join(packageRoot, '.github', 'copilot-instructions.md'), path.join(target, '.github', 'copilot-instructions.md'));
 
@@ -506,6 +617,7 @@ Options:
   -y, --yes                  Skip confirmation prompts
   --keep-prompts             Keep existing prompt files (don't overwrite)
   --override-agents          Override existing agent files without prompting
+  --override-skills          Override existing skill files without prompting
 
 Examples:
   npx aicontext init                  # Install to current directory
@@ -525,10 +637,19 @@ module.exports = {
   FRAMEWORK_PROMPTS,
   DEPRECATED_PROMPTS,
   FRAMEWORK_AGENTS,
+  DEPRECATED_AGENTS,
+  FRAMEWORK_SKILLS,
+  DEPRECATED_SKILLS,
+  FRAMEWORK_SCRIPTS,
   copyRecursive,
   copyFrameworkPrompts,
   copyFrameworkAgents,
+  copyFrameworkSkills,
+  copyFrameworkScripts,
+  setAgentModel,
   removeDeprecatedPrompts,
+  removeDeprecatedAgents,
+  removeDeprecatedSkills,
   getExistingFiles,
   hasExistingPrompts,
   readCache,
@@ -545,15 +666,16 @@ if (require.main === module) {
   const hasYesFlag = args.includes('-y') || args.includes('--yes');
   const hasKeepPromptsFlag = args.includes('--keep-prompts');
   const hasOverrideAgentsFlag = args.includes('--override-agents');
-  const targetPath = args.find((arg) => !['--yes', '-y', '--keep-prompts', '--override-agents', command].includes(arg));
+  const hasOverrideSkillsFlag = args.includes('--override-skills');
+  const targetPath = args.find((arg) => !['--yes', '-y', '--keep-prompts', '--override-agents', '--override-skills', command].includes(arg));
 
   async function main() {
     switch (command) {
       case 'init':
-        await init(targetPath, hasYesFlag, hasKeepPromptsFlag, hasOverrideAgentsFlag);
+        await init(targetPath, hasYesFlag, hasKeepPromptsFlag, hasOverrideAgentsFlag, hasOverrideSkillsFlag);
         break;
       case 'update':
-        await update(targetPath, hasYesFlag, hasKeepPromptsFlag, hasOverrideAgentsFlag);
+        await update(targetPath, hasYesFlag, hasKeepPromptsFlag, hasOverrideAgentsFlag, hasOverrideSkillsFlag);
         break;
       case 'upgrade':
         upgrade(targetPath);

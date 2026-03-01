@@ -1,7 +1,7 @@
 ---
 name: researcher
 description: Explores the codebase and returns concise summaries of code structure, relationships, and patterns. Use for understanding existing code before making changes.
-model: haiku
+model: sonnet
 tools: Read, Glob, Grep, Bash, WebFetch, WebSearch
 ---
 
