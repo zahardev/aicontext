@@ -98,7 +98,7 @@ The command creates the following in your project:
 
 ## Structure
 
-```
+```text
 .aicontext/
 ├── rules/              # AI behavior rules (process, standards)
 ├── prompts/            # Session prompts (start, task, review, etc.)
