@@ -8,7 +8,18 @@ AIContext gives your AI coding assistants persistent memory about your project �
 
 **Supports multiple AI tools** — Claude Code, Cursor, and GitHub Copilot.
 
-## Supported AI Tools
+## Features
+
+- **Persistent project context** — the AI auto-analyzes your codebase on first run and remembers your tech stack, architecture, and conventions across sessions
+- **Structured task management** — every feature and bug fix gets a tracked task file with requirements, step-by-step plan, and progress that survives session restarts
+- **Built-in code review** — review uncommitted changes or full branch diffs, cross-referenced against task requirements (Claude Code)
+- **GitHub PR workflow** — draft PRs from task context, fetch review comments, and bulk-resolve threads in one command (Claude Code)
+- **Specialized agents** — dedicated reviewer, test runner, standards checker, and researcher run in parallel without consuming your main conversation (Claude Code)
+- **Safety guardrails** — blocks destructive commands, enforces TDD, and requires explicit permission before implementation starts
+
+## How It Works
+
+Each AI tool has an **entry point file** that loads shared rules and project context from `.aicontext/` at session start.
 
 | Tool | Entry Point | Format |
 |------|-------------|--------|
@@ -18,7 +29,7 @@ AIContext gives your AI coding assistants persistent memory about your project �
 
 ## Requirements
 
-- Node.js 18.0.0 or higher (for npm install only — not needed for [manual copy](#option-c-manual-copy))
+- Node.js 14.14.0 or higher (for npm install only — not needed for [manual copy](#option-c-manual-copy))
 
 ## Installation
 
@@ -62,6 +73,15 @@ cp -r /tmp/aicontext/.github .   # GitHub Copilot
 rm -rf /tmp/aicontext
 ```
 
+### Quick Start
+
+After installing, start a session to let the AI learn your project:
+
+1. **Claude Code:** Type `/start`
+2. **Cursor / Copilot:** Paste the contents of `.aicontext/prompts/start.md`
+
+On the first run, the AI will analyze your codebase and generate two files — `project.md` (tech stack, architecture, conventions) and `structure.md` (commands, folder layout). These persist across sessions, so every future session starts with full context automatically.
+
 ### What `aicontext init` Creates
 
 The command creates the following in your project:
@@ -70,48 +90,36 @@ The command creates the following in your project:
 |------|---------|
 | `.aicontext/` | Framework files (rules, prompts, templates) |
 | `.claude/CLAUDE.md` | Entry point for Claude Code |
+| `.claude/agents/` | Predefined subagents for Claude Code |
+| `.claude/skills/` | Invocable skills (`/command`) for Claude Code |
+| `.claude/scripts/` | PR workflow scripts for Claude Code |
 | `.cursor/rules/` | Entry point for Cursor |
 | `.github/copilot-instructions.md` | Entry point for GitHub Copilot |
-
-## Generate Project Context
-
-1. Open your AI assistant (Claude Code, Cursor, etc.)
-2. Start a conversation with `.aicontext/prompts/start.md` prompt
-3. On first run, the AI will analyze your codebase and generate:
-   - `.aicontext/project.md` - Project overview, tech stack, architecture
-   - `.aicontext/structure.md` - Commands, folder structure, environment
-
-These files give your AI assistant "memory" about your project. Once generated, future sessions start with full context automatically.
 
 ## Structure
 
 ```
 .aicontext/
-├── rules/
-│   ├── process.md      # Task management, TDD workflow
-│   └── standards.md    # Coding standards, safety rules
-├── prompts/
-│   ├── generate.md     # Generate project context (auto-runs if project.md missing)
-│   ├── start.md        # Start a session
-│   ├── check_task.md   # Before starting a task
-│   ├── check_plan.md   # Review implementation plan
-│   └── review.md       # Code review
-├── templates/
-│   ├── project.template.md
-│   ├── structure.template.md
-│   └── task.template.md
+├── rules/              # AI behavior rules (process, standards)
+├── prompts/            # Session prompts (start, task, review, etc.)
+├── templates/          # Templates for project.md, structure.md, task.md
 ├── examples/           # Example configs (GitHub repo only)
-│   ├── laravel-api/
-│   ├── wordpress-plugin/
-│   ├── web-api/
-│   └── cli-tool/
 ├── tasks/              # Task tracking files
-├── data/               # Screenshots, specs, reference files
+├── data/               # Screenshots, specs, review results (gitignored)
 ├── project.md          # [Generated] Project-specific
 ├── structure.md        # [Generated] Project-specific
 ├── changelog.md        # Task completion history
 ├── local.md            # Personal settings (gitignored)
 └── readme.md           # Framework documentation
+
+.claude/
+├── CLAUDE.md           # Claude Code entry point
+├── agents/             # Predefined subagents
+├── skills/             # Invocable skills (/start, /check-task, etc.)
+└── scripts/            # PR workflow scripts
+
+.cursor/                # Cursor entry point
+.github/                # GitHub Copilot entry point
 ```
 
 Example configurations are available in the [GitHub repository](https://github.com/zahardev/aicontext/tree/main/.aicontext/examples).
@@ -120,20 +128,25 @@ Example configurations are available in the [GitHub repository](https://github.c
 
 ### Starting a Session
 
-1. Paste contents of `.aicontext/prompts/start.md`
-2. AI reads rules and confirms readiness
+Start each session with `/start` (Claude Code) or `.aicontext/prompts/start.md` (Cursor/Copilot) — the AI confirms it has loaded the project rules and context.
 
 ### Working on a Task
 
-1. Paste contents of `.aicontext/prompts/check_task.md`
-2. AI analyzes the task and asks clarifying questions
-3. Implement with AI assistance
-4. Update `.aicontext/changelog.md` when complete
+- **Claude Code:** Type `/check-task`
+- **Cursor/Copilot:** Paste contents of `.aicontext/prompts/task.md`
+
+The AI analyzes the task, asks clarifying questions, and creates a task file. After each step, use `/next-step` in Claude Code (or `.aicontext/prompts/after_step.md` in Cursor/Copilot) to reflect and continue.
 
 ### Code Review
 
-1. Paste contents of `.aicontext/prompts/review.md`
-2. AI reviews changes against task requirements
+- **Claude Code:** Type `/diff-review` (uncommitted changes) or `/branch-review` (full branch diff)
+- **Cursor/Copilot:** Paste contents of `.aicontext/prompts/review.md` (uncommitted changes only)
+
+### Pull Request Workflow (Claude Code)
+
+1. `/draft-pr` — draft a PR from task file and git changes
+2. `/pr-review-check` — fetch and triage PR review comments after review
+3. Fix valid issues, resolve false positives directly on GitHub
 
 ## Updating the Framework
 
@@ -161,14 +174,72 @@ aicontext upgrade 1.2.0
 
 ### What `aicontext update` Does
 
-Updates framework files (rules, prompts, templates, tool entry points) while preserving your project-specific files:
+Updates framework files while preserving your project-specific files:
 
 | Updated | Preserved |
 |---------|-----------|
-| `.aicontext/rules/` | `.aicontext/project.md` |
-| `.aicontext/prompts/` | `.aicontext/structure.md` |
-| `.aicontext/templates/` | `.aicontext/changelog.md` |
-| `.claude/`, `.cursor/`, `.github/` | `.aicontext/local.md` |
+| `.aicontext/rules/`, `prompts/`, `templates/` | `.aicontext/project.md`, `structure.md` |
+| `.claude/CLAUDE.md`, `scripts/` | `.aicontext/changelog.md`, `local.md` |
+| `.cursor/`, `.github/` | `.aicontext/tasks/` (your task files) |
+
+Agents and skills have **override protection** — existing files are never silently overwritten. You'll be prompted for each file that already exists. Use `--override-agents` or `--override-skills` to force-override without prompting.
+
+## Claude Code Features
+
+Claude Code users get additional tooling beyond the shared rules and prompts.
+
+### Skills
+
+Skills are invocable commands (`/skill-name`) — the Claude Code equivalent of prompt files.
+
+| Skill | Equivalent Prompt | Description |
+|-------|-------------------|-------------|
+| `/start` | `prompts/start.md` | Confirm project readiness |
+| `/check-task` | `prompts/task.md` | Analyze task before implementation |
+| `/check-plan` | `prompts/plan.md` | Validate plan for issues |
+| `/diff-review` | `prompts/review.md` | Review uncommitted changes |
+| `/branch-review` | — | Review full branch against main |
+| `/next-step` | — | Complete step, reflect, start next |
+| `/draft-pr` | — | Draft pull request |
+| `/pr-review-check` | — | Triage PR review comments |
+
+### Agents
+
+Predefined subagents save context tokens by delegating research, testing, and review tasks.
+
+| Agent | Default Model | Role |
+|-------|---------------|------|
+| `researcher` | sonnet | Explore codebase, return concise summaries |
+| `test-runner` | sonnet | Run tests, report only failures |
+| `test-writer` | sonnet | Draft test files in parallel with implementation |
+| `standards-checker` | sonnet | Check code against project rules |
+| `reviewer` | opus | Review code for bugs, edge cases, security |
+
+During `aicontext init`, you can opt to downgrade all agents to `haiku`. Change individual models anytime in `.claude/agents/*.md`.
+
+### PR Scripts
+
+Node.js scripts in `.claude/scripts/` for GitHub PR workflows:
+
+| Script | Used By | Purpose |
+|--------|---------|---------|
+| `pr-reviews.js` | `/pr-review-check` | Fetch unresolved PR review threads via GitHub GraphQL API |
+| `pr-resolve.js` | `/pr-review-check` | Resolve threads and post replies on GitHub |
+
+**Requirement:** [GitHub CLI (`gh`)](https://cli.github.com/) installed and authenticated (`gh auth login`).
+
+Agents, skills, and scripts are Claude Code specific — Cursor and Copilot use the shared prompts.
+
+## For Teams: What to Commit
+
+| Commit | Gitignored |
+|--------|------------|
+| `.aicontext/rules/`, `prompts/`, `templates/` | `.aicontext/local.md` (personal settings) |
+| `.aicontext/project.md`, `structure.md` | `.aicontext/data/` (review results, PR drafts) |
+| `.aicontext/changelog.md`, `tasks/` | |
+| `.claude/`, `.cursor/`, `.github/` | |
+
+Team members share the same rules, project context, and task history. Personal preferences go in `local.md`, which is gitignored so each person can customize without affecting others.
 
 ## Customization
 
@@ -188,7 +259,15 @@ Not using all AI tools? You can safely delete:
 
 ## Version History
 
-See [CHANGELOG.md](CHANGELOG.md) for release notes.
+| Version | Highlights |
+|---------|------------|
+| **1.4.0** | Skills (`/start`, `/check-task`, etc.), PR workflow scripts, agent model upgrades (sonnet/opus) |
+| **1.3.0** | Claude Code subagents (researcher, reviewer, test-runner, etc.), override protection |
+| **1.2.0** | Auto-update checking, `aicontext upgrade`, confirmation prompts, `.ai/` → `.aicontext/` rename |
+| **1.1.0** | Data directory for screenshots/specs, changelog preservation |
+| **1.0.0** | Initial release — rules, prompts, templates, multi-tool support |
+
+See [CHANGELOG.md](CHANGELOG.md) for full details.
 
 ## License
 

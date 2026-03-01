@@ -92,13 +92,7 @@ function fetchThreads(owner, name, number) {
 }
 
 function getPrInfo() {
-  let prNumber;
-  try {
-    prNumber = gh(['pr', 'view', '--json', 'number', '-q', '.number']).trim();
-  } catch {
-    console.error('No open PR found for current branch.');
-    process.exit(1);
-  }
+  const prNumber = gh(['pr', 'view', '--json', 'number', '-q', '.number']).trim();
   if (!prNumber) {
     console.error('No open PR found for current branch.');
     process.exit(1);
@@ -221,4 +215,9 @@ function main() {
   console.log(`Saved ${entries.length} findings to ${filepath}`);
 }
 
-main();
+// Export for testing
+module.exports = { stripNoise, buildEntries, renderMarkdown, nextIteration };
+
+if (require.main === module) {
+  main();
+}

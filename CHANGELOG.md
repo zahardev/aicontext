@@ -1,5 +1,24 @@
 # Changelog
 
+## [1.4.0] - 2026-03-01
+
+### Added
+- Claude Code skills: 8 invocable commands (`/start`, `/check-task`, `/check-plan`, `/diff-review`, `/branch-review`, `/next-step`, `/draft-pr`, `/pr-review-check`)
+- PR workflow scripts in `.claude/scripts/`: `pr-reviews.js` (fetch unresolved threads via GitHub GraphQL API) and `pr-resolve.js` (resolve threads and post replies)
+- `--override-skills` flag to force-override existing skill files during `init` and `update`
+- Skill override protection — existing skill files are never silently overwritten
+- Data directory conventions: `code-reviews/`, `pr-drafts/`, `pr-reviews/` subdirectories
+- `.aicontext/data/.gitignore` for ignoring user data while preserving directory structure
+
+### Changed
+- Agent model defaults upgraded from `haiku` to `sonnet` (reviewer to `opus`), with interactive `haiku` opt-in during `init`
+- Renamed data subdirectories for clarity: `reviews/` → `code-reviews/`, `pr/` → `pr-drafts/`, `github-pr-reviews/` → `pr-reviews/`
+- Replaced `.aicontext/data/.gitkeep` with `.aicontext/data/.gitignore`
+
+### Removed
+- Deprecated `pr-review-summarizer` agent (replaced by `/pr-review-check` skill + PR scripts)
+- Deprecated skills cleaned up during `update`: `after-step`, `task`, `review`, `next`, `pr`
+
 ## [1.3.0] - 2026-02-25
 
 ### Added

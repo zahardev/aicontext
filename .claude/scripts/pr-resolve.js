@@ -27,15 +27,19 @@ function checkGhCli() {
   }
 }
 
+function gh(args) {
+  try {
+    return execFileSync('gh', args, { encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] });
+  } catch (err) {
+    const message = err.stderr ? err.stderr.trim() : err.message;
+    console.error(message);
+    process.exit(1);
+  }
+}
+
 function getRepoInfo() {
-  const owner = execFileSync('gh', ['repo', 'view', '--json', 'owner', '-q', '.owner.login'], {
-    encoding: 'utf8',
-    stdio: ['pipe', 'pipe', 'pipe'],
-  }).trim();
-  const name = execFileSync('gh', ['repo', 'view', '--json', 'name', '-q', '.name'], {
-    encoding: 'utf8',
-    stdio: ['pipe', 'pipe', 'pipe'],
-  }).trim();
+  const owner = gh(['repo', 'view', '--json', 'owner', '-q', '.owner.login']).trim();
+  const name = gh(['repo', 'view', '--json', 'name', '-q', '.name']).trim();
   return { owner, name };
 }
 
@@ -168,4 +172,9 @@ function main() {
   console.log(`\nDone: ${resolved}/${entries.length} resolved.`);
 }
 
-main();
+// Export for testing
+module.exports = { parsePrNumber, parseCommentIds, parseResolveEntries };
+
+if (require.main === module) {
+  main();
+}
