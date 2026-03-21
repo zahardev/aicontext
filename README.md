@@ -271,7 +271,7 @@ aicontext upgrade
 Or upgrade to a specific version:
 
 ```bash
-aicontext upgrade 1.2.0
+aicontext upgrade 1.5.0
 ```
 
 ### What `aicontext update` Does
@@ -371,6 +371,7 @@ Not using all AI tools? You can safely delete:
 
 | Version | Highlights |
 |---------|------------|
+| **1.5.0** | Codex support, new skills (`/standards-check`, `/draft-issue`, `/code-health`), PR template, tool-agnostic scripts |
 | **1.4.0** | Skills (`/start`, `/check-task`, etc.), PR workflow scripts, agent model upgrades (sonnet/opus) |
 | **1.3.0** | Claude Code subagents (researcher, reviewer, test-runner, etc.), override protection |
 | **1.2.0** | Auto-update checking, `aicontext upgrade`, confirmation prompts, `.ai/` → `.aicontext/` rename |
