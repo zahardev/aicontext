@@ -23,6 +23,11 @@ const FRAMEWORK_AGENTS = [
 const DEPRECATED_AGENTS = ['pr-review-summarizer.md'];
 const FRAMEWORK_SKILLS = [
   'start', 'check-task', 'check-plan', 'diff-review', 'branch-review', 'next-step', 'draft-pr', 'pr-review-check',
+  'standards-check', 'draft-issue', 'code-health',
+];
+const FRAMEWORK_CODEX_SKILLS = [
+  'start', 'check-task', 'check-plan', 'diff-review', 'branch-review', 'next-step', 'draft-pr', 'pr-review-check',
+  'standards-check', 'draft-issue', 'code-health',
 ];
 const DEPRECATED_SKILLS = ['task', 'review', 'after-step', 'next', 'pr'];
 const FRAMEWORK_SCRIPTS = ['pr-reviews.js', 'pr-resolve.js'];
@@ -139,6 +144,7 @@ function getExistingFiles(target) {
   const checkPaths = [
     '.aicontext',
     '.claude',
+    '.codex',
     '.cursor',
     '.github/copilot-instructions.md',
   ];
@@ -304,14 +310,50 @@ async function copyFrameworkSkills(packageRoot, target, overrideSkills = false, 
 }
 
 function copyFrameworkScripts(packageRoot, target) {
-  const srcDir = path.join(packageRoot, '.claude', 'scripts');
-  const destDir = path.join(target, '.claude', 'scripts');
+  const srcDir = path.join(packageRoot, '.aicontext', 'scripts');
+  const destDir = path.join(target, '.aicontext', 'scripts');
   fs.mkdirSync(destDir, { recursive: true });
 
   for (const file of FRAMEWORK_SCRIPTS) {
     const src = path.join(srcDir, file);
     if (!fs.existsSync(src)) continue;
     fs.copyFileSync(src, path.join(destDir, file));
+  }
+}
+
+async function copyFrameworkCodexSkills(packageRoot, target, overrideSkills = false, skipConfirm = false) {
+  const srcDir = path.join(packageRoot, '.codex', 'skills');
+  const destDir = path.join(target, '.codex', 'skills');
+  fs.mkdirSync(destDir, { recursive: true });
+
+  for (const skill of FRAMEWORK_CODEX_SKILLS) {
+    const src = path.join(srcDir, skill, 'SKILL.md');
+    if (!fs.existsSync(src)) continue;
+
+    const destSkillDir = path.join(destDir, skill);
+    const dest = path.join(destSkillDir, 'SKILL.md');
+
+    if (fs.existsSync(dest)) {
+      if (overrideSkills) {
+        fs.mkdirSync(destSkillDir, { recursive: true });
+        fs.copyFileSync(src, dest);
+        log(`  Overridden: .codex/skills/${skill}/SKILL.md`, 'yellow');
+      } else if (skipConfirm) {
+        log(`  Skipped: .codex/skills/${skill}/SKILL.md (already exists)`, 'dim');
+      } else {
+        const shouldOverride = await promptYesNo(`  .codex/skills/${skill}/SKILL.md already exists. Override? (y/N): `, false);
+        if (shouldOverride) {
+          fs.copyFileSync(src, dest);
+          log(`  Overridden: .codex/skills/${skill}/SKILL.md`, 'yellow');
+        } else {
+          log(`  Skipped: .codex/skills/${skill}/SKILL.md`, 'dim');
+        }
+      }
+    } else {
+      fs.mkdirSync(destSkillDir, { recursive: true });
+      fs.copyFileSync(src, dest);
+      log(`  Copied: .codex/skills/${skill}/SKILL.md`, 'dim');
+    }
   }
 }
 
@@ -398,6 +440,7 @@ async function init(targetDir, skipConfirm = false, keepPrompts = false, overrid
   }
   await copyFrameworkSkills(packageRoot, target, overrideSkills, skipConfirm);
   copyFrameworkScripts(packageRoot, target);
+  await copyFrameworkCodexSkills(packageRoot, target, overrideSkills, skipConfirm);
   copyRecursive(path.join(packageRoot, '.cursor'), path.join(target, '.cursor'));
   copyRecursive(path.join(packageRoot, '.github', 'copilot-instructions.md'), path.join(target, '.github', 'copilot-instructions.md'));
 
@@ -406,11 +449,12 @@ async function init(targetDir, skipConfirm = false, keepPrompts = false, overrid
 
   log('\nInstallation complete!', 'green');
   log('\nNext steps:', 'cyan');
-  log('1. Open your AI assistant (Claude Code, Cursor, etc.)');
-  log('2. Start a conversation - the AI will auto-detect missing project.md');
-  log('3. The AI will analyze your codebase and generate project context');
+  log('1. Open your AI assistant (Claude Code, Cursor, Codex, or GitHub Copilot)');
+  log('2. Type /start (Claude Code) or paste .aicontext/prompts/start.md (Cursor/Copilot)');
+  log('3. On first run, the AI will analyze your codebase and generate project context');
   log('\nNot using all AI tools? You can safely delete:', 'dim');
   log('  - .cursor/                         (if not using Cursor)', 'dim');
+  log('  - .codex/                          (if not using Codex)', 'dim');
   log('  - .github/copilot-instructions.md  (if not using Copilot)', 'dim');
   log('  - .claude/                         (if not using Claude Code)\n', 'dim');
 }
@@ -448,7 +492,10 @@ async function update(targetDir, skipConfirm = false, keepPrompts = false, overr
     log(`Already up to date (v${VERSION}), re-copying...`, 'yellow');
     copyRecursive(path.join(packageRoot, '.claude', 'CLAUDE.md'), path.join(target, '.claude', 'CLAUDE.md'));
     if (overrideAgents) await copyFrameworkAgents(packageRoot, target, overrideAgents, skipConfirm);
-    if (overrideSkills) await copyFrameworkSkills(packageRoot, target, overrideSkills, skipConfirm);
+    if (overrideSkills) {
+      await copyFrameworkSkills(packageRoot, target, overrideSkills, skipConfirm);
+      await copyFrameworkCodexSkills(packageRoot, target, overrideSkills, skipConfirm);
+    }
     return;
   }
 
@@ -473,7 +520,8 @@ async function update(targetDir, skipConfirm = false, keepPrompts = false, overr
   log('  - .claude/CLAUDE.md', 'yellow');
   log('  - .claude/agents/ (new agents only, existing will be prompted)', 'yellow');
   log('  - .claude/skills/ (new skills only, existing will be prompted)', 'yellow');
-  log('  - .claude/scripts/', 'yellow');
+  log('  - .aicontext/scripts/', 'yellow');
+  log('  - .codex/skills/ (new skills only, existing will be prompted)', 'yellow');
   log('  - .cursor/', 'yellow');
   log('  - .github/copilot-instructions.md', 'yellow');
   log('\nPreserved (not modified):', 'green');
@@ -519,6 +567,7 @@ async function update(targetDir, skipConfirm = false, keepPrompts = false, overr
   await copyFrameworkAgents(packageRoot, target, overrideAgents, skipConfirm);
   await copyFrameworkSkills(packageRoot, target, overrideSkills, skipConfirm);
   copyFrameworkScripts(packageRoot, target);
+  await copyFrameworkCodexSkills(packageRoot, target, overrideSkills, skipConfirm);
   copyRecursive(path.join(packageRoot, '.cursor'), path.join(target, '.cursor'));
   copyRecursive(path.join(packageRoot, '.github', 'copilot-instructions.md'), path.join(target, '.github', 'copilot-instructions.md'));
 
@@ -639,12 +688,14 @@ module.exports = {
   FRAMEWORK_AGENTS,
   DEPRECATED_AGENTS,
   FRAMEWORK_SKILLS,
+  FRAMEWORK_CODEX_SKILLS,
   DEPRECATED_SKILLS,
   FRAMEWORK_SCRIPTS,
   copyRecursive,
   copyFrameworkPrompts,
   copyFrameworkAgents,
   copyFrameworkSkills,
+  copyFrameworkCodexSkills,
   copyFrameworkScripts,
   setAgentModel,
   removeDeprecatedPrompts,

@@ -748,13 +748,14 @@ describe('removeDeprecatedAgents', () => {
 });
 
 describe('FRAMEWORK_SKILLS', () => {
-  it('should contain exactly 8 skill names', () => {
-    assert.strictEqual(FRAMEWORK_SKILLS.length, 8);
+  it('should contain exactly 11 skill names', () => {
+    assert.strictEqual(FRAMEWORK_SKILLS.length, 11);
   });
 
   it('should contain the expected skills', () => {
     const expected = [
       'start', 'check-task', 'check-plan', 'diff-review', 'branch-review', 'next-step', 'draft-pr', 'pr-review-check',
+      'standards-check', 'draft-issue', 'code-health',
     ];
     assert.deepStrictEqual([...FRAMEWORK_SKILLS].sort(), [...expected].sort());
   });
@@ -1162,9 +1163,9 @@ describe('copyFrameworkScripts', () => {
     srcDir = path.join(tempDir, 'source');
     destDir = path.join(tempDir, 'dest');
 
-    fs.mkdirSync(path.join(srcDir, '.claude', 'scripts'), { recursive: true });
+    fs.mkdirSync(path.join(srcDir, '.aicontext', 'scripts'), { recursive: true });
     for (const file of FRAMEWORK_SCRIPTS) {
-      fs.writeFileSync(path.join(srcDir, '.claude', 'scripts', file), `content of ${file}`);
+      fs.writeFileSync(path.join(srcDir, '.aicontext', 'scripts', file), `content of ${file}`);
     }
   });
 
@@ -1176,39 +1177,39 @@ describe('copyFrameworkScripts', () => {
     copyFrameworkScripts(srcDir, destDir);
 
     for (const file of FRAMEWORK_SCRIPTS) {
-      const dest = path.join(destDir, '.claude', 'scripts', file);
+      const dest = path.join(destDir, '.aicontext', 'scripts', file);
       assert.strictEqual(fs.existsSync(dest), true);
       assert.strictEqual(fs.readFileSync(dest, 'utf8'), `content of ${file}`);
     }
   });
 
   it('should create scripts directory if it does not exist', () => {
-    assert.strictEqual(fs.existsSync(path.join(destDir, '.claude', 'scripts')), false);
+    assert.strictEqual(fs.existsSync(path.join(destDir, '.aicontext', 'scripts')), false);
 
     copyFrameworkScripts(srcDir, destDir);
 
-    assert.strictEqual(fs.existsSync(path.join(destDir, '.claude', 'scripts')), true);
+    assert.strictEqual(fs.existsSync(path.join(destDir, '.aicontext', 'scripts')), true);
   });
 
   it('should overwrite existing scripts', () => {
-    fs.mkdirSync(path.join(destDir, '.claude', 'scripts'), { recursive: true });
-    fs.writeFileSync(path.join(destDir, '.claude', 'scripts', 'pr-reviews.js'), 'old content');
+    fs.mkdirSync(path.join(destDir, '.aicontext', 'scripts'), { recursive: true });
+    fs.writeFileSync(path.join(destDir, '.aicontext', 'scripts', 'pr-reviews.js'), 'old content');
 
     copyFrameworkScripts(srcDir, destDir);
 
     assert.strictEqual(
-      fs.readFileSync(path.join(destDir, '.claude', 'scripts', 'pr-reviews.js'), 'utf8'),
+      fs.readFileSync(path.join(destDir, '.aicontext', 'scripts', 'pr-reviews.js'), 'utf8'),
       'content of pr-reviews.js'
     );
   });
 
   it('should skip missing source scripts gracefully', () => {
-    fs.unlinkSync(path.join(srcDir, '.claude', 'scripts', 'pr-resolve.js'));
+    fs.unlinkSync(path.join(srcDir, '.aicontext', 'scripts', 'pr-resolve.js'));
 
     copyFrameworkScripts(srcDir, destDir);
 
-    assert.strictEqual(fs.existsSync(path.join(destDir, '.claude', 'scripts', 'pr-reviews.js')), true);
-    assert.strictEqual(fs.existsSync(path.join(destDir, '.claude', 'scripts', 'pr-resolve.js')), false);
+    assert.strictEqual(fs.existsSync(path.join(destDir, '.aicontext', 'scripts', 'pr-reviews.js')), true);
+    assert.strictEqual(fs.existsSync(path.join(destDir, '.aicontext', 'scripts', 'pr-resolve.js')), false);
   });
 });
 

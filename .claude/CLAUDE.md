@@ -30,8 +30,9 @@ When subagents are available, **delegate these tasks instead of performing them 
 - Run multiple agents in parallel when tasks are independent (e.g., `reviewer` + `standards-checker` + `test-runner` after implementation)
 - NEVER use `EnterPlanMode` — all planning is done in `.aicontext/tasks/` task files per `process.md`
 - NEVER launch a subagent without telling the user first — state which agent and what it will do (e.g., "Asking subagent `test-runner` to execute the full test suite.")
+- When a skill is invoked via `/command`, its content is provided inline — NEVER read files from `.claude/skills/` directories
 
-**Model defaults:** Agents default to `sonnet`, except `reviewer` which defaults to `opus` for thorough code review. Free plan users can downgrade all agents to haiku during `aicontext init`.
+**Model defaults:** Agents default to `sonnet`, except `reviewer` and `standards-checker` which default to `opus` for thorough analysis. Free plan users can downgrade all agents to haiku during `aicontext init`.
 
 ## Auto-Setup
 
