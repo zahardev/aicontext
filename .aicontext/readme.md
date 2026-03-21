@@ -37,6 +37,7 @@ If `project.md` defines a rule that conflicts with `rules/`, `project.md` wins. 
 | `rules/` | Behavioral rules for AI assistants |
 | `tasks/` | Individual task tracking files |
 | `prompts/` | Prompt templates for common workflows |
+| `scripts/` | Tool-agnostic automation scripts (PR workflows) |
 | `data/` | Screenshots, specs, research notes, PR drafts, review results (gitignored) |
 | `templates/` | Templates for generating project-specific files |
 
@@ -60,6 +61,17 @@ Located in `rules/`:
 | `after_step.md` | After completing a plan step - reflect and adjust |
 | `review.md` | Code review after implementation |
 
+## Scripts
+
+Located in `scripts/` — these are tool-agnostic Node.js scripts used by both Claude Code and Codex skills:
+
+| Script | Used By | Purpose |
+|--------|---------|---------|
+| `pr-reviews.js` | `/pr-review-check` | Fetch unresolved PR review threads via GitHub GraphQL API |
+| `pr-resolve.js` | `/pr-review-check` | Resolve threads and post replies on GitHub |
+
+**Requirement:** These scripts need the [GitHub CLI (`gh`)](https://cli.github.com/) installed and authenticated (`gh auth login`).
+
 ## Data Directory
 
 The `data/` directory stores project-specific reference files. Its contents are gitignored by default — use it for local working files that shouldn't be committed.
@@ -71,6 +83,7 @@ Common subdirectories:
 | `code-reviews/` | Code review results from `/diff-review` and `/branch-review` skills |
 | `pr-drafts/` | Pull request drafts from `/draft-pr` skill |
 | `github-pr-reviews/` | PR review comment files from `/pr-review-check` skill |
+| `issue-drafts/` | GitHub issue drafts from `/draft-issue` skill |
 
 Subdirectories are created automatically by skills and scripts when needed.
 
@@ -92,7 +105,7 @@ Subdirectories are created automatically by skills and scripts when needed.
 1. Paste `prompts/review.md` (or use `/diff-review` for uncommitted changes, `/branch-review` for full branch) in Claude Code
 2. Paste `prompts/plan.md` (or use `/check-plan`) to validate plans
 
-### Pull Request Workflow (Claude Code)
+### Pull Request Workflow (Claude Code / Codex)
 1. Use `/draft-pr` to draft a pull request from the task file and git changes
 2. After PR review, use `/pr-review-check` to fetch and triage review comments
 3. Fix valid issues, resolve false positives directly on GitHub
@@ -101,47 +114,37 @@ Subdirectories are created automatically by skills and scripts when needed.
 
 If you use Claude Code (CLI or VSCode extension), the framework includes predefined subagents in `.claude/agents/`. These are auto-discovered at session start and help save context tokens by delegating research, testing, and review tasks to specialized agents.
 
-| Agent | Default Model | Upgrade | Role |
-|-------|---------------|---------|------|
-| `researcher` | sonnet | | Explore codebase, return concise summaries |
-| `test-runner` | sonnet | | Run tests, report only failures |
-| `test-writer` | sonnet | | Draft test files in parallel with implementation |
-| `standards-checker` | sonnet | | Check code against project rules |
-| `reviewer` | opus | | Review code for bugs, edge cases, security |
+| Agent | Default Model | Role |
+|-------|---------------|------|
+| `researcher` | sonnet | Explore codebase, return concise summaries |
+| `test-runner` | sonnet | Run tests, report only failures |
+| `test-writer` | sonnet | Draft test files in parallel with implementation |
+| `standards-checker` | opus | Check code against project rules |
+| `reviewer` | opus | Review code for bugs, edge cases, security |
 
-All agents default to `sonnet`. To change a model, edit the `model:` field in `.claude/agents/<agent>.md`. Free plan users can downgrade to `haiku` during `aicontext init`.
+To change a model, edit the `model:` field in `.claude/agents/<agent>.md`. Free plan users can downgrade to `haiku` during `aicontext init`.
 
 **Override protection:** During `init` and `update`, existing agent files are never silently overwritten. If an agent file already exists, you'll be prompted whether to override or skip it. Use `--override-agents` to force-override all agents without prompting.
 
-### Skills
+### Skills (Claude Code & Codex)
 
-Skills are invocable commands (`/skill-name`) that automate common workflows. They're the Claude Code equivalent of prompts — instead of copying prompt text, just type the command.
+Skills automate common workflows. Both Claude Code (`.claude/skills/`) and Codex (`.codex/skills/`) ship the same set of skills — Claude Code invokes them with `/skill-name`, Codex with `Use skill-name`. The difference is that Claude Code skills delegate to subagents, while Codex skills are self-contained workflows.
 
 | Skill | Equivalent Prompt | Description |
 |-------|-------------------|-------------|
-| `/start` | `prompts/start.md` | Confirm project readiness |
-| `/check-task` | `prompts/task.md` | Analyze task before implementation |
-| `/check-plan` | `prompts/plan.md` | Validate plan for issues |
-| `/diff-review` | `prompts/review.md` | Review uncommitted changes (delegates to reviewer agent) |
-| `/branch-review` | — | Review full branch against main (delegates to reviewer agent) |
-| `/next-step` | — | Complete step, reflect, start next |
-| `/draft-pr` | — | Draft pull request |
-| `/pr-review-check` | — | Triage PR review comments |
+| `start` | `prompts/start.md` | Confirm project readiness |
+| `check-task` | `prompts/task.md` | Analyze task before implementation |
+| `check-plan` | `prompts/plan.md` | Validate plan for issues |
+| `diff-review` | `prompts/review.md` | Review uncommitted changes |
+| `branch-review` | — | Review full branch against main |
+| `standards-check` | — | Check branch changes against coding standards |
+| `next-step` | — | Complete step, reflect, start next |
+| `draft-pr` | — | Draft pull request |
+| `draft-issue` | — | Draft GitHub issue from conversation context |
+| `code-health` | — | Scan codebase for refactoring opportunities |
+| `pr-review-check` | — | Triage PR review comments |
 
 **Override protection:** Same as agents — existing skills are prompted during update. Use `--override-skills` to force-override.
-
-### PR Scripts
-
-The framework includes Node.js scripts in `.claude/scripts/` for GitHub PR workflows:
-
-| Script | Used By | Purpose |
-|--------|---------|---------|
-| `pr-reviews.js` | `/pr-review-check` | Fetch unresolved PR review threads via GitHub GraphQL API |
-| `pr-resolve.js` | `/pr-review-check` | Resolve threads and post replies on GitHub |
-
-**Requirement:** These scripts need the [GitHub CLI (`gh`)](https://cli.github.com/) installed and authenticated (`gh auth login`).
-
-Agents, skills, and scripts are not used by Cursor, Copilot, or other tools — they are Claude Code specific.
 
 ## File Maintenance
 

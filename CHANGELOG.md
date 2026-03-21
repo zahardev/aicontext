@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.5.0] - 2026-03-21
+
+### Added
+- OpenAI Codex support: 11 self-contained skills in `.codex/skills/` adapted for Codex's agent model
+- New skills for Claude Code and Codex: `/standards-check`, `/draft-issue`, `/code-health`
+- PR template (`pr.template.md`) for structured pull request drafting
+- Project logo in `assets/logo.svg`
+
+### Changed
+- PR workflow scripts moved from `.claude/scripts/` to `.aicontext/scripts/` for tool-agnostic access (old location kept for backward compatibility)
+- `standards-checker` agent model upgraded from `sonnet` to `opus`
+- CLI `init` and `update` commands now copy Codex skills with override protection
+- README rewritten with comprehensive workflow guides covering new feature, resume session, code review, PR triage, and more
+- Package description and keywords updated to include Codex
+
 ## [1.4.0] - 2026-03-01
 
 ### Added

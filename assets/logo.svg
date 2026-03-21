@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 120" fill="none">
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#6366f1"/>
+      <stop offset="100%" style="stop-color:#8b5cf6"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Icon: layered document with brain circuit -->
+  <g transform="translate(12, 12)">
+    <!-- Back document -->
+    <rect x="8" y="4" width="64" height="80" rx="8" fill="#e0e7ff" stroke="#a5b4fc" stroke-width="2"/>
+    <!-- Front document -->
+    <rect x="16" y="12" width="64" height="80" rx="8" fill="white" stroke="url(#grad)" stroke-width="2.5"/>
+
+    <!-- Circuit/memory pattern on front document -->
+    <!-- Central node -->
+    <circle cx="48" cy="44" r="6" fill="url(#grad)"/>
+    <!-- AI text in center -->
+    <text x="48" y="48" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="9" font-weight="700" fill="white">AI</text>
+
+    <!-- Connection lines -->
+    <line x1="48" y1="38" x2="48" y2="26" stroke="#8b5cf6" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="54" y1="44" x2="68" y2="44" stroke="#8b5cf6" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="42" y1="44" x2="28" y2="44" stroke="#8b5cf6" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="48" y1="50" x2="48" y2="62" stroke="#8b5cf6" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="52.2" y1="39.8" x2="60" y2="32" stroke="#8b5cf6" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="43.8" y1="48.2" x2="36" y2="56" stroke="#8b5cf6" stroke-width="1.5" stroke-linecap="round"/>
+
+    <!-- Outer nodes -->
+    <circle cx="48" cy="24" r="3" fill="#a5b4fc"/>
+    <circle cx="68" cy="44" r="3" fill="#a5b4fc"/>
+    <circle cx="28" cy="44" r="3" fill="#a5b4fc"/>
+    <circle cx="48" cy="64" r="3" fill="#a5b4fc"/>
+    <circle cx="61" cy="31" r="2.5" fill="#c4b5fd"/>
+    <circle cx="35" cy="57" r="2.5" fill="#c4b5fd"/>
+
+    <!-- Document lines (context) -->
+    <line x1="28" y1="74" x2="68" y2="74" stroke="#c7d2fe" stroke-width="2" stroke-linecap="round"/>
+    <line x1="28" y1="80" x2="56" y2="80" stroke="#c7d2fe" stroke-width="2" stroke-linecap="round"/>
+  </g>
+
+  <!-- Text -->
+  <text x="108" y="56" font-family="system-ui, -apple-system, sans-serif" font-size="40" font-weight="700" fill="#1e1b4b">AI</text>
+  <text x="152" y="56" font-family="system-ui, -apple-system, sans-serif" font-size="40" font-weight="700" fill="url(#grad)">Context</text>
+
+  <!-- Tagline -->
+  <text x="108" y="80" font-family="system-ui, -apple-system, sans-serif" font-size="14" fill="#6b7280">Persistent memory for AI coding assistants</text>
+</svg>

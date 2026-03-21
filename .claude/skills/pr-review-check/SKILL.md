@@ -10,7 +10,7 @@ Check unresolved review comments on the current pull request.
 
 ## 1. Fetch reviews
 
-Run `node .claude/scripts/pr-reviews.js` to fetch unresolved PR review comments.
+Run `node .aicontext/scripts/pr-reviews.js` to fetch unresolved PR review comments.
 
 This saves a structured markdown file to `.aicontext/data/github-pr-reviews/pr-{number}-{iteration}.md` with a summary table and full comment details.
 
@@ -41,7 +41,7 @@ After user confirms, update the Action column in the file:
 If there are any `resolve` actions, ask the user if they want to run:
 
 ```bash
-node .claude/scripts/pr-resolve.js <path-to-review-file>
+node .aicontext/scripts/pr-resolve.js <path-to-review-file>
 ```
 
 This resolves all threads marked `resolve` on GitHub.
