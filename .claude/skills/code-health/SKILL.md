@@ -55,7 +55,6 @@ Prompt the Explore agent to find:
 Review findings against project standards:
 - Remove suggestions that would violate KISS (creating abstractions for one-time operations)
 - Remove suggestions that are premature (3 similar lines is fine, don't suggest abstraction)
-- Remove findings about code you didn't change (don't suggest adding docstrings to existing code)
 - Keep findings that represent genuine friction, bugs, or scaling risk
 
 ## 5. Prioritize and Present

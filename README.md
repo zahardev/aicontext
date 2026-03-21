@@ -335,7 +335,7 @@ Node.js scripts in `.aicontext/scripts/` for GitHub PR workflows (used by both C
 
 ## Codex Features
 
-Codex users get skills in `.codex/skills/` — self-contained workflow definitions adapted for Codex's agent model. The same `/skill-name` commands are available as in Claude Code, but written as standalone workflows rather than delegating to subagents.
+Codex users get skills in `.codex/skills/` — self-contained workflow definitions adapted for Codex's agent model. The same skill set is available as in Claude Code, but invoked with `Use skill-name` and written as standalone workflows rather than delegating to subagents.
 
 Agents are Claude Code specific. Skills and PR scripts are shared between Claude Code and Codex. Cursor and Copilot use the shared prompts and rules.
 

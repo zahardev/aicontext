@@ -31,7 +31,6 @@ Read `.aicontext/rules/standards.md` to understand the project's KISS, DRY, and 
 
 - Remove suggestions that would violate KISS (abstractions for one-time operations)
 - Remove premature suggestions (3 similar lines is fine)
-- Remove findings about code that was not changed
 - Keep findings that represent genuine friction, bugs, or scaling risk
 
 ## Present
