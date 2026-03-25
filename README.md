@@ -371,6 +371,7 @@ Not using all AI tools? You can safely delete:
 
 | Version | Highlights |
 |---------|------------|
+| **1.5.1** | Fix upgrade command — verify installed version, clear cache, remove misleading update message |
 | **1.5.0** | Codex support, new skills (`/standards-check`, `/draft-issue`, `/code-health`), PR template, tool-agnostic scripts |
 | **1.4.0** | Skills (`/start`, `/check-task`, etc.), PR workflow scripts, agent model upgrades (sonnet/opus) |
 | **1.3.0** | Claude Code subagents (researcher, reviewer, test-runner, etc.), override protection |

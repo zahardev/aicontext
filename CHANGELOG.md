@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.1] - 2026-03-25
+
+### Fixed
+- Upgrade command now verifies installed version after `npm install -g` and warns if version unchanged
+- Removed misleading "Update available" message shown immediately after upgrade
+- Version cache is now cleared after upgrade to prevent stale update notifications
+
 ## [1.5.0] - 2026-03-21
 
 ### Added
