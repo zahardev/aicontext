@@ -5,6 +5,7 @@ const path = require('path');
 const readline = require('readline');
 const os = require('os');
 const https = require('https');
+const { execSync } = require('child_process');
 
 const { version: VERSION } = require('../package.json');
 const REPO_URL = 'https://github.com/zahardev/aicontext';
@@ -100,6 +101,14 @@ function writeCache(latestVersion) {
     fs.writeFileSync(CACHE_FILE, JSON.stringify({ latestVersion, timestamp: Date.now() }));
   } catch {
     // Ignore cache write errors
+  }
+}
+
+function clearCache() {
+  try {
+    fs.rmSync(CACHE_FILE, { force: true });
+  } catch {
+    // Ignore cache deletion errors
   }
 }
 
@@ -597,8 +606,23 @@ function checkVersion(targetDir) {
   }
 }
 
+function getInstalledVersion() {
+  try {
+    const output = execSync(`npm list -g ${NPM_PACKAGE} --json`, { stdio: ['pipe', 'pipe', 'pipe'] }).toString();
+    const json = JSON.parse(output);
+    return json.dependencies?.[NPM_PACKAGE]?.version || null;
+  } catch (err) {
+    // npm list exits non-zero for peer dep issues but still includes valid JSON in stdout
+    try {
+      const json = JSON.parse(err.stdout?.toString() || '');
+      return json.dependencies?.[NPM_PACKAGE]?.version || null;
+    } catch {
+      return null;
+    }
+  }
+}
+
 function upgrade(targetVersion) {
-  const { execSync } = require('child_process');
 
   if (targetVersion && !/^[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.]+)?$/.test(targetVersion)) {
     log(`Invalid version format: ${targetVersion}`, 'red');
@@ -619,10 +643,27 @@ function upgrade(targetVersion) {
 
   try {
     execSync(command, { stdio: 'inherit' });
-    log(`\nUpgrade complete!`, 'green');
   } catch {
     log(`\nUpgrade failed. You may need to run with sudo:`, 'red');
     log(`  sudo ${command}`, 'dim');
+    return;
+  }
+
+  clearCache();
+  logUpgradeResult(getInstalledVersion());
+}
+
+function logUpgradeResult(newVersion) {
+  if (newVersion && newVersion !== VERSION) {
+    log(`\nUpgraded to v${newVersion}!`, 'green');
+  } else if (newVersion && newVersion === VERSION) {
+    log(`\nVersion unchanged (v${VERSION}). The upgrade may not have taken effect.`, 'yellow');
+    log('Troubleshooting:', 'dim');
+    log(`  which aicontext        # Check which binary is in your PATH`, 'dim');
+    log(`  npm root -g            # Check where npm installs globally`, 'dim');
+    log(`  npm install -g ${NPM_PACKAGE}@latest  # Try explicit install`, 'dim');
+  } else {
+    log(`\nUpgrade complete!`, 'green');
   }
 }
 
@@ -643,7 +684,7 @@ function contribute() {
   }
 
   try {
-    require('child_process').execSync(command, { stdio: 'ignore' });
+    execSync(command, { stdio: 'ignore' });
   } catch {
     log(`Could not open browser. Visit: ${REPO_URL}`, 'yellow');
   }
@@ -705,6 +746,8 @@ module.exports = {
   hasExistingPrompts,
   readCache,
   writeCache,
+  clearCache,
+  getInstalledVersion,
   init,
   update,
   checkVersion,
@@ -753,7 +796,7 @@ if (require.main === module) {
   }
 
   main()
-    .then(() => checkForUpdates())
+    .then(() => command !== 'upgrade' ? checkForUpdates() : undefined)
     .catch((err) => {
       log(`Error: ${err.message}`, 'red');
       process.exit(1);

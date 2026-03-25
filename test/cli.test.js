@@ -29,6 +29,7 @@ const {
   hasExistingPrompts,
   readCache,
   writeCache,
+  clearCache,
   init,
   update,
 } = require('../bin/aicontext.js');
@@ -1248,5 +1249,72 @@ describe('setAgentModel', () => {
     // Remaining agents should be updated
     const content = fs.readFileSync(path.join(tempDir, '.claude', 'agents', 'reviewer.md'), 'utf8');
     assert.match(content, /^model:\s*haiku$/m);
+  });
+});
+
+describe('clearCache', () => {
+  beforeEach(() => {
+    if (fs.existsSync(CACHE_FILE)) {
+      fs.unlinkSync(CACHE_FILE);
+    }
+  });
+
+  afterEach(() => {
+    if (fs.existsSync(CACHE_FILE)) {
+      fs.unlinkSync(CACHE_FILE);
+    }
+  });
+
+  it('should delete the cache file when it exists', () => {
+    fs.writeFileSync(CACHE_FILE, JSON.stringify({ latestVersion: '9.9.9', timestamp: Date.now() }));
+
+    clearCache();
+
+    assert.strictEqual(fs.existsSync(CACHE_FILE), false);
+  });
+
+  it('should not throw when cache file does not exist', () => {
+    assert.doesNotThrow(() => clearCache());
+  });
+});
+
+describe('upgrade command (CLI integration)', () => {
+  beforeEach(() => {
+    if (fs.existsSync(CACHE_FILE)) {
+      fs.unlinkSync(CACHE_FILE);
+    }
+  });
+
+  afterEach(() => {
+    if (fs.existsSync(CACHE_FILE)) {
+      fs.unlinkSync(CACHE_FILE);
+    }
+  });
+
+  it('should not create a cache file when the upgrade command runs', () => {
+    const cliPath = path.join(__dirname, '..', 'bin', 'aicontext.js');
+
+    // upgrade will fail (no global npm perms in test env) — we only care
+    // that checkForUpdates is skipped, so no cache file is written
+    try {
+      execSync(`node ${cliPath} upgrade`, { stdio: 'pipe' });
+    } catch {
+      // failure from npm install -g is acceptable in test environment
+    }
+
+    assert.strictEqual(fs.existsSync(CACHE_FILE), false);
+  });
+
+  it('should not print "Update available" when the upgrade command runs', () => {
+    const cliPath = path.join(__dirname, '..', 'bin', 'aicontext.js');
+    let output = '';
+
+    try {
+      output = execSync(`node ${cliPath} upgrade`, { stdio: 'pipe' }).toString();
+    } catch (err) {
+      output = (err.stdout || Buffer.alloc(0)).toString() + (err.stderr || Buffer.alloc(0)).toString();
+    }
+
+    assert.strictEqual(output.includes('Update available'), false);
   });
 });
