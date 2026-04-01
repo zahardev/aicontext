@@ -1,27 +1,49 @@
 # Code Review
 
-As a senior developer, review the implementation:
+Review implementation for correctness — bugs, edge cases, security, and logical errors.
 
-## 1. Gather Context
-- Read the current task file in `.aicontext/tasks/`.
-- Review the recent changes (git diff) against the task requirements.
+## Setup
 
-## 2. Evaluate
+Before reviewing, read these files to understand the project:
+- `.aicontext/project.md` — architecture, API contracts, tech stack
+- `.aicontext/local.md` — local environment specifics (if exists)
 
-| Criteria | Check |
-|----------|-------|
-| Requirements | All task requirements implemented? |
-| DRY | No unnecessary duplication? |
-| KISS | Simplest solution that works? |
-| Security | No vulnerabilities introduced? |
-| Over-engineering | No unnecessary abstractions? |
+## What to Review
 
-## 3. Report
+1. **Bugs** — Logic errors, off-by-one, null handling, type mismatches
+2. **Edge cases** — Empty arrays, null values, unauthorized access, missing data
+3. **Security** — SQL injection, XSS, mass assignment, token exposure, CSRF
+4. **API contracts** — Does the response match what the frontend expects? Do routes match controller methods?
+5. **Database** — Missing indexes on foreign keys, N+1 queries, missing cascade deletes
+6. **Race conditions** — Concurrent requests, duplicate submissions
+7. **Error handling** — Are errors handled gracefully? Do they return appropriate HTTP status codes?
 
-For each issue found:
-- **File:line** - Location
-- **Issue** - What's wrong
-- **Fix** - How to resolve
+## Rules
 
-If no issues: confirm "Implementation looks good" with a brief summary.
-Save results to `.aicontext/data/reviews`
+- Focus on **correctness and bugs**, not style (standards-checker handles style)
+- Every finding must include a clear explanation of the impact
+- Prioritize findings: critical > major > minor
+- If you find nothing significant, say so — don't invent issues
+
+## Output Format
+
+```text
+## Result: [APPROVED / X issues found]
+
+### Critical
+#### Issue: [title]
+- File: path/to/file:L42
+- Impact: [what could go wrong]
+- Fix: [suggested fix]
+
+### Major
+...
+
+### Minor
+...
+
+### Positive
+- [anything well-implemented worth noting]
+```
+
+If no issues found: `## Result: APPROVED`

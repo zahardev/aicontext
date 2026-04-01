@@ -34,6 +34,10 @@ const {
   update,
 } = require('../bin/aicontext.js');
 
+const originalLog = console.log;
+before(() => { console.log = process.env.DEBUG ? originalLog : () => {}; });
+after(() => { console.log = originalLog; });
+
 // Helper to create a temp directory
 function createTempDir() {
   return fs.mkdtempSync(path.join(os.tmpdir(), 'aicontext-test-'));
@@ -315,22 +319,25 @@ describe('update', () => {
     fs.writeFileSync(path.join(tempDir, '.aicontext', '.version'), '0.0.1');
     fs.writeFileSync(path.join(tempDir, '.aicontext', 'prompts', 'check_task.md'), 'old content');
     fs.writeFileSync(path.join(tempDir, '.aicontext', 'prompts', 'check_plan.md'), 'old content');
+    fs.writeFileSync(path.join(tempDir, '.aicontext', 'prompts', 'after_step.md'), 'old content');
+    fs.writeFileSync(path.join(tempDir, '.aicontext', 'prompts', 'plan.md'), 'old content');
+    fs.writeFileSync(path.join(tempDir, '.aicontext', 'prompts', 'task.md'), 'old content');
 
-    // Remove new prompts to verify they get recreated by update
-    const taskPrompt = path.join(tempDir, '.aicontext', 'prompts', 'task.md');
-    const planPrompt = path.join(tempDir, '.aicontext', 'prompts', 'plan.md');
-    if (fs.existsSync(taskPrompt)) fs.unlinkSync(taskPrompt);
-    if (fs.existsSync(planPrompt)) fs.unlinkSync(planPrompt);
+    // Remove a new prompt to verify it gets recreated by update
+    const checkTaskPrompt = path.join(tempDir, '.aicontext', 'prompts', 'check-task.md');
+    if (fs.existsSync(checkTaskPrompt)) fs.unlinkSync(checkTaskPrompt);
 
     await update(tempDir, true);
 
     // Deprecated files should be removed
     assert.strictEqual(fs.existsSync(path.join(tempDir, '.aicontext', 'prompts', 'check_task.md')), false);
     assert.strictEqual(fs.existsSync(path.join(tempDir, '.aicontext', 'prompts', 'check_plan.md')), false);
+    assert.strictEqual(fs.existsSync(path.join(tempDir, '.aicontext', 'prompts', 'after_step.md')), false);
+    assert.strictEqual(fs.existsSync(path.join(tempDir, '.aicontext', 'prompts', 'plan.md')), false);
+    assert.strictEqual(fs.existsSync(path.join(tempDir, '.aicontext', 'prompts', 'task.md')), false);
 
     // New prompts should be created by update
-    assert.strictEqual(fs.existsSync(taskPrompt), true);
-    assert.strictEqual(fs.existsSync(planPrompt), true);
+    assert.strictEqual(fs.existsSync(checkTaskPrompt), true);
   });
 
   it('should fail gracefully if not initialized', async () => {
@@ -422,19 +429,23 @@ describe('version cache', () => {
 });
 
 describe('FRAMEWORK_PROMPTS', () => {
-  it('should contain exactly 6 framework prompt files', () => {
-    assert.strictEqual(FRAMEWORK_PROMPTS.length, 6);
+  it('should contain exactly 15 framework prompt files', () => {
+    assert.strictEqual(FRAMEWORK_PROMPTS.length, 15);
   });
 
   it('should contain the expected prompt files', () => {
-    const expected = ['after_step.md', 'generate.md', 'plan.md', 'review.md', 'start.md', 'task.md'];
+    const expected = [
+      'branch-review.md', 'check-plan.md', 'check-task.md', 'code-health.md', 'diff-review.md',
+      'draft-issue.md', 'draft-pr.md', 'generate.md', 'next-step.md', 'pr-review-check.md',
+      'prepare-release.md', 'review.md', 'standards-check.md', 'start.md', 'test-writer.md',
+    ];
     assert.deepStrictEqual([...FRAMEWORK_PROMPTS].sort(), [...expected].sort());
   });
 });
 
 describe('DEPRECATED_PROMPTS', () => {
   it('should contain the old prompt file names', () => {
-    const expected = ['check_plan.md', 'check_task.md'];
+    const expected = ['check_plan.md', 'check_task.md', 'after_step.md', 'plan.md', 'task.md'];
     assert.deepStrictEqual([...DEPRECATED_PROMPTS].sort(), [...expected].sort());
   });
 });

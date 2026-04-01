@@ -10,6 +10,10 @@ Before starting any session, read the project rules in this order:
 
 Files are listed in override order — later files take precedence over earlier ones.
 
+## Prompts
+
+Reusable prompts are available in `.aicontext/prompts/`. When the user says `use <name>`, read `.aicontext/prompts/<name>.md` and follow the instructions in it. For example, `use check-task` reads and follows `.aicontext/prompts/check-task.md`.
+
 ## Auto-Setup
 
 **Important:** If `.aicontext/project.md` is missing, read `.aicontext/prompts/generate.md` and create the missing files before proceeding.

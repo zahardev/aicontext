@@ -106,6 +106,16 @@
 - When debugging reveals fundamental issues, step back and recommend different strategies
 - Prioritize suggesting the best solution over fixing a suboptimal one
 
+### Research and Investigation
+- For design discussions and deep research, read files directly — do not delegate to researcher subagents
+- Subagents are for routine tasks (test-running, code review, standards checks), not for research the user needs to follow in context
+
+### Memory vs Project Rules
+- Always assess whether a user preference can be saved to project rules (process.md, standards.md, local.md, etc.)
+- Only use memory files for non-project-related information (personal preferences, cross-project context)
+- Project rules are the source of truth for how work is done in this project
+- **NEVER save rules or preferences silently** — always ask the user before writing to project rules or memory files
+
 ### Question Numbering
 - Number questions sequentially across entire conversation (never restart at 1)
 - One question per number; keep same numbers when answering to maintain thread

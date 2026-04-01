@@ -12,8 +12,12 @@ const REPO_URL = 'https://github.com/zahardev/aicontext';
 const NPM_PACKAGE = '@zahardev/aicontext';
 const CACHE_FILE = path.join(os.tmpdir(), 'aicontext-version-cache.json');
 const CACHE_TTL = 60 * 60 * 1000; // 1 hour in milliseconds
-const FRAMEWORK_PROMPTS = ['after_step.md', 'generate.md', 'plan.md', 'review.md', 'start.md', 'task.md'];
-const DEPRECATED_PROMPTS = ['check_plan.md', 'check_task.md'];
+const FRAMEWORK_PROMPTS = [
+  'branch-review.md', 'check-plan.md', 'check-task.md', 'code-health.md', 'diff-review.md',
+  'draft-issue.md', 'draft-pr.md', 'generate.md', 'next-step.md', 'pr-review-check.md',
+  'prepare-release.md', 'review.md', 'standards-check.md', 'start.md', 'test-writer.md',
+];
+const DEPRECATED_PROMPTS = ['check_plan.md', 'check_task.md', 'after_step.md', 'plan.md', 'task.md'];
 const FRAMEWORK_AGENTS = [
   'researcher.md',
   'reviewer.md',
@@ -237,7 +241,7 @@ function setAgentModel(target, model) {
   }
 }
 
-function copyFrameworkPrompts(packageRoot, target) {
+function copyFrameworkPrompts(packageRoot, target, skipExisting = false) {
   const srcDir = path.join(packageRoot, '.aicontext', 'prompts');
   const destDir = path.join(target, '.aicontext', 'prompts');
   fs.mkdirSync(destDir, { recursive: true });
@@ -245,6 +249,7 @@ function copyFrameworkPrompts(packageRoot, target) {
     const src = path.join(srcDir, file);
     const dest = path.join(destDir, file);
     if (fs.existsSync(src)) {
+      if (skipExisting && fs.existsSync(dest)) continue;
       fs.copyFileSync(src, dest);
     }
   }
@@ -407,23 +412,18 @@ async function init(targetDir, skipConfirm = false, keepPrompts = false, overrid
     log('');
   }
 
-  // Determine whether to update prompts
-  let shouldUpdatePrompts = true;
-  if (keepPrompts) {
-    shouldUpdatePrompts = false;
-  } else if (hasExistingPrompts(target) && !skipConfirm) {
-    shouldUpdatePrompts = await promptYesNo(
-      'Would you like to rewrite the existing prompt files (after_step, generate, plan, review, start, task)? ' +
-        "I won't remove any other prompt files. (Y/n): "
+  // Determine whether to overwrite existing prompts (new prompts are always added)
+  let overwritePrompts = !keepPrompts;
+  if (!keepPrompts && hasExistingPrompts(target) && !skipConfirm) {
+    overwritePrompts = await promptYesNo(
+      'Would you like to update the existing aicontext prompts? We recommend yes — ensures you have the latest features. (Y/n): '
     );
   }
 
   // Copy .aicontext folder
   log('Copying .aicontext files...', 'dim');
   copyRecursive(path.join(packageRoot, '.aicontext', 'rules'), path.join(target, '.aicontext', 'rules'));
-  if (shouldUpdatePrompts) {
-    copyFrameworkPrompts(packageRoot, target);
-  }
+  copyFrameworkPrompts(packageRoot, target, !overwritePrompts);
   copyRecursive(path.join(packageRoot, '.aicontext', 'templates'), path.join(target, '.aicontext', 'templates'));
   copyRecursive(path.join(packageRoot, '.aicontext', 'tasks', '.gitkeep'), path.join(target, '.aicontext', 'tasks', '.gitkeep'));
   copyRecursive(path.join(packageRoot, '.aicontext', 'data', '.gitignore'), path.join(target, '.aicontext', 'data', '.gitignore'));
@@ -508,23 +508,18 @@ async function update(targetDir, skipConfirm = false, keepPrompts = false, overr
     return;
   }
 
-  // Determine whether to update prompts
-  let shouldUpdatePrompts = true;
-  if (keepPrompts) {
-    shouldUpdatePrompts = false;
-  } else if (hasExistingPrompts(target) && !skipConfirm) {
-    shouldUpdatePrompts = await promptYesNo(
-      'Would you like to rewrite the existing prompt files (after_step, generate, plan, review, start, task)? ' +
-        "I won't remove any other prompt files. (Y/n): "
+  // Determine whether to overwrite existing prompts (new prompts are always added)
+  let overwritePrompts = !keepPrompts;
+  if (!keepPrompts && hasExistingPrompts(target) && !skipConfirm) {
+    overwritePrompts = await promptYesNo(
+      'Would you like to update the existing aicontext prompts? We recommend yes — ensures you have the latest features. (Y/n): '
     );
   }
 
   log(`Updating from v${currentVersion} to v${VERSION}...`, 'dim');
   log('\nThe following will be updated:', 'yellow');
   log('  - .aicontext/rules/', 'yellow');
-  if (shouldUpdatePrompts) {
-    log('  - .aicontext/prompts/ (framework prompts only)', 'yellow');
-  }
+  log(`  - .aicontext/prompts/ (${overwritePrompts ? 'all framework prompts' : 'new prompts only'})`, 'yellow');
   log('  - .aicontext/templates/', 'yellow');
   log('  - .claude/CLAUDE.md', 'yellow');
   log('  - .claude/agents/ (new agents only, existing will be prompted)', 'yellow');
@@ -539,9 +534,6 @@ async function update(targetDir, skipConfirm = false, keepPrompts = false, overr
   log('  - .aicontext/changelog.md', 'green');
   log('  - .aicontext/local.md', 'green');
   log('  - .aicontext/tasks/*.md (your tasks)', 'green');
-  if (!shouldUpdatePrompts) {
-    log('  - .aicontext/prompts/ (kept by your choice)', 'green');
-  }
   log('');
 
   if (!skipConfirm) {
@@ -557,10 +549,8 @@ async function update(targetDir, skipConfirm = false, keepPrompts = false, overr
   log('Updating rules...', 'dim');
   copyRecursive(path.join(packageRoot, '.aicontext', 'rules'), path.join(target, '.aicontext', 'rules'));
 
-  if (shouldUpdatePrompts) {
-    log('Updating prompts...', 'dim');
-    copyFrameworkPrompts(packageRoot, target);
-  }
+  log('Updating prompts...', 'dim');
+  copyFrameworkPrompts(packageRoot, target, !overwritePrompts);
   removeDeprecatedPrompts(target);
   removeDeprecatedAgents(target);
   removeDeprecatedSkills(target);

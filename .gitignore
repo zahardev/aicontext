@@ -27,6 +27,9 @@ test-project/
 .aicontext/tasks/*
 !.aicontext/tasks/.gitkeep
 
+# Brief files (temporary, agent-to-agent knowledge transfer)
+.aicontext/data/brief/
+
 
 # Generated Version File
 .aicontext/.version
