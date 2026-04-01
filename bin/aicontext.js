@@ -28,11 +28,11 @@ const FRAMEWORK_AGENTS = [
 const DEPRECATED_AGENTS = ['pr-review-summarizer.md'];
 const FRAMEWORK_SKILLS = [
   'start', 'check-task', 'check-plan', 'diff-review', 'branch-review', 'next-step', 'draft-pr', 'pr-review-check',
-  'standards-check', 'draft-issue', 'code-health',
+  'standards-check', 'draft-issue', 'code-health', 'prepare-release',
 ];
 const FRAMEWORK_CODEX_SKILLS = [
   'start', 'check-task', 'check-plan', 'diff-review', 'branch-review', 'next-step', 'draft-pr', 'pr-review-check',
-  'standards-check', 'draft-issue', 'code-health',
+  'standards-check', 'draft-issue', 'code-health', 'prepare-release',
 ];
 const DEPRECATED_SKILLS = ['task', 'review', 'after-step', 'next', 'pr'];
 const FRAMEWORK_SCRIPTS = ['pr-reviews.js', 'pr-resolve.js'];

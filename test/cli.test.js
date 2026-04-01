@@ -760,14 +760,14 @@ describe('removeDeprecatedAgents', () => {
 });
 
 describe('FRAMEWORK_SKILLS', () => {
-  it('should contain exactly 11 skill names', () => {
-    assert.strictEqual(FRAMEWORK_SKILLS.length, 11);
+  it('should contain exactly 12 skill names', () => {
+    assert.strictEqual(FRAMEWORK_SKILLS.length, 12);
   });
 
   it('should contain the expected skills', () => {
     const expected = [
       'start', 'check-task', 'check-plan', 'diff-review', 'branch-review', 'next-step', 'draft-pr', 'pr-review-check',
-      'standards-check', 'draft-issue', 'code-health',
+      'standards-check', 'draft-issue', 'code-health', 'prepare-release',
     ];
     assert.deepStrictEqual([...FRAMEWORK_SKILLS].sort(), [...expected].sort());
   });

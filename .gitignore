@@ -17,11 +17,11 @@ test-project/
 
 # Claude Code local settings
 .claude/settings.local.json
-.claude/skills/prepare-release/
 
 # Project file
 .aicontext/project.md
 .aicontext/structure.md
+.aicontext/release.md
 
 # Project tasks
 .aicontext/tasks/*
