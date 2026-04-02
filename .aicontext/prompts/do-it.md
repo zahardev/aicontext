@@ -36,3 +36,11 @@ If no brief exists, create one from `.aicontext/templates/brief.template.md`.
 Follow the step inner loop defined in `.aicontext/prompts/step-loop.md`.
 
 The loop ends with close-step — make sure the close-step summary is output before finishing.
+
+## 6. Commit
+
+After the step is closed, ask:
+
+> "Step N complete. Commit these changes?"
+
+If yes, commit using the `commit_template` from task file → `local.md` → `project.md` (first found). If no template configured, use a plain description.
