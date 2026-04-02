@@ -24,7 +24,7 @@ changelog_format: keep-a-changelog
 # Internal AI changelog used as input when writing the public CHANGELOG.md
 # The skill reads this file to understand what changed, rather than reconstructing from git diff alone.
 # Remove this line if your project does not use an internal AI changelog.
-ai_changelog: .aicontext/changelog.md
+ai_changelog: .aicontext/worklog.md
 ---
 
 ## Files to Update

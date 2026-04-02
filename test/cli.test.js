@@ -429,15 +429,17 @@ describe('version cache', () => {
 });
 
 describe('FRAMEWORK_PROMPTS', () => {
-  it('should contain exactly 15 framework prompt files', () => {
-    assert.strictEqual(FRAMEWORK_PROMPTS.length, 15);
+  it('should contain exactly 19 framework prompt files', () => {
+    assert.strictEqual(FRAMEWORK_PROMPTS.length, 22);
   });
 
   it('should contain the expected prompt files', () => {
     const expected = [
-      'branch-review.md', 'check-plan.md', 'check-task.md', 'code-health.md', 'diff-review.md',
-      'draft-issue.md', 'draft-pr.md', 'generate.md', 'next-step.md', 'pr-review-check.md',
-      'prepare-release.md', 'review.md', 'standards-check.md', 'start.md', 'test-writer.md',
+      'align-context.md', 'branch-review.md', 'check-plan.md', 'check-task.md', 'code-health.md',
+      'diff-review.md', 'do-it.md', 'draft-issue.md', 'draft-pr.md', 'finish-task.md', 'generate.md',
+      'gh-review-fix-loop.md', 'next-step.md', 'pr-review-check.md', 'prepare-release.md', 'review.md',
+      'run-steps.md', 'standards-check.md', 'start-feature.md', 'start.md', 'step-loop.md',
+      'test-writer.md',
     ];
     assert.deepStrictEqual([...FRAMEWORK_PROMPTS].sort(), [...expected].sort());
   });
@@ -445,7 +447,7 @@ describe('FRAMEWORK_PROMPTS', () => {
 
 describe('DEPRECATED_PROMPTS', () => {
   it('should contain the old prompt file names', () => {
-    const expected = ['check_plan.md', 'check_task.md', 'after_step.md', 'plan.md', 'task.md'];
+    const expected = ['check_plan.md', 'check_task.md', 'after_step.md', 'plan.md', 'task.md', 'start-task.md'];
     assert.deepStrictEqual([...DEPRECATED_PROMPTS].sort(), [...expected].sort());
   });
 });
@@ -760,14 +762,15 @@ describe('removeDeprecatedAgents', () => {
 });
 
 describe('FRAMEWORK_SKILLS', () => {
-  it('should contain exactly 12 skill names', () => {
-    assert.strictEqual(FRAMEWORK_SKILLS.length, 12);
+  it('should contain exactly 16 skill names', () => {
+    assert.strictEqual(FRAMEWORK_SKILLS.length, 18);
   });
 
   it('should contain the expected skills', () => {
     const expected = [
-      'start', 'check-task', 'check-plan', 'diff-review', 'branch-review', 'next-step', 'draft-pr', 'pr-review-check',
-      'standards-check', 'draft-issue', 'code-health', 'prepare-release',
+      'start', 'start-feature', 'check-task', 'check-plan', 'run-steps', 'finish-task', 'align-context',
+      'do-it', 'diff-review', 'branch-review', 'next-step', 'draft-pr', 'pr-review-check',
+      'standards-check', 'draft-issue', 'code-health', 'prepare-release', 'gh-review-fix-loop',
     ];
     assert.deepStrictEqual([...FRAMEWORK_SKILLS].sort(), [...expected].sort());
   });
@@ -781,7 +784,7 @@ describe('FRAMEWORK_SKILLS', () => {
 
 describe('DEPRECATED_SKILLS', () => {
   it('should contain the old skill names', () => {
-    const expected = ['task', 'review', 'after-step', 'next', 'pr'];
+    const expected = ['task', 'review', 'after-step', 'next', 'pr', 'start-task'];
     assert.deepStrictEqual([...DEPRECATED_SKILLS].sort(), [...expected].sort());
   });
 });

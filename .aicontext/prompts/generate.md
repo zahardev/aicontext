@@ -174,6 +174,12 @@ Using the templates in `.aicontext/templates/`, generate:
 - Environment variables
 - Test structure
 
+### `.aicontext/worklog.md`
+- Scan `.aicontext/specs/` and `.aicontext/tasks/` for existing files
+- If specs and tasks exist: build the worklog with actual status (In Progress / Done, tasks under their specs)
+- If no specs or tasks exist: create with empty sections (In Progress, Done, Standalone Tasks)
+- Use the template at `.aicontext/templates/worklog.template.md` for format reference
+
 ## Notes
 
 - Ask clarifying questions if project type is ambiguous

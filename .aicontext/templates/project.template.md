@@ -84,6 +84,17 @@ Part of the **{{ORGANIZATION}}** ecosystem.
 - Changing authentication logic
 -->
 
+## Commit Rules
+
+<!-- commit_mode options: manual | per-step | per-task -->
+<!-- commit_template options: "description" | "description (#issue_id)" | "type: description" | custom format -->
+<!-- finish_action options: nothing | commit | commit+push | commit+push+pr -->
+<!-- If missing, /run-steps and /finish-task will ask on first run and fill this in -->
+
+commit_mode: manual
+commit_template: "description"
+finish_action: nothing
+
 ## Task Naming Convention
 
 Task files in `.aicontext/tasks/` should follow this pattern:

@@ -13,11 +13,13 @@ const NPM_PACKAGE = '@zahardev/aicontext';
 const CACHE_FILE = path.join(os.tmpdir(), 'aicontext-version-cache.json');
 const CACHE_TTL = 60 * 60 * 1000; // 1 hour in milliseconds
 const FRAMEWORK_PROMPTS = [
-  'branch-review.md', 'check-plan.md', 'check-task.md', 'code-health.md', 'diff-review.md',
-  'draft-issue.md', 'draft-pr.md', 'generate.md', 'next-step.md', 'pr-review-check.md',
-  'prepare-release.md', 'review.md', 'standards-check.md', 'start.md', 'test-writer.md',
+  'align-context.md', 'branch-review.md', 'check-plan.md', 'check-task.md', 'code-health.md',
+  'diff-review.md', 'do-it.md', 'draft-issue.md', 'draft-pr.md', 'finish-task.md', 'generate.md',
+  'gh-review-fix-loop.md', 'next-step.md', 'pr-review-check.md', 'prepare-release.md', 'review.md',
+  'run-steps.md', 'standards-check.md', 'start-feature.md', 'start.md', 'step-loop.md',
+  'test-writer.md',
 ];
-const DEPRECATED_PROMPTS = ['check_plan.md', 'check_task.md', 'after_step.md', 'plan.md', 'task.md'];
+const DEPRECATED_PROMPTS = ['check_plan.md', 'check_task.md', 'after_step.md', 'plan.md', 'task.md', 'start-task.md'];
 const FRAMEWORK_AGENTS = [
   'researcher.md',
   'reviewer.md',
@@ -27,14 +29,16 @@ const FRAMEWORK_AGENTS = [
 ];
 const DEPRECATED_AGENTS = ['pr-review-summarizer.md'];
 const FRAMEWORK_SKILLS = [
-  'start', 'check-task', 'check-plan', 'diff-review', 'branch-review', 'next-step', 'draft-pr', 'pr-review-check',
-  'standards-check', 'draft-issue', 'code-health', 'prepare-release',
+  'start', 'start-feature', 'check-task', 'check-plan', 'run-steps', 'finish-task', 'align-context',
+  'do-it', 'diff-review', 'branch-review', 'next-step', 'draft-pr', 'pr-review-check',
+  'standards-check', 'draft-issue', 'code-health', 'prepare-release', 'gh-review-fix-loop',
 ];
 const FRAMEWORK_CODEX_SKILLS = [
-  'start', 'check-task', 'check-plan', 'diff-review', 'branch-review', 'next-step', 'draft-pr', 'pr-review-check',
-  'standards-check', 'draft-issue', 'code-health', 'prepare-release',
+  'start', 'start-feature', 'check-task', 'check-plan', 'run-steps', 'finish-task', 'align-context',
+  'do-it', 'diff-review', 'branch-review', 'next-step', 'draft-pr', 'pr-review-check',
+  'standards-check', 'draft-issue', 'code-health', 'prepare-release', 'gh-review-fix-loop',
 ];
-const DEPRECATED_SKILLS = ['task', 'review', 'after-step', 'next', 'pr'];
+const DEPRECATED_SKILLS = ['task', 'review', 'after-step', 'next', 'pr', 'start-task'];
 const FRAMEWORK_SCRIPTS = ['pr-reviews.js', 'pr-resolve.js'];
 
 // Colors for terminal output
@@ -217,12 +221,13 @@ function removeDeprecatedAgents(target) {
 }
 
 function removeDeprecatedSkills(target) {
-  const skillsDir = path.join(target, '.claude', 'skills');
-  for (const skill of DEPRECATED_SKILLS) {
-    const skillPath = path.join(skillsDir, skill);
-    if (fs.existsSync(skillPath)) {
-      fs.rmSync(skillPath, { recursive: true });
-      log(`  Removed deprecated: skills/${skill}/`, 'dim');
+  for (const dir of [path.join(target, '.claude', 'skills'), path.join(target, '.codex', 'skills')]) {
+    for (const skill of DEPRECATED_SKILLS) {
+      const skillPath = path.join(dir, skill);
+      if (fs.existsSync(skillPath)) {
+        fs.rmSync(skillPath, { recursive: true });
+        log(`  Removed deprecated: ${path.relative(target, skillPath)}/`, 'dim');
+      }
     }
   }
 }
@@ -426,11 +431,9 @@ async function init(targetDir, skipConfirm = false, keepPrompts = false, overrid
   copyFrameworkPrompts(packageRoot, target, !overwritePrompts);
   copyRecursive(path.join(packageRoot, '.aicontext', 'templates'), path.join(target, '.aicontext', 'templates'));
   copyRecursive(path.join(packageRoot, '.aicontext', 'tasks', '.gitkeep'), path.join(target, '.aicontext', 'tasks', '.gitkeep'));
+  copyRecursive(path.join(packageRoot, '.aicontext', 'specs', '.gitkeep'), path.join(target, '.aicontext', 'specs', '.gitkeep'));
   copyRecursive(path.join(packageRoot, '.aicontext', 'data', '.gitignore'), path.join(target, '.aicontext', 'data', '.gitignore'));
   copyRecursive(path.join(packageRoot, '.aicontext', 'readme.md'), path.join(target, '.aicontext', 'readme.md'));
-  if (!fs.existsSync(path.join(target, '.aicontext', 'changelog.md'))) {
-    copyRecursive(path.join(packageRoot, '.aicontext', 'changelog.md'), path.join(target, '.aicontext', 'changelog.md'));
-  }
   copyRecursive(path.join(packageRoot, '.aicontext', '.gitignore'), path.join(target, '.aicontext', '.gitignore'));
 
   // Copy tool-specific files
@@ -531,7 +534,7 @@ async function update(targetDir, skipConfirm = false, keepPrompts = false, overr
   log('\nPreserved (not modified):', 'green');
   log('  - .aicontext/project.md', 'green');
   log('  - .aicontext/structure.md', 'green');
-  log('  - .aicontext/changelog.md', 'green');
+  log('  - .aicontext/worklog.md (if exists)', 'green');
   log('  - .aicontext/local.md', 'green');
   log('  - .aicontext/tasks/*.md (your tasks)', 'green');
   log('');
@@ -561,6 +564,16 @@ async function update(targetDir, skipConfirm = false, keepPrompts = false, overr
   log('Updating data directory...', 'dim');
   copyRecursive(path.join(packageRoot, '.aicontext', 'data', '.gitignore'), path.join(target, '.aicontext', 'data', '.gitignore'));
 
+  // Deprecate old changelog.md
+  const oldChangelogPath = path.join(target, '.aicontext', 'changelog.md');
+  if (fs.existsSync(oldChangelogPath)) {
+    const content = fs.readFileSync(oldChangelogPath, 'utf8');
+    if (!content.includes('@deprecated')) {
+      fs.writeFileSync(oldChangelogPath, '# Changelog\n\n> **@deprecated** — This file has been replaced by `worklog.md`. Use `worklog.md` for tracking spec and task statuses. This file will be removed in a future version.\n');
+      log('  Deprecated changelog.md (replaced by worklog.md)', 'dim');
+    }
+  }
+
   log('Updating tool entry points...', 'dim');
   copyRecursive(path.join(packageRoot, '.claude', 'CLAUDE.md'), path.join(target, '.claude', 'CLAUDE.md'));
   await copyFrameworkAgents(packageRoot, target, overrideAgents, skipConfirm);
@@ -574,7 +587,7 @@ async function update(targetDir, skipConfirm = false, keepPrompts = false, overr
   fs.writeFileSync(versionFile, VERSION);
 
   log(`\nUpdated to v${VERSION}!`, 'green');
-  log('\nNote: project.md, structure.md, and changelog.md were preserved.', 'dim');
+  log('\nNote: project.md, structure.md, and worklog.md (if present) were preserved.', 'dim');
 }
 
 function checkVersion(targetDir) {

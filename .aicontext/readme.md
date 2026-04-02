@@ -8,7 +8,7 @@ This folder contains AI assistant configuration and project documentation.
 |------|---------|
 | `project.md` | Project identity, tech stack, architecture |
 | `structure.md` | Folder structure, commands, environment |
-| `changelog.md` | Completed tasks history |
+| `worklog.md` | Spec and task status tracking |
 | `local.md` | Personal/local settings (gitignored, see below) |
 
 ## Override Priority
@@ -99,7 +99,7 @@ Subdirectories are created automatically by skills and scripts when needed.
 2. Create/update task file in `tasks/` using `templates/task.template.md`
 3. Follow TDD process from `rules/process.md`
 4. After each step, use `prompts/after_step.md` (or `/next-step`) to reflect and continue
-5. Update `changelog.md` when complete
+5. Update `worklog.md` when complete
 
 ### Reviewing Work
 1. Paste `prompts/review.md` (or use `/diff-review` for uncommitted changes, `/branch-review` for full branch) in Claude Code
@@ -150,6 +150,6 @@ Skills automate common workflows. Both Claude Code (`.claude/skills/`) and Codex
 
 | Frequency | Files |
 |-----------|-------|
-| After each task | `changelog.md`, task files |
+| After each task | `worklog.md`, task files |
 | When structure changes | `structure.md` |
 | Rarely | `project.md`, rules files |

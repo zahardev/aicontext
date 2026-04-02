@@ -1,7 +1,3 @@
 # Changelog
 
-<!-- Add completed tasks here in reverse chronological order -->
-
-## YYYY-MM-DD
-
-- **Version X.X.X**: Short description — [task-name.md](tasks/task-name.md)
+> **@deprecated** — This file has been replaced by `worklog.md`. Use `worklog.md` for tracking spec and task statuses. This file will be removed in a future version.
