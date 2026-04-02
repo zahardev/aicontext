@@ -83,6 +83,13 @@
 - Don't create helpers or abstractions for one-time operations
 - Three similar lines of code is better than a premature abstraction
 
+## Commit Style
+
+When creating commits, read `project.md` → `## Commit Rules` for configuration.
+
+- **`commit_body: false`** (default) — subject line only, no body.
+- **`commit_body: true`** — subject line + body separated by a blank line.
+
 ## AI Response & Behavior Rules
 
 ### Communication Style

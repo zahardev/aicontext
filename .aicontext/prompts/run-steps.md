@@ -23,24 +23,17 @@ If no brief exists for this task:
 
 Check for commit rules in this order (first found wins): task file `## Commit Rules:` → `local.md` → `project.md` `## Commit Rules`.
 
-**If default exists**, confirm in one question:
-> "Commit mode is `{mode}` (from {source}). Proceed, or override?"
+`/run-steps` only commits during execution if `commit_mode` is `per-step`. All other commit modes (`per-task`, `manual`) are handled by `/finish-task` via `finish_action`.
 
-Only show options if the user wants to override.
+**If `commit_mode` is `per-step`**, confirm:
+> "Commit mode is `per-step` (from {source}). Will commit after each step. Proceed, or override?"
 
-**If no default exists**, ask:
-> "How often would you like to commit?"
+**If `commit_mode` is not configured**, ask:
+> "Should I commit after each step, or leave commits for `/finish-task`?"
 > 1. **per-step** — commit after each step completes
-> 2. **per-task** — commit once after all steps are done
-> 3. **manual** — I'll commit myself (no automatic commits)
+> 2. **no** — I'll handle commits later (via `/finish-task` or manually)
 
-**If no rules exist anywhere**, after the user answers, offer to save:
-> "No commit rules found in project.md or local.md. Would you like to save this preference?"
-> 1. Save to `project.md` (shared with team)
-> 2. Save to `local.md` (personal, gitignored)
-> 3. Don't save (use for this session only)
-
-If saving, also ask for **commit template** (if not already configured):
+**If saving per-step to config**, ask for **commit template** (if not already configured):
 > 1. `description` — plain description (e.g. `Add user authentication`)
 > 2. `description (#issue_id)` — with issue reference (e.g. `Add user authentication (#42)`)
 > 3. `type: description` — conventional commits (e.g. `feat: add user authentication`)
@@ -68,11 +61,10 @@ For each pending step (unchecked `- [ ]` items in the task file), follow the inn
 ## After All Steps
 
 1. Run After Task checks (from quality checks table):
-   - Ask `standards-checker` subagent for standards check (if enabled)
-   - Ask `test-runner` subagent for full test suite (if enabled)
+   - Deep review (if enabled) — ask `reviewer` subagent or run inline
+   - Full test suite (if enabled) — ask `test-runner` subagent
 2. Fix any issues found
-3. If `commit_mode` is `per-task`, commit using the configured template
-4. Notify the user: all steps complete. Run `/finish-task` when ready to close the task.
+3. Notify the user: all steps complete. Run `/finish-task` when ready to close the task.
 
 ## Stop Conditions
 

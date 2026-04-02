@@ -4,7 +4,7 @@ Turn what was just discussed into a task step and implement it.
 
 ## 1. Identify the Task
 
-If unclear which task is active, ask the user.
+Identify the active task (per process.md rules).
 
 Read the task file and spec (if linked).
 

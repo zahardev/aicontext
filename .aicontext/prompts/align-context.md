@@ -4,7 +4,7 @@ Update all context files to reflect the current state of work. Fix what's stale,
 
 ## 1. Identify the Task
 
-If unclear which task is active, ask the user.
+Identify the active task (per process.md rules).
 
 Read the task file, spec (if linked), and brief (if it exists at `data/brief/brief-{task-filename}`).
 

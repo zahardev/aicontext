@@ -4,7 +4,7 @@ Read the three-layer context for the current task, then surface ambiguities and 
 
 ## Identify the Task
 
-If it's unclear which task is active, ask the user.
+Identify the active task (per process.md rules).
 
 ## Read Context (in order)
 

@@ -14,6 +14,14 @@
 
 **Note:** If your AI tool has in-session task tracking (like Claude Code's todo list), use it as a supplement for real-time progress, but the task file remains the source of truth.
 
+**Identifying the active task:** When a skill needs to identify which task is active, check in this order:
+1. User's explicit reference — names a task, says "add to X"
+2. IDE-opened task file — especially with deictic language ("this", "here", "add to this task")
+3. Task being worked on in current conversation
+4. First unchecked task in worklog
+
+Only ask the user if none of these signals are present or they conflict.
+
 ## Task Execution Protocol
 
 When asked for a feature or bug fix:

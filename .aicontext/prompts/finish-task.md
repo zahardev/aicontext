@@ -4,7 +4,7 @@ Close out the current task: verify completion, sync spec, write completion notes
 
 ## 1. Identify the Task
 
-If unclear which task is active, ask the user.
+Identify the active task (per process.md rules).
 
 Read the task file, spec (if linked), and brief (if it exists at `data/brief/brief-{task-filename}`).
 
@@ -47,12 +47,14 @@ Check for uncommitted changes (`git status`).
 1. Check task file `## Commit Rules:` for `finish_action`
 2. Fall back to `local.md` for `finish_action`
 3. Fall back to `project.md` → `## Commit Rules` for `finish_action`
-3. If not configured, ask:
+4. If not configured, ask:
    > "You have uncommitted changes. What would you like to do?"
    > 1. `nothing` — leave as-is, I'll handle git myself
    > 2. `commit` — commit with a task completion message
    > 3. `commit+push` — commit and push to remote
-   > 4. `commit+push+pr` — commit, push, and open a PR
+
+**If `finish_action` is `nothing`** but there are uncommitted changes, warn:
+> "You have uncommitted changes but `finish_action` is `nothing`. Want me to commit anyway, or leave as-is?"
 
 Execute the chosen action. For commit messages use the configured `commit_template`, or default to: `complete: {task description}`.
 

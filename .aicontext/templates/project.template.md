@@ -86,14 +86,20 @@ Part of the **{{ORGANIZATION}}** ecosystem.
 
 ## Commit Rules
 
-<!-- commit_mode options: manual | per-step | per-task -->
-<!-- commit_template options: "description" | "description (#issue_id)" | "type: description" | custom format -->
-<!-- finish_action options: nothing | commit | commit+push | commit+push+pr -->
-<!-- If missing, /run-steps and /finish-task will ask on first run and fill this in -->
-
 commit_mode: manual
 commit_template: "description"
+commit_body: false
 finish_action: nothing
+
+**commit_mode** — when `/run-steps` creates commits:
+- `manual` — never commits automatically, you handle git yourself
+- `per-step` — commits after each step completes
+- `per-task` — no commits during steps, commit once via `/finish-task`
+
+**finish_action** — what `/finish-task` does with uncommitted changes:
+- `nothing` — leaves git as-is, you handle it yourself
+- `commit` — commits with a task completion message
+- `commit+push` — commits and pushes to remote
 
 ## Task Naming Convention
 
