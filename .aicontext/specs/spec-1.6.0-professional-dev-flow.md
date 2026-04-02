@@ -289,7 +289,7 @@ A markdown table in `process.md` that defines what checks run when. Users can ed
 ### Commit Rules: Project-Level Defaults with Per-Task Override
 Commit config has two levels: project defaults in `project.md` `## Commit Rules` (shared across team), and per-task override in the task file's `## Commit Rules:` section. `/run-steps` reads the task file first and falls back to project defaults. Individual developers can also override in `local.md`. Not asked during `aicontext init` (out of scope). `/run-steps` asks at start if no config found; `/start-feature` asks for per-task preference during the interview.
 
-Three fields: `commit_mode` (manual / per-step / per-task), `commit_template` (4 options), and `finish_action` (nothing / commit / commit+push / commit+push+pr). `/run-steps` only commits during execution if `commit_mode` is `per-step` — all other modes defer to `/finish-task` which uses `finish_action` as the single decision point for per-task commits. This avoids two competing commit decision points. If `finish_action` is `nothing` but uncommitted changes exist, `/finish-task` warns rather than silently skipping.
+Four fields: `commit_mode` (manual / per-step / per-task), `commit_template` (4 options), `commit_body` (true / false, default false), and `finish_action` (nothing / commit / commit+push). `/run-steps` only commits during execution if `commit_mode` is `per-step` — all other modes defer to `/finish-task` which uses `finish_action` as the single decision point for per-task commits. This avoids two competing commit decision points. If `finish_action` is `nothing` but uncommitted changes exist, `/finish-task` warns rather than silently skipping.
 
 ### Review Automation: Polling with Cap
 `/gh-review-fix-loop` starts each cycle by fetching existing review comments, triaging them (fix/resolve/skip), implementing fixes, running tests, then capturing the comment count, committing, and pushing. After push, polls every 60 seconds for the count to change (indicating a new review pass). If no change within 30 minutes, the cycle is done. Capped at 5 cycles. Uses existing `pr-reviews.js` and `pr-resolve.js` scripts — reviewer-agnostic.
@@ -309,6 +309,6 @@ README focuses on pitch, install, quick start, and development model overview. D
 ## Tasks
 
 - [1.6.0-unified-prompts.md](../tasks/1.6.0-unified-prompts.md) ✓ — Restructure instructions into universal prompts, update skills/agents/rules to reference them
-- [1.6.0-dev-flow-v2.md](../tasks/1.6.0-dev-flow-v2.md) — New skills (/start-feature, /run-steps, /gh-review-fix-loop), templates (spec, upgraded task), process rules updates, brief file system
-- [1.6.0-prepare-release-config.md](../tasks/1.6.0-prepare-release-config.md) — Configurable prepare-release skill with release.md config
+- [1.6.0-dev-flow-v2.md](../tasks/1.6.0-dev-flow-v2.md) ✓ — New skills (/start-feature, /run-steps, /gh-review-fix-loop), templates (spec, upgraded task), process rules updates, brief file system
+- [1.6.0-prepare-release-config.md](../tasks/1.6.0-prepare-release-config.md) ✓ — Configurable prepare-release skill with release.md config
 - [1.6.0-review-consolidation.md](../tasks/1.6.0-review-consolidation.md) ✓ — Consolidate review skills: `/review` + `/deep-review` with scope args, universal criteria prompts, single reviewer agent

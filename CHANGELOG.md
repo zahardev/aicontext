@@ -16,6 +16,13 @@
 - New templates: `spec.template.md`, `brief.template.md`, `worklog.template.md`
 - Specs directory (`.aicontext/specs/.gitkeep`) created during `aicontext init`
 - Codex skill mirrors for all new skills
+- **`/review` skill**: unified review with scope args (diff, branch, commit, path, IDE selection) — replaces `/diff-review` and `/branch-review`
+- **`/deep-review` skill**: comprehensive architecture + correctness review with 11-phase methodology (DRY & KISS, Placement, Responsibilities, API Design, Edge Cases, Bugs & Security, Framework Usage, Constants & Naming, Dependencies & Testability, Error Handling, Extensibility)
+- **Review criteria prompts**: `review-criteria.md`, `deep-review-criteria.md`, `review-scope.md` — shared between all tools, not just Claude Code
+- **Code review template** (`code-review.template.md`): persistent review tracking with refactoring actions, findings, decisions
+- **`close-step.md` prompt**: enforces brief/spec updates after each step with visible summary output — prevents agents from skipping context updates
+- **`commit_body` option** in Commit Rules: controls whether commits include a body (default: `false` — subject only)
+- **Active task identification** rules in `process.md`: IDE-opened file > conversation context > worklog
 
 ### Changed
 - **Renamed `/start-task` → `/start-feature`**: always creates spec + task, no complexity assessment — small work uses direct conversation
@@ -27,10 +34,21 @@
 - `removeDeprecatedSkills` now cleans both `.claude/skills/` and `.codex/skills/`
 - Process rule "stop after step" scoped to manual execution only (not `/run-steps`)
 - Task template simplified: no acceptance criteria or out-of-scope sections (both live in spec)
+- **Merged `deep-reviewer` and `standards-checker` into single `reviewer` agent** — caller specifies criteria prompt, agent is generic
+- **Review prompts are self-contained workflows**: setup, scope, criteria, save with template, present — work identically inline or via agent
+- **Two review tiers**: `/review` = quick correctness (after step), `/deep-review` = comprehensive (after task)
+- Step inner loop simplified from 11 to 9 steps — close-step replaces separate update/brief/elevate steps
+- `/run-steps` commit logic simplified: only commits per-step, per-task commits handled by `/finish-task` via `finish_action`
+- `/finish-task` warns when `finish_action: nothing` but uncommitted changes exist
+- PR scripts moved from `.claude/scripts/` to `.aicontext/scripts/`; `pr-reviews.js` uses `__dirname` for output path resolution
 
 ### Deprecated
 - `changelog.md` — replaced by `worklog.md`. Deprecation notice injected during `aicontext update`.
 - `/start-task` skill — replaced by `/start-feature`
+- `/diff-review` and `/branch-review` — replaced by `/review` with scope args
+- `/standards-check` — fully subsumed by `/deep-review`
+- `deep-reviewer` and `standards-checker` agents — merged into single `reviewer` agent
+- `.claude/scripts/` directory — scripts moved to `.aicontext/scripts/`
 
 ## [1.5.1] - 2026-03-25
 

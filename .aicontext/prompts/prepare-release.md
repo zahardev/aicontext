@@ -21,9 +21,14 @@ Check if `.aicontext/release.md` exists.
   - `version_detection: branch-name` → parse from current branch (e.g. `version/X.Y.Z`)
   - `version_detection: git-tag` → use the latest git tag
   - `version_detection: manual` → ask the user
-- Run `git diff <base_branch>...HEAD` using the configured `base_branch`
-- Read all task files in `.aicontext/tasks/` that match this version prefix
-- If `ai_changelog` is set in `release.md`: read that file — it is the primary source of what changed (prefer it over reconstructing from git diff alone). Cross-check against the task files: if any task for this version has no entry in the AI changelog, auto-generate the missing entries (format: `short description — link to task file`) and append them before proceeding
+
+Understand what was built, then verify against the diff:
+
+1. **Specs** — read specs in `.aicontext/specs/` linked from this version's tasks. These describe the "what and why" — features, requirements, decisions.
+2. **Tasks** — read all task files in `.aicontext/tasks/` that match this version prefix. Completion notes summarize what was delivered, compromises, and follow-ups.
+3. **Briefs** — read briefs in `.aicontext/data/brief/` for this version's tasks (if they exist). These capture important decisions, gotchas, and patterns worth mentioning.
+4. **Git diff** — run `git diff <base_branch>...HEAD` to verify nothing was missed and cross-check against the context above.
+5. **AI changelog** — if `ai_changelog` is set in `release.md`: read that file as additional input. Cross-check against the task files: if any task for this version has no entry, auto-generate the missing entries and append them before proceeding.
 
 ## 3. Update files
 
