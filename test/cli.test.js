@@ -430,12 +430,12 @@ describe('version cache', () => {
 
 describe('FRAMEWORK_PROMPTS', () => {
   it('should contain exactly 19 framework prompt files', () => {
-    assert.strictEqual(FRAMEWORK_PROMPTS.length, 26);
+    assert.strictEqual(FRAMEWORK_PROMPTS.length, 27);
   });
 
   it('should contain the expected prompt files', () => {
     const expected = [
-      'align-context.md', 'check-plan.md', 'check-task.md', 'close-step.md', 'code-health.md', 'deep-review.md',
+      'align-context.md', 'check-plan.md', 'check-task.md', 'close-step.md', 'code-health.md', 'commit.md', 'deep-review.md',
       'deep-review-criteria.md', 'do-it.md', 'draft-issue.md', 'draft-pr.md', 'finish-task.md',
       'generate.md', 'gh-review-fix-loop.md', 'next-step.md', 'plan-tasks.md', 'pr-review-check.md',
       'prepare-release.md', 'review.md', 'review-criteria.md', 'review-scope.md', 'run-step.md', 'run-steps.md',
@@ -762,13 +762,13 @@ describe('removeDeprecatedAgents', () => {
 
 describe('FRAMEWORK_SKILLS', () => {
   it('should contain exactly 18 skill names', () => {
-    assert.strictEqual(FRAMEWORK_SKILLS.length, 19);
+    assert.strictEqual(FRAMEWORK_SKILLS.length, 20);
   });
 
   it('should contain the expected skills', () => {
     const expected = [
       'start', 'start-feature', 'plan-tasks', 'check-task', 'check-plan', 'run-step', 'run-steps', 'finish-task',
-      'align-context', 'do-it', 'review', 'deep-review', 'next-step', 'draft-pr', 'pr-review-check',
+      'align-context', 'do-it', 'commit', 'review', 'deep-review', 'next-step', 'draft-pr', 'pr-review-check',
       'draft-issue', 'code-health', 'prepare-release', 'gh-review-fix-loop',
     ];
     assert.deepStrictEqual([...FRAMEWORK_SKILLS].sort(), [...expected].sort());

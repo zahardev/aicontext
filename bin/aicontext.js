@@ -13,7 +13,7 @@ const NPM_PACKAGE = '@zahardev/aicontext';
 const CACHE_FILE = path.join(os.tmpdir(), 'aicontext-version-cache.json');
 const CACHE_TTL = 60 * 60 * 1000; // 1 hour in milliseconds
 const FRAMEWORK_PROMPTS = [
-  'align-context.md', 'check-plan.md', 'check-task.md', 'close-step.md', 'code-health.md', 'deep-review.md',
+  'align-context.md', 'check-plan.md', 'check-task.md', 'close-step.md', 'code-health.md', 'commit.md', 'deep-review.md',
   'deep-review-criteria.md', 'do-it.md', 'draft-issue.md', 'draft-pr.md', 'finish-task.md',
   'generate.md', 'gh-review-fix-loop.md', 'next-step.md', 'plan-tasks.md', 'pr-review-check.md',
   'prepare-release.md', 'review.md', 'review-criteria.md', 'review-scope.md', 'run-step.md', 'run-steps.md',
@@ -29,12 +29,12 @@ const FRAMEWORK_AGENTS = [
 const DEPRECATED_AGENTS = ['pr-review-summarizer.md', 'deep-reviewer.md', 'standards-checker.md'];
 const FRAMEWORK_SKILLS = [
   'start', 'start-feature', 'plan-tasks', 'check-task', 'check-plan', 'run-step', 'run-steps', 'finish-task',
-  'align-context', 'do-it', 'review', 'deep-review', 'next-step', 'draft-pr', 'pr-review-check',
+  'align-context', 'do-it', 'commit', 'review', 'deep-review', 'next-step', 'draft-pr', 'pr-review-check',
   'draft-issue', 'code-health', 'prepare-release', 'gh-review-fix-loop',
 ];
 const FRAMEWORK_CODEX_SKILLS = [
   'start', 'start-feature', 'plan-tasks', 'check-task', 'check-plan', 'run-step', 'run-steps', 'finish-task',
-  'align-context', 'do-it', 'review', 'deep-review', 'next-step', 'draft-pr', 'pr-review-check',
+  'align-context', 'do-it', 'commit', 'review', 'deep-review', 'next-step', 'draft-pr', 'pr-review-check',
   'draft-issue', 'code-health', 'prepare-release', 'gh-review-fix-loop',
 ];
 const DEPRECATED_SKILLS = ['task', 'after-step', 'next', 'pr', 'start-task', 'diff-review', 'branch-review', 'standards-check'];
