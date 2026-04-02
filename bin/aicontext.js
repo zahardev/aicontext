@@ -15,8 +15,8 @@ const CACHE_TTL = 60 * 60 * 1000; // 1 hour in milliseconds
 const FRAMEWORK_PROMPTS = [
   'align-context.md', 'branch-review.md', 'check-plan.md', 'check-task.md', 'code-health.md',
   'diff-review.md', 'do-it.md', 'draft-issue.md', 'draft-pr.md', 'finish-task.md', 'generate.md',
-  'gh-review-fix-loop.md', 'next-step.md', 'pr-review-check.md', 'prepare-release.md', 'review.md',
-  'run-steps.md', 'standards-check.md', 'start-feature.md', 'start.md', 'step-loop.md',
+  'gh-review-fix-loop.md', 'next-step.md', 'plan-tasks.md', 'pr-review-check.md', 'prepare-release.md',
+  'review.md', 'run-steps.md', 'standards-check.md', 'start-feature.md', 'start.md', 'step-loop.md',
   'test-writer.md',
 ];
 const DEPRECATED_PROMPTS = ['check_plan.md', 'check_task.md', 'after_step.md', 'plan.md', 'task.md', 'start-task.md'];
@@ -29,13 +29,13 @@ const FRAMEWORK_AGENTS = [
 ];
 const DEPRECATED_AGENTS = ['pr-review-summarizer.md'];
 const FRAMEWORK_SKILLS = [
-  'start', 'start-feature', 'check-task', 'check-plan', 'run-steps', 'finish-task', 'align-context',
-  'do-it', 'diff-review', 'branch-review', 'next-step', 'draft-pr', 'pr-review-check',
+  'start', 'start-feature', 'plan-tasks', 'check-task', 'check-plan', 'run-steps', 'finish-task',
+  'align-context', 'do-it', 'diff-review', 'branch-review', 'next-step', 'draft-pr', 'pr-review-check',
   'standards-check', 'draft-issue', 'code-health', 'prepare-release', 'gh-review-fix-loop',
 ];
 const FRAMEWORK_CODEX_SKILLS = [
-  'start', 'start-feature', 'check-task', 'check-plan', 'run-steps', 'finish-task', 'align-context',
-  'do-it', 'diff-review', 'branch-review', 'next-step', 'draft-pr', 'pr-review-check',
+  'start', 'start-feature', 'plan-tasks', 'check-task', 'check-plan', 'run-steps', 'finish-task',
+  'align-context', 'do-it', 'diff-review', 'branch-review', 'next-step', 'draft-pr', 'pr-review-check',
   'standards-check', 'draft-issue', 'code-health', 'prepare-release', 'gh-review-fix-loop',
 ];
 const DEPRECATED_SKILLS = ['task', 'review', 'after-step', 'next', 'pr', 'start-task'];

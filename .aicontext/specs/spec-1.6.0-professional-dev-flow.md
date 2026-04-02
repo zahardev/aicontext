@@ -177,6 +177,18 @@ Move all instructions to `.aicontext/prompts/` as the single source of truth. Cl
 - Requires an active task — asks user to identify one if unclear
 - Available as `/do-it` (Claude Code) and `use do-it` (Codex, Cursor, Copilot)
 
+### /plan-tasks Skill
+- Reads an existing spec and proposes task breakdown
+- If no spec is obvious: asks user which spec, or directs to `/start-feature` if none exist
+- Assesses separable work streams from the spec's requirements
+- Proposes task split: "Your feature has N separate parts: [list]. I recommend creating N tasks. Correct?"
+- User confirms or adjusts, then creates task files linked to the spec
+- Available as `/plan-tasks` (Claude Code) and `use plan-tasks` (Codex, Cursor, Copilot)
+
+### /start-feature (Updated)
+- After the interview, before creating files: proposes task split if the feature has separable work streams
+- Single-task features skip the split proposal
+
 ### /align-context Skill
 - Updates all context files (task, spec, brief, worklog) to reflect current state of work
 - Task file: checks off completed steps, updates Last Updated date

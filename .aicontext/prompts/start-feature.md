@@ -59,6 +59,20 @@ If the user wants to override (or no project defaults exist), ask:
 
 Save any overrides to the task file under `## Commit Rules:`.
 
+## Task Split Assessment
+
+Before creating files, assess whether the feature has separable work streams:
+
+- If the requirements naturally group into independent pieces (e.g., "backend API" + "frontend UI" + "migration"), propose a split:
+  > "This feature has N separate parts:
+  > 1. [Task name] — [brief scope]
+  > 2. [Task name] — [brief scope]
+  >
+  > Create N tasks? Or keep as one?"
+- If the feature is a single cohesive piece, skip this and create one task.
+
+The user confirms or adjusts the split.
+
 ## Creating Output Files
 
 Check `project.md` → "Task Naming Convention" for the correct version prefix.
@@ -66,10 +80,10 @@ Check `project.md` → "Task Naming Convention" for the correct version prefix.
 **Spec** — create `.aicontext/specs/spec-{name}.md`:
 - Use sections: Problem, Solution, Requirements (plain list — detailed enough for task creation), Decisions, Non-goals, Tasks
 - No file paths or implementation details — specs must survive refactors
-- Add a Tasks section with a link to the task file
+- Add a Tasks section with links to all task files
 
-**Task** — create `.aicontext/tasks/{version}-{task-name}.md` from `.aicontext/templates/task.template.md`:
+**Task(s)** — for each task, create `.aicontext/tasks/{version}-{task-name}.md` from `.aicontext/templates/task.template.md`:
 - Fill in: Created date, Spec link (`spec-{name}.md`), Objective, Plan steps
 - Fill in `## Commit Rules:` if the user chose an override (remove section if using project defaults)
 
-Add the task cross-reference to the spec's Tasks section.
+Add all task cross-references to the spec's Tasks section.

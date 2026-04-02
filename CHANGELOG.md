@@ -1,5 +1,37 @@
 # Changelog
 
+## [1.6.0] - Unreleased
+
+### Added
+- **Three-layer context model**: specs (requirements) → tasks (plan + progress) → briefs (working knowledge) for persistent AI context across sessions
+- **New skills**: `/start-feature`, `/run-steps`, `/finish-task`, `/plan-tasks`, `/do-it`, `/align-context`, `/gh-review-fix-loop`
+- **Shared step inner loop** (`step-loop.md`): single source of truth for the implement → review → test → commit cycle, referenced by `/run-steps` and `/do-it`
+- **Spec files** (`.aicontext/specs/`): feature-level requirements, decisions, and non-goals — survive refactors, no file paths or implementation details
+- **Brief files** (`.aicontext/data/brief/`): gitignored working memory the AI appends to after each step — enables seamless session restarts via `/check-task`
+- **Worklog** (`.aicontext/worklog.md`): spec and task status tracking, replaces `changelog.md`. AI-generated, gitignored.
+- **Spec↔task drift detection** in `/check-task`: identifies spec requirements not covered by task steps, offers to add steps or create separate tasks
+- **Requirement coverage check**: whenever the AI adds a spec requirement, it immediately verifies task step coverage
+- **Configurable commit rules**: project-level defaults in `project.md`, per-task overrides in task files, personal overrides in `local.md`
+- **Quality checks table** in `process.md`: configurable matrix of what checks run after steps vs after tasks
+- New templates: `spec.template.md`, `brief.template.md`, `worklog.template.md`
+- Specs directory (`.aicontext/specs/.gitkeep`) created during `aicontext init`
+- Codex skill mirrors for all new skills
+
+### Changed
+- **Renamed `/start-task` → `/start-feature`**: always creates spec + task, no complexity assessment — small work uses direct conversation
+- **Renamed "Acceptance Criteria" → "Requirements"** in specs: plain list (no checkboxes), detailed enough for task creation
+- **Prompts as single source of truth**: all skill/agent instructions live in `.aicontext/prompts/`, skills are thin wrappers
+- `/check-task` now reads three layers (spec → brief → task) with staleness checks
+- `/gh-review-fix-loop` cycle reordered: fetch first → triage → fix → test → capture count → commit+push → poll
+- Script paths in prompts use `.aicontext/scripts/` (universal) instead of `.claude/scripts/`
+- `removeDeprecatedSkills` now cleans both `.claude/skills/` and `.codex/skills/`
+- Process rule "stop after step" scoped to manual execution only (not `/run-steps`)
+- Task template simplified: no acceptance criteria or out-of-scope sections (both live in spec)
+
+### Deprecated
+- `changelog.md` — replaced by `worklog.md`. Deprecation notice injected during `aicontext update`.
+- `/start-task` skill — replaced by `/start-feature`
+
 ## [1.5.1] - 2026-03-25
 
 ### Fixed
