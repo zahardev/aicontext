@@ -10,7 +10,7 @@ const fs = require('fs');
 const path = require('path');
 
 const SKIP_PATHS = ['.aicontext/', 'vendor/', 'node_modules/'];
-const OUTPUT_DIR = '.aicontext/data/github-pr-reviews';
+const OUTPUT_DIR = path.join(__dirname, '..', 'data', 'github-pr-reviews');
 
 const QUERY = `
 query($owner: String!, $name: String!, $number: Int!, $after: String) {

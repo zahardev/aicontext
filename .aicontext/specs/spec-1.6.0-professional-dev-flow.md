@@ -311,4 +311,4 @@ README focuses on pitch, install, quick start, and development model overview. D
 - [1.6.0-unified-prompts.md](../tasks/1.6.0-unified-prompts.md) — Restructure instructions into universal prompts, update skills/agents/rules to reference them
 - [1.6.0-dev-flow-v2.md](../tasks/1.6.0-dev-flow-v2.md) — New skills (/start-feature, /run-steps, /gh-review-fix-loop), templates (spec, upgraded task), process rules updates, brief file system
 - [1.6.0-prepare-release-config.md](../tasks/1.6.0-prepare-release-config.md) — Configurable prepare-release skill with release.md config
-- [1.6.0-review-consolidation.md](../tasks/1.6.0-review-consolidation.md) — Consolidate review skills: `/review` + `/deep-review` with scope args, universal criteria prompts, single reviewer agent
+- [1.6.0-review-consolidation.md](../tasks/1.6.0-review-consolidation.md) ✓ — Consolidate review skills: `/review` + `/deep-review` with scope args, universal criteria prompts, single reviewer agent
