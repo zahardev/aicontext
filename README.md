@@ -57,6 +57,8 @@ Spec (what & why)  →  Task (how & progress)  →  Brief (working knowledge)
 
 **Briefs** are the AI's working memory. After each step, the AI appends what it learned. If you start a new session, `/check-task` reads all three layers and the new AI is caught up — no knowledge is lost.
 
+Learn more in the [development model guide](docs/development-model.md).
+
 ### Typical Flow
 
 ```
@@ -66,13 +68,7 @@ Spec (what & why)  →  Task (how & progress)  →  Brief (working knowledge)
                                       ↓
                                 /finish-task  →  Sync spec, update worklog, handle git
 ```
-- [x] Run tests
 
-### Step 11: Extract step inner loop into shared prompt
-- [x] Create `.aicontext/prompts/step-loop.md` with the inner loop logic
-- [x] Update `/run-steps` to reference `step-loop.md` instead of inline loop
-- [x] Update `/do-it` to reference `step-loop.md` instead of inline loop
-- [x] Add to CLI framework 
 For large features, `/start-feature` proposes splitting work into multiple tasks. You can also create tasks later from an existing spec using `/plan-tasks`.
 
 | Skill | When to use |
@@ -85,6 +81,8 @@ For large features, `/start-feature` proposes splitting work into multiple tasks
 | `/do-it` | Quick addition — turns a conversation into a task step, updates spec and brief, implements it |
 | `/align-context` | Housekeeping — updates all context files to reflect current state |
 | `/gh-review-fix-loop` | After PR — automates the review-fix-push cycle |
+
+See the [full skills reference](docs/skills.md) for detailed descriptions of every skill.
 
 ## Requirements
 
@@ -193,110 +191,28 @@ Example configurations are available in the [GitHub repository](https://github.c
 
 ## Workflow
 
-> **Skill invocation varies by tool.** Throughout this section, skill names are shown as `/skill-name`. Use them as follows:
-> - **Claude Code:** `/skill-name` (e.g., `/start`)
-> - **Codex:** `Use skill-name` (e.g., `Use start`)
-> - **Cursor / Copilot:** Paste the equivalent prompt file from `.aicontext/prompts/` (see the [skills table](#skills) for mappings).
-
-### Starting a Session
-
-Always begin with `/start`. The AI reads all project rules and context files, then confirms readiness in one sentence.
+> **Skill invocation:** Claude Code uses `/skill-name`, Codex uses `Use skill-name`, Cursor/Copilot paste the prompt file from `.aicontext/prompts/`.
 
 ### New Feature
 
-**1. `/start-feature`** — the AI runs a structured discovery interview: one question at a time, exploring the codebase instead of asking when the answer is available. For each decision point, it presents options with pros/cons and its recommendation. Covers both product (scope, requirements, edge cases) and engineering (design, integration, testing) dimensions.
-
-**2. Review the output** — the AI creates a spec (requirements, decisions, non-goals) and proposes a task breakdown. For large features, it splits the work into multiple tasks. Review the spec and task plan(s) before proceeding.
-
-**3. `/run-steps`** — pick a task and run it. The AI executes all steps automatically. For each step, it: implements → runs code review → fixes issues → runs tests → commits (if configured) → updates the brief. You watch and intervene only when needed.
-
-**4. `/finish-task`** — verifies all steps are done, syncs the spec with any decisions made during implementation, writes completion notes, updates the worklog, and handles git (commit / push / PR per your config).
-
-**5. Repeat** — if the spec has more tasks, pick the next one and run `/run-steps` again.
-
-### Adding Tasks to an Existing Spec
-
-If a spec already exists and needs more tasks (new requirements emerged, or you want to replan):
-
-**`/plan-tasks`** — reads the spec, identifies requirements not covered by existing tasks, and proposes new tasks. If no spec exists, it directs you to `/start-feature`.
-
-### Quick Addition
-
-Mid-task, you discuss a new idea. Instead of manually adding a step:
-
-**`/do-it`** — crystallizes the discussion into a task step, updates the spec if needed, and implements it immediately.
+1. **`/start-feature`** — structured discovery interview → creates spec + task(s)
+2. **`/run-steps`** — executes all steps automatically with review-fix loops
+3. **`/finish-task`** — syncs spec, updates worklog, handles git
 
 ### Resuming a Session
 
-**1. `/start`** — load project context.
+1. **`/start`** → **`/check-task`** — reads spec → brief → task, surfaces where you left off
+2. **`/run-steps`** — continues from the next unchecked step
 
-**2. `/check-task`** — the AI reads all three layers (spec → brief → task), surfaces where you left off, detects any drift between spec requirements and task steps, and checks for staleness.
+### Other Common Workflows
 
-**3. Continue** — ask the AI to continue, or use `/run-steps` to execute remaining steps.
+- **`/plan-tasks`** — create tasks from an existing spec
+- **`/do-it`** — turn a discussion into a task step and implement it
+- **`/align-context`** — update all context files to reflect current state
+- **`/diff-review`** / **`/branch-review`** — code review
+- **`/draft-pr`** → **`/gh-review-fix-loop`** — PR creation and automated review cycles
 
-### Context Alignment
-
-After a conversation where decisions were made, or before ending a session:
-
-**`/align-context`** — updates all context files (task, spec, brief, worklog) to reflect the current state. Fixes what's stale, fills what's missing, then reports what changed.
-
-### Code Review
-
-Review code at any point during development:
-
-- `/diff-review` — reviews only uncommitted changes (staged + unstaged). Good for checking work-in-progress before committing.
-- `/branch-review` — reviews the full branch diff against main, including all commits and uncommitted changes. Good before creating a PR.
-
-Both delegate to the reviewer agent (Claude Code) or review locally (Codex). Results are saved to `.aicontext/data/code-reviews/`.
-
-### Standards Check
-
-After implementation, use `/standards-check` to verify code against project standards. The AI checks all changed files on the branch for DRY, KISS, over-engineering, security, and convention violations. Use this as a final check before creating a PR.
-
-### Pull Request Workflow
-
-#### Drafting a PR
-
-Use `/draft-pr` to generate a PR title and description from your task file and git history. The draft is saved to `.aicontext/data/pr-drafts/` for review before creating the actual PR.
-
-#### Triaging Review Comments
-
-After your PR receives review comments, use `/pr-review-check` to handle them efficiently:
-
-**1. Fetch** — the AI runs `pr-reviews.js` to fetch all unresolved review threads from GitHub and saves them to a structured markdown file.
-
-**2. Analyze** — the AI reads each comment, inspects the actual code, and classifies findings:
-- **Valid** — real issues worth fixing
-- **False positive** — explain why
-- **Low priority** — valid but not worth addressing now
-
-**3. Fill actions** — the AI fills the Action column in the review file:
-
-| # | Action | File:Line | Reviewer | Reply |
-|---|--------|-----------|----------|-------|
-| 1 | `fix` | src/api.js:42 | coderabbit | |
-| 2 | `resolve` | src/db.js:15 | coderabbit | Already handled in abc123 |
-| 3 | `resolve` | src/utils.js:8 | coderabbit | |
-
-- `fix` — will address in code
-- `resolve` — dismiss on GitHub (with optional reply)
-- `skip` — leave for human discussion (only for human reviewer comments)
-
-**4. Resolve** — the AI runs `pr-resolve.js` to bulk-resolve all threads marked `resolve` on GitHub, posting replies where provided.
-
-**5. Fix** — the AI fixes all items marked `fix`. You can optionally ask it to add a step to the task file to keep a record of the fixes.
-
-**6. Repeat** — after pushing fixes, run `/pr-review-check` again if new review comments arrive.
-
-### Example Workflows
-
-#### Drafting a GitHub Issue
-
-Use `/draft-issue` during a conversation where you've discussed a feature or bug. The AI extracts requirements, decisions, and scope from the conversation and saves a structured issue draft to `.aicontext/data/issue-drafts/`. Useful for capturing ideas that came up during implementation without losing context.
-
-#### Codebase Health Scan
-
-Use `/code-health` to scan your codebase for systemic refactoring opportunities — duplication across 3+ files, complex functions, tight coupling, missing test coverage, and inconsistent patterns. The AI presents findings sorted by impact, then offers to create GitHub issue drafts for the ones you want to address.
+See the [full workflow guide](docs/workflow.md) for detailed descriptions of each workflow.
 
 ## Updating the Framework
 
@@ -334,66 +250,15 @@ Updates framework files while preserving your project-specific files:
 
 Agents and skills have **override protection** — existing files are never silently overwritten. You'll be prompted for each file that already exists. Use `--override-agents` or `--override-skills` to force-override without prompting.
 
-## Claude Code Features
+## Tool-Specific Features
 
-Claude Code users get additional tooling beyond the shared rules and prompts.
+**Claude Code** gets the richest experience: `/command` skills, predefined subagents (researcher, reviewer, test-runner, test-writer, standards-checker), and PR workflow scripts.
 
-### Skills
+**Codex** gets the same skills invoked with `Use skill-name`, adapted as standalone workflows without subagents.
 
-Skills are invocable commands (`/skill-name`) — the Claude Code equivalent of prompt files.
+**Cursor / Copilot** use the shared prompts and rules via their entry points.
 
-| Skill | Prompt | Description |
-|-------|--------|-------------|
-| `/start` | `start.md` | Load project context, confirm readiness |
-| `/start-feature` | `start-feature.md` | Structured interview → spec + task(s) |
-| `/plan-tasks` | `plan-tasks.md` | Create tasks from an existing spec |
-| `/run-steps` | `run-steps.md` | Execute all pending steps with review-fix loops |
-| `/check-task` | `check-task.md` | Read spec → brief → task, surface resume state |
-| `/finish-task` | `finish-task.md` | Close task: sync spec, update worklog, handle git |
-| `/do-it` | `do-it.md` | Turn discussion into step, update spec and brief, implement |
-| `/align-context` | `align-context.md` | Update all context files, report changes |
-| `/gh-review-fix-loop` | `gh-review-fix-loop.md` | Automate PR review-fix-push cycles |
-| `/diff-review` | `diff-review.md` | Review uncommitted changes |
-| `/branch-review` | `branch-review.md` | Review full branch against main |
-| `/standards-check` | `standards-check.md` | Check branch against coding standards |
-| `/next-step` | `next-step.md` | Complete current step, start next |
-| `/check-plan` | `check-plan.md` | Validate plan for issues |
-| `/draft-pr` | `draft-pr.md` | Draft pull request |
-| `/draft-issue` | `draft-issue.md` | Draft GitHub issue from conversation |
-| `/code-health` | `code-health.md` | Scan codebase for refactoring opportunities |
-| `/pr-review-check` | `pr-review-check.md` | Triage PR review comments |
-| `/prepare-release` | `prepare-release.md` | Prepare version release from config |
-
-### Agents
-
-Predefined subagents save context tokens by delegating research, testing, and review tasks.
-
-| Agent | Default Model | Role |
-|-------|---------------|------|
-| `researcher` | sonnet | Explore codebase, return concise summaries |
-| `test-runner` | sonnet | Run tests, report only failures |
-| `test-writer` | sonnet | Draft test files in parallel with implementation |
-| `standards-checker` | opus | Check code against project rules |
-| `reviewer` | opus | Review code for bugs, edge cases, security |
-
-During `aicontext init`, you can opt to downgrade all agents to `haiku`. Change individual models anytime in `.claude/agents/*.md`.
-
-### PR Scripts
-
-Node.js scripts in `.aicontext/scripts/` for GitHub PR workflows (used by both Claude Code and Codex):
-
-| Script | Used By | Purpose |
-|--------|---------|---------|
-| `pr-reviews.js` | `/pr-review-check` | Fetch unresolved PR review threads via GitHub GraphQL API |
-| `pr-resolve.js` | `/pr-review-check` | Resolve threads and post replies on GitHub |
-
-**Requirement:** [GitHub CLI (`gh`)](https://cli.github.com/) installed and authenticated (`gh auth login`).
-
-## Codex Features
-
-Codex users get skills in `.codex/skills/` — self-contained workflow definitions adapted for Codex's agent model. The same skill set is available as in Claude Code, but invoked with `Use skill-name` and written as standalone workflows rather than delegating to subagents.
-
-Agents are Claude Code specific. Skills and PR scripts are shared between Claude Code and Codex. Cursor and Copilot use the shared prompts and rules.
+See the [full skills reference](docs/skills.md) for every skill with detailed descriptions, and the [development model](docs/development-model.md) for how specs, tasks, briefs, quality checks, and commit rules work together.
 
 ## For Teams: What to Commit
 

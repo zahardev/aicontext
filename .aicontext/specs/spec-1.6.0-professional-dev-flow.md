@@ -288,6 +288,9 @@ Decided against unattended Ralph-style execution. Context loss between stateless
 ### Cross-Platform Compatibility
 The mono-agent approach, brief file, and universal prompts ensure the core workflow works identically in Claude Code, Codex, Cursor, and Copilot. Claude Code gets convenient UX via `/command` skills. Codex uses `use command` to invoke skills. Cursor and Copilot use the same `use <name>` pattern via a rule that reads `.aicontext/prompts/<name>.md`. No feature requires Claude-specific capabilities to function.
 
+### Documentation: README + docs/
+README focuses on pitch, install, quick start, and development model overview. Detailed workflow guides, skill-by-skill reference, and development model deep-dive live in `docs/`. This keeps the README scannable while providing depth for users who need it.
+
 ## Non-Goals
 
 - **Full-auto (Ralph) mode** — not implementing unattended multi-task execution. May revisit in a future version.
