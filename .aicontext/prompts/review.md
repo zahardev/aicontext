@@ -1,26 +1,31 @@
 # Review
 
-Review code changes for bugs, security issues, edge cases, and logical errors.
+Review code changes for bugs, security issues, edge cases, and logical errors. Architecture and design are handled by `/deep-review`, not this review.
+
+## Setup
+
+Read these files to understand the project:
+- `.aicontext/project.md` — architecture, API contracts, tech stack
+- `.aicontext/local.md` — local environment specifics (if exists)
+- Current task file in `.aicontext/tasks/` — requirements and planned work
 
 ## Scope
 
 Follow `.aicontext/prompts/review-scope.md` to determine the review scope.
 
-## Steps
+## Review
 
-1. Determine scope (per `review-scope.md`)
-2. Read the current task file in `.aicontext/tasks/` to understand requirements
-3. **If delegating** (Claude Code, large scope): launch `reviewer` agent with the criteria prompt `.aicontext/prompts/review-criteria.md`, the git diff command, and the task file path
-4. **If inline** (small scope or non-Claude tools): follow `.aicontext/prompts/review-criteria.md` directly
-5. Evaluate findings and present with your recommendation:
-   - For each finding: agree or disagree, and whether it's worth fixing now
-   - Drop findings that are nitpicks or over-engineering
-   - Group remaining: **fix now** (clear bugs, security issues) vs **skip** (low risk, premature)
-   - Provide a clear action plan: "I'd fix #1 and #3, skip #2 — want me to proceed?"
-6. Save review results to `.aicontext/data/code-reviews/YYYY-MM-DD-review-{short-description}.md`
+Follow `.aicontext/prompts/review-criteria.md` for what to check and how to present findings.
 
-## Rules
+## Save
 
-- Do NOT pass full file contents to the agent — pass the diff command so it reviews only changed lines
-- Present findings grouped by severity: Critical > Major > Minor > Positive
-- For each finding: file, line, impact, fix
+Save review results to `.aicontext/data/code-reviews/YYYY-MM-DD-review-{short-description}.md` using the template at `.aicontext/templates/code-review.template.md`.
+
+## Present
+
+Evaluate findings and present with your recommendation:
+- For each finding: agree or disagree, and whether it's worth fixing now
+- Drop findings that are nitpicks or over-engineering
+- Group remaining: **fix now** (clear bugs, security issues) vs **skip** (low risk, premature)
+- Provide a clear action plan: "I'd fix #1 and #3, skip #2 — want me to proceed?"
+- Include the saved review file path so the user can reference it later

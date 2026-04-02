@@ -20,11 +20,3 @@ Shared scope detection for `/review` and `/deep-review`.
 > 4. **path** — specific file or directory (provide the path)
 
 **Auto-detect:** if the user just finished implementation and says "review this", treat as `diff` if there are uncommitted changes.
-
-## Delegation (Claude Code)
-
-**Small scope (inline):** IDE selection, or diff/branch/path with **~200 changed lines or fewer**. Run the review inline.
-
-**Large scope (delegate):** More than **~200 changed lines**, or `all`. Delegate to the `reviewer` agent.
-
-To decide: count changed lines first (e.g., `git diff --stat`), then choose.

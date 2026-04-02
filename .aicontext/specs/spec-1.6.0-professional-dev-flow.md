@@ -263,6 +263,9 @@ Brief naming mirrors the task filename so its path is always derivable without r
 ### Execution: Single Implementer with Verification Subagents
 No external shell scripts. The `/run-steps` skill instructs one agent to implement all steps, accumulating full understanding of the code, decisions, and context — the same way a developer working on a feature remembers everything they've done. The agent delegates read-only verification tasks (tests, reviews, standards checks) to subagents where available (Claude Code), then assesses findings and fixes issues itself. In tools without subagents (Cursor, Copilot), the agent runs verification inline.
 
+### Review Prompts as Self-Contained Workflows
+Review prompts (`review.md`, `deep-review.md`) are self-contained workflows: setup, scope, criteria, save with template, present. They work identically whether run directly (Cursor, Copilot, inline) or by the `reviewer` agent (Claude Code delegation). Claude skills handle the inline/delegate decision based on scope size — prompts contain no delegation logic. The `reviewer` agent is generic: "read and follow the prompt file path provided by the caller". This keeps prompts tool-agnostic and eliminates the previous problem of non-Claude tools reading irrelevant delegation instructions.
+
 ### Context Management: Three-Layer Model
 Three documents at different levels of detail, read in order:
 1. **Spec** (permanent) — what and why: requirements, decisions, non-goals

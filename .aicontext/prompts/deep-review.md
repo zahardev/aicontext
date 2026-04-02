@@ -1,24 +1,32 @@
 # Deep Review
 
-Architectural code review that questions **design decisions** — not style (that's `/standards-check`) or bugs (that's `/review`).
+Comprehensive code review: architecture **and** correctness. Questions design decisions, checks for bugs and security issues, analyzes placement, responsibilities, API design, edge cases, and extensibility.
+
+## Setup
+
+Read these files to understand the project:
+- `.aicontext/project.md` — architecture, API contracts, tech stack
+- `.aicontext/rules/standards.md` — coding standards (if exists)
+- `.aicontext/local.md` — local environment specifics (if exists)
+- Current task file in `.aicontext/tasks/` — requirements and planned work
 
 ## Scope
 
 Follow `.aicontext/prompts/review-scope.md` to determine the review scope. Deep review also supports `all` as a scope argument (review entire codebase).
 
-## Steps
+## Review
 
-1. Determine scope (per `review-scope.md`)
-2. Read project documentation (`.aicontext/project.md`, task file if one exists)
-3. **If delegating** (Claude Code, large scope): launch `reviewer` agent with the criteria prompt `.aicontext/prompts/deep-review-criteria.md`, the scope description, and the task file path
-4. **If inline** (small scope or non-Claude tools): follow `.aicontext/prompts/deep-review-criteria.md` directly
-5. Present findings as: Refactoring Actions (grouped by leverage) first, then Detailed Findings for reference
-6. Save review to `.aicontext/data/code-reviews/YYYY-MM-DD-deep-review-{short-description}.md`
+Follow `.aicontext/prompts/deep-review-criteria.md` for the 11-phase review methodology and output format.
 
-## Rules
+## Save
+
+Save review results to `.aicontext/data/code-reviews/YYYY-MM-DD-deep-review-{short-description}.md` using the template at `.aicontext/templates/code-review.template.md`.
+
+## Present
 
 - Present findings as **questions**, not demands
-- Do NOT suggest changes to code outside the review scope
+- Lead with Refactoring Actions (grouped by leverage), then Detailed Findings for reference
 - One finding per concern — don't bundle
-- Lead with actions, not findings — Refactoring Actions section comes first
+- Do NOT suggest changes to code outside the review scope
 - If no significant findings, say so — don't invent issues
+- Include the saved review file path so the user can reference it later
