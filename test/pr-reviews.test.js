@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 
-const { stripNoise, buildEntries, renderMarkdown, nextIteration } = require('../.claude/scripts/pr-reviews.js');
+const { stripNoise, buildEntries, renderMarkdown, nextIteration } = require('../.aicontext/scripts/pr-reviews.js');
 
 function createTempDir() {
   return fs.mkdtempSync(path.join(os.tmpdir(), 'aicontext-test-'));
