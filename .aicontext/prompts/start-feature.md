@@ -78,7 +78,7 @@ The user confirms or adjusts the split.
 Check `project.md` → "Task Naming Convention" for the correct version prefix.
 
 **Spec** — create `.aicontext/specs/spec-{name}.md`:
-- Use sections: Problem, Solution, Requirements (plain list — detailed enough for task creation), Decisions, Non-goals, Tasks
+- Use sections: Problem, Solution, Requirements (plain list — detailed enough for task creation), Decisions, User Stories (optional), Non-goals (optional), Tasks
 - No file paths or implementation details — specs must survive refactors
 - Add a Tasks section with links to all task files
 

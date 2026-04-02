@@ -31,7 +31,8 @@
 - [ ] [Task/feature 2]
 
 ## Completion Notes:
-[Notes about the implementation: compromises made, follow-up tasks, important learnings]
+
+- [Compromises made, follow-up tasks, important learnings — one item per line]
 
 ---
 

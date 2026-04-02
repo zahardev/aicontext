@@ -209,7 +209,8 @@ Example configurations are available in the [GitHub repository](https://github.c
 - **`/plan-tasks`** — create tasks from an existing spec
 - **`/do-it`** — turn a discussion into a task step and implement it
 - **`/align-context`** — update all context files to reflect current state
-- **`/diff-review`** / **`/branch-review`** — code review
+- **`/review`** — code review (scope: diff, branch, commit, path)
+- **`/deep-review`** — architectural review (11-phase design analysis)
 - **`/draft-pr`** → **`/gh-review-fix-loop`** — PR creation and automated review cycles
 
 See the [full workflow guide](docs/workflow.md) for detailed descriptions of each workflow.

@@ -81,10 +81,18 @@ Fixes everything silently, then reports what changed.
 
 Review code at any point during development:
 
-- **`/diff-review`** — reviews only uncommitted changes (staged + unstaged). Good for checking work-in-progress before committing.
-- **`/branch-review`** — reviews the full branch diff against main, including all commits and uncommitted changes. Good before creating a PR.
+**`/review`** — reviews code for bugs, security, edge cases, and logical errors. Scope with arguments:
+- `/review diff` — uncommitted changes (default)
+- `/review branch` — full branch diff against main
+- `/review path/to/file` — specific file or directory
 
-Both delegate to the reviewer agent (Claude Code) or review locally (Codex). Results are saved to `.aicontext/data/code-reviews/`.
+Delegates to the reviewer agent (Claude Code) or reviews inline (other tools). Results are saved to `.aicontext/data/code-reviews/`.
+
+**`/deep-review`** — architectural review that questions design decisions. Same scope arguments as `/review`, plus `all` for entire codebase. Uses an 11-phase methodology:
+
+1. DRY & KISS → 2. Placement → 3. Responsibilities → 4. API Design → 5. Edge Cases → 6. Framework Usage → 7. Constants & Naming → 8. Dependencies & Testability → 9. Error Handling → 10. Extensibility → 11. Synthesis
+
+For small scope (<200 lines), runs inline for interactive feedback. For large scope, delegates to the `reviewer` agent with deep-review criteria. Findings are grouped by root cause and prioritized by leverage — the synthesis phase identifies linchpin fixes that resolve multiple issues at once.
 
 ## Standards Check
 

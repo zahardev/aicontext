@@ -430,16 +430,16 @@ describe('version cache', () => {
 
 describe('FRAMEWORK_PROMPTS', () => {
   it('should contain exactly 19 framework prompt files', () => {
-    assert.strictEqual(FRAMEWORK_PROMPTS.length, 23);
+    assert.strictEqual(FRAMEWORK_PROMPTS.length, 25);
   });
 
   it('should contain the expected prompt files', () => {
     const expected = [
-      'align-context.md', 'branch-review.md', 'check-plan.md', 'check-task.md', 'code-health.md',
-      'diff-review.md', 'do-it.md', 'draft-issue.md', 'draft-pr.md', 'finish-task.md', 'generate.md',
-      'gh-review-fix-loop.md', 'next-step.md', 'plan-tasks.md', 'pr-review-check.md', 'prepare-release.md',
-      'review.md', 'run-steps.md', 'standards-check.md', 'start-feature.md', 'start.md', 'step-loop.md',
-      'test-writer.md',
+      'align-context.md', 'check-plan.md', 'check-task.md', 'close-step.md', 'code-health.md', 'deep-review.md',
+      'deep-review-criteria.md', 'do-it.md', 'draft-issue.md', 'draft-pr.md', 'finish-task.md',
+      'generate.md', 'gh-review-fix-loop.md', 'next-step.md', 'plan-tasks.md', 'pr-review-check.md',
+      'prepare-release.md', 'review.md', 'review-criteria.md', 'review-scope.md', 'run-steps.md',
+      'start-feature.md', 'start.md', 'step-loop.md', 'test-writer.md',
     ];
     assert.deepStrictEqual([...FRAMEWORK_PROMPTS].sort(), [...expected].sort());
   });
@@ -447,7 +447,7 @@ describe('FRAMEWORK_PROMPTS', () => {
 
 describe('DEPRECATED_PROMPTS', () => {
   it('should contain the old prompt file names', () => {
-    const expected = ['check_plan.md', 'check_task.md', 'after_step.md', 'plan.md', 'task.md', 'start-task.md'];
+    const expected = ['check_plan.md', 'check_task.md', 'after_step.md', 'plan.md', 'task.md', 'start-task.md', 'diff-review.md', 'branch-review.md', 'standards-check.md'];
     assert.deepStrictEqual([...DEPRECATED_PROMPTS].sort(), [...expected].sort());
   });
 });
@@ -698,8 +698,8 @@ describe('update with keepPrompts', () => {
 });
 
 describe('FRAMEWORK_AGENTS', () => {
-  it('should contain exactly 5 agent files', () => {
-    assert.strictEqual(FRAMEWORK_AGENTS.length, 5);
+  it('should contain exactly 4 agent files', () => {
+    assert.strictEqual(FRAMEWORK_AGENTS.length, 4);
   });
 
   it('should contain the expected agent files', () => {
@@ -708,7 +708,6 @@ describe('FRAMEWORK_AGENTS', () => {
       'reviewer.md',
       'test-runner.md',
       'test-writer.md',
-      'standards-checker.md',
     ];
     assert.deepStrictEqual([...FRAMEWORK_AGENTS].sort(), [...expected].sort());
   });
@@ -762,15 +761,15 @@ describe('removeDeprecatedAgents', () => {
 });
 
 describe('FRAMEWORK_SKILLS', () => {
-  it('should contain exactly 16 skill names', () => {
-    assert.strictEqual(FRAMEWORK_SKILLS.length, 19);
+  it('should contain exactly 18 skill names', () => {
+    assert.strictEqual(FRAMEWORK_SKILLS.length, 18);
   });
 
   it('should contain the expected skills', () => {
     const expected = [
       'start', 'start-feature', 'plan-tasks', 'check-task', 'check-plan', 'run-steps', 'finish-task',
-      'align-context', 'do-it', 'diff-review', 'branch-review', 'next-step', 'draft-pr', 'pr-review-check',
-      'standards-check', 'draft-issue', 'code-health', 'prepare-release', 'gh-review-fix-loop',
+      'align-context', 'do-it', 'review', 'deep-review', 'next-step', 'draft-pr', 'pr-review-check',
+      'draft-issue', 'code-health', 'prepare-release', 'gh-review-fix-loop',
     ];
     assert.deepStrictEqual([...FRAMEWORK_SKILLS].sort(), [...expected].sort());
   });
@@ -784,7 +783,7 @@ describe('FRAMEWORK_SKILLS', () => {
 
 describe('DEPRECATED_SKILLS', () => {
   it('should contain the old skill names', () => {
-    const expected = ['task', 'review', 'after-step', 'next', 'pr', 'start-task'];
+    const expected = ['task', 'after-step', 'next', 'pr', 'start-task', 'diff-review', 'branch-review', 'standards-check'];
     assert.deepStrictEqual([...DEPRECATED_SKILLS].sort(), [...expected].sort());
   });
 });
@@ -803,13 +802,13 @@ describe('removeDeprecatedSkills', () => {
   it('should remove deprecated skill directories', () => {
     fs.mkdirSync(path.join(tempDir, '.claude', 'skills', 'task'), { recursive: true });
     fs.writeFileSync(path.join(tempDir, '.claude', 'skills', 'task', 'SKILL.md'), 'content');
-    fs.mkdirSync(path.join(tempDir, '.claude', 'skills', 'review'), { recursive: true });
-    fs.writeFileSync(path.join(tempDir, '.claude', 'skills', 'review', 'SKILL.md'), 'content');
+    fs.mkdirSync(path.join(tempDir, '.claude', 'skills', 'diff-review'), { recursive: true });
+    fs.writeFileSync(path.join(tempDir, '.claude', 'skills', 'diff-review', 'SKILL.md'), 'content');
 
     removeDeprecatedSkills(tempDir);
 
     assert.strictEqual(fs.existsSync(path.join(tempDir, '.claude', 'skills', 'task')), false);
-    assert.strictEqual(fs.existsSync(path.join(tempDir, '.claude', 'skills', 'review')), false);
+    assert.strictEqual(fs.existsSync(path.join(tempDir, '.claude', 'skills', 'diff-review')), false);
   });
 
   it('should not fail when deprecated skills do not exist', () => {
@@ -1039,13 +1038,13 @@ describe('update with agent override protection', () => {
 
   it('should install new framework agents added in update', async () => {
     // Remove one agent to simulate it being new in the update
-    fs.unlinkSync(path.join(tempDir, '.claude', 'agents', 'standards-checker.md'));
+    fs.unlinkSync(path.join(tempDir, '.claude', 'agents', 'test-writer.md'));
     fs.writeFileSync(path.join(tempDir, '.aicontext', '.version'), '0.0.1');
 
     await update(tempDir, true);
 
     // New agent should be installed
-    assert.strictEqual(fs.existsSync(path.join(tempDir, '.claude', 'agents', 'standards-checker.md')), true);
+    assert.strictEqual(fs.existsSync(path.join(tempDir, '.claude', 'agents', 'test-writer.md')), true);
   });
 
   it('should always update CLAUDE.md on update', async () => {

@@ -105,7 +105,7 @@ Before creating or updating documentation, verify the current date:
 |-------|------------|------------|-------|
 | Code review | Yes | No | `reviewer` subagent |
 | Step-related tests | Yes | No | `test-runner` subagent |
-| Standards check | No | Yes | `standards-checker` subagent |
+| Deep review | No | Yes | `reviewer` subagent |
 | Full test suite | No | Yes | `test-runner` subagent |
 
 Edit this table to customize your workflow. `/run-steps` reads it at runtime.

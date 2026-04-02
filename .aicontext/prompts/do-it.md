@@ -34,3 +34,5 @@ If no brief exists, create one from `.aicontext/templates/brief.template.md`.
 ## 5. Implement
 
 Follow the step inner loop defined in `.aicontext/prompts/step-loop.md`.
+
+The loop ends with close-step — make sure the close-step summary is output before finishing.

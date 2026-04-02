@@ -93,15 +93,27 @@ Updates all context files to reflect the current state of work. Use before endin
 
 ## Review Skills
 
-### `/diff-review`
-**Prompt:** `diff-review.md`
+### `/review`
+**Prompt:** `review.md`
 
-Reviews uncommitted changes (staged + unstaged) against task requirements and coding standards.
+Reviews code changes for bugs, security issues, edge cases, and logical errors. Replaces the old `/diff-review` and `/branch-review` skills.
 
-### `/branch-review`
-**Prompt:** `branch-review.md`
+- Scope with arguments: `diff` (default), `branch`, `<commit>`, `<path>`, or IDE selection
+- Delegates to the `reviewer` agent (Claude Code) or reviews inline (other tools)
+- Evaluates findings and groups them: fix now vs skip
+- Saves results to `.aicontext/data/code-reviews/`
 
-Reviews the full branch diff against main, including all commits and uncommitted changes.
+### `/deep-review`
+**Prompt:** `deep-review.md`
+
+Architectural code review that questions design decisions — placement, responsibilities, API design, side effects, edge cases, and extensibility. Based on a proven 11-phase methodology.
+
+- Scope with arguments: `diff` (default), `branch`, `all`, `<path>`, or IDE selection
+- Smart delegation: <200 lines inline, >200 lines delegates to `reviewer` agent with deep-review criteria
+- 11 phases: DRY & KISS, Placement, Responsibilities, API Design, Edge Cases, Framework Usage, Constants & Naming, Dependencies & Testability, Error Handling, Extensibility, Synthesis
+- Synthesis phase groups findings by root cause and prioritizes by leverage
+- Output: Refactoring Actions (grouped, ordered by leverage) first, then Detailed Findings
+- Saves results to `.aicontext/data/code-reviews/`
 
 ### `/standards-check`
 **Prompt:** `standards-check.md`

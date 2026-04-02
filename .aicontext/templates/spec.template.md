@@ -29,6 +29,8 @@
 
 ## Non-Goals
 
+<!-- Optional — remove section if scope is clear -->
+
 - [What this spec explicitly will NOT do]
 - [What is deferred to a future version]
 

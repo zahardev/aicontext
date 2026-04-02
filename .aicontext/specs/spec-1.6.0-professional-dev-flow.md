@@ -199,6 +199,15 @@ Move all instructions to `.aicontext/prompts/` as the single source of truth. Cl
 - Fixes everything silently, then provides a short report of what changed
 - Available as `/align-context` (Claude Code) and `use align-context` (Codex, Cursor, Copilot)
 
+### Review Consolidation
+- `/diff-review` and `/branch-review` consolidated into single `/review` skill with scope arguments (diff, branch, commit, path, IDE selection)
+- `/deep-review` skill added with 11-phase architectural methodology plus correctness (bugs, security) — comprehensive review. Smart delegation (<200 lines inline, >200 delegate to reviewer agent)
+- `/standards-check` dropped — fully subsumed by `/deep-review` (DRY, KISS, naming, conventions all covered by deep-review phases)
+- `code-review.template.md` for persistent review tracking with refactoring actions, findings, decisions
+- Review criteria extracted to universal prompts: `review-scope.md` (shared scope detection), `review-criteria.md` (correctness), `deep-review-criteria.md` (architecture + correctness)
+- Single `reviewer` agent — caller specifies which criteria prompt to use. Criteria prompts are accessible to Cursor/Copilot without agents.
+- Two review tiers: `/review` = quick correctness scan (after step), `/deep-review` = comprehensive architecture + correctness (after task)
+
 ### Worklog
 - `changelog.md` renamed to `worklog.md` — tracks spec and task statuses, not just completion dates
 - Format: specs grouped by status (In Progress / Done), with task checkboxes under each spec
@@ -265,6 +274,9 @@ The agent works inline and accumulates context naturally. The brief file is writ
 ### Brief File: Append-Only External Memory
 The brief is not a subagent manifest — it's the agent's external memory. After each step, the agent appends what it learned (patterns, gotchas, decisions, file references). Entries are concise (1-2 lines), prefixed with plan step number `[Step N]`, and never deleted or modified — only appended. Later entries are more recent and take precedence over earlier ones. The brief template lives at `.aicontext/templates/brief.template.md`. The brief is gitignored but never auto-deleted — the user removes it manually when no longer needed, enabling task resumption weeks later.
 
+### Close Step: Enforced Context Updates
+After each step's implementation and tests, the agent follows `close-step.md` which bundles three actions into one required deliverable: update task checkboxes, append to brief, and elevate decisions to spec. The agent must output a structured summary with counts (e.g., "Brief: +3 entries, Spec: +1 decision") — making context updates a visible deliverable rather than an invisible housekeeping task. This prevents agents from skipping deferred-value work that only benefits future sessions.
+
 ### Session Restart via /check-task
 When context gets too large or the user starts a new session, `/check-task` reads spec → brief → task and brings the new agent up to speed. The user decides when to restart — the agent cannot reliably detect its own context overflow. The brief ensures no knowledge is lost between sessions.
 
@@ -291,16 +303,9 @@ The mono-agent approach, brief file, and universal prompts ensure the core workf
 ### Documentation: README + docs/
 README focuses on pitch, install, quick start, and development model overview. Detailed workflow guides, skill-by-skill reference, and development model deep-dive live in `docs/`. This keeps the README scannable while providing depth for users who need it.
 
-## Non-Goals
-
-- **Full-auto (Ralph) mode** — not implementing unattended multi-task execution. May revisit in a future version.
-- **GitHub Issues integration** — tasks stay local in `.aicontext/tasks/`. Not auto-creating GitHub issues as part of the flow.
-- **Unattended auto-push/PR** — `finish_action` supports `commit+push` and `commit+push+pr` as explicit user-triggered choices at task close, not as background automation.
-- **New review skills** — this spec covers the infrastructure (configurable table, loop). New review skill types (smoke-review, deep-review) are separate work.
-- **TDD companion files** — importing the TDD reference materials (mocking.md, refactoring.md, etc.) from the skills library is out of scope.
-- **aicontext init changes** — full init command changes (asking about commits during init) deferred. Specs dir creation was added as a minimal change.
-
 ## Tasks
 
 - [1.6.0-unified-prompts.md](../tasks/1.6.0-unified-prompts.md) — Restructure instructions into universal prompts, update skills/agents/rules to reference them
 - [1.6.0-dev-flow-v2.md](../tasks/1.6.0-dev-flow-v2.md) — New skills (/start-feature, /run-steps, /gh-review-fix-loop), templates (spec, upgraded task), process rules updates, brief file system
+- [1.6.0-prepare-release-config.md](../tasks/1.6.0-prepare-release-config.md) — Configurable prepare-release skill with release.md config
+- [1.6.0-review-consolidation.md](../tasks/1.6.0-review-consolidation.md) — Consolidate review skills: `/review` + `/deep-review` with scope args, universal criteria prompts, single reviewer agent

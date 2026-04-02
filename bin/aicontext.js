@@ -13,32 +13,31 @@ const NPM_PACKAGE = '@zahardev/aicontext';
 const CACHE_FILE = path.join(os.tmpdir(), 'aicontext-version-cache.json');
 const CACHE_TTL = 60 * 60 * 1000; // 1 hour in milliseconds
 const FRAMEWORK_PROMPTS = [
-  'align-context.md', 'branch-review.md', 'check-plan.md', 'check-task.md', 'code-health.md',
-  'diff-review.md', 'do-it.md', 'draft-issue.md', 'draft-pr.md', 'finish-task.md', 'generate.md',
-  'gh-review-fix-loop.md', 'next-step.md', 'plan-tasks.md', 'pr-review-check.md', 'prepare-release.md',
-  'review.md', 'run-steps.md', 'standards-check.md', 'start-feature.md', 'start.md', 'step-loop.md',
-  'test-writer.md',
+  'align-context.md', 'check-plan.md', 'check-task.md', 'close-step.md', 'code-health.md', 'deep-review.md',
+  'deep-review-criteria.md', 'do-it.md', 'draft-issue.md', 'draft-pr.md', 'finish-task.md',
+  'generate.md', 'gh-review-fix-loop.md', 'next-step.md', 'plan-tasks.md', 'pr-review-check.md',
+  'prepare-release.md', 'review.md', 'review-criteria.md', 'review-scope.md', 'run-steps.md',
+  'start-feature.md', 'start.md', 'step-loop.md', 'test-writer.md',
 ];
-const DEPRECATED_PROMPTS = ['check_plan.md', 'check_task.md', 'after_step.md', 'plan.md', 'task.md', 'start-task.md'];
+const DEPRECATED_PROMPTS = ['check_plan.md', 'check_task.md', 'after_step.md', 'plan.md', 'task.md', 'start-task.md', 'diff-review.md', 'branch-review.md', 'standards-check.md'];
 const FRAMEWORK_AGENTS = [
   'researcher.md',
   'reviewer.md',
   'test-runner.md',
   'test-writer.md',
-  'standards-checker.md',
 ];
-const DEPRECATED_AGENTS = ['pr-review-summarizer.md'];
+const DEPRECATED_AGENTS = ['pr-review-summarizer.md', 'deep-reviewer.md', 'standards-checker.md'];
 const FRAMEWORK_SKILLS = [
   'start', 'start-feature', 'plan-tasks', 'check-task', 'check-plan', 'run-steps', 'finish-task',
-  'align-context', 'do-it', 'diff-review', 'branch-review', 'next-step', 'draft-pr', 'pr-review-check',
-  'standards-check', 'draft-issue', 'code-health', 'prepare-release', 'gh-review-fix-loop',
+  'align-context', 'do-it', 'review', 'deep-review', 'next-step', 'draft-pr', 'pr-review-check',
+  'draft-issue', 'code-health', 'prepare-release', 'gh-review-fix-loop',
 ];
 const FRAMEWORK_CODEX_SKILLS = [
   'start', 'start-feature', 'plan-tasks', 'check-task', 'check-plan', 'run-steps', 'finish-task',
-  'align-context', 'do-it', 'diff-review', 'branch-review', 'next-step', 'draft-pr', 'pr-review-check',
-  'standards-check', 'draft-issue', 'code-health', 'prepare-release', 'gh-review-fix-loop',
+  'align-context', 'do-it', 'review', 'deep-review', 'next-step', 'draft-pr', 'pr-review-check',
+  'draft-issue', 'code-health', 'prepare-release', 'gh-review-fix-loop',
 ];
-const DEPRECATED_SKILLS = ['task', 'review', 'after-step', 'next', 'pr', 'start-task'];
+const DEPRECATED_SKILLS = ['task', 'after-step', 'next', 'pr', 'start-task', 'diff-review', 'branch-review', 'standards-check'];
 const FRAMEWORK_SCRIPTS = ['pr-reviews.js', 'pr-resolve.js'];
 
 // Colors for terminal output
