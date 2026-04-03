@@ -177,6 +177,19 @@ Move all instructions to `.aicontext/prompts/` as the single source of truth. Cl
 - Requires an active task — asks user to identify one if unclear
 - Available as `/do-it` (Claude Code) and `use do-it` (Codex, Cursor, Copilot)
 
+### /create-task Skill
+- Crystallizes current discussion into a task file without running a full discovery interview
+- Use cases: post-discussion formalization, stalled `/start-feature`, additional task for existing spec, bug/hotfix tracking, follow-up from `/finish-task`
+- Links to spec if one exists for the current work
+- Creates task file from template, adds to worklog, optionally creates brief
+- Available as `/create-task` (Claude Code) and `use create-task` (Codex, Cursor, Copilot)
+
+### /add-step Skill
+- Adds a new step to the current task based on conversation context
+- Auto-numbers, generates sub-items per planning guidelines (WHAT not HOW)
+- Does not implement — use `/run-step` or `/do-it` for that
+- Available as `/add-step` (Claude Code) and `use add-step` (Codex, Cursor, Copilot)
+
 ### /plan-tasks Skill
 - Reads an existing spec and proposes task breakdown
 - If no spec is obvious: asks user which spec, or directs to `/start-feature` if none exist

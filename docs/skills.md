@@ -69,6 +69,16 @@ Closes out a completed task.
 - Updates the worklog (checks off task, moves spec to Done if all tasks complete)
 - Handles git per configured `finish_action` (nothing / commit / commit+push / commit+push+pr)
 
+### `/create-task`
+**Prompt:** `create-task.md`
+
+Creates a task file from the current discussion — lighter alternative to `/start-feature`. Links to existing spec if applicable, adds to worklog. Does not create specs — use `/start-feature` for that.
+
+- Derives objective and plan steps from conversation context
+- Links to existing spec if the work belongs to one
+- Updates worklog with the new task entry
+- Use cases: post-discussion formalization, additional task for existing spec, bug tracking, follow-ups
+
 ### `/add-step`
 **Prompt:** `add-step.md`
 

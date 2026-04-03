@@ -14,7 +14,7 @@ Use `commit_template` for the message format and `commit_body` for whether to in
 
 ## 3. Commit
 
-- Review the diff to understand what changed
+- Review the staged diff — the commit message must describe only what is in the diff, not what you remember working on in the session
 - Write a commit message following the configured `commit_template`
 - Stage relevant files and commit
 
