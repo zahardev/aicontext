@@ -24,6 +24,7 @@ AIContext gives your AI coding assistants persistent memory about your project �
 - **Built-in code review** — review uncommitted changes or full branch diffs, cross-referenced against task requirements (Claude Code)
 - **GitHub PR workflow** — draft PRs from task context, automate review-fix cycles with `/gh-review-fix-loop` (Claude Code)
 - **Specialized agents** — dedicated reviewer, test runner, standards checker, and researcher run in parallel without consuming your main conversation (Claude Code)
+- **Browser inspection** — `/web-inspect` lets the AI open pages, check console errors, interact with elements, and capture screenshots — useful for debugging UI issues, manual testing, and verifying fixes visually
 - **Safety guardrails** — blocks destructive commands, enforces TDD, and requires explicit permission before implementation starts
 
 ## How It Works
@@ -137,6 +138,8 @@ After installing, start a session to let the AI learn your project:
 1. **Claude Code:** Type `/start`
 2. **Codex:** Type `Use start`
 3. **Cursor / Copilot:** Paste the contents of `.aicontext/prompts/start.md`
+
+Run `/aic-help` (or `use aic-help`) for a guided quickstart with typical workflows and best practices.
 
 On the first run, the AI will analyze your codebase and generate `project.md` (tech stack, architecture, conventions), `structure.md` (commands, folder layout), and `worklog.md` (feature/task status). These persist across sessions, so every future session starts with full context automatically.
 

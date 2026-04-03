@@ -23,6 +23,8 @@
 - **`close-step.md` prompt**: enforces brief/spec updates after each step with visible summary output — prevents agents from skipping context updates
 - **`commit_body` option** in Commit Rules: controls whether commits include a body (default: `false` — subject only)
 - **Active task identification** rules in `process.md`: IDE-opened file > conversation context > worklog
+- **`/web-inspect` skill**: browser-based investigation using playwright-cli — open pages in headed mode, inspect elements via snapshots, check console errors, capture screenshots. Useful for UI debugging, manual AI testing, and verifying fixes visually
+- **`/aic-help` and `/aic-skills` framework meta-skills**: `/aic-help` shows a quickstart guide with workflows and best practices; `/aic-skills` lists all available skills grouped by workflow stage
 
 ### Changed
 - **Renamed `/start-task` → `/start-feature`**: always creates spec + task, no complexity assessment — small work uses direct conversation

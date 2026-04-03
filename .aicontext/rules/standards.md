@@ -90,6 +90,10 @@ When creating commits, read `project.md` → `## Commit Rules` for configuration
 - **`commit_body: true`** (default) — subject line + blank line + body. Body should explain *why* the change was made — the diff already shows *what* changed. End with a Co-Authored-By trailer using the template: `Co-Authored-By: {ai} via AIContext` (replace `{ai}` with the AI model name, e.g. "Claude").
 - **`commit_body: false`** — **IMPORTANT:** subject line only. **No body, no trailers, no Co-Authored-By — nothing after the subject line.**
 
+## Recommended Tools
+
+- **Web UI investigation**: When the user asks about visual issues, layout problems, or needs browser-based debugging, suggest `/web-inspect` (or `use web-inspect`) if `playwright-cli` is not already in use. It provides headed browser automation for inspecting pages, checking console errors, and capturing screenshots.
+
 ## AI Response & Behavior Rules
 
 ### Communication Style

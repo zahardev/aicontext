@@ -315,6 +315,9 @@ The mono-agent approach, brief file, and universal prompts ensure the core workf
 ### Framework Meta-Skills: aic- Prefix
 Framework meta-skills (help, skills list) use the `aic-` prefix to avoid collisions with project workflow skills. `/help` conflicts with Claude Code's built-in command. `aic-` is short (vs `aicontext-`) while clearly namespaced. `/aic-skills` is dynamic (reads `docs/skills.md`) because skill descriptions change with each release. `/aic-help` is hardcoded because best practices and recommendations are opinionated content that doesn't exist elsewhere and changes rarely.
 
+### Web Inspect: Own Skill, Not Upstream Fork
+Playwright-cli (Microsoft, Apache 2.0) ships an 8-file skill via `playwright-cli install --skills` into `.claude/skills/`. AIContext creates its own minimal `/web-inspect` skill instead — single prompt file, focused on investigation workflow, tool-agnostic name. Reasons: (1) upstream skill is Claude-only, AIContext serves all tools; (2) upstream is large reference material, most users need only core commands; (3) `web-inspect` naming enables future pattern (`mobile-inspect`, etc.); (4) advanced commands discoverable via `playwright-cli --help`. Headed mode by default for security — user logs in manually in the visible browser. Optional `state-save`/`state-load` for power users who want faster repeated sessions. An awareness line in `standards.md` (always loaded) prompts the AI to suggest `/web-inspect` when it detects web UI work.
+
 ### Documentation: README + docs/
 README focuses on pitch, install, quick start, and development model overview. Detailed workflow guides, skill-by-skill reference, and development model deep-dive live in `docs/`. This keeps the README scannable while providing depth for users who need it.
 
@@ -325,3 +328,4 @@ README focuses on pitch, install, quick start, and development model overview. D
 - [1.6.0-prepare-release-config.md](../tasks/1.6.0-prepare-release-config.md) ✓ — Configurable prepare-release skill with release.md config
 - [1.6.0-review-consolidation.md](../tasks/1.6.0-review-consolidation.md) ✓ — Consolidate review skills: `/review` + `/deep-review` with scope args, universal criteria prompts, single reviewer agent
 - [1.6.0-aic-help-skills.md](../tasks/1.6.0-aic-help-skills.md) ✓ — Add `/aic-help` and `/aic-skills` framework meta-skills
+- [1.6.0-web-inspect-skill.md](../tasks/1.6.0-web-inspect-skill.md) ✓ — `/web-inspect` skill: minimal playwright-cli usage guide, headed by default, snapshot-first workflow

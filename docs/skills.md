@@ -165,6 +165,11 @@ Extracts requirements and decisions from a conversation and drafts a GitHub issu
 
 Prepares a version release. On first run, discovers project patterns and creates `.aicontext/release.md` config. Subsequent runs follow the config to update version numbers and changelog.
 
+### `/web-inspect`
+**Prompt:** `web-inspect.md`
+
+Browser-based investigation using playwright-cli. Opens pages in headed mode, inspects elements via snapshots, checks console errors, captures screenshots. Suggests installation if playwright-cli is not available.
+
 ## Framework Skills
 
 ### `/aic-help`
