@@ -13,7 +13,7 @@ Read context so the reviewer's feedback can be understood in full:
 
 1. **Task file** — identify what was built and why
 2. **Spec** — if linked in the task file, read for requirements and decisions
-3. **Brief** — `data/brief/brief-{task-filename}` (if it exists) — accumulated technical knowledge and decisions
+3. **Brief** — `.aicontext/data/brief/brief-{task-filename}` (if it exists) — accumulated technical knowledge and decisions
 
 Set `cycle = 1`, max cycles = 5.
 

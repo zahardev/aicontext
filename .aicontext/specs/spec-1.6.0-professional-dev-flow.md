@@ -108,7 +108,7 @@ Move all instructions to `.aicontext/prompts/` as the single source of truth. Cl
 - Per-task override in task file `## Commit Rules:` section (same fields); `/run-steps` reads task file first, falls back to `project.md`
 - Modes: manual, per-step, per-task
 - Default commit_template: `description`; when asking offers 4 options — `description`, `description (#issue_id)`, `type: description` (conventional commits), Custom
-- `finish_action` options: `nothing` | `commit` | `commit+push` | `commit+push+pr`
+- `finish_action` options: `nothing` | `commit` | `commit+push`
 - If commit rules not configured: `/run-steps` asks at start, offers to save to `project.md` (team) or `local.md` (personal) or not at all; `/start-feature` asks for per-task preference and saves to task file
 - Overridable in `local.md` per developer
 
@@ -141,7 +141,7 @@ Move all instructions to `.aicontext/prompts/` as the single source of truth. Cl
 - Fills `## Completion Notes:` in task file
 - Updates `.aicontext/worklog.md` — checks off task, moves spec to Done if all tasks complete
 - Checks git for uncommitted changes; runs `finish_action` from task or project config (or asks if not set)
-- `finish_action` options: `nothing` | `commit` | `commit+push` | `commit+push+pr`
+- `finish_action` options: `nothing` | `commit` | `commit+push`
 
 ### /gh-review-fix-loop Skill
 - Reads task file, spec (if linked), and brief (if exists) before starting — full context for triage
