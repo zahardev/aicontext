@@ -103,7 +103,7 @@ Subdirectories are created automatically by skills and scripts when needed.
 
 ### Reviewing Work
 1. Paste `prompts/review.md` (or use `/diff-review` for uncommitted changes, `/branch-review` for full branch) in Claude Code
-2. Paste `prompts/plan.md` (or use `/check-plan`) to validate plans
+2. Paste `prompts/plan.md` (or use `/review-plan`) to validate plans
 
 ### Pull Request Workflow (Claude Code / Codex)
 1. Use `/draft-pr` to draft a pull request from the task file and git changes
@@ -134,7 +134,7 @@ Skills automate common workflows. Both Claude Code (`.claude/skills/`) and Codex
 |-------|-------------------|-------------|
 | `start` | `prompts/start.md` | Confirm project readiness |
 | `check-task` | `prompts/task.md` | Analyze task before implementation |
-| `check-plan` | `prompts/plan.md` | Validate plan for issues |
+| `review-plan` | `prompts/plan.md` | Validate plan for issues |
 | `diff-review` | `prompts/review.md` | Review uncommitted changes |
 | `branch-review` | — | Review full branch against main |
 | `standards-check` | — | Check branch changes against coding standards |

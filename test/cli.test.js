@@ -435,11 +435,11 @@ describe('FRAMEWORK_PROMPTS', () => {
 
   it('should contain the expected prompt files', () => {
     const expected = [
-      'aic-help.md', 'aic-skills.md', 'align-context.md', 'check-plan.md', 'check-task.md', 'close-step.md',
+      'aic-help.md', 'aic-skills.md', 'align-context.md', 'check-task.md', 'close-step.md',
       'code-health.md', 'commit.md', 'deep-review.md', 'deep-review-criteria.md', 'do-it.md', 'draft-issue.md',
       'draft-pr.md', 'finish-task.md', 'generate.md', 'gh-review-fix-loop.md', 'next-step.md', 'plan-tasks.md',
       'gh-review-check.md', 'prepare-release.md', 'review.md', 'review-criteria.md', 'review-scope.md',
-      'run-step.md', 'run-steps.md', 'start-feature.md', 'start.md', 'step-loop.md', 'test-writer.md',
+      'review-plan.md', 'run-step.md', 'run-steps.md', 'start-feature.md', 'start.md', 'step-loop.md', 'test-writer.md',
     ];
     assert.deepStrictEqual([...FRAMEWORK_PROMPTS].sort(), [...expected].sort());
   });
@@ -447,7 +447,7 @@ describe('FRAMEWORK_PROMPTS', () => {
 
 describe('DEPRECATED_PROMPTS', () => {
   it('should contain the old prompt file names', () => {
-    const expected = ['check_plan.md', 'check_task.md', 'after_step.md', 'plan.md', 'task.md', 'start-task.md', 'diff-review.md', 'branch-review.md', 'standards-check.md', 'pr-review-check.md'];
+    const expected = ['check_plan.md', 'check_task.md', 'after_step.md', 'plan.md', 'task.md', 'start-task.md', 'diff-review.md', 'branch-review.md', 'standards-check.md', 'pr-review-check.md', 'check-plan.md'];
     assert.deepStrictEqual([...DEPRECATED_PROMPTS].sort(), [...expected].sort());
   });
 });
@@ -767,7 +767,7 @@ describe('FRAMEWORK_SKILLS', () => {
 
   it('should contain the expected skills', () => {
     const expected = [
-      'start', 'start-feature', 'plan-tasks', 'check-task', 'check-plan', 'run-step', 'run-steps', 'finish-task',
+      'start', 'start-feature', 'plan-tasks', 'check-task', 'review-plan', 'run-step', 'run-steps', 'finish-task',
       'align-context', 'do-it', 'commit', 'review', 'deep-review', 'next-step', 'draft-pr', 'gh-review-check',
       'draft-issue', 'code-health', 'prepare-release', 'gh-review-fix-loop', 'aic-help', 'aic-skills',
     ];
@@ -783,7 +783,7 @@ describe('FRAMEWORK_SKILLS', () => {
 
 describe('DEPRECATED_SKILLS', () => {
   it('should contain the old skill names', () => {
-    const expected = ['task', 'after-step', 'next', 'pr', 'start-task', 'diff-review', 'branch-review', 'standards-check', 'pr-review-check'];
+    const expected = ['task', 'after-step', 'next', 'pr', 'start-task', 'diff-review', 'branch-review', 'standards-check', 'pr-review-check', 'check-plan'];
     assert.deepStrictEqual([...DEPRECATED_SKILLS].sort(), [...expected].sort());
   });
 });

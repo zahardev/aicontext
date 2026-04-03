@@ -149,8 +149,8 @@ Loads project context and confirms readiness. Always run at the beginning of a s
 
 Completes the current step and starts the next one. Use for manual step-by-step execution (when not using `/run-steps`).
 
-### `/check-plan`
-**Prompt:** `check-plan.md`
+### `/review-plan`
+**Prompt:** `review-plan.md`
 
 Validates a task plan for dependency issues, missing steps, or over-engineering.
 
