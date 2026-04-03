@@ -199,6 +199,14 @@ Move all instructions to `.aicontext/prompts/` as the single source of truth. Cl
 - Fixes everything silently, then provides a short report of what changed
 - Available as `/align-context` (Claude Code) and `use align-context` (Codex, Cursor, Copilot)
 
+### Framework Meta-Skills
+- `/aic-skills` reads `docs/skills.md` and displays a condensed one-liner table grouped by workflow stage (Getting Started, Development Flow, Review & Quality, PR Workflow, Framework)
+- `/aic-help` presents a hardcoded quickstart guide: what is AIContext, recommended setup (IDE with extension over terminal), first session flow, typical workflows (new feature, resume, quick fix), key concepts (spec/task/brief), customization pointers, best practices
+- `/aic-help` ends with a pointer to `/aic-skills` for the full command list
+- Both skills use `aic-` prefix to distinguish framework meta-skills from project workflow skills
+- Both available as `/aic-*` (Claude Code), `use aic-*` (Codex, Cursor, Copilot)
+- `docs/skills.md` is the single source of truth for skill descriptions — `/aic-skills` reads it dynamically, no duplicate manifest
+
 ### Review Consolidation
 - `/diff-review` and `/branch-review` consolidated into single `/review` skill with scope arguments (diff, branch, commit, path, IDE selection)
 - `/deep-review` skill added with 11-phase architectural methodology plus correctness (bugs, security) — comprehensive review. Smart delegation (<200 lines inline, >200 delegate to reviewer agent)
@@ -303,6 +311,9 @@ Decided against unattended Ralph-style execution. Context loss between stateless
 ### Cross-Platform Compatibility
 The mono-agent approach, brief file, and universal prompts ensure the core workflow works identically in Claude Code, Codex, Cursor, and Copilot. Claude Code gets convenient UX via `/command` skills. Codex uses `use command` to invoke skills. Cursor and Copilot use the same `use <name>` pattern via a rule that reads `.aicontext/prompts/<name>.md`. No feature requires Claude-specific capabilities to function.
 
+### Framework Meta-Skills: aic- Prefix
+Framework meta-skills (help, skills list) use the `aic-` prefix to avoid collisions with project workflow skills. `/help` conflicts with Claude Code's built-in command. `aic-` is short (vs `aicontext-`) while clearly namespaced. `/aic-skills` is dynamic (reads `docs/skills.md`) because skill descriptions change with each release. `/aic-help` is hardcoded because best practices and recommendations are opinionated content that doesn't exist elsewhere and changes rarely.
+
 ### Documentation: README + docs/
 README focuses on pitch, install, quick start, and development model overview. Detailed workflow guides, skill-by-skill reference, and development model deep-dive live in `docs/`. This keeps the README scannable while providing depth for users who need it.
 
@@ -312,3 +323,4 @@ README focuses on pitch, install, quick start, and development model overview. D
 - [1.6.0-dev-flow-v2.md](../tasks/1.6.0-dev-flow-v2.md) ✓ — New skills (/start-feature, /run-steps, /gh-review-fix-loop), templates (spec, upgraded task), process rules updates, brief file system
 - [1.6.0-prepare-release-config.md](../tasks/1.6.0-prepare-release-config.md) ✓ — Configurable prepare-release skill with release.md config
 - [1.6.0-review-consolidation.md](../tasks/1.6.0-review-consolidation.md) ✓ — Consolidate review skills: `/review` + `/deep-review` with scope args, universal criteria prompts, single reviewer agent
+- [1.6.0-aic-help-skills.md](../tasks/1.6.0-aic-help-skills.md) ✓ — Add `/aic-help` and `/aic-skills` framework meta-skills

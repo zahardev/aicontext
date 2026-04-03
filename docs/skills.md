@@ -169,6 +169,18 @@ Scans the codebase for systemic refactoring opportunities: duplication, complexi
 
 Prepares a version release. On first run, discovers project patterns and creates `.aicontext/release.md` config. Subsequent runs follow the config to update version numbers and changelog.
 
+## Framework Skills
+
+### `/aic-help`
+**Prompt:** `aic-help.md`
+
+Shows a quickstart guide for AIContext: what it is, recommended setup, first session flow, typical workflows, key concepts, best practices, and customization pointers.
+
+### `/aic-skills`
+**Prompt:** `aic-skills.md`
+
+Lists all available AIContext skills grouped by workflow stage (Getting Started, Development Flow, Review & Quality, PR Workflow, Framework) with one-liner descriptions.
+
 ## Shared Prompts
 
 ### `step-loop.md`

@@ -108,7 +108,7 @@ Use `/draft-pr` to generate a PR title and description from your task file and g
 
 After your PR receives review comments, use `/pr-review-check` to handle them efficiently:
 
-**1. Fetch** — the AI runs `pr-reviews.js` to fetch all unresolved review threads from GitHub and saves them to a structured markdown file.
+**1. Fetch** — the AI runs `pr-reviews.js` to fetch all unresolved review threads from GitHub and saves them to `.aicontext/data/code-reviews/`.
 
 **2. Analyze** — the AI reads each comment, inspects the actual code, and classifies findings:
 - **Valid** — real issues worth fixing
