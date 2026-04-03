@@ -139,6 +139,11 @@ Automates the full PR review cycle: fetch comments → triage → resolve false 
 
 ## Other Skills
 
+### `/challenge`
+**Prompt:** `challenge.md`
+
+Pauses to push back before proceeding. Surfaces questions, wrong assumptions, concerns, and better alternatives. Use any time you want the AI to think critically about the current approach.
+
 ### `/start`
 **Prompt:** `start.md`
 

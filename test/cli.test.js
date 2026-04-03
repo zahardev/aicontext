@@ -429,13 +429,13 @@ describe('version cache', () => {
 });
 
 describe('FRAMEWORK_PROMPTS', () => {
-  it('should contain exactly 29 framework prompt files', () => {
-    assert.strictEqual(FRAMEWORK_PROMPTS.length, 29);
+  it('should contain exactly 30 framework prompt files', () => {
+    assert.strictEqual(FRAMEWORK_PROMPTS.length, 30);
   });
 
   it('should contain the expected prompt files', () => {
     const expected = [
-      'aic-help.md', 'aic-skills.md', 'align-context.md', 'check-task.md', 'close-step.md',
+      'aic-help.md', 'aic-skills.md', 'align-context.md', 'challenge.md', 'check-task.md', 'close-step.md',
       'code-health.md', 'commit.md', 'deep-review.md', 'deep-review-criteria.md', 'do-it.md', 'draft-issue.md',
       'draft-pr.md', 'finish-task.md', 'generate.md', 'gh-review-fix-loop.md', 'next-step.md', 'plan-tasks.md',
       'gh-review-check.md', 'prepare-release.md', 'review.md', 'review-criteria.md', 'review-scope.md',
@@ -761,14 +761,14 @@ describe('removeDeprecatedAgents', () => {
 });
 
 describe('FRAMEWORK_SKILLS', () => {
-  it('should contain exactly 22 skill names', () => {
-    assert.strictEqual(FRAMEWORK_SKILLS.length, 22);
+  it('should contain exactly 23 skill names', () => {
+    assert.strictEqual(FRAMEWORK_SKILLS.length, 23);
   });
 
   it('should contain the expected skills', () => {
     const expected = [
       'start', 'start-feature', 'plan-tasks', 'check-task', 'review-plan', 'run-step', 'run-steps', 'finish-task',
-      'align-context', 'do-it', 'commit', 'review', 'deep-review', 'next-step', 'draft-pr', 'gh-review-check',
+      'align-context', 'do-it', 'challenge', 'commit', 'review', 'deep-review', 'next-step', 'draft-pr', 'gh-review-check',
       'draft-issue', 'code-health', 'prepare-release', 'gh-review-fix-loop', 'aic-help', 'aic-skills',
     ];
     assert.deepStrictEqual([...FRAMEWORK_SKILLS].sort(), [...expected].sort());
