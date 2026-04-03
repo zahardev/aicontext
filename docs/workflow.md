@@ -88,9 +88,9 @@ Review code at any point during development:
 
 Delegates to the reviewer agent (Claude Code) or reviews inline (other tools). Results are saved to `.aicontext/data/code-reviews/`.
 
-**`/deep-review`** — architectural review that questions design decisions. Same scope arguments as `/review`, plus `all` for entire codebase. Uses an 11-phase methodology:
+**`/deep-review`** — comprehensive review: architecture, correctness, and codebase health. Same scope arguments as `/review`, plus `all` for entire codebase scans. Uses a 12-phase methodology:
 
-1. DRY & KISS → 2. Placement → 3. Responsibilities → 4. API Design → 5. Edge Cases → 6. Framework Usage → 7. Constants & Naming → 8. Dependencies & Testability → 9. Error Handling → 10. Extensibility → 11. Synthesis
+1. DRY & KISS → 2. Placement → 3. Responsibilities → 4. API Design → 5. Edge Cases → 6. Bugs & Security → 7. Framework Usage → 8. Constants & Naming → 9. Dependencies & Testability → 10. Error Handling → 11. Extensibility → 12. Consistency & Codebase Health (`all` scope only) → Synthesis
 
 For small scope (<200 lines), runs inline for interactive feedback. For large scope, delegates to the `reviewer` agent with deep-review criteria. Findings are grouped by root cause and prioritized by leverage — the synthesis phase identifies linchpin fixes that resolve multiple issues at once.
 
@@ -153,7 +153,7 @@ Use `/draft-issue` during a conversation where you've discussed a feature or bug
 
 ### Codebase Health Scan
 
-Use `/code-health` to scan your codebase for systemic refactoring opportunities — duplication across 3+ files, complex functions, tight coupling, missing test coverage, and inconsistent patterns. The AI presents findings sorted by impact, then offers to create GitHub issue drafts for the ones you want to address.
+Use `/deep-review all` to scan your entire codebase for systemic issues — duplication across 3+ files, complex functions, tight coupling, missing test coverage, inconsistent patterns, and architectural concerns. The AI presents findings as refactoring actions sorted by leverage, then offers to create GitHub issue drafts for the ones you want to address.
 
 ### Preparing a Release
 

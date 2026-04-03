@@ -21,23 +21,27 @@ Review implementation for correctness — bugs, edge cases, security, and logica
 
 ## Output
 
-Present findings grouped by severity:
+Present numbered findings grouped by severity:
 
 ```
 ### Critical
-#### Issue: [title]
+#### 1. [title]
 - File: path/to/file:L42
 - Impact: [what could go wrong]
 - Fix: [suggested fix]
 
 ### Major
+#### 2. [title]
 ...
 
 ### Minor
+#### 3. [title]
 ...
 
 ### Positive
 - [anything well-implemented worth noting]
 ```
+
+Number findings sequentially across all severity groups so they can be referenced in triage (e.g., "fix #1, skip #3").
 
 If no issues found: `## Result: APPROVED`

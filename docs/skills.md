@@ -106,19 +106,15 @@ Reviews code changes for bugs, security issues, edge cases, and logical errors. 
 ### `/deep-review`
 **Prompt:** `deep-review.md`
 
-Architectural code review that questions design decisions — placement, responsibilities, API design, side effects, edge cases, and extensibility. Based on a proven 11-phase methodology.
+Comprehensive code review: architecture, correctness, and codebase health. Questions design decisions, checks for bugs and security, analyzes systemic code quality. Replaces the old `/code-health` skill.
 
 - Scope with arguments: `diff` (default), `branch`, `all`, `<path>`, or IDE selection
 - Smart delegation: <200 lines inline, >200 lines delegates to `reviewer` agent with deep-review criteria
-- 11 phases: DRY & KISS, Placement, Responsibilities, API Design, Edge Cases, Framework Usage, Constants & Naming, Dependencies & Testability, Error Handling, Extensibility, Synthesis
+- 12 phases: DRY & KISS, Placement, Responsibilities, API Design, Edge Cases, Bugs & Security, Framework Usage, Constants & Naming, Dependencies & Testability, Error Handling, Extensibility, Consistency & Codebase Health
 - Synthesis phase groups findings by root cause and prioritizes by leverage
 - Output: Refactoring Actions (grouped, ordered by leverage) first, then Detailed Findings
+- After presenting: offers to create GitHub issues from findings via `/draft-issue`
 - Saves results to `.aicontext/data/code-reviews/`
-
-### `/standards-check`
-**Prompt:** `standards-check.md`
-
-Checks all changed files on the branch for DRY, KISS, over-engineering, security, and convention violations.
 
 ## PR Skills
 
@@ -163,11 +159,6 @@ Validates a task plan for dependency issues, missing steps, or over-engineering.
 **Prompt:** `draft-issue.md`
 
 Extracts requirements and decisions from a conversation and drafts a GitHub issue. Saved to `.aicontext/data/issue-drafts/`.
-
-### `/code-health`
-**Prompt:** `code-health.md`
-
-Scans the codebase for systemic refactoring opportunities: duplication, complexity, tight coupling, missing tests, inconsistent patterns.
 
 ### `/prepare-release`
 **Prompt:** `prepare-release.md`

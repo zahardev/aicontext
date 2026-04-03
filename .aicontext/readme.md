@@ -141,7 +141,6 @@ Skills automate common workflows. Both Claude Code (`.claude/skills/`) and Codex
 | `next-step` | — | Complete step, reflect, start next |
 | `draft-pr` | — | Draft pull request |
 | `draft-issue` | — | Draft GitHub issue from conversation context |
-| `code-health` | — | Scan codebase for refactoring opportunities |
 | `gh-review-check` | — | Triage PR review comments |
 
 **Override protection:** Same as agents — existing skills are prompted during update. Use `--override-skills` to force-override.

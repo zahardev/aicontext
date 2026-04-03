@@ -18,5 +18,6 @@ Shared scope detection for `/review` and `/deep-review`.
 > 2. **branch** — full branch diff against main
 > 3. **commit** — last commit (or specify which)
 > 4. **path** — specific file or directory (provide the path)
+> 5. **all** — entire codebase (deep-review only)
 
 **Auto-detect:** if the user just finished implementation and says "review this", treat as `diff` if there are uncommitted changes.

@@ -1,15 +1,6 @@
 # Deep Review Criteria
 
-Comprehensive code review: architecture **and** correctness. Questions design decisions, checks for bugs and security issues, analyzes placement, responsibilities, API design, side effects, edge cases, and extensibility.
-
-## Before Reviewing
-
-Read these files to understand the project:
-- `.aicontext/project.md` — architecture, API contracts, tech stack
-- `.aicontext/rules/standards.md` — coding standards (if exists)
-- `.aicontext/local.md` — local environment specifics (if exists)
-
-If a task file exists, read it for requirements and planned future work.
+Comprehensive code review: architecture, correctness, and codebase health. Questions design decisions, checks for bugs and security issues, analyzes placement, responsibilities, API design, side effects, edge cases, extensibility, and systemic code quality.
 
 ## Review Phases
 
@@ -18,6 +9,7 @@ Work through these phases **in order**. For each finding, present it as a **ques
 ### Phase 1: DRY & KISS
 
 - **Is code duplicated?** Same logic repeated across multiple places should be extracted. But prefer duplication over the wrong abstraction — two similar blocks serving different purposes are fine.
+- **Cross-file duplication?** (`all` scope only) Scan for repeated patterns across 3+ files — copy-pasted functions, near-identical components with minor variations, logic blocks that could share a utility.
 - **Is the solution simpler than the problem?** Unnecessary indirection, abstractions that add layers without value, generic solutions for specific problems.
 - **Are functions focused and short?** Long functions, deep nesting, and many parameters are red flags. Flatten with early returns and guard clauses.
 - **At the architectural level**: are multiple classes/modules solving the same problem differently?
@@ -99,6 +91,16 @@ Priority order: **language/platform native > framework-provided > existing proje
 - **Is the abstraction level right?** The right level supports known future needs without speculating.
 - **Is the codebase structured for growth?** Clear module boundaries, separation of concerns, predictable file organization — or will adding the next feature require touching everything?
 
+### Phase 12: Consistency & Codebase Health (`all` scope only)
+
+Cross-cutting checks for systemic code quality. Skip this phase for narrower scopes (diff, commit, path) — Phase 7 already covers whether new code matches existing conventions.
+
+- **Mixed patterns for the same thing?** Different approaches to the same problem across similar files — e.g., one module uses callbacks while another uses promises, one file validates with guards while another uses try/catch.
+- **Inconsistent naming?** Same concept named differently across files, or different conventions in the same layer (camelCase vs snake_case, plural vs singular).
+- **Inconsistent error handling?** Different strategies for signaling and recovering from failures across similar code paths.
+- **Structural scaling signals?** Files over 300 lines that mix concerns, modules with high fan-out (many sibling imports), circular or bidirectional dependencies, hardcoded values that should be constants or config.
+- **Untested code?** Compare source files against test files — identify untested modules or logic buried inside framework layers that could be extracted and tested.
+
 ### Synthesis
 
 After all phases, group findings by **root cause**:
@@ -112,6 +114,7 @@ After all phases, group findings by **root cause**:
 - **One finding per concern** — don't bundle multiple issues
 - Skip trivial findings (pure style preferences, bike-shedding)
 - If no significant findings, say so — don't invent issues
+- **Respect project standards** — never suggest changes that violate the project's own KISS, DRY, or over-engineering rules. If standards say "three similar lines is better than a premature abstraction", don't suggest abstracting two similar blocks.
 
 ## Output
 

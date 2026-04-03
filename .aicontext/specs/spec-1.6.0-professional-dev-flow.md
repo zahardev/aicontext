@@ -214,7 +214,8 @@ Move all instructions to `.aicontext/prompts/` as the single source of truth. Cl
 - `code-review.template.md` for persistent review tracking with refactoring actions, findings, decisions
 - Review criteria extracted to universal prompts: `review-scope.md` (shared scope detection), `review-criteria.md` (correctness), `deep-review-criteria.md` (architecture + correctness)
 - Single `reviewer` agent — caller specifies which criteria prompt to use. Criteria prompts are accessible to Cursor/Copilot without agents.
-- Two review tiers: `/review` = quick correctness scan (after step), `/deep-review` = comprehensive architecture + correctness (after task)
+- Two review tiers: `/review` = quick correctness scan (after step), `/deep-review` = comprehensive architecture + correctness + codebase health (after task)
+- `/code-health` merged into `/deep-review` — cross-file checks (duplication patterns, consistency, structural metrics) added as expanded phases. `/deep-review all` replaces `/code-health` for full codebase scans. Follow-up step asks which findings to turn into GitHub issues via `/draft-issue`
 
 ### Worklog
 - `changelog.md` renamed to `worklog.md` — tracks spec and task statuses, not just completion dates

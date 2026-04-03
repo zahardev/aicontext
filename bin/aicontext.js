@@ -14,7 +14,7 @@ const CACHE_FILE = path.join(os.tmpdir(), 'aicontext-version-cache.json');
 const CACHE_TTL = 60 * 60 * 1000; // 1 hour in milliseconds
 const FRAMEWORK_PROMPTS = [
   'aic-help.md', 'aic-skills.md', 'align-context.md', 'challenge.md', 'check-task.md', 'close-step.md',
-  'code-health.md', 'commit.md', 'deep-review.md', 'deep-review-criteria.md', 'do-it.md', 'draft-issue.md',
+  'commit.md', 'deep-review.md', 'deep-review-criteria.md', 'do-it.md', 'draft-issue.md',
   'draft-pr.md', 'finish-task.md', 'generate.md', 'gh-review-fix-loop.md', 'next-step.md', 'plan-tasks.md',
   'gh-review-check.md', 'prepare-release.md', 'review.md', 'review-criteria.md', 'review-scope.md',
   'review-plan.md', 'run-step.md', 'run-steps.md', 'start-feature.md', 'start.md', 'step-loop.md', 'test-writer.md',
@@ -30,12 +30,12 @@ const DEPRECATED_AGENTS = ['pr-review-summarizer.md', 'deep-reviewer.md', 'stand
 const FRAMEWORK_SKILLS = [
   'start', 'start-feature', 'plan-tasks', 'check-task', 'review-plan', 'run-step', 'run-steps', 'finish-task',
   'align-context', 'do-it', 'challenge', 'commit', 'review', 'deep-review', 'next-step', 'draft-pr', 'gh-review-check',
-  'draft-issue', 'code-health', 'prepare-release', 'gh-review-fix-loop', 'aic-help', 'aic-skills',
+  'draft-issue', 'prepare-release', 'gh-review-fix-loop', 'aic-help', 'aic-skills',
 ];
 const FRAMEWORK_CODEX_SKILLS = [
   'start', 'start-feature', 'plan-tasks', 'check-task', 'review-plan', 'run-step', 'run-steps', 'finish-task',
   'align-context', 'do-it', 'challenge', 'commit', 'review', 'deep-review', 'next-step', 'draft-pr', 'gh-review-check',
-  'draft-issue', 'code-health', 'prepare-release', 'gh-review-fix-loop', 'aic-help', 'aic-skills',
+  'draft-issue', 'prepare-release', 'gh-review-fix-loop', 'aic-help', 'aic-skills',
 ];
 const DEPRECATED_SKILLS = ['task', 'after-step', 'next', 'pr', 'start-task', 'diff-review', 'branch-review', 'standards-check', 'pr-review-check', 'check-plan'];
 const FRAMEWORK_SCRIPTS = ['pr-reviews.js', 'pr-resolve.js'];

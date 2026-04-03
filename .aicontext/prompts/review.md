@@ -6,6 +6,7 @@ Review code changes for bugs, security issues, edge cases, and logical errors. A
 
 Read these files to understand the project:
 - `.aicontext/project.md` — architecture, API contracts, tech stack
+- `.aicontext/rules/standards.md` — coding standards (if exists)
 - `.aicontext/local.md` — local environment specifics (if exists)
 - Current task file in `.aicontext/tasks/` — requirements and planned work
 
@@ -17,15 +18,18 @@ Follow `.aicontext/prompts/review-scope.md` to determine the review scope.
 
 Follow `.aicontext/prompts/review-criteria.md` for what to check and how to present findings.
 
+## Triage
+
+Evaluate findings before saving:
+- For each finding: assess severity and whether it's worth fixing now
+- Drop findings that are nitpicks or over-engineering
+- Group remaining: **fix** (clear bugs, security issues) vs **skip** (low risk, premature)
+
 ## Save
 
-Save review results to `.aicontext/data/code-reviews/YYYY-MM-DD-review-{short-description}.md` using the template at `.aicontext/templates/code-review.template.md`.
+Save review results to `.aicontext/data/code-reviews/YYYY-MM-DD-review-{short-description}.md` using the template at `.aicontext/templates/code-review.template.md`. The summary table's Recommendation column must reflect your triage (fix / skip).
 
 ## Present
 
-Evaluate findings and present with your recommendation:
-- For each finding: agree or disagree, and whether it's worth fixing now
-- Drop findings that are nitpicks or over-engineering
-- Group remaining: **fix now** (clear bugs, security issues) vs **skip** (low risk, premature)
-- Provide a clear action plan: "I'd fix #1 and #3, skip #2 — want me to proceed?"
+- Provide a clear action plan: "Skip #2 (minor). Recommended to fix: #1, #3. Want me to fix them?"
 - Include the saved review file path so the user can reference it later

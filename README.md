@@ -210,7 +210,7 @@ Example configurations are available in the [GitHub repository](https://github.c
 - **`/do-it`** — turn a discussion into a task step and implement it
 - **`/align-context`** — update all context files to reflect current state
 - **`/review`** — code review (scope: diff, branch, commit, path)
-- **`/deep-review`** — architectural review (11-phase design analysis)
+- **`/deep-review`** — comprehensive review: architecture, correctness, codebase health (scope: diff, branch, commit, path, all)
 - **`/draft-pr`** → **`/gh-review-fix-loop`** — PR creation and automated review cycles
 
 See the [full workflow guide](docs/workflow.md) for detailed descriptions of each workflow.
