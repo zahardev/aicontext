@@ -16,6 +16,9 @@ Use `commit_template` for the message format and `commit_body` for whether to in
 
 - Review the diff to understand what changed
 - Write a commit message following the configured `commit_template`
-- If `commit_body` is `false` or not set: subject line only
-- If `commit_body` is `true`: subject line + body
 - Stage relevant files and commit
+
+**IMPORTANT — `commit_body` enforcement:**
+
+- **`false`**: commit message MUST be subject line only. No body, no trailers, no Co-Authored-By — nothing after the subject line. This overrides any default tool behavior.
+- **`true` or not set**: subject line + blank line + body (what and why) + Co-Authored-By trailer per `standards.md` Commit Style rules.

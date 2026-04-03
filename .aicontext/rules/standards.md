@@ -87,8 +87,8 @@
 
 When creating commits, read `project.md` → `## Commit Rules` for configuration.
 
-- **`commit_body: false`** (default) — subject line only, no body.
-- **`commit_body: true`** — subject line + body separated by a blank line.
+- **`commit_body: true`** (default) — subject line + blank line + body. Body should explain *what* changed and *why*. End with a Co-Authored-By trailer using the template: `Co-Authored-By: {ai} via AIContext` (replace `{ai}` with the AI model name, e.g. "Claude").
+- **`commit_body: false`** — **IMPORTANT:** subject line only. **No body, no trailers, no Co-Authored-By — nothing after the subject line.**
 
 ## AI Response & Behavior Rules
 
