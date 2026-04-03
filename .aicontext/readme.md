@@ -67,8 +67,8 @@ Located in `scripts/` — these are tool-agnostic Node.js scripts used by both C
 
 | Script | Used By | Purpose |
 |--------|---------|---------|
-| `pr-reviews.js` | `/pr-review-check` | Fetch unresolved PR review threads via GitHub GraphQL API |
-| `pr-resolve.js` | `/pr-review-check` | Resolve threads and post replies on GitHub |
+| `pr-reviews.js` | `/gh-review-check` | Fetch unresolved PR review threads via GitHub GraphQL API |
+| `pr-resolve.js` | `/gh-review-check` | Resolve threads and post replies on GitHub |
 
 **Requirement:** These scripts need the [GitHub CLI (`gh`)](https://cli.github.com/) installed and authenticated (`gh auth login`).
 
@@ -82,7 +82,7 @@ Common subdirectories:
 |--------------|---------|
 | `code-reviews/` | Code review results from `/diff-review` and `/branch-review` skills |
 | `pr-drafts/` | Pull request drafts from `/draft-pr` skill |
-| `github-pr-reviews/` | PR review comment files from `/pr-review-check` skill |
+| `github-pr-reviews/` | PR review comment files from `/gh-review-check` skill |
 | `issue-drafts/` | GitHub issue drafts from `/draft-issue` skill |
 
 Subdirectories are created automatically by skills and scripts when needed.
@@ -107,7 +107,7 @@ Subdirectories are created automatically by skills and scripts when needed.
 
 ### Pull Request Workflow (Claude Code / Codex)
 1. Use `/draft-pr` to draft a pull request from the task file and git changes
-2. After PR review, use `/pr-review-check` to fetch and triage review comments
+2. After PR review, use `/gh-review-check` to fetch and triage review comments
 3. Fix valid issues, resolve false positives directly on GitHub
 
 ## Tool-Specific: Claude Code
@@ -142,7 +142,7 @@ Skills automate common workflows. Both Claude Code (`.claude/skills/`) and Codex
 | `draft-pr` | — | Draft pull request |
 | `draft-issue` | — | Draft GitHub issue from conversation context |
 | `code-health` | — | Scan codebase for refactoring opportunities |
-| `pr-review-check` | — | Triage PR review comments |
+| `gh-review-check` | — | Triage PR review comments |
 
 **Override protection:** Same as agents — existing skills are prompted during update. Use `--override-skills` to force-override.
 

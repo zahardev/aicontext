@@ -127,8 +127,8 @@ Checks all changed files on the branch for DRY, KISS, over-engineering, security
 
 Generates a PR title and description from the task file and git history. Saved to `.aicontext/data/pr-drafts/`.
 
-### `/pr-review-check`
-**Prompt:** `pr-review-check.md`
+### `/gh-review-check`
+**Prompt:** `gh-review-check.md`
 
 Fetches unresolved PR review comments, classifies them (valid / false positive / low priority), fills actions (fix / resolve / skip), and bulk-resolves dismissed threads.
 

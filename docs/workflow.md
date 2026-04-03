@@ -106,7 +106,7 @@ Use `/draft-pr` to generate a PR title and description from your task file and g
 
 ### Triaging Review Comments
 
-After your PR receives review comments, use `/pr-review-check` to handle them efficiently:
+After your PR receives review comments, use `/gh-review-check` to handle them efficiently:
 
 **1. Fetch** — the AI runs `pr-reviews.js` to fetch all unresolved review threads from GitHub and saves them to `.aicontext/data/code-reviews/`.
 
@@ -131,7 +131,7 @@ After your PR receives review comments, use `/pr-review-check` to handle them ef
 
 **5. Fix** — the AI fixes all items marked `fix`.
 
-**6. Repeat** — after pushing fixes, run `/pr-review-check` again if new review comments arrive.
+**6. Repeat** — after pushing fixes, run `/gh-review-check` again if new review comments arrive.
 
 ### Automated Review Cycle
 

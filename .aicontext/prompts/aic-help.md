@@ -55,7 +55,7 @@ Describe the fix in conversation → `/do-it` — creates a task step and implem
 `/deep-review` — comprehensive architectural review.
 
 **PR review cycle:**
-`/pr-review-check` — one-time fetch and triage of PR review comments. 
+`/gh-review-check` — one-time fetch and triage of PR review comments. 
 `/gh-review-fix-loop` — full automated cycle: fetch, triage, fix, push, repeat until clean.
 
 **Multiple tasks from one spec:**
