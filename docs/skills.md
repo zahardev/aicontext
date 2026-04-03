@@ -69,6 +69,11 @@ Closes out a completed task.
 - Updates the worklog (checks off task, moves spec to Done if all tasks complete)
 - Handles git per configured `finish_action` (nothing / commit / commit+push / commit+push+pr)
 
+### `/add-step`
+**Prompt:** `add-step.md`
+
+Adds a new step to the current task based on conversation context. Auto-numbers, generates sub-items per planning guidelines. Does not implement — use `/run-step` or `/do-it` for that.
+
 ### `/do-it`
 **Prompt:** `do-it.md`
 
