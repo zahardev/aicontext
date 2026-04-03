@@ -761,15 +761,15 @@ describe('removeDeprecatedAgents', () => {
 });
 
 describe('FRAMEWORK_SKILLS', () => {
-  it('should contain exactly 24 skill names', () => {
-    assert.strictEqual(FRAMEWORK_SKILLS.length, 24);
+  it('should contain exactly 25 skill names', () => {
+    assert.strictEqual(FRAMEWORK_SKILLS.length, 25);
   });
 
   it('should contain the expected skills', () => {
     const expected = [
       'add-step', 'create-task', 'start', 'start-feature', 'plan-tasks', 'check-task', 'review-plan', 'run-step', 'run-steps', 'finish-task',
       'align-context', 'do-it', 'challenge', 'commit', 'review', 'deep-review', 'next-step', 'draft-pr', 'gh-review-check',
-      'draft-issue', 'prepare-release', 'gh-review-fix-loop', 'aic-help', 'aic-skills',
+      'draft-issue', 'prepare-release', 'gh-review-fix-loop', 'web-inspect', 'aic-help', 'aic-skills',
     ];
     assert.deepStrictEqual([...FRAMEWORK_SKILLS].sort(), [...expected].sort());
   });

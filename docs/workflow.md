@@ -94,10 +94,6 @@ Delegates to the reviewer agent (Claude Code) or reviews inline (other tools). R
 
 For small scope (<200 lines), runs inline for interactive feedback. For large scope, delegates to the `reviewer` agent with deep-review criteria. Findings are grouped by root cause and prioritized by leverage — the synthesis phase identifies linchpin fixes that resolve multiple issues at once.
 
-## Standards Check
-
-After implementation, use `/standards-check` to verify code against project standards. The AI checks all changed files on the branch for DRY, KISS, over-engineering, security, and convention violations. Use this as a final check before creating a PR.
-
 ## Pull Request Workflow
 
 ### Drafting a PR
