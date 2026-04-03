@@ -9,7 +9,11 @@ const { execFileSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
-const SKIP_PATHS = ['.aicontext/', 'vendor/', 'node_modules/'];
+const CONFIG_PATH = path.join(__dirname, 'pr-reviews-config.json');
+const DEFAULT_SKIP_PATHS = ['.aicontext/', 'vendor/', 'node_modules/'];
+const SKIP_PATHS = fs.existsSync(CONFIG_PATH)
+  ? JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8')).skip_paths || DEFAULT_SKIP_PATHS
+  : DEFAULT_SKIP_PATHS;
 const OUTPUT_DIR = path.join(__dirname, '..', 'data', 'github-pr-reviews');
 
 const QUERY = `
@@ -117,7 +121,8 @@ function nextIteration(prNumber) {
   return max + 1;
 }
 
-function buildEntries(threads) {
+function buildEntries(threads, skipPaths) {
+  const skip = skipPaths || SKIP_PATHS;
   const entries = [];
 
   for (const thread of threads) {
@@ -128,7 +133,7 @@ function buildEntries(threads) {
 
     const first = comments[0];
     const filePath = first.path || '';
-    if (SKIP_PATHS.some((p) => filePath.startsWith(p))) continue;
+    if (skip.some((p) => filePath.startsWith(p))) continue;
 
     entries.push({
       threadId: thread.id,
