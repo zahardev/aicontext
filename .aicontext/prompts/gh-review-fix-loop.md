@@ -44,6 +44,8 @@ For each comment, assess using the severity × effort table:
 - **Resolve** — false positive, incorrect, irrelevant, or already addressed
 - **Skip** — needs user input or human judgment
 
+Fill the Reply column for every `resolve` and `fix` action — the reply is posted as a comment on the PR thread. Keep it concise: why it's a false positive, or what was fixed.
+
 ### 3. Resolve
 
 For each comment marked Resolve, resolve with a note explaining why:

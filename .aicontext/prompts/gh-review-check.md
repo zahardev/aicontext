@@ -25,10 +25,12 @@ For each finding, reference its `#` from the table.
 
 ## 4. Fill actions
 
-After user confirms, update the Action column in the file:
+After user confirms, update the Action and Reply columns in the file:
 - `resolve` — false positives and bot noise to dismiss on GitHub
 - `fix` — will address in code
 - `skip` — only for human reviewer comments where we are waiting for their response. Never use `skip` for automated CR bot reviews (CodeRabbit, etc.) — those should be either `resolve` or `fix`
+
+**Reply column** — fill for every `resolve` and `fix` action. The reply is posted as a comment on the PR thread before resolving. Keep it concise: why it's a false positive, or what was fixed.
 
 ## 5. Resolve
 
