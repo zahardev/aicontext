@@ -7,7 +7,7 @@ Execute all pending steps in the current task file, accumulating context through
 1. **Create brief if it doesn't exist** (see Brief Setup below)
 2. **Read three-layer context** (read each file if it exists):
    - **Spec**: linked in the task file
-   - **Brief**: `data/brief/brief-{task-filename}` (e.g. task `1.6.0-dev-flow-v2.md` → brief `data/brief/brief-1.6.0-dev-flow-v2.md`)
+   - **Brief**: `.aicontext/data/brief/brief-{task-filename}` (e.g. task `1.6.0-dev-flow-v2.md` → brief `.aicontext/data/brief/brief-1.6.0-dev-flow-v2.md`)
    - **Task**: current task file
 3. **Read** `.aicontext/rules/process.md` to get the quality checks table
 4. **Check commit configuration** (see Commit Setup below)

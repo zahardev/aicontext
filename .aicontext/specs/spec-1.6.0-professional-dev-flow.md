@@ -45,7 +45,7 @@ Move all instructions to `.aicontext/prompts/` as the single source of truth. Cl
 - All skill instructions live in `.aicontext/prompts/*.md`
 - All Claude Code skills (`.claude/skills/*/SKILL.md`) are thin wrappers referencing prompts
 - All Codex skills (`.codex/skills/*/SKILL.md`) are thin wrappers referencing prompts
-- Claude Code agents with universal instructions (`reviewer`, `standards-checker`, `test-writer`) reference prompts. Tool-specific agents (`test-runner`, `researcher`) keep instructions inline.
+- Claude Code agents with universal instructions (`reviewer`, `test-writer`) reference prompts. Tool-specific agents (`test-runner`, `researcher`) keep instructions inline.
 - `.cursor/rules/aicontext.mdc` references prompts with `use <name>` invocation pattern
 - `.github/copilot-instructions.md` references prompts with `use <name>` invocation pattern
 - No instruction duplication between prompts and skills/agents

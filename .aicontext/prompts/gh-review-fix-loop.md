@@ -48,9 +48,9 @@ Fill the Reply column for every `resolve` and `fix` action — the reply is post
 
 ### 3. Resolve
 
-For each comment marked Resolve, resolve with a note explaining why:
+Resolve all comments marked Resolve — the script processes the review file and posts Reply column text before resolving each thread:
 ```
-node .aicontext/scripts/pr-resolve.js --comment-id {id}
+node .aicontext/scripts/pr-resolve.js <path-to-review-file>
 ```
 
 ### 4. Fix

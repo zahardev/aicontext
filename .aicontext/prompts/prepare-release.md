@@ -40,7 +40,7 @@ For each row in the `## Files to Update` table in `release.md`:
   - **Omit internal refactoring** — renamed variables, extracted functions, reorganized files are invisible to users; only include refactors that change CLI behavior or public API
   - **No implementation details** — don't mention function names, file paths, or module internals; the changelog is for users, not developers reading the diff
 
-## 5. Present summary
+## 4. Present summary
 
 Show the user:
 - Version being released

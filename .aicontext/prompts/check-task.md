@@ -14,7 +14,7 @@ Read and follow `identify-task.md` to find the active task.
 2. **Spec** — if the task file has a Spec link, read it
    - Requirements, decisions, non-goals
 
-3. **Brief** — derive path from task filename: `data/brief/brief-{task-filename}` (e.g. task `1.6.0-dev-flow-v2.md` → `data/brief/brief-1.6.0-dev-flow-v2.md`)
+3. **Brief** — derive path from task filename: `.aicontext/data/brief/brief-{task-filename}` (e.g. task `1.6.0-dev-flow-v2.md` → `data/brief/brief-1.6.0-dev-flow-v2.md`)
    - Accumulated codebase patterns, gotchas, decisions, file references from prior steps
 
 4. **Source files** — read files related to the task and the next pending step

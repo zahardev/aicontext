@@ -102,8 +102,8 @@ Subdirectories are created automatically by skills and scripts when needed.
 5. Update `worklog.md` when complete
 
 ### Reviewing Work
-1. Paste `prompts/review.md` (or use `/diff-review` for uncommitted changes, `/branch-review` for full branch) in Claude Code
-2. Paste `prompts/plan.md` (or use `/review-plan`) to validate plans
+1. Paste `prompts/review.md` (or use `/review`) for code review
+2. Paste `prompts/review-plan.md` (or use `/review-plan`) to validate plans
 
 ### Pull Request Workflow (Claude Code / Codex)
 1. Use `/draft-pr` to draft a pull request from the task file and git changes
@@ -119,7 +119,6 @@ If you use Claude Code (CLI or VSCode extension), the framework includes predefi
 | `researcher` | sonnet | Explore codebase, return concise summaries |
 | `test-runner` | sonnet | Run tests, report only failures |
 | `test-writer` | sonnet | Draft test files in parallel with implementation |
-| `standards-checker` | opus | Check code against project rules |
 | `reviewer` | opus | Review code for bugs, edge cases, security |
 
 To change a model, edit the `model:` field in `.claude/agents/<agent>.md`. Free plan users can downgrade to `haiku` during `aicontext init`.
@@ -135,9 +134,8 @@ Skills automate common workflows. Both Claude Code (`.claude/skills/`) and Codex
 | `start` | `prompts/start.md` | Confirm project readiness |
 | `check-task` | `prompts/task.md` | Analyze task before implementation |
 | `review-plan` | `prompts/plan.md` | Validate plan for issues |
-| `diff-review` | `prompts/review.md` | Review uncommitted changes |
-| `branch-review` | — | Review full branch against main |
-| `standards-check` | — | Check branch changes against coding standards |
+| `review` | `prompts/review.md` | Review code (scope: diff, branch, commit, path) |
+| `deep-review` | `prompts/deep-review.md` | Comprehensive architecture + correctness review |
 | `next-step` | — | Complete step, reflect, start next |
 | `draft-pr` | — | Draft pull request |
 | `draft-issue` | — | Draft GitHub issue from conversation context |

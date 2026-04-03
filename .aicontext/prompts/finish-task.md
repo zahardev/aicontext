@@ -6,7 +6,7 @@ Close out the current task: verify completion, sync spec, write completion notes
 
 Read and follow `identify-task.md` to find the active task.
 
-Read the task file, spec (if linked), and brief (if it exists at `data/brief/brief-{task-filename}`).
+Read the task file, spec (if linked), and brief (if it exists at `.aicontext/data/brief/brief-{task-filename}`).
 
 ## 2. Verify Completion
 

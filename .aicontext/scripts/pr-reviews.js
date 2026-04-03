@@ -200,11 +200,19 @@ function renderMarkdown(prNumber, title, iteration, entries) {
 }
 
 function main() {
+  const args = process.argv.slice(2);
+  const countOnly = args.includes('--count');
+
   checkGhCli();
 
   const { prNumber, owner, name } = getPrInfo();
   const { threads, title } = fetchThreads(owner, name, prNumber);
   const entries = buildEntries(threads);
+
+  if (countOnly) {
+    console.log(entries.length);
+    return;
+  }
 
   if (!entries.length) {
     console.log('No unresolved review threads.');

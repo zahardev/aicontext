@@ -568,7 +568,8 @@ async function update(targetDir, skipConfirm = false, keepPrompts = false, overr
   if (fs.existsSync(oldChangelogPath)) {
     const content = fs.readFileSync(oldChangelogPath, 'utf8');
     if (!content.includes('@deprecated')) {
-      fs.writeFileSync(oldChangelogPath, '# Changelog\n\n> **@deprecated** — This file has been replaced by `worklog.md`. Use `worklog.md` for tracking spec and task statuses. This file will be removed in a future version.\n');
+      const notice = '> **@deprecated** — This file has been replaced by `worklog.md`. Use `worklog.md` for tracking spec and task statuses. This file will be removed in a future version.';
+      fs.writeFileSync(oldChangelogPath, `${notice}\n\n${content}`);
       log('  Deprecated changelog.md (replaced by worklog.md)', 'dim');
     }
   }
