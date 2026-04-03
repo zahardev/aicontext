@@ -4,7 +4,7 @@ Close out the current task: verify completion, sync spec, write completion notes
 
 ## 1. Identify the Task
 
-Identify the active task (per process.md rules).
+Read and follow `identify-task.md` to find the active task.
 
 Read the task file, spec (if linked), and brief (if it exists at `data/brief/brief-{task-filename}`).
 

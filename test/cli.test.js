@@ -429,14 +429,14 @@ describe('version cache', () => {
 });
 
 describe('FRAMEWORK_PROMPTS', () => {
-  it('should contain exactly 29 framework prompt files', () => {
-    assert.strictEqual(FRAMEWORK_PROMPTS.length, 29);
+  it('should contain exactly 30 framework prompt files', () => {
+    assert.strictEqual(FRAMEWORK_PROMPTS.length, 30);
   });
 
   it('should contain the expected prompt files', () => {
     const expected = [
       'aic-help.md', 'aic-skills.md', 'align-context.md', 'challenge.md', 'check-task.md', 'close-step.md',
-      'commit.md', 'deep-review.md', 'deep-review-criteria.md', 'do-it.md', 'draft-issue.md',
+      'commit.md', 'deep-review.md', 'deep-review-criteria.md', 'do-it.md', 'draft-issue.md', 'identify-task.md',
       'draft-pr.md', 'finish-task.md', 'generate.md', 'gh-review-fix-loop.md', 'next-step.md', 'plan-tasks.md',
       'gh-review-check.md', 'prepare-release.md', 'review.md', 'review-criteria.md', 'review-scope.md',
       'review-plan.md', 'run-step.md', 'run-steps.md', 'start-feature.md', 'start.md', 'step-loop.md', 'test-writer.md',
