@@ -76,14 +76,17 @@ Before creating or updating documentation, verify the current date:
 ### Plans Must Describe WHAT, Not HOW
 - Focus on goals, outcomes, or deliverables
 - Implementation details are discovered during implementation
+- Task steps describe what to build or change — behavior descriptions belong in the spec
 
 **Good examples:**
 - "Add user authentication endpoint"
 - "Create data lookup service"
+- "Add update check step to start.md"
 
 **Bad examples:**
 - "Create UserController with login() method using Library X"
 - "Write DataService class with lookup() function"
+- "If update available: show notification, then ask 'Would you like to upgrade?' (Yes / Not now)"
 
 ### Task Granularity
 - Sub-steps should be broad enough to be meaningful but specific enough to be actionable

@@ -1,14 +1,20 @@
 # Spec: [Title]
 
-<!-- Filename convention: spec-{name}.md (e.g. spec-user-authentication.md) -->
+<!-- Filename convention: spec-{prefix}-{name}.md (prefix follows task naming convention) -->
 
 ## Problem
 
+<!-- Use ### headings to group multiple problems. Each problem should map to a solution. -->
+
+### [Problem Title]
 [What is broken, painful, or missing? Include impact and frequency if relevant.]
 
 ## Solution
 
-[High-level description of the approach. What will change and how does it address the problem?]
+<!-- Use ### headings matching the problem titles above. -->
+
+### [Problem Title]
+[High-level description of the approach. What will change and how does it addresses the problem?]
 
 ## Requirements
 

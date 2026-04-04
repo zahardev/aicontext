@@ -111,6 +111,11 @@ When creating commits, read `project.md` → `## Commit Rules` for configuration
 - Value accuracy and effectiveness over politeness
 - Challenge assumptions that could lead to poor results
 
+### Solution Before Organization
+- When a problem or idea is raised, first propose or discuss the solution approach
+- Get explicit agreement on the approach before asking organizational questions (task scope, spec assignment, etc.)
+- Never jump from problem description to task creation without confirming the solution
+
 ### Proactive Solution Suggestion
 - Always suggest better approaches when current implementation shows problems
 - If a solution is clearly not working, immediately propose alternatives

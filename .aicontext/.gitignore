@@ -1,2 +1,6 @@
 # Personal/local settings (not shared with team)
 local.md
+
+# Project-specific working files (not distributed to users)
+specs/
+worklog.md
