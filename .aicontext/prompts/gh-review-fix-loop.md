@@ -106,12 +106,12 @@ node .aicontext/scripts/pr-reviews.js --count
 
 ## After Loop Completes
 
-**Stale review state** — if the loop exited cleanly (0 unresolved threads), check for a lingering `CHANGES_REQUESTED` state:
+**Stale review state** — if the loop exited cleanly (0 unresolved threads), check for lingering `CHANGES_REQUESTED` reviews:
 ```
-gh api repos/{owner}/{repo}/pulls/{pr_number}/reviews --jq '[.[] | select(.user.login == "coderabbitai[bot]")] | last | .state'
+gh api repos/{owner}/{repo}/pulls/{pr_number}/reviews --jq '[.[] | select(.state == "CHANGES_REQUESTED")] | map(.user.login) | unique'
 ```
-If the result is `CHANGES_REQUESTED`, warn the user:
-> "All threads are resolved but CodeRabbit's review still shows 'Changes Requested'. Comment `@coderabbitai review` on the PR to trigger a fresh approval."
+If any reviewers still show `CHANGES_REQUESTED`, warn the user:
+> "All threads are resolved but these reviewers still show 'Changes Requested': [list]. They may need to re-review or approve."
 
 Scan decisions made during this loop: did any reviewer feedback lead to an architectural decision, requirements change, or non-goal discovery? If yes, update the spec's Decisions section.
 
