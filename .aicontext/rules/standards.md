@@ -3,10 +3,11 @@
 ## Critical Safety Rules
 
 **NEVER run without explicit user confirmation:**
+- `git push` - Any push to remote (including non-force). Always ask first, unless pre-authorized by `finish_action: commit+push` or an active `/gh-review-fix-loop` cycle.
+- `git push --force` - Destructive git operations
 - Database wipe/reset commands
 - Volume/container deletion commands
 - `rm -rf` - Permanent deletion
-- `git push --force` - Destructive git operations
 - Any command with `--force` or `-y` affecting data persistence
 - Any command that modifies or deletes production data
 
