@@ -63,21 +63,13 @@ Ask `test-runner` subagent to run the full test suite. If tests fail:
 - Fix the failures
 - Re-run until passing (or stop and ask the user if the cause isn't clear)
 
-### 6. Capture Comment Count
-
-```
-node .aicontext/scripts/pr-reviews.js --count
-```
-
-Note this as `baseline_count`.
-
-### 7. Commit and Push
+### 6. Commit and Push
 
 Commit all fixes. Use the commit template from the task file `## Commit Rules:` or `project.md` → `## Commit Rules` if configured, otherwise use a plain description.
 
 Push the current branch to the remote.
 
-### 8. Wait for Checks and New Review
+### 7. Wait for Checks and New Review
 
 Two-phase wait:
 
@@ -98,11 +90,11 @@ Stop the loop — do not continue cycling without active reviews.
 
 **Phase 2 — check for new review comments:**
 ```
-node .aicontext/scripts/pr-reviews.js --count
+node .aicontext/scripts/pr-reviews.js
 ```
 
-- If count changed from `baseline_count`: new review is ready — increment `cycle`, continue to next cycle
-- If count unchanged: no new feedback — exit the loop
+- If new findings are saved: new review is ready — increment `cycle`, continue to next cycle
+- If "No unresolved review threads": no new feedback — exit the loop
 
 ## After Loop Completes
 

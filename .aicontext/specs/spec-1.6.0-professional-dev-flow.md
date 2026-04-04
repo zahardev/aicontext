@@ -152,8 +152,8 @@ Move all instructions to `.aicontext/prompts/` as the single source of truth. Cl
 - Runs tests to verify fixes
 - Commits and pushes
 - Captures review comment count before pushing
-- After push, polls every 60 seconds for comment count change (new review detected)
-- If no new review within 30 minutes, considers cycle done
+- After push, waits for all PR checks to complete via `gh pr checks --watch` (30-minute timeout), then fetches review comments
+- If no unresolved threads remain, considers cycle done
 - Repeats until no fixable issues remain or max cycles reached (default: 5)
 - Works with any GitHub review bot (CodeRabbit, etc.) and human reviewers
 - After loop: elevates any architectural decisions from reviewer feedback to spec
@@ -314,7 +314,7 @@ Commit config has two levels: project defaults in `project.md` `## Commit Rules`
 Four fields: `commit_mode` (manual / per-step / per-task), `commit_template` (4 options), `commit_body` (true / false, default true), and `finish_action` (nothing / commit / commit+push). When `commit_body` is true, body includes what/why and a `Co-Authored-By: {ai} via AIContext` trailer. When false, subject line only — strictly enforced, no body or trailers. `/run-steps` only commits during execution if `commit_mode` is `per-step` — all other modes defer to `/finish-task` which uses `finish_action` as the single decision point for per-task commits. This avoids two competing commit decision points. If `finish_action` is `nothing` but uncommitted changes exist, `/finish-task` warns rather than silently skipping.
 
 ### Review Automation: Polling with Cap
-`/gh-review-fix-loop` starts each cycle by fetching existing review comments, triaging them (fix/resolve/skip), implementing fixes, running tests, then capturing the comment count, committing, and pushing. After push, polls every 60 seconds for the count to change (indicating a new review pass). If no change within 30 minutes, the cycle is done. Capped at 5 cycles. Uses existing `pr-reviews.js` and `pr-resolve.js` scripts — reviewer-agnostic.
+`/gh-review-fix-loop` starts each cycle by fetching existing review comments, triaging them (fix/resolve/skip), implementing fixes, running tests, committing, and pushing. After push, waits for all PR checks to complete via `gh pr checks --watch` (30-minute timeout), then fetches review comments. If no unresolved threads remain, the cycle is done. Capped at 5 cycles. Uses existing `pr-reviews.js` and `pr-resolve.js` scripts — reviewer-agnostic.
 
 ### No Full-Auto (Ralph) Mode
 Decided against unattended Ralph-style execution. Context loss between stateless iterations is too high a price for existing codebases. Supervised mode (user can monitor, agent keeps context) provides 90% of the speed with much better quality. Can be reconsidered later.
