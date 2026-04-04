@@ -77,15 +77,23 @@ Commit all fixes. Use the commit template from the task file `## Commit Rules:` 
 
 Push the current branch to the remote.
 
-### 8. Poll for New Review
+### 8. Wait for Checks and New Review
 
-Poll every 60 seconds for the review comment count to change:
+Two-phase wait:
+
+**Phase 1 — wait for CI and review bots to finish:**
+```
+timeout 30m gh pr checks --watch || true
+```
+Ignore the exit code — checks may fail (e.g., CI tests) but the review bot may still have finished.
+
+**Phase 2 — check for new review comments:**
 ```
 node .aicontext/scripts/pr-reviews.js --count
 ```
 
-- If count changed from `baseline_count`: a new review pass is ready — increment `cycle`, continue to next cycle
-- If no change after 30 minutes: exit the loop
+- If count changed from `baseline_count`: new review is ready — increment `cycle`, continue to next cycle
+- If count unchanged: no new feedback — exit the loop
 
 ## After Loop Completes
 
