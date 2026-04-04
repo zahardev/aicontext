@@ -8,7 +8,7 @@ This folder contains AI assistant configuration and project documentation.
 |------|---------|
 | `project.md` | Project identity, tech stack, architecture |
 | `structure.md` | Folder structure, commands, environment |
-| `changelog.md` | Completed tasks history |
+| `worklog.md` | Spec and task status tracking |
 | `local.md` | Personal/local settings (gitignored, see below) |
 
 ## Override Priority
@@ -67,8 +67,8 @@ Located in `scripts/` — these are tool-agnostic Node.js scripts used by both C
 
 | Script | Used By | Purpose |
 |--------|---------|---------|
-| `pr-reviews.js` | `/pr-review-check` | Fetch unresolved PR review threads via GitHub GraphQL API |
-| `pr-resolve.js` | `/pr-review-check` | Resolve threads and post replies on GitHub |
+| `pr-reviews.js` | `/gh-review-check` | Fetch unresolved PR review threads via GitHub GraphQL API |
+| `pr-resolve.js` | `/gh-review-check` | Resolve threads and post replies on GitHub |
 
 **Requirement:** These scripts need the [GitHub CLI (`gh`)](https://cli.github.com/) installed and authenticated (`gh auth login`).
 
@@ -82,7 +82,7 @@ Common subdirectories:
 |--------------|---------|
 | `code-reviews/` | Code review results from `/diff-review` and `/branch-review` skills |
 | `pr-drafts/` | Pull request drafts from `/draft-pr` skill |
-| `github-pr-reviews/` | PR review comment files from `/pr-review-check` skill |
+| `github-pr-reviews/` | PR review comment files from `/gh-review-check` skill |
 | `issue-drafts/` | GitHub issue drafts from `/draft-issue` skill |
 
 Subdirectories are created automatically by skills and scripts when needed.
@@ -99,15 +99,15 @@ Subdirectories are created automatically by skills and scripts when needed.
 2. Create/update task file in `tasks/` using `templates/task.template.md`
 3. Follow TDD process from `rules/process.md`
 4. After each step, use `prompts/after_step.md` (or `/next-step`) to reflect and continue
-5. Update `changelog.md` when complete
+5. Update `worklog.md` when complete
 
 ### Reviewing Work
-1. Paste `prompts/review.md` (or use `/diff-review` for uncommitted changes, `/branch-review` for full branch) in Claude Code
-2. Paste `prompts/plan.md` (or use `/check-plan`) to validate plans
+1. Paste `prompts/review.md` (or use `/review`) for code review
+2. Paste `prompts/review-plan.md` (or use `/review-plan`) to validate plans
 
 ### Pull Request Workflow (Claude Code / Codex)
 1. Use `/draft-pr` to draft a pull request from the task file and git changes
-2. After PR review, use `/pr-review-check` to fetch and triage review comments
+2. After PR review, use `/gh-review-check` to fetch and triage review comments
 3. Fix valid issues, resolve false positives directly on GitHub
 
 ## Tool-Specific: Claude Code
@@ -119,7 +119,6 @@ If you use Claude Code (CLI or VSCode extension), the framework includes predefi
 | `researcher` | sonnet | Explore codebase, return concise summaries |
 | `test-runner` | sonnet | Run tests, report only failures |
 | `test-writer` | sonnet | Draft test files in parallel with implementation |
-| `standards-checker` | opus | Check code against project rules |
 | `reviewer` | opus | Review code for bugs, edge cases, security |
 
 To change a model, edit the `model:` field in `.claude/agents/<agent>.md`. Free plan users can downgrade to `haiku` during `aicontext init`.
@@ -134,15 +133,13 @@ Skills automate common workflows. Both Claude Code (`.claude/skills/`) and Codex
 |-------|-------------------|-------------|
 | `start` | `prompts/start.md` | Confirm project readiness |
 | `check-task` | `prompts/task.md` | Analyze task before implementation |
-| `check-plan` | `prompts/plan.md` | Validate plan for issues |
-| `diff-review` | `prompts/review.md` | Review uncommitted changes |
-| `branch-review` | — | Review full branch against main |
-| `standards-check` | — | Check branch changes against coding standards |
+| `review-plan` | `prompts/review-plan.md` | Validate plan for issues |
+| `review` | `prompts/review.md` | Review code (scope: diff, branch, commit, path) |
+| `deep-review` | `prompts/deep-review.md` | Comprehensive architecture + correctness review |
 | `next-step` | — | Complete step, reflect, start next |
 | `draft-pr` | — | Draft pull request |
 | `draft-issue` | — | Draft GitHub issue from conversation context |
-| `code-health` | — | Scan codebase for refactoring opportunities |
-| `pr-review-check` | — | Triage PR review comments |
+| `gh-review-check` | — | Triage PR review comments |
 
 **Override protection:** Same as agents — existing skills are prompted during update. Use `--override-skills` to force-override.
 
@@ -150,6 +147,6 @@ Skills automate common workflows. Both Claude Code (`.claude/skills/`) and Codex
 
 | Frequency | Files |
 |-----------|-------|
-| After each task | `changelog.md`, task files |
+| After each task | `worklog.md`, task files |
 | When structure changes | `structure.md` |
 | Rarely | `project.md`, rules files |

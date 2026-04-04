@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 
-const { stripNoise, buildEntries, renderMarkdown, nextIteration } = require('../.claude/scripts/pr-reviews.js');
+const { stripNoise, buildEntries, renderMarkdown, nextIteration } = require('../.aicontext/scripts/pr-reviews.js');
 
 function createTempDir() {
   return fs.mkdtempSync(path.join(os.tmpdir(), 'aicontext-test-'));
@@ -93,7 +93,7 @@ describe('buildEntries', () => {
       { isResolved: false, isOutdated: false, id: 't2', comments: { nodes: [{ databaseId: 2, body: 'y', path: 'vendor/lib.js', line: 1, author: { login: 'bot' } }] } },
       { isResolved: false, isOutdated: false, id: 't3', comments: { nodes: [{ databaseId: 3, body: 'z', path: 'node_modules/pkg/index.js', line: 1, author: { login: 'bot' } }] } },
     ];
-    assert.strictEqual(buildEntries(threads).length, 0);
+    assert.strictEqual(buildEntries(threads, ['.aicontext/', 'vendor/', 'node_modules/']).length, 0);
   });
 
   it('should use ghost for missing author', () => {

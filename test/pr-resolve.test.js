@@ -1,7 +1,7 @@
 const { describe, it } = require('node:test');
 const assert = require('node:assert');
 
-const { parsePrNumber, parseCommentIds, parseResolveEntries } = require('../.claude/scripts/pr-resolve.js');
+const { parsePrNumber, parseCommentIds, parseResolveEntries } = require('../.aicontext/scripts/pr-resolve.js');
 
 describe('parsePrNumber', () => {
   it('should parse PR number from markdown header', () => {

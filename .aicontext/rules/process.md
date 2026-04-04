@@ -89,13 +89,39 @@ Before creating or updating documentation, verify the current date:
 - Sub-steps should be broad enough to be meaningful but specific enough to be actionable
 - Avoid micro-tasks that clutter the plan
 - Focus on deliverable outcomes
-- Always stop after completing a step - never start next step without permission
+- When executing steps manually (not via `/run-steps`), always stop after completing a step - never start next step without permission
 
 ### Checkbox Format
 - Use `- [ ]` for unchecked items
 - Never use `- [x]` in initial plans
 - Tasks should be ordered logically with dependencies considered
 - Previous steps cannot depend on subsequent steps
+
+## Quality Checks
+
+### Timing Table
+
+| Check | After Step | After Task | Skill |
+|-------|------------|------------|-------|
+| Code review | Yes | No | `reviewer` subagent |
+| Step-related tests | Yes | No | `test-runner` subagent |
+| Deep review | No | Yes | `reviewer` subagent |
+| Full test suite | No | Yes | `test-runner` subagent |
+
+Edit this table to customize your workflow. `/run-steps` reads it at runtime.
+
+### Review Response Rules
+
+When a quality check returns findings, use this table to decide what to fix:
+
+| Severity | Effort | Action |
+|----------|--------|--------|
+| High | Any | Fix |
+| Medium | Low | Fix |
+| Medium | High | Fix |
+| Low | Low | Fix |
+| Low | High | Skip — note in brief |
+| False positive | — | Resolve / dismiss |
 
 ## Task Completion Criteria
 
@@ -109,12 +135,7 @@ Mark tasks complete only when:
 
 ### After Task Completion
 
-Update `.aicontext/changelog.md` with the completed task:
-```markdown
-## YYYY-MM-DD
-
-- **Version X.X.X**: Short description
-```
+Update `.aicontext/worklog.md` — check off the task under its spec, or add to Standalone Tasks if no spec.
 
 ## Version Management
 

@@ -17,16 +17,23 @@ test-project/
 
 # Claude Code local settings
 .claude/settings.local.json
-.claude/skills/prepare-release/
 
 # Project file
 .aicontext/project.md
 .aicontext/structure.md
+.aicontext/release.md
+.aicontext/worklog.md
 
 # Project tasks
 .aicontext/tasks/*
 !.aicontext/tasks/.gitkeep
 
+# Brief files (temporary, agent-to-agent knowledge transfer)
+.aicontext/data/brief/
+
+
+# PR review config (project-specific skip paths)
+.aicontext/scripts/pr-reviews-config.json
 
 # Generated Version File
 .aicontext/.version

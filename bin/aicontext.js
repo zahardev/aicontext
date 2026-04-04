@@ -12,25 +12,32 @@ const REPO_URL = 'https://github.com/zahardev/aicontext';
 const NPM_PACKAGE = '@zahardev/aicontext';
 const CACHE_FILE = path.join(os.tmpdir(), 'aicontext-version-cache.json');
 const CACHE_TTL = 60 * 60 * 1000; // 1 hour in milliseconds
-const FRAMEWORK_PROMPTS = ['after_step.md', 'generate.md', 'plan.md', 'review.md', 'start.md', 'task.md'];
-const DEPRECATED_PROMPTS = ['check_plan.md', 'check_task.md'];
+const FRAMEWORK_PROMPTS = [
+  'add-step.md', 'aic-help.md', 'aic-skills.md', 'align-context.md', 'challenge.md', 'check-task.md', 'close-step.md',
+  'commit.md', 'create-task.md', 'deep-review.md', 'deep-review-criteria.md', 'do-it.md', 'draft-issue.md', 'identify-task.md',
+  'draft-pr.md', 'finish-task.md', 'generate.md', 'gh-review-fix-loop.md', 'next-step.md', 'plan-tasks.md',
+  'gh-review-check.md', 'prepare-release.md', 'review.md', 'review-criteria.md', 'review-scope.md',
+  'review-plan.md', 'run-step.md', 'run-steps.md', 'start-feature.md', 'start.md', 'step-loop.md', 'test-writer.md',
+];
+const DEPRECATED_PROMPTS = ['check_plan.md', 'check_task.md', 'after_step.md', 'plan.md', 'task.md', 'start-task.md', 'diff-review.md', 'branch-review.md', 'standards-check.md', 'pr-review-check.md', 'check-plan.md'];
 const FRAMEWORK_AGENTS = [
   'researcher.md',
   'reviewer.md',
   'test-runner.md',
   'test-writer.md',
-  'standards-checker.md',
 ];
-const DEPRECATED_AGENTS = ['pr-review-summarizer.md'];
+const DEPRECATED_AGENTS = ['pr-review-summarizer.md', 'deep-reviewer.md', 'standards-checker.md'];
 const FRAMEWORK_SKILLS = [
-  'start', 'check-task', 'check-plan', 'diff-review', 'branch-review', 'next-step', 'draft-pr', 'pr-review-check',
-  'standards-check', 'draft-issue', 'code-health',
+  'add-step', 'create-task', 'start', 'start-feature', 'plan-tasks', 'check-task', 'review-plan', 'run-step', 'run-steps', 'finish-task',
+  'align-context', 'do-it', 'challenge', 'commit', 'review', 'deep-review', 'next-step', 'draft-pr', 'gh-review-check',
+  'draft-issue', 'prepare-release', 'gh-review-fix-loop', 'web-inspect', 'aic-help', 'aic-skills',
 ];
 const FRAMEWORK_CODEX_SKILLS = [
-  'start', 'check-task', 'check-plan', 'diff-review', 'branch-review', 'next-step', 'draft-pr', 'pr-review-check',
-  'standards-check', 'draft-issue', 'code-health',
+  'add-step', 'create-task', 'start', 'start-feature', 'plan-tasks', 'check-task', 'review-plan', 'run-step', 'run-steps', 'finish-task',
+  'align-context', 'do-it', 'challenge', 'commit', 'review', 'deep-review', 'next-step', 'draft-pr', 'gh-review-check',
+  'draft-issue', 'prepare-release', 'gh-review-fix-loop', 'web-inspect', 'aic-help', 'aic-skills',
 ];
-const DEPRECATED_SKILLS = ['task', 'review', 'after-step', 'next', 'pr'];
+const DEPRECATED_SKILLS = ['task', 'after-step', 'next', 'pr', 'start-task', 'diff-review', 'branch-review', 'standards-check', 'pr-review-check', 'check-plan'];
 const FRAMEWORK_SCRIPTS = ['pr-reviews.js', 'pr-resolve.js'];
 
 // Colors for terminal output
@@ -213,12 +220,13 @@ function removeDeprecatedAgents(target) {
 }
 
 function removeDeprecatedSkills(target) {
-  const skillsDir = path.join(target, '.claude', 'skills');
-  for (const skill of DEPRECATED_SKILLS) {
-    const skillPath = path.join(skillsDir, skill);
-    if (fs.existsSync(skillPath)) {
-      fs.rmSync(skillPath, { recursive: true });
-      log(`  Removed deprecated: skills/${skill}/`, 'dim');
+  for (const dir of [path.join(target, '.claude', 'skills'), path.join(target, '.codex', 'skills')]) {
+    for (const skill of DEPRECATED_SKILLS) {
+      const skillPath = path.join(dir, skill);
+      if (fs.existsSync(skillPath)) {
+        fs.rmSync(skillPath, { recursive: true });
+        log(`  Removed deprecated: ${path.relative(target, skillPath)}/`, 'dim');
+      }
     }
   }
 }
@@ -237,7 +245,7 @@ function setAgentModel(target, model) {
   }
 }
 
-function copyFrameworkPrompts(packageRoot, target) {
+function copyFrameworkPrompts(packageRoot, target, skipExisting = false) {
   const srcDir = path.join(packageRoot, '.aicontext', 'prompts');
   const destDir = path.join(target, '.aicontext', 'prompts');
   fs.mkdirSync(destDir, { recursive: true });
@@ -245,6 +253,7 @@ function copyFrameworkPrompts(packageRoot, target) {
     const src = path.join(srcDir, file);
     const dest = path.join(destDir, file);
     if (fs.existsSync(src)) {
+      if (skipExisting && fs.existsSync(dest)) continue;
       fs.copyFileSync(src, dest);
     }
   }
@@ -407,30 +416,23 @@ async function init(targetDir, skipConfirm = false, keepPrompts = false, overrid
     log('');
   }
 
-  // Determine whether to update prompts
-  let shouldUpdatePrompts = true;
-  if (keepPrompts) {
-    shouldUpdatePrompts = false;
-  } else if (hasExistingPrompts(target) && !skipConfirm) {
-    shouldUpdatePrompts = await promptYesNo(
-      'Would you like to rewrite the existing prompt files (after_step, generate, plan, review, start, task)? ' +
-        "I won't remove any other prompt files. (Y/n): "
+  // Determine whether to overwrite existing prompts (new prompts are always added)
+  let overwritePrompts = !keepPrompts;
+  if (!keepPrompts && hasExistingPrompts(target) && !skipConfirm) {
+    overwritePrompts = await promptYesNo(
+      'Would you like to update the existing aicontext prompts? We recommend yes — ensures you have the latest features. (Y/n): '
     );
   }
 
   // Copy .aicontext folder
   log('Copying .aicontext files...', 'dim');
   copyRecursive(path.join(packageRoot, '.aicontext', 'rules'), path.join(target, '.aicontext', 'rules'));
-  if (shouldUpdatePrompts) {
-    copyFrameworkPrompts(packageRoot, target);
-  }
+  copyFrameworkPrompts(packageRoot, target, !overwritePrompts);
   copyRecursive(path.join(packageRoot, '.aicontext', 'templates'), path.join(target, '.aicontext', 'templates'));
   copyRecursive(path.join(packageRoot, '.aicontext', 'tasks', '.gitkeep'), path.join(target, '.aicontext', 'tasks', '.gitkeep'));
+  copyRecursive(path.join(packageRoot, '.aicontext', 'specs', '.gitkeep'), path.join(target, '.aicontext', 'specs', '.gitkeep'));
   copyRecursive(path.join(packageRoot, '.aicontext', 'data', '.gitignore'), path.join(target, '.aicontext', 'data', '.gitignore'));
   copyRecursive(path.join(packageRoot, '.aicontext', 'readme.md'), path.join(target, '.aicontext', 'readme.md'));
-  if (!fs.existsSync(path.join(target, '.aicontext', 'changelog.md'))) {
-    copyRecursive(path.join(packageRoot, '.aicontext', 'changelog.md'), path.join(target, '.aicontext', 'changelog.md'));
-  }
   copyRecursive(path.join(packageRoot, '.aicontext', '.gitignore'), path.join(target, '.aicontext', '.gitignore'));
 
   // Copy tool-specific files
@@ -508,23 +510,18 @@ async function update(targetDir, skipConfirm = false, keepPrompts = false, overr
     return;
   }
 
-  // Determine whether to update prompts
-  let shouldUpdatePrompts = true;
-  if (keepPrompts) {
-    shouldUpdatePrompts = false;
-  } else if (hasExistingPrompts(target) && !skipConfirm) {
-    shouldUpdatePrompts = await promptYesNo(
-      'Would you like to rewrite the existing prompt files (after_step, generate, plan, review, start, task)? ' +
-        "I won't remove any other prompt files. (Y/n): "
+  // Determine whether to overwrite existing prompts (new prompts are always added)
+  let overwritePrompts = !keepPrompts;
+  if (!keepPrompts && hasExistingPrompts(target) && !skipConfirm) {
+    overwritePrompts = await promptYesNo(
+      'Would you like to update the existing aicontext prompts? We recommend yes — ensures you have the latest features. (Y/n): '
     );
   }
 
   log(`Updating from v${currentVersion} to v${VERSION}...`, 'dim');
   log('\nThe following will be updated:', 'yellow');
   log('  - .aicontext/rules/', 'yellow');
-  if (shouldUpdatePrompts) {
-    log('  - .aicontext/prompts/ (framework prompts only)', 'yellow');
-  }
+  log(`  - .aicontext/prompts/ (${overwritePrompts ? 'all framework prompts' : 'new prompts only'})`, 'yellow');
   log('  - .aicontext/templates/', 'yellow');
   log('  - .claude/CLAUDE.md', 'yellow');
   log('  - .claude/agents/ (new agents only, existing will be prompted)', 'yellow');
@@ -536,12 +533,9 @@ async function update(targetDir, skipConfirm = false, keepPrompts = false, overr
   log('\nPreserved (not modified):', 'green');
   log('  - .aicontext/project.md', 'green');
   log('  - .aicontext/structure.md', 'green');
-  log('  - .aicontext/changelog.md', 'green');
+  log('  - .aicontext/worklog.md (if exists)', 'green');
   log('  - .aicontext/local.md', 'green');
   log('  - .aicontext/tasks/*.md (your tasks)', 'green');
-  if (!shouldUpdatePrompts) {
-    log('  - .aicontext/prompts/ (kept by your choice)', 'green');
-  }
   log('');
 
   if (!skipConfirm) {
@@ -557,10 +551,8 @@ async function update(targetDir, skipConfirm = false, keepPrompts = false, overr
   log('Updating rules...', 'dim');
   copyRecursive(path.join(packageRoot, '.aicontext', 'rules'), path.join(target, '.aicontext', 'rules'));
 
-  if (shouldUpdatePrompts) {
-    log('Updating prompts...', 'dim');
-    copyFrameworkPrompts(packageRoot, target);
-  }
+  log('Updating prompts...', 'dim');
+  copyFrameworkPrompts(packageRoot, target, !overwritePrompts);
   removeDeprecatedPrompts(target);
   removeDeprecatedAgents(target);
   removeDeprecatedSkills(target);
@@ -570,6 +562,17 @@ async function update(targetDir, skipConfirm = false, keepPrompts = false, overr
 
   log('Updating data directory...', 'dim');
   copyRecursive(path.join(packageRoot, '.aicontext', 'data', '.gitignore'), path.join(target, '.aicontext', 'data', '.gitignore'));
+
+  // Deprecate old changelog.md
+  const oldChangelogPath = path.join(target, '.aicontext', 'changelog.md');
+  if (fs.existsSync(oldChangelogPath)) {
+    const content = fs.readFileSync(oldChangelogPath, 'utf8');
+    if (!content.includes('@deprecated')) {
+      const notice = '> **@deprecated** — This file has been replaced by `worklog.md`. Use `worklog.md` for tracking spec and task statuses. This file will be removed in a future version.';
+      fs.writeFileSync(oldChangelogPath, `${notice}\n\n${content}`);
+      log('  Deprecated changelog.md (replaced by worklog.md)', 'dim');
+    }
+  }
 
   log('Updating tool entry points...', 'dim');
   copyRecursive(path.join(packageRoot, '.claude', 'CLAUDE.md'), path.join(target, '.claude', 'CLAUDE.md'));
@@ -584,7 +587,7 @@ async function update(targetDir, skipConfirm = false, keepPrompts = false, overr
   fs.writeFileSync(versionFile, VERSION);
 
   log(`\nUpdated to v${VERSION}!`, 'green');
-  log('\nNote: project.md, structure.md, and changelog.md were preserved.', 'dim');
+  log('\nNote: project.md, structure.md, and worklog.md (if present) were preserved.', 'dim');
 }
 
 function checkVersion(targetDir) {

@@ -1,27 +1,35 @@
-# Code Review
+# Review
 
-As a senior developer, review the implementation:
+Review code changes for bugs, security issues, edge cases, and logical errors. Architecture and design are handled by `/deep-review`, not this review.
 
-## 1. Gather Context
-- Read the current task file in `.aicontext/tasks/`.
-- Review the recent changes (git diff) against the task requirements.
+## Setup
 
-## 2. Evaluate
+Read these files to understand the project:
+- `.aicontext/project.md` — architecture, API contracts, tech stack
+- `.aicontext/rules/standards.md` — coding standards (if exists)
+- `.aicontext/local.md` — local environment specifics (if exists)
+- Current task file in `.aicontext/tasks/` — requirements and planned work
 
-| Criteria | Check |
-|----------|-------|
-| Requirements | All task requirements implemented? |
-| DRY | No unnecessary duplication? |
-| KISS | Simplest solution that works? |
-| Security | No vulnerabilities introduced? |
-| Over-engineering | No unnecessary abstractions? |
+## Scope
 
-## 3. Report
+Follow `.aicontext/prompts/review-scope.md` to determine the review scope.
 
-For each issue found:
-- **File:line** - Location
-- **Issue** - What's wrong
-- **Fix** - How to resolve
+## Review
 
-If no issues: confirm "Implementation looks good" with a brief summary.
-Save results to `.aicontext/data/reviews`
+Follow `.aicontext/prompts/review-criteria.md` for what to check and how to present findings.
+
+## Triage
+
+Evaluate findings before saving:
+- For each finding: assess severity and whether it's worth fixing now
+- Drop findings that are nitpicks or over-engineering
+- Group remaining: **fix** (clear bugs, security issues) vs **skip** (low risk, premature)
+
+## Save
+
+Save review results to `.aicontext/data/code-reviews/YYYY-MM-DD-review-{short-description}.md` using the template at `.aicontext/templates/code-review.template.md`. The summary table's Recommendation column must reflect your triage (fix / skip).
+
+## Present
+
+- Provide a clear action plan: "Skip #2 (minor). Recommended to fix: #1, #3. Want me to fix them?"
+- Include the saved review file path so the user can reference it later

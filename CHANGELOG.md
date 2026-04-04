@@ -1,5 +1,65 @@
 # Changelog
 
+## [1.6.0] - 2026-04-03
+
+### Added
+- **Three-layer context model**: specs (requirements) → tasks (plan + progress) → briefs (working knowledge) for persistent AI context across sessions
+- **New skills**: `/start-feature`, `/run-steps`, `/finish-task`, `/plan-tasks`, `/do-it`, `/align-context`, `/gh-review-fix-loop`
+- **Shared step inner loop** (`step-loop.md`): single source of truth for the implement → review → test → commit cycle, referenced by `/run-steps` and `/do-it`
+- **Spec files** (`.aicontext/specs/`): feature-level requirements, decisions, and non-goals — survive refactors, no file paths or implementation details
+- **Brief files** (`.aicontext/data/brief/`): gitignored working memory the AI appends to after each step — enables seamless session restarts via `/check-task`
+- **Worklog** (`.aicontext/worklog.md`): spec and task status tracking, replaces `changelog.md`. AI-generated, gitignored.
+- **Spec↔task drift detection** in `/check-task`: identifies spec requirements not covered by task steps, offers to add steps or create separate tasks
+- **Requirement coverage check**: whenever the AI adds a spec requirement, it immediately verifies task step coverage
+- **Configurable commit rules**: project-level defaults in `project.md`, per-task overrides in task files, personal overrides in `local.md`
+- **Quality checks table** in `process.md`: configurable matrix of what checks run after steps vs after tasks
+- New templates: `spec.template.md`, `brief.template.md`, `worklog.template.md`
+- Specs directory (`.aicontext/specs/.gitkeep`) created during `aicontext init`
+- Codex skill mirrors for all new skills
+- **`/review` skill**: unified review with scope args (diff, branch, commit, path, IDE selection) — replaces `/diff-review` and `/branch-review`
+- **`/deep-review` skill**: comprehensive architecture + correctness review with 12-phase methodology (DRY & KISS, Placement, Responsibilities, API Design, Edge Cases, Bugs & Security, Framework Usage, Constants & Naming, Dependencies & Testability, Error Handling, Extensibility)
+- **Review criteria prompts**: `review-criteria.md`, `deep-review-criteria.md`, `review-scope.md` — shared between all tools, not just Claude Code
+- **Code review template** (`code-review.template.md`): persistent review tracking with refactoring actions, findings, decisions
+- **`close-step.md` prompt**: enforces brief/spec updates after each step with visible summary output — prevents agents from skipping context updates
+- **`commit_body` option** in Commit Rules: controls whether commits include a body (default: `true` — body with what/why + Co-Authored-By trailer)
+- **`/web-inspect` skill**: browser-based investigation using playwright-cli — open pages in headed mode, inspect elements via snapshots, check console errors, capture screenshots. Useful for UI debugging, manual AI testing, and verifying fixes visually
+- **`/aic-help` and `/aic-skills` framework meta-skills**: `/aic-help` shows a quickstart guide with workflows and best practices; `/aic-skills` lists all available skills grouped by workflow stage
+- **`/create-task` skill**: create a task file from conversation context — lighter alternative to `/start-feature` when a full discovery interview isn't needed
+- **`/add-step` skill**: add a new step to the current task from conversation context — plan ahead without implementing
+- **Reusable task identification** (`identify-task.md`): shared prompt for finding the active task, prioritizing IDE-opened files
+
+### Changed
+- **Renamed `/start-task` → `/start-feature`**: always creates spec + task, no complexity assessment — small work uses direct conversation
+- **Renamed "Acceptance Criteria" → "Requirements"** in specs: plain list (no checkboxes), detailed enough for task creation
+- **Prompts as single source of truth**: all skill/agent instructions live in `.aicontext/prompts/`, skills are thin wrappers
+- `/check-task` now reads three layers (spec → brief → task) with staleness checks
+- `/gh-review-fix-loop` cycle reordered: fetch first → triage → fix → test → capture count → commit+push → poll
+- Script paths in prompts use `.aicontext/scripts/` (universal) instead of `.claude/scripts/`
+- `removeDeprecatedSkills` now cleans both `.claude/skills/` and `.codex/skills/`
+- Process rule "stop after step" scoped to manual execution only (not `/run-steps`)
+- Task template simplified: no acceptance criteria or out-of-scope sections (both live in spec)
+- **Merged `deep-reviewer` and `standards-checker` into single `reviewer` agent** — caller specifies criteria prompt, agent is generic
+- **Review prompts are self-contained workflows**: setup, scope, criteria, save with template, present — work identically inline or via agent
+- **Two review tiers**: `/review` = quick correctness (after step), `/deep-review` = comprehensive (after task)
+- Step inner loop simplified from 11 to 9 steps — close-step replaces separate update/brief/elevate steps
+- `/run-steps` commit logic simplified: only commits per-step, per-task commits handled by `/finish-task` via `finish_action`
+- `/finish-task` warns when `finish_action: nothing` but uncommitted changes exist
+- **Merged `/code-health` into `/deep-review`**: cross-file checks (duplication, consistency, structural metrics) added as expanded phases — `/deep-review all` replaces `/code-health` for full codebase scans
+- **Renamed `/pr-review-check` → `/gh-review-check`** and **`/check-plan` → `/review-plan`** for naming consistency
+- Commit messages must describe the staged diff, not session memory
+- PR scripts moved from `.claude/scripts/` to `.aicontext/scripts/`; `pr-reviews.js` uses `__dirname` for output path resolution
+
+### Deprecated
+- `changelog.md` — replaced by `worklog.md`. Deprecation notice injected during `aicontext update`.
+- `/start-task` skill — replaced by `/start-feature`
+- `/diff-review` and `/branch-review` — replaced by `/review` with scope args
+- `/standards-check` — fully subsumed by `/deep-review`
+- `deep-reviewer` and `standards-checker` agents — merged into single `reviewer` agent
+- `/code-health` — merged into `/deep-review`
+- `/pr-review-check` — renamed to `/gh-review-check`
+- `/check-plan` — renamed to `/review-plan`
+- `.claude/scripts/` directory — scripts moved to `.aicontext/scripts/`
+
 ## [1.5.1] - 2026-03-25
 
 ### Fixed

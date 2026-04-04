@@ -84,6 +84,27 @@ Part of the **{{ORGANIZATION}}** ecosystem.
 - Changing authentication logic
 -->
 
+## Commit Rules
+
+commit_mode: manual
+commit_template: "description"
+commit_body: true
+finish_action: nothing
+
+**commit_mode** — when `/run-steps` creates commits:
+- `manual` — never commits automatically, you handle git yourself
+- `per-step` — commits after each step completes
+- `per-task` — no commits during steps, commit once via `/finish-task`
+
+**commit_body** — what goes after the subject line:
+- `false` — subject line only, no body or trailers
+- `true` — subject + body (what/why) + Co-Authored-By trailer
+
+**finish_action** — what `/finish-task` does with uncommitted changes:
+- `nothing` — leaves git as-is, you handle it yourself
+- `commit` — commits with a task completion message
+- `commit+push` — commits and pushes to remote
+
 ## Task Naming Convention
 
 Task files in `.aicontext/tasks/` should follow this pattern:

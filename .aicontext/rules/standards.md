@@ -3,10 +3,11 @@
 ## Critical Safety Rules
 
 **NEVER run without explicit user confirmation:**
+- `git push` - Any push to remote (including non-force). Always ask first, unless pre-authorized by `finish_action: commit+push` or an active `/gh-review-fix-loop` cycle.
+- `git push --force` - Destructive git operations
 - Database wipe/reset commands
 - Volume/container deletion commands
 - `rm -rf` - Permanent deletion
-- `git push --force` - Destructive git operations
 - Any command with `--force` or `-y` affecting data persistence
 - Any command that modifies or deletes production data
 
@@ -83,6 +84,17 @@
 - Don't create helpers or abstractions for one-time operations
 - Three similar lines of code is better than a premature abstraction
 
+## Commit Style
+
+When creating commits, read `project.md` → `## Commit Rules` for configuration.
+
+- **`commit_body: true`** (default) — subject line + blank line + body. Body should explain *why* the change was made — the diff already shows *what* changed. End with a Co-Authored-By trailer using the template: `Co-Authored-By: {ai} via AIContext` (replace `{ai}` with the AI model name, e.g. "Claude").
+- **`commit_body: false`** — **IMPORTANT:** subject line only. **No body, no trailers, no Co-Authored-By — nothing after the subject line.**
+
+## Recommended Tools
+
+- **Web UI investigation**: When the user asks about visual issues, layout problems, or needs browser-based debugging, suggest `/web-inspect` (or `use web-inspect`) if `playwright-cli` is not already in use. It provides headed browser automation for inspecting pages, checking console errors, and capturing screenshots.
+
 ## AI Response & Behavior Rules
 
 ### Communication Style
@@ -105,6 +117,16 @@
 - Don't keep trying to fix broken approaches - suggest better methods upfront
 - When debugging reveals fundamental issues, step back and recommend different strategies
 - Prioritize suggesting the best solution over fixing a suboptimal one
+
+### Research and Investigation
+- For design discussions and deep research, read files directly — do not delegate to researcher subagents
+- Subagents are for routine tasks (test-running, code review, standards checks), not for research the user needs to follow in context
+
+### Memory vs Project Rules
+- Always assess whether a user preference can be saved to project rules (process.md, standards.md, local.md, etc.)
+- Only use memory files for non-project-related information (personal preferences, cross-project context)
+- Project rules are the source of truth for how work is done in this project
+- **NEVER save rules or preferences silently** — always ask the user before writing to project rules or memory files
 
 ### Question Numbering
 - Number questions sequentially across entire conversation (never restart at 1)

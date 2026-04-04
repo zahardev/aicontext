@@ -9,8 +9,20 @@ const { execFileSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
-const SKIP_PATHS = ['.aicontext/', 'vendor/', 'node_modules/'];
-const OUTPUT_DIR = '.aicontext/data/github-pr-reviews';
+const CONFIG_PATH = path.join(__dirname, 'pr-reviews-config.json');
+const DEFAULT_SKIP_PATHS = ['.aicontext/', 'vendor/', 'node_modules/'];
+function loadSkipPaths() {
+  if (!fs.existsSync(CONFIG_PATH)) return DEFAULT_SKIP_PATHS;
+  try {
+    const parsed = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8'));
+    return Array.isArray(parsed.skip_paths) ? parsed.skip_paths : DEFAULT_SKIP_PATHS;
+  } catch (err) {
+    console.error(`Invalid ${CONFIG_PATH}: ${err.message}`);
+    return DEFAULT_SKIP_PATHS;
+  }
+}
+const SKIP_PATHS = loadSkipPaths();
+const OUTPUT_DIR = path.join(__dirname, '..', 'data', 'github-pr-reviews');
 
 const QUERY = `
 query($owner: String!, $name: String!, $number: Int!, $after: String) {
@@ -117,7 +129,8 @@ function nextIteration(prNumber) {
   return max + 1;
 }
 
-function buildEntries(threads) {
+function buildEntries(threads, skipPaths) {
+  const skip = skipPaths || SKIP_PATHS;
   const entries = [];
 
   for (const thread of threads) {
@@ -128,7 +141,7 @@ function buildEntries(threads) {
 
     const first = comments[0];
     const filePath = first.path || '';
-    if (SKIP_PATHS.some((p) => filePath.startsWith(p))) continue;
+    if (skip.some((p) => filePath.startsWith(p))) continue;
 
     entries.push({
       threadId: thread.id,
@@ -195,11 +208,19 @@ function renderMarkdown(prNumber, title, iteration, entries) {
 }
 
 function main() {
+  const args = process.argv.slice(2);
+  const countOnly = args.includes('--count');
+
   checkGhCli();
 
   const { prNumber, owner, name } = getPrInfo();
   const { threads, title } = fetchThreads(owner, name, prNumber);
   const entries = buildEntries(threads);
+
+  if (countOnly) {
+    console.log(entries.length);
+    return;
+  }
 
   if (!entries.length) {
     console.log('No unresolved review threads.');
