@@ -87,6 +87,15 @@ timeout 30m gh pr checks --watch || true
 ```
 Ignore the exit code — checks may fail (e.g., CI tests) but the review bot may still have finished.
 
+**Paused reviews check** — after checks complete, check if the review bot paused:
+```
+gh api repos/{owner}/{repo}/issues/{pr_number}/comments --jq '.[] | select(.body | test("review paused by coderabbit.ai")) | .id' | tail -1
+```
+If a paused comment is found, warn the user:
+> "CodeRabbit reviews are paused (too many commits). Comment `@coderabbitai resume` on the PR to re-enable, then re-run the loop."
+
+Stop the loop — do not continue cycling without active reviews.
+
 **Phase 2 — check for new review comments:**
 ```
 node .aicontext/scripts/pr-reviews.js --count
