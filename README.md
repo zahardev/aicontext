@@ -8,7 +8,7 @@
   <a href="LICENSE"><img src="https://img.shields.io/npm/l/@zahardev/aicontext" alt="license"></a>
 </p>
 
-**Your AI writes code. AIContext teaches it to build features.**
+**Stop re-explaining your project every session** — create a persistent context that survives across sessions and features. Teach your AI to plan, build, review, and ship — not just write code.
 
 Most AI coding sessions lose context, skip planning, and need constant hand-holding. AIContext gives your AI assistant a complete development methodology — it interviews you before coding, creates a plan, executes it step by step with automated reviews and tests, and picks up exactly where it left off when you start a new session.
 
