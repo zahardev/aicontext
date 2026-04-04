@@ -11,9 +11,17 @@ const path = require('path');
 
 const CONFIG_PATH = path.join(__dirname, 'pr-reviews-config.json');
 const DEFAULT_SKIP_PATHS = ['.aicontext/', 'vendor/', 'node_modules/'];
-const SKIP_PATHS = fs.existsSync(CONFIG_PATH)
-  ? JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8')).skip_paths || DEFAULT_SKIP_PATHS
-  : DEFAULT_SKIP_PATHS;
+function loadSkipPaths() {
+  if (!fs.existsSync(CONFIG_PATH)) return DEFAULT_SKIP_PATHS;
+  try {
+    const parsed = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8'));
+    return Array.isArray(parsed.skip_paths) ? parsed.skip_paths : DEFAULT_SKIP_PATHS;
+  } catch (err) {
+    console.error(`Invalid ${CONFIG_PATH}: ${err.message}`);
+    return DEFAULT_SKIP_PATHS;
+  }
+}
+const SKIP_PATHS = loadSkipPaths();
 const OUTPUT_DIR = path.join(__dirname, '..', 'data', 'github-pr-reviews');
 
 const QUERY = `

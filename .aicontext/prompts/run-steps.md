@@ -31,7 +31,7 @@ Check for commit rules in this order (first found wins): task file `## Commit Ru
 **If `commit_mode` is not configured**, ask:
 > "Should I commit after each step, or leave commits for `/finish-task`?"
 > 1. **per-step** — commit after each step completes
-> 2. **no** — I'll handle commits later (via `/finish-task` or manually)
+> 2. **manual** — I'll handle commits later (via `/finish-task` or manually)
 
 **If saving per-step to config**, ask for **commit template** (if not already configured):
 > 1. `description` — plain description (e.g. `Add user authentication`)

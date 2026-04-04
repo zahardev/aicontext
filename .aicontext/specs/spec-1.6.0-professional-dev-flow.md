@@ -98,7 +98,7 @@ Move all instructions to `.aicontext/prompts/` as the single source of truth. Cl
 
 ### Quality Checks Table
 - Configurable table in `process.md` with columns: Check, After Step, After Task, Skill (Yes/No values)
-- Default configuration: code review after step, step-related tests after step, standards check after task, full test suite after task
+- Default configuration: code review after step, step-related tests after step, deep review after task, full test suite after task
 - Response rules table for handling review findings (severity x effort = action)
 - Users can edit the table to customize their workflow
 - `/run-steps` reads and follows the table
