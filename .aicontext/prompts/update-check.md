@@ -29,15 +29,17 @@ Compare `lastChecked` against the frequency:
 | biweekly | 14 days |
 | monthly | 30 days |
 
-**If the cache has `latestVersion` newer than the installed version** (read `.aicontext/.version` for the current version; if that file doesn't exist, skip this comparison and proceed to step 3): show the notification regardless of whether it's time to check. Skip to step 4.
+**If it's not time to check but the cache has a `latestVersion`**: compare it against the CLI version from the last `aicontext version` output stored in the cache. If an update exists, skip to step 4. Otherwise stop here.
 
-**If it's not time to check**: stop here.
+**If it's not time to check and no cached update exists**: stop here.
 
 ## 3. Run the check
 
-Try to run `aicontext version` via Bash. The command outputs version info and updates the cache file automatically (including `lastChecked`). Parse the output — if it contains "Update available", an update exists.
+Try to run `aicontext version` via Bash. The CLI handles everything: it checks the npm registry, displays version info, and writes the cache file (including `lastChecked`). **Do not** read `.aicontext/.version`, query npm, or write the cache yourself — the CLI does all of this.
 
-**If `aicontext` is not in PATH** (command fails with "not found"): read the installed version from `.aicontext/.version`, then use WebFetch to query `https://registry.npmjs.org/@zahardev/aicontext/latest` and read the `version` field from the JSON response. Compare the two versions. Write the result to the cache file (`/tmp/aicontext-version-cache.json`) as JSON with `latestVersion`, `timestamp` (Unix milliseconds, e.g. `1712345678000`), and `lastChecked` (ISO date string).
+Parse the output — if it contains "Update available", an update exists. If no update, stop here.
+
+**Fallback — if `aicontext` is not in PATH** (command fails with "not found"): read the installed version from `.aicontext/.version`, then use WebFetch to query `https://registry.npmjs.org/@zahardev/aicontext/latest` and read the `version` field from the JSON response. Compare the two versions. Write the result to the cache file (`/tmp/aicontext-version-cache.json`) as JSON with `latestVersion`, `timestamp` (Unix milliseconds, e.g. `1712345678000`), and `lastChecked` (ISO date string). This is the only path where the AI writes the cache.
 
 If no update is available, stop here.
 

@@ -438,8 +438,8 @@ describe('version cache', () => {
 });
 
 describe('FRAMEWORK_PROMPTS', () => {
-  it('should contain exactly 37 framework prompt files', () => {
-    assert.strictEqual(FRAMEWORK_PROMPTS.length, 37);
+  it('should contain exactly 38 framework prompt files', () => {
+    assert.strictEqual(FRAMEWORK_PROMPTS.length, 38);
   });
 
   it('should contain the expected prompt files', () => {
@@ -448,7 +448,7 @@ describe('FRAMEWORK_PROMPTS', () => {
       'commit.md', 'create-task.md', 'deep-review.md', 'deep-review-criteria.md', 'do-it.md', 'draft-issue.md', 'ensure-config.md', 'identify-task.md',
       'draft-pr.md', 'finish-task.md', 'generate.md', 'gh-review-fix-loop.md', 'next-step.md', 'plan-tasks.md',
       'gh-review-check.md', 'prepare-release.md', 'review.md', 'review-criteria.md', 'review-scope.md',
-      'brainstorm.md', 'grill-me.md', 'review-plan.md', 'run-step.md', 'run-task.md', 'start-feature.md', 'start.md', 'step-loop.md', 'test-writer.md', 'thoughts.md', 'update-check.md',
+      'auto-setup.md', 'brainstorm.md', 'grill-me.md', 'review-plan.md', 'run-step.md', 'run-task.md', 'start-feature.md', 'start.md', 'step-loop.md', 'test-writer.md', 'thoughts.md', 'update-check.md',
     ];
     assert.deepStrictEqual([...FRAMEWORK_PROMPTS].sort(), [...expected].sort());
   });

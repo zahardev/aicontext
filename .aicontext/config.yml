@@ -27,7 +27,7 @@ spec_naming:
   # pattern: "spec-{name}"   # uncomment and set derive_from_task: false to use a custom pattern
 
 update_check:
-  frequency: weekly           # daily | weekly | biweekly | monthly | never
+  frequency: weekly         # daily | weekly | biweekly | monthly | never
 
 claude:
   question_style: interactive   # interactive (AskUserQuestion) | numbered (plain text with 1, 2, 3...)
