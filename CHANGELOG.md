@@ -1,5 +1,33 @@
 # Changelog
 
+## [1.6.1] - 2026-04-05 (in progress)
+
+### Added
+- **`.aicontext/config.yml`**: YAML config file replacing prose settings in `project.md` — commit rules, task naming, spec naming, update check frequency, Claude question style
+- **`config.local.yml`**: gitignored personal config overrides
+- **`ensure-config.md`**: reusable prompt for config loading — creates from template if missing, fills missing keys, migrates stale settings from `project.md`
+- **`config.template.yml`**: ships with defaults during `aicontext init`
+- **CLI interactive config setup**: `aicontext init` and `update` ask about task naming, commit mode, and update check frequency
+- **`commit.co_authored_trailer`**: three modes — custom string (overrides AI tool default), `false` (no trailer), `default` (AI tool's built-in format)
+- **`commit.finish_action: ask`**: interactive mode that asks what to do on each task completion
+- **`claude.question_style`** config: `interactive` (AskUserQuestion) or `numbered` (plain text) for Claude Code users
+- **Question UX rule** in `standards.md`: closed questions use clickable options in Claude Code, numbered options in other tools
+- **"Solution Before Organization" rule** in `standards.md`: confirm approach before asking about task scope/spec assignment
+- **"Checkbox Discipline" rule** in `process.md`: verify items fully match their description before checking off
+- **`installConfig` and `setConfigValue`** CLI functions with 9 tests
+
+### Changed
+- **`commit.md` is now the single commit codepath** — `finish-task.md`, `step-loop.md`, `do-it.md`, `run-step.md`, `gh-review-fix-loop.md` all delegate to it
+- **All prompts read settings from `config.yml`** instead of parsing `project.md` prose
+- `finish-task.md` push logic works correctly with per-step commit mode (push happens at task completion even when no uncommitted changes remain)
+- Spec template updated with grouped `### Problem` / `### Solution` headings and versioned filename convention
+- Task planning rule clarified: steps describe what to build, not behavioral details (those belong in specs)
+
+### Removed
+- Settings sections from `project.md` and `project.template.md` (moved to `config.yml`)
+- `commit+push+pr` finish action (was listed but unsupported since 1.6.0)
+- Specs and worklog from git tracking (gitignored — project-specific working files)
+
 ## [1.6.0] - 2026-04-03
 
 ### Added
