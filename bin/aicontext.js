@@ -17,7 +17,7 @@ const FRAMEWORK_PROMPTS = [
   'commit.md', 'create-task.md', 'deep-review.md', 'deep-review-criteria.md', 'do-it.md', 'draft-issue.md', 'ensure-config.md', 'identify-task.md',
   'draft-pr.md', 'finish-task.md', 'generate.md', 'gh-review-fix-loop.md', 'next-step.md', 'plan-tasks.md',
   'gh-review-check.md', 'prepare-release.md', 'review.md', 'review-criteria.md', 'review-scope.md',
-  'brainstorm.md', 'grill-me.md', 'review-plan.md', 'run-step.md', 'run-task.md', 'start-feature.md', 'start.md', 'step-loop.md', 'test-writer.md', 'thoughts.md',
+  'brainstorm.md', 'grill-me.md', 'review-plan.md', 'run-step.md', 'run-task.md', 'start-feature.md', 'start.md', 'step-loop.md', 'test-writer.md', 'thoughts.md', 'update-check.md',
 ];
 const DEPRECATED_PROMPTS = ['check_plan.md', 'check_task.md', 'after_step.md', 'plan.md', 'task.md', 'start-task.md', 'diff-review.md', 'branch-review.md', 'standards-check.md', 'pr-review-check.md', 'check-plan.md', 'run-steps.md'];
 const FRAMEWORK_AGENTS = [
@@ -93,10 +93,7 @@ function fetchLatestVersion() {
 function readCache() {
   try {
     if (fs.existsSync(CACHE_FILE)) {
-      const data = JSON.parse(fs.readFileSync(CACHE_FILE, 'utf8'));
-      if (Date.now() - data.timestamp < CACHE_TTL) {
-        return data.latestVersion;
-      }
+      return JSON.parse(fs.readFileSync(CACHE_FILE, 'utf8'));
     }
   } catch {
     // Ignore cache errors
@@ -106,7 +103,11 @@ function readCache() {
 
 function writeCache(latestVersion) {
   try {
-    fs.writeFileSync(CACHE_FILE, JSON.stringify({ latestVersion, timestamp: Date.now() }));
+    fs.writeFileSync(CACHE_FILE, JSON.stringify({
+      latestVersion,
+      timestamp: Date.now(),
+      lastChecked: new Date().toISOString(),
+    }));
   } catch {
     // Ignore cache write errors
   }
@@ -121,8 +122,13 @@ function clearCache() {
 }
 
 async function checkForUpdates() {
-  // Check cache first
-  let latestVersion = readCache();
+  const cache = readCache();
+  let latestVersion = null;
+
+  // Use cached version if still fresh
+  if (cache?.latestVersion && cache.timestamp && Date.now() - cache.timestamp < CACHE_TTL) {
+    latestVersion = cache.latestVersion;
+  }
 
   if (!latestVersion) {
     // Fetch from npm registry

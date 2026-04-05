@@ -376,31 +376,37 @@ describe('version cache', () => {
     writeCache('2.0.0');
 
     const result = readCache();
-    assert.strictEqual(result, '2.0.0');
+    assert.strictEqual(result.latestVersion, '2.0.0');
+    assert.ok(result.timestamp);
+    assert.ok(result.lastChecked);
   });
 
-  it('should return null when cache is expired', () => {
-    // Write cache with old timestamp
+  it('should return full cache object even when expired', () => {
+    // Write cache with old timestamp — readCache returns data regardless of TTL
     const oldData = {
       latestVersion: '2.0.0',
       timestamp: Date.now() - CACHE_TTL - 1000, // Expired
+      lastChecked: '2026-04-01T00:00:00.000Z',
     };
     fs.writeFileSync(CACHE_FILE, JSON.stringify(oldData));
 
     const result = readCache();
-    assert.strictEqual(result, null);
+    assert.strictEqual(result.latestVersion, '2.0.0');
+    assert.strictEqual(result.lastChecked, '2026-04-01T00:00:00.000Z');
   });
 
-  it('should return version when cache is not expired', () => {
+  it('should return cache object when not expired', () => {
     // Write cache with recent timestamp
     const recentData = {
       latestVersion: '2.0.0',
       timestamp: Date.now() - CACHE_TTL + 60000, // 1 minute before expiry
+      lastChecked: '2026-04-05T00:00:00.000Z',
     };
     fs.writeFileSync(CACHE_FILE, JSON.stringify(recentData));
 
     const result = readCache();
-    assert.strictEqual(result, '2.0.0');
+    assert.strictEqual(result.latestVersion, '2.0.0');
+    assert.strictEqual(result.lastChecked, '2026-04-05T00:00:00.000Z');
   });
 
   it('should return null when cache file is corrupted', () => {
@@ -427,12 +433,13 @@ describe('version cache', () => {
     const cacheData = JSON.parse(fs.readFileSync(CACHE_FILE, 'utf8'));
     assert.strictEqual(typeof cacheData.latestVersion, 'string');
     assert.strictEqual(typeof cacheData.timestamp, 'number');
+    assert.strictEqual(typeof cacheData.lastChecked, 'string');
   });
 });
 
 describe('FRAMEWORK_PROMPTS', () => {
-  it('should contain exactly 36 framework prompt files', () => {
-    assert.strictEqual(FRAMEWORK_PROMPTS.length, 36);
+  it('should contain exactly 37 framework prompt files', () => {
+    assert.strictEqual(FRAMEWORK_PROMPTS.length, 37);
   });
 
   it('should contain the expected prompt files', () => {
@@ -441,7 +448,7 @@ describe('FRAMEWORK_PROMPTS', () => {
       'commit.md', 'create-task.md', 'deep-review.md', 'deep-review-criteria.md', 'do-it.md', 'draft-issue.md', 'ensure-config.md', 'identify-task.md',
       'draft-pr.md', 'finish-task.md', 'generate.md', 'gh-review-fix-loop.md', 'next-step.md', 'plan-tasks.md',
       'gh-review-check.md', 'prepare-release.md', 'review.md', 'review-criteria.md', 'review-scope.md',
-      'brainstorm.md', 'grill-me.md', 'review-plan.md', 'run-step.md', 'run-task.md', 'start-feature.md', 'start.md', 'step-loop.md', 'test-writer.md', 'thoughts.md',
+      'brainstorm.md', 'grill-me.md', 'review-plan.md', 'run-step.md', 'run-task.md', 'start-feature.md', 'start.md', 'step-loop.md', 'test-writer.md', 'thoughts.md', 'update-check.md',
     ];
     assert.deepStrictEqual([...FRAMEWORK_PROMPTS].sort(), [...expected].sort());
   });
@@ -1281,7 +1288,7 @@ describe('clearCache', () => {
   });
 
   it('should delete the cache file when it exists', () => {
-    fs.writeFileSync(CACHE_FILE, JSON.stringify({ latestVersion: '9.9.9', timestamp: Date.now() }));
+    fs.writeFileSync(CACHE_FILE, JSON.stringify({ latestVersion: '9.9.9', timestamp: Date.now(), lastChecked: new Date().toISOString() }));
 
     clearCache();
 
