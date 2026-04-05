@@ -21,23 +21,17 @@ If no brief exists for this task:
 
 ## Commit Setup
 
-Check for commit rules in this order (first found wins): task file `## Commit Rules:` → `local.md` → `project.md` `## Commit Rules`.
+Follow `ensure-config.md` to read project settings. Task file `## Commit Rules:` can override `commit.mode` for this specific task.
 
-`/run-steps` only commits during execution if `commit_mode` is `per-step`. All other commit modes (`per-task`, `manual`) are handled by `/finish-task` via `finish_action`.
+`/run-steps` only commits during execution if `commit.mode` is `per-step`. All other modes (`per-task`, `manual`) are handled by `/finish-task` via `commit.finish_action`.
 
-**If `commit_mode` is `per-step`**, confirm:
-> "Commit mode is `per-step` (from {source}). Will commit after each step. Proceed, or override?"
+**If `commit.mode` is `per-step`**, confirm:
+> "Commit mode is `per-step` (from config.yml). Will commit after each step. Proceed, or override?"
 
-**If `commit_mode` is not configured**, ask:
+**If `commit.mode` is not configured**, ask:
 > "Should I commit after each step, or leave commits for `/finish-task`?"
 > 1. **per-step** — commit after each step completes
 > 2. **manual** — I'll handle commits later (via `/finish-task` or manually)
-
-**If saving per-step to config**, ask for **commit template** (if not already configured):
-> 1. `description` — plain description (e.g. `Add user authentication`)
-> 2. `description (#issue_id)` — with issue reference (e.g. `Add user authentication (#42)`)
-> 3. `type: description` — conventional commits (e.g. `feat: add user authentication`)
-> 4. Custom — enter your own format
 
 ## Quality Checks
 

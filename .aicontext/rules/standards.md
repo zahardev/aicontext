@@ -3,7 +3,7 @@
 ## Critical Safety Rules
 
 **NEVER run without explicit user confirmation:**
-- `git push` - Any push to remote (including non-force). Always ask first, unless pre-authorized by `finish_action: commit+push` or an active `/gh-review-fix-loop` cycle.
+- `git push` - Any push to remote (including non-force). Always ask first, unless pre-authorized by `commit.finish_action: commit+push` or an active `/gh-review-fix-loop` cycle.
 - `git push --force` - Destructive git operations
 - Database wipe/reset commands
 - Volume/container deletion commands
@@ -86,10 +86,18 @@
 
 ## Commit Style
 
-When creating commits, read `project.md` → `## Commit Rules` for configuration.
+All commits go through `commit.md` — the single commit codepath. Read `.aicontext/config.yml` for commit configuration (`commit.body`, `commit.template`, `commit.co_authored_trailer`).
 
-- **`commit_body: true`** (default) — subject line + blank line + body. Body should explain *why* the change was made — the diff already shows *what* changed. End with a Co-Authored-By trailer using the template: `Co-Authored-By: {ai} via AIContext` (replace `{ai}` with the AI model name, e.g. "Claude").
-- **`commit_body: false`** — **IMPORTANT:** subject line only. **No body, no trailers, no Co-Authored-By — nothing after the subject line.**
+- **`commit.body: true`** (default) — subject line + blank line + body + Co-Authored-By trailer from `commit.co_authored_trailer`.
+- **`commit.body: false`** — subject line only. No body, no trailers, no Co-Authored-By — nothing after the subject line.
+
+## Question UX
+
+When asking closed questions (2-4 discrete options), check `claude.question_style` in `.aicontext/config.yml`:
+- **`interactive`** (default): use `AskUserQuestion` tool for clickable options (Claude Code only)
+- **`numbered`**: present numbered options as plain text (1, 2, 3...) — user types the number
+- **Other tools (Cursor, Copilot, Codex):** always use numbered regardless of setting
+- **Open-ended questions:** always use plain text
 
 ## Recommended Tools
 

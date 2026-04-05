@@ -127,18 +127,7 @@ From your analysis, identify:
    - Dangerous commands for this stack
    - Production vs development concerns
 
-6. **Task Naming Convention**
-   - Ask the user how they want to name task files in `.aicontext/tasks/`
-   - Common patterns:
-     - Version-based: `{version}-{task-name}.md` (e.g., `1.3.0-feature-name.md`)
-     - Issue ID-based: `{issue-id}-{task-name}.md` (e.g., `JIRA-123-feature-name.md`)
-     - Date-based: `{date}-{task-name}.md` (e.g., `2026-01-25-feature-name.md`)
-   - After choosing pattern, ask about **ID source and rules**:
-     - **Version-based**: Where to get version? (git branch pattern, package.json, manual)
-     - **Issue ID-based**: What's the issue tracker? (Jira, GitHub, Linear, etc.) What's the project prefix?
-     - **Date-based**: No additional rules needed (use current date)
-   - Store both pattern AND rules in project.md so AI can follow them automatically
-   - Default to version-based with git branch detection if user has no preference
+6. **Task Naming Convention** — already configured in `.aicontext/config.yml` during `aicontext init`. Skip unless the user wants to change it.
 
 ## Step 4: Configure Claude Code Agents (if applicable)
 
@@ -166,7 +155,6 @@ Using the templates in `.aicontext/templates/`, generate:
 - Key features
 - Architecture overview
 - Project-specific safety rules
-- Task naming convention (from user's preference)
 
 ### `.aicontext/structure.md`
 - Folder tree (key directories only)

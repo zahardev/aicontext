@@ -1,5 +1,6 @@
 # Personal/local settings (not shared with team)
 local.md
+config.local.yml
 
 # Project-specific working files (not distributed to users)
 specs/

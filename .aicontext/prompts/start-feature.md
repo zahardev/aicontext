@@ -40,8 +40,8 @@ Cover these areas — explore the codebase first, ask only what's unclear:
 
 After the interview, ask about commit behaviour for this specific task:
 
-Check `project.md` → `## Commit Rules` for project defaults. Present the current defaults and ask:
-> "Project default is `commit_mode: {mode}`. Use the same for this task, or override?"
+Check `.aicontext/config.yml` → `commit` section for project defaults. Present the current defaults and ask:
+> "Project default is `commit.mode: {mode}`. Use the same for this task, or override?"
 
 If the user wants to override (or no project defaults exist), ask:
 
@@ -55,7 +55,6 @@ If the user wants to override (or no project defaults exist), ask:
    1. `nothing` — leave git state as-is
    2. `commit` — commit any remaining changes
    3. `commit+push` — commit and push
-   4. `commit+push+pr` — commit, push, and open a PR
 
 Save any overrides to the task file under `## Commit Rules:`.
 
@@ -75,7 +74,7 @@ The user confirms or adjusts the split.
 
 ## Creating Output Files
 
-Check `project.md` → "Task Naming Convention" for the correct version prefix.
+Check `.aicontext/config.yml` → `task_naming` for the correct version prefix.
 
 **Spec** — create `.aicontext/specs/spec-{name}.md`:
 - Use sections: Problem, Solution, Requirements (plain list — detailed enough for task creation), Decisions, User Stories (optional), Non-goals (optional), Tasks

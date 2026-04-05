@@ -8,10 +8,10 @@
 [spec-{name}.md](../specs/spec-{name}.md)
 
 ## Commit Rules:
-<!-- Optional: per-task override of project.md defaults -->
-<!-- commit_mode: manual | per-step | per-task -->
-<!-- commit_template: "description" | "description (#issue_id)" | "type: description" | custom -->
-<!-- finish_action: nothing | commit | commit+push | commit+push+pr -->
+<!-- Optional: per-task override of config.yml defaults -->
+<!-- commit.mode: manual | per-step | per-task -->
+<!-- commit.template: "description" | "description (#issue_id)" | "type: description" | custom -->
+<!-- commit.finish_action: nothing | ask | commit | commit+push -->
 
 ## Objective:
 [Clear, concise description of what this task aims to accomplish]

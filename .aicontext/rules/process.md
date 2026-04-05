@@ -3,8 +3,8 @@
 ## Before Starting Any Task
 
 1. **Create a task file** in `.aicontext/tasks/` using the template at `.aicontext/templates/task.template.md`
-   - Check `project.md` → "Task Naming Convention" for the pattern and ID rules
-   - If rules are missing or unclear, ask user and update `project.md` with the rules
+   - Check `.aicontext/config.yml` → `task_naming` for the pattern and ID rules
+   - If rules are missing or unclear, ask user and update `config.yml`
    - This is the primary record of work - update it throughout the task
 2. Read `.aicontext/project.md` to understand current project state
 3. Check task dependencies and prerequisites
@@ -125,6 +125,10 @@ When a quality check returns findings, use this table to decide what to fix:
 | Low | Low | Fix |
 | Low | High | Skip — note in brief |
 | False positive | — | Resolve / dismiss |
+
+## Checkbox Discipline
+
+Before checking off any item (`- [ ]` → `- [x]`), re-read its description and verify the work fully matches what it says. A partial implementation is not done — leave it unchecked and note what remains.
 
 ## Task Completion Criteria
 

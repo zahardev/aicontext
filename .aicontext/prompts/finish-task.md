@@ -41,21 +41,12 @@ Update `.aicontext/worklog.md`:
 
 ## 6. Handle Git
 
+Follow `ensure-config.md` to read project settings. Read `commit.finish_action` from the config (task file `## Commit Rules:` overrides if present).
+
 Check for uncommitted changes (`git status`).
 
-**If there are uncommitted changes**, determine `finish_action`:
-1. Check task file `## Commit Rules:` for `finish_action`
-2. Fall back to `local.md` for `finish_action`
-3. Fall back to `project.md` → `## Commit Rules` for `finish_action`
-4. If not configured, ask:
-   > "You have uncommitted changes. What would you like to do?"
-   > 1. `nothing` — leave as-is, I'll handle git myself
-   > 2. `commit` — commit with a task completion message
-   > 3. `commit+push` — commit and push to remote
-
-**If `finish_action` is `nothing`** but there are uncommitted changes, warn:
-> "You have uncommitted changes but `finish_action` is `nothing`. Want me to commit anyway, or leave as-is?"
-
-Execute the chosen action. For commit messages use the configured `commit_template`, or default to: `complete: {task description}`.
-
-**If there are no uncommitted changes**, skip this step.
+**If there are uncommitted changes:**
+- `nothing` — skip
+- `ask` — ask the user what to do (commit / commit+push / leave as-is)
+- `commit` — delegate to `commit.md`
+- `commit+push` — delegate to `commit.md`, then push to remote

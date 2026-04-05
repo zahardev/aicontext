@@ -24,4 +24,4 @@ After the step is closed, ask:
 
 > "Step N complete. Commit these changes?"
 
-If yes, commit using the `commit_template` from task file → `local.md` → `project.md` (first found). If no template configured, use a plain description.
+If yes, delegate to `commit.md`.

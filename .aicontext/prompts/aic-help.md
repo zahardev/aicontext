@@ -63,7 +63,7 @@ Describe the fix in conversation → `/do-it` — creates a task step and implem
 
 ## Tips
 
-- **Configure commits once.** Set `commit_mode` and `finish_action` in `.aicontext/project.md` so skills handle git automatically.
+- **Configure commits once.** Set `commit.mode` and `commit.finish_action` in `.aicontext/config.yml` so skills handle git automatically.
 - **Don't restart sessions unnecessarily.** The agent accumulates context across steps — restarting loses that. Use `/check-task` when you must restart.
 
 ## Customization
@@ -72,8 +72,10 @@ Describe the fix in conversation → `/do-it` — creates a task step and implem
 |------|-------|
 | Process rules (TDD, quality checks) | `.aicontext/rules/process.md` |
 | Coding standards | `.aicontext/rules/standards.md` |
-| Project overview, commit rules | `.aicontext/project.md` |
-| Personal/local overrides | `.aicontext/local.md` (gitignored) |
+| Project overview | `.aicontext/project.md` |
+| Commit rules, task naming, config | `.aicontext/config.yml` |
+| Personal config overrides | `.aicontext/config.local.yml` (gitignored) |
+| Personal/local prose overrides | `.aicontext/local.md` (gitignored) |
 | Release config | `.aicontext/release.md` |
 
 ## Learn More

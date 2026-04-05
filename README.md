@@ -154,6 +154,8 @@ Team members share the same rules and task history. Each person's briefs and pre
 
 ## Customization
 
+- **Project settings**: Edit `.aicontext/config.yml` (commit rules, task naming, update checks)
+- **Personal overrides**: Create `.aicontext/config.local.yml` (gitignored, overrides shared settings)
 - **Team rules**: Edit `.aicontext/project.md` or add files to `.aicontext/rules/`
 - **Personal rules**: Edit `.aicontext/local.md` (gitignored)
 - **Remove unused tools**: Delete `.cursor/`, `.codex/`, `.github/`, or `.claude/` as needed

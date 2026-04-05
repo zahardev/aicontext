@@ -150,14 +150,13 @@ When findings are returned, the AI assesses each by severity and effort:
 
 ## Commit Configuration
 
-Commit rules have three levels (first found wins):
-1. **Task file** `## Commit Rules:` — per-task override
-2. **`local.md`** — personal preference (gitignored)
-3. **`project.md`** `## Commit Rules` — project defaults (shared)
+Commit settings live in `.aicontext/config.yml` under the `commit` section. Personal overrides go in `config.local.yml` (gitignored). Task-level overrides remain in the task file `## Commit Rules:`.
 
-Three fields:
-- `commit_mode`: manual / per-step / per-task
-- `commit_template`: description / description (#issue_id) / type: description / custom
-- `finish_action`: nothing / commit / commit+push / commit+push+pr
+Key settings:
+- `commit.mode`: manual / per-step / per-task
+- `commit.template`: description / description (#issue_id) / type: description / custom
+- `commit.body`: true (subject + body + trailer) / false (subject only)
+- `commit.finish_action`: nothing / ask / commit / commit+push
+- `commit.co_authored_trailer`: template for the Co-Authored-By trailer
 
-If no rules exist, `/run-steps` asks at start and offers to save to `project.md` (team) or `local.md` (personal).
+All commits go through `commit.md` — the single commit codepath. Other prompts (`finish-task`, `run-steps`, `do-it`) delegate to it.

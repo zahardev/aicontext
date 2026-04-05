@@ -14,7 +14,7 @@ If no specs exist:
 
 - Read the spec (requirements, decisions, non-goals)
 - Read any existing tasks linked in the spec's `## Tasks` section
-- Read `project.md` → "Task Naming Convention" for the correct version prefix
+- Read `.aicontext/config.yml` → `task_naming` for the correct version prefix
 
 ## 3. Assess Task Split
 

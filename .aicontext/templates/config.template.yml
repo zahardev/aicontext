@@ -1,0 +1,33 @@
+# AIContext Configuration
+# Managed by CLI (aicontext init/update), customized by AI during /start.
+# For personal overrides, create config.local.yml (gitignored, overrides shared settings).
+#
+# Prompts reference settings as nested paths: commit.mode, task_naming.pattern, etc.
+
+commit:
+  mode: per-task              # manual | per-step | per-task
+  template: description       # description | "description (#issue_id)" | "type: description" | custom string
+  body: true                  # true: subject + body + trailer | false: subject line only
+  finish_action: commit       # nothing | ask | commit | commit+push
+  co_authored_trailer: "Co-Authored-By: {ai} via AIContext"
+    # {ai} is replaced with the AI model name at commit time (e.g. "Claude", "GPT-4o").
+    # Set to false to disable the trailer, or "default" to use the AI tool's built-in format.
+    # Any other string overrides the AI tool's default Co-Authored-By format.
+
+task_naming:
+  pattern: "{version}-{task-name}"
+  source: git-branch          # git-branch: extract from branch name | package-json: read version field | manual: ask user each time
+  branch_pattern: "version/{version}"  # regex-like pattern for extracting version from branch name (only when source is git-branch)
+
+spec_naming:
+  derive_from_task: true      # true: auto-generate as spec-{task prefix}-{name}.md
+  # pattern: "spec-{name}"   # uncomment and set derive_from_task: false to use a custom pattern
+
+update_check:
+  # frequency: weekly         # daily | weekly | biweekly | monthly | never
+  # Left commented — AI asks user for preference on first /start run.
+  # After user answers, the value is written here.
+
+claude:
+  question_style: interactive   # interactive (AskUserQuestion) | numbered (plain text with 1, 2, 3...)
+  # Only applies to Claude Code. Other tools always use numbered.

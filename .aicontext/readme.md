@@ -6,10 +6,12 @@ This folder contains AI assistant configuration and project documentation.
 
 | File | Purpose |
 |------|---------|
+| `config.yml` | Project settings — commit rules, task naming, update checks |
+| `config.local.yml` | Personal setting overrides (gitignored) |
 | `project.md` | Project identity, tech stack, architecture |
 | `structure.md` | Folder structure, commands, environment |
 | `worklog.md` | Spec and task status tracking |
-| `local.md` | Personal/local settings (gitignored, see below) |
+| `local.md` | Personal/local prose settings (gitignored, see below) |
 
 ## Override Priority
 

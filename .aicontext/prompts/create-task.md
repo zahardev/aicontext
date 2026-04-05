@@ -4,9 +4,9 @@ Crystallize the current discussion into a task file. Use when the discussion is 
 
 ## 1. Gather Context
 
-- Read `.aicontext/project.md` for task naming convention and commit rules
-- Check `project.md` → "Task Naming Convention" for the correct version prefix
-- If the version prefix is unclear, ask the user
+- Follow `ensure-config.md` to read project settings
+- Determine the task prefix using `task_naming.source` from the config (e.g., extract version from branch if `git-branch`, ask user if `manual`)
+- If the prefix is unclear, ask the user
 
 ## 2. Find or Create Spec Link
 
@@ -19,7 +19,7 @@ Do not create a new spec — that is `/start-feature`'s job.
 
 ## 3. Create Task File
 
-Create a task file in `.aicontext/tasks/` using the naming convention from `project.md` and the template at `.aicontext/templates/task.template.md`:
+Create a task file in `.aicontext/tasks/` using the naming convention from the config and the template at `.aicontext/templates/task.template.md`:
 
 - **Objective**: derive from the discussion — what this task aims to accomplish
 - **Spec link**: from step 2 (remove section if no spec)

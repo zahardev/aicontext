@@ -14,7 +14,7 @@ const CACHE_FILE = path.join(os.tmpdir(), 'aicontext-version-cache.json');
 const CACHE_TTL = 60 * 60 * 1000; // 1 hour in milliseconds
 const FRAMEWORK_PROMPTS = [
   'add-step.md', 'aic-help.md', 'aic-skills.md', 'align-context.md', 'challenge.md', 'check-task.md', 'close-step.md',
-  'commit.md', 'create-task.md', 'deep-review.md', 'deep-review-criteria.md', 'do-it.md', 'draft-issue.md', 'identify-task.md',
+  'commit.md', 'create-task.md', 'deep-review.md', 'deep-review-criteria.md', 'do-it.md', 'draft-issue.md', 'ensure-config.md', 'identify-task.md',
   'draft-pr.md', 'finish-task.md', 'generate.md', 'gh-review-fix-loop.md', 'next-step.md', 'plan-tasks.md',
   'gh-review-check.md', 'prepare-release.md', 'review.md', 'review-criteria.md', 'review-scope.md',
   'review-plan.md', 'run-step.md', 'run-steps.md', 'start-feature.md', 'start.md', 'step-loop.md', 'test-writer.md',
@@ -39,6 +39,7 @@ const FRAMEWORK_CODEX_SKILLS = [
 ];
 const DEPRECATED_SKILLS = ['task', 'after-step', 'next', 'pr', 'start-task', 'diff-review', 'branch-review', 'standards-check', 'pr-review-check', 'check-plan'];
 const FRAMEWORK_SCRIPTS = ['pr-reviews.js', 'pr-resolve.js'];
+const CONFIG_FILE = 'config.yml';
 
 // Colors for terminal output
 const colors = {
@@ -327,6 +328,116 @@ async function copyFrameworkSkills(packageRoot, target, overrideSkills = false, 
   }
 }
 
+function setConfigValue(content, section, key, value) {
+  const lines = content.split('\n');
+  let inSection = false;
+  for (let i = 0; i < lines.length; i++) {
+    if (lines[i].match(new RegExp(`^${section}:\\s*$`))) {
+      inSection = true;
+      continue;
+    }
+    if (inSection && /^[a-z_]+:/.test(lines[i])) break; // next section
+    if (inSection) {
+      // Match both active and commented keys
+      const isCommented = /^\s+#/.test(lines[i]);
+      const keyPattern = new RegExp(`^(\\s+)#?\\s*${key}:\\s*`);
+      if (keyPattern.test(lines[i])) {
+        const indent = lines[i].match(/^\s+/)?.[0] || '  ';
+        // Only preserve trailing comments on active (non-commented) lines
+        const comment = !isCommented ? (lines[i].match(/\s+#\s.*$/)?.[0] || '') : '';
+        lines[i] = `${indent}${key}: ${value}${comment}`;
+        return lines.join('\n');
+      }
+    }
+  }
+  return content;
+}
+
+async function installConfig(packageRoot, target, skipConfirm = false) {
+  const templateSrc = path.join(packageRoot, '.aicontext', 'templates', 'config.template.yml');
+  const configDest = path.join(target, '.aicontext', CONFIG_FILE);
+
+  if (!fs.existsSync(templateSrc)) return;
+
+  if (!fs.existsSync(configDest)) {
+    fs.copyFileSync(templateSrc, configDest);
+
+    if (!skipConfirm) {
+      log('\nConfiguring project settings:', 'cyan');
+      let content = fs.readFileSync(configDest, 'utf8');
+
+      // Task naming
+      const namingAnswer = await prompt('  Task naming pattern — 1) version-based (default), 2) issue ID-based, 3) date-based: ');
+      if (namingAnswer === '2') {
+        const prefix = await prompt('  Issue tracker prefix (e.g., JIRA, GH): ');
+        content = setConfigValue(content, 'task_naming', 'pattern', `"{${prefix.toUpperCase() || 'ISSUE'}-id}-{task-name}"`);
+        content = setConfigValue(content, 'task_naming', 'source', 'manual');
+      } else if (namingAnswer === '3') {
+        content = setConfigValue(content, 'task_naming', 'pattern', '"{date}-{task-name}"');
+        content = setConfigValue(content, 'task_naming', 'source', 'manual');
+      }
+      // Default (1 or empty) keeps the template values
+
+      // Commit mode
+      const commitAnswer = await prompt('  Commit mode — 1) per-task (default), 2) per-step, 3) manual: ');
+      if (commitAnswer === '2') {
+        content = setConfigValue(content, 'commit', 'mode', 'per-step');
+      } else if (commitAnswer === '3') {
+        content = setConfigValue(content, 'commit', 'mode', 'manual');
+      }
+
+      // Update check frequency
+      const updateAnswer = await prompt('  Update check frequency — 1) weekly (default), 2) daily, 3) biweekly, 4) monthly, 5) never: ');
+      const freqMap = { '2': 'daily', '3': 'biweekly', '4': 'monthly', '5': 'never' };
+      const freq = freqMap[updateAnswer] || 'weekly';
+      content = setConfigValue(content, 'update_check', 'frequency', freq);
+
+      fs.writeFileSync(configDest, content);
+      log('  Settings saved to .aicontext/config.yml', 'dim');
+    }
+
+    return;
+  }
+
+  // Config exists — add missing top-level sections from template
+  const template = fs.readFileSync(templateSrc, 'utf8');
+  const existing = fs.readFileSync(configDest, 'utf8');
+
+  const existingSections = new Set(
+    (existing.match(/^[a-z_]+:/gm) || []).map((s) => s.replace(':', ''))
+  );
+
+  const blocks = [];
+  let currentBlock = [];
+  let currentName = null;
+
+  for (const line of template.split('\n')) {
+    const sectionMatch = line.match(/^([a-z_]+):\s*$/);
+    if (sectionMatch) {
+      if (currentName) {
+        blocks.push({ name: currentName, content: currentBlock.join('\n') });
+      }
+      currentName = sectionMatch[1];
+      currentBlock = [line];
+    } else if (currentName) {
+      currentBlock.push(line);
+    }
+  }
+  if (currentName) {
+    blocks.push({ name: currentName, content: currentBlock.join('\n') });
+  }
+
+  const newBlocks = blocks.filter((b) => !existingSections.has(b.name));
+
+  if (newBlocks.length > 0) {
+    const addition = '\n' + newBlocks.map((b) => b.content).join('\n\n');
+    fs.writeFileSync(configDest, existing.trimEnd() + '\n' + addition + '\n');
+    for (const block of newBlocks) {
+      log(`  Added new config section: ${block.name}`, 'dim');
+    }
+  }
+}
+
 function copyFrameworkScripts(packageRoot, target) {
   const srcDir = path.join(packageRoot, '.aicontext', 'scripts');
   const destDir = path.join(target, '.aicontext', 'scripts');
@@ -435,6 +546,10 @@ async function init(targetDir, skipConfirm = false, keepPrompts = false, overrid
   copyRecursive(path.join(packageRoot, '.aicontext', 'readme.md'), path.join(target, '.aicontext', 'readme.md'));
   copyRecursive(path.join(packageRoot, '.aicontext', '.gitignore'), path.join(target, '.aicontext', '.gitignore'));
 
+  // Create config file with defaults and ask interactive questions
+  log('Creating config...', 'dim');
+  await installConfig(packageRoot, target, skipConfirm);
+
   // Copy tool-specific files
   log('Copying tool entry points...', 'dim');
   copyRecursive(path.join(packageRoot, '.claude', 'CLAUDE.md'), path.join(target, '.claude', 'CLAUDE.md'));
@@ -534,6 +649,7 @@ async function update(targetDir, skipConfirm = false, keepPrompts = false, overr
   log('  - .aicontext/project.md', 'green');
   log('  - .aicontext/structure.md', 'green');
   log('  - .aicontext/worklog.md (if exists)', 'green');
+  log('  - .aicontext/config.yml (your settings — new keys added, existing preserved)', 'green');
   log('  - .aicontext/local.md', 'green');
   log('  - .aicontext/tasks/*.md (your tasks)', 'green');
   log('');
@@ -562,6 +678,9 @@ async function update(targetDir, skipConfirm = false, keepPrompts = false, overr
 
   log('Updating data directory...', 'dim');
   copyRecursive(path.join(packageRoot, '.aicontext', 'data', '.gitignore'), path.join(target, '.aicontext', 'data', '.gitignore'));
+
+  log('Updating config...', 'dim');
+  await installConfig(packageRoot, target, skipConfirm);
 
   // Deprecate old changelog.md
   const oldChangelogPath = path.join(target, '.aicontext', 'changelog.md');
@@ -741,6 +860,8 @@ module.exports = {
   copyFrameworkSkills,
   copyFrameworkCodexSkills,
   copyFrameworkScripts,
+  installConfig,
+  setConfigValue,
   setAgentModel,
   removeDeprecatedPrompts,
   removeDeprecatedAgents,

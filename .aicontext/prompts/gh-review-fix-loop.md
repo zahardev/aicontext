@@ -65,7 +65,7 @@ Ask `test-runner` subagent to run the full test suite. If tests fail:
 
 ### 6. Commit and Push
 
-Commit all fixes. Use the commit template from the task file `## Commit Rules:` or `project.md` → `## Commit Rules` if configured, otherwise use a plain description.
+Commit all fixes by delegating to `commit.md`.
 
 Push the current branch to the remote.
 

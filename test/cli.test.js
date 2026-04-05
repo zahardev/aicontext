@@ -21,6 +21,8 @@ const {
   copyFrameworkAgents,
   copyFrameworkSkills,
   copyFrameworkScripts,
+  installConfig,
+  setConfigValue,
   setAgentModel,
   removeDeprecatedPrompts,
   removeDeprecatedAgents,
@@ -429,14 +431,14 @@ describe('version cache', () => {
 });
 
 describe('FRAMEWORK_PROMPTS', () => {
-  it('should contain exactly 32 framework prompt files', () => {
-    assert.strictEqual(FRAMEWORK_PROMPTS.length, 32);
+  it('should contain exactly 33 framework prompt files', () => {
+    assert.strictEqual(FRAMEWORK_PROMPTS.length, 33);
   });
 
   it('should contain the expected prompt files', () => {
     const expected = [
       'add-step.md', 'aic-help.md', 'aic-skills.md', 'align-context.md', 'challenge.md', 'check-task.md', 'close-step.md',
-      'commit.md', 'create-task.md', 'deep-review.md', 'deep-review-criteria.md', 'do-it.md', 'draft-issue.md', 'identify-task.md',
+      'commit.md', 'create-task.md', 'deep-review.md', 'deep-review-criteria.md', 'do-it.md', 'draft-issue.md', 'ensure-config.md', 'identify-task.md',
       'draft-pr.md', 'finish-task.md', 'generate.md', 'gh-review-fix-loop.md', 'next-step.md', 'plan-tasks.md',
       'gh-review-check.md', 'prepare-release.md', 'review.md', 'review-criteria.md', 'review-scope.md',
       'review-plan.md', 'run-step.md', 'run-steps.md', 'start-feature.md', 'start.md', 'step-loop.md', 'test-writer.md',
@@ -1329,5 +1331,105 @@ describe('upgrade command (CLI integration)', () => {
     }
 
     assert.strictEqual(output.includes('Update available'), false);
+  });
+});
+
+describe('setConfigValue', () => {
+  it('should set a value in a YAML section', () => {
+    const content = 'commit:\n  mode: per-task\n  template: description\n';
+    const result = setConfigValue(content, 'commit', 'mode', 'per-step');
+    assert.ok(result.includes('mode: per-step'));
+    assert.ok(!result.includes('mode: per-task'));
+  });
+
+  it('should not modify other sections', () => {
+    const content = 'commit:\n  mode: per-task\ntask_naming:\n  source: git-branch\n';
+    const result = setConfigValue(content, 'commit', 'mode', 'manual');
+    assert.ok(result.includes('mode: manual'));
+    assert.ok(result.includes('source: git-branch'));
+  });
+
+  it('should uncomment a commented key', () => {
+    const content = 'update_check:\n  # frequency: weekly\n';
+    const result = setConfigValue(content, 'update_check', 'frequency', 'daily');
+    assert.ok(result.includes('frequency: daily'));
+    assert.ok(!result.includes('#'));
+  });
+
+  it('should return unchanged content if section not found', () => {
+    const content = 'commit:\n  mode: per-task\n';
+    const result = setConfigValue(content, 'nonexistent', 'mode', 'manual');
+    assert.strictEqual(result, content);
+  });
+});
+
+describe('installConfig', () => {
+  let tempDir;
+  let packageRoot;
+
+  beforeEach(() => {
+    tempDir = createTempDir();
+    packageRoot = createTempDir();
+    // Create template
+    const templateDir = path.join(packageRoot, '.aicontext', 'templates');
+    fs.mkdirSync(templateDir, { recursive: true });
+    fs.writeFileSync(
+      path.join(templateDir, 'config.template.yml'),
+      'commit:\n  mode: per-task\n  body: true\ntask_naming:\n  pattern: "{version}-{task-name}"\n'
+    );
+  });
+
+  afterEach(() => {
+    removeTempDir(tempDir);
+    removeTempDir(packageRoot);
+  });
+
+  it('should create config.yml from template when missing', async () => {
+    fs.mkdirSync(path.join(tempDir, '.aicontext'), { recursive: true });
+    await installConfig(packageRoot, tempDir, true);
+    const configPath = path.join(tempDir, '.aicontext', 'config.yml');
+    assert.ok(fs.existsSync(configPath));
+    const content = fs.readFileSync(configPath, 'utf8');
+    assert.ok(content.includes('mode: per-task'));
+  });
+
+  it('should not overwrite existing config.yml', async () => {
+    const aiDir = path.join(tempDir, '.aicontext');
+    fs.mkdirSync(aiDir, { recursive: true });
+    fs.writeFileSync(path.join(aiDir, 'config.yml'), 'commit:\n  mode: manual\n');
+    await installConfig(packageRoot, tempDir, true);
+    const content = fs.readFileSync(path.join(aiDir, 'config.yml'), 'utf8');
+    assert.ok(content.includes('mode: manual'));
+  });
+
+  it('should add missing sections from template', async () => {
+    const aiDir = path.join(tempDir, '.aicontext');
+    fs.mkdirSync(aiDir, { recursive: true });
+    fs.writeFileSync(path.join(aiDir, 'config.yml'), 'commit:\n  mode: manual\n');
+    await installConfig(packageRoot, tempDir, true);
+    const content = fs.readFileSync(path.join(aiDir, 'config.yml'), 'utf8');
+    assert.ok(content.includes('mode: manual'), 'should preserve existing commit.mode');
+    assert.ok(content.includes('task_naming:'), 'should add missing task_naming section');
+  });
+
+  it('should not duplicate existing sections', async () => {
+    const aiDir = path.join(tempDir, '.aicontext');
+    fs.mkdirSync(aiDir, { recursive: true });
+    fs.writeFileSync(
+      path.join(aiDir, 'config.yml'),
+      'commit:\n  mode: manual\ntask_naming:\n  pattern: custom\n'
+    );
+    await installConfig(packageRoot, tempDir, true);
+    const content = fs.readFileSync(path.join(aiDir, 'config.yml'), 'utf8');
+    const commitCount = (content.match(/^commit:/gm) || []).length;
+    assert.strictEqual(commitCount, 1, 'should not duplicate commit section');
+  });
+
+  it('should do nothing if template is missing', async () => {
+    const emptyRoot = createTempDir();
+    fs.mkdirSync(path.join(tempDir, '.aicontext'), { recursive: true });
+    await installConfig(emptyRoot, tempDir, true);
+    assert.ok(!fs.existsSync(path.join(tempDir, '.aicontext', 'config.yml')));
+    removeTempDir(emptyRoot);
   });
 });

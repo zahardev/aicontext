@@ -42,7 +42,7 @@ Executes all pending steps in the current task file automatically. One agent imp
 
 - Creates a brief file if one doesn't exist
 - Reads three-layer context (spec → brief → task)
-- Checks commit configuration (task → local.md → project.md)
+- Checks commit configuration from `config.yml`
 - For each step: implement → review → fix → test → commit → update brief → elevate to spec
 - Review-fix inner loop runs up to 5 times per step
 - After all steps: runs standards check and full test suite
@@ -67,7 +67,7 @@ Closes out a completed task.
 - Syncs spec with decisions from the brief
 - Fills completion notes in the task file
 - Updates the worklog (checks off task, moves spec to Done if all tasks complete)
-- Handles git per configured `finish_action` (nothing / commit / commit+push / commit+push+pr)
+- Handles git per `commit.finish_action` from `config.yml` (nothing / ask / commit / commit+push), delegates to `commit.md`
 
 ### `/create-task`
 **Prompt:** `create-task.md`
