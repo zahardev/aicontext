@@ -378,6 +378,33 @@ async function installConfig(packageRoot, target, skipConfirm = false) {
       }
       // Default (1 or empty) keeps the template values
 
+      // Base branch — auto-detect, offer choices
+      let detectedBranch = 'main';
+      try {
+        const branches = execSync('git branch', { stdio: ['pipe', 'pipe', 'pipe'] }).toString();
+        if (/\bmain\b/.test(branches)) detectedBranch = 'main';
+        else if (/\bmaster\b/.test(branches)) detectedBranch = 'master';
+        else if (/\bdevelop\b/.test(branches)) detectedBranch = 'develop';
+      } catch { /* not a git repo, keep default */ }
+      const branchOptions = detectedBranch === 'main' ? '1) main (detected), 2) master, 3) develop, 4) other'
+        : detectedBranch === 'master' ? '1) master (detected), 2) main, 3) develop, 4) other'
+        : '1) develop (detected), 2) main, 3) master, 4) other';
+      const branchAnswer = await prompt(`  Base branch — ${branchOptions}: `);
+      const branchMap = {
+        main: { '2': 'master', '3': 'develop' },
+        master: { '2': 'main', '3': 'develop' },
+        develop: { '2': 'main', '3': 'master' },
+      };
+      let baseBranch = detectedBranch;
+      if (branchAnswer === '4') {
+        baseBranch = await prompt('  Enter branch name: ') || detectedBranch;
+      } else if (branchMap[detectedBranch]?.[branchAnswer]) {
+        baseBranch = branchMap[detectedBranch][branchAnswer];
+      }
+      if (baseBranch !== 'main') {
+        content = setConfigValue(content, 'project', 'base_branch', baseBranch);
+      }
+
       // Commit mode
       const commitAnswer = await prompt('  Commit mode — 1) per-task (default), 2) per-step, 3) manual: ');
       if (commitAnswer === '2') {

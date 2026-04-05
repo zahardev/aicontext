@@ -2,9 +2,11 @@ Draft a pull request for the current branch.
 
 ## 1. Gather Context
 
+- Follow `ensure-config.md` to read project settings
 - Read the current task file in `.aicontext/tasks/`
-- Run `git log main...HEAD --oneline` to see commits on this branch
-- Run `git diff main...HEAD --stat` to see files changed
+- Use `project.base_branch` from the config (default: `main`) for diff commands:
+  - Run `git log {base_branch}...HEAD --oneline` to see commits on this branch
+  - Run `git diff {base_branch}...HEAD --stat` to see files changed
 
 ## 2. Draft the PR
 

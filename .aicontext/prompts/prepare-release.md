@@ -7,8 +7,8 @@ Check if `.aicontext/release.md` exists.
 **If it exists:** read it and proceed to step 2.
 
 **If it does not exist:** run the first-run setup:
-1. Discover what you can — scan for version files (`package.json`, `pyproject.toml`, `Cargo.toml`, `VERSION`, etc.), changelog (`CHANGELOG.md`, `CHANGES.md`), README version history, git tags to infer version format and base branch
-2. Ask only for what can't be determined: base branch if ambiguous, version detection strategy, whether to create `CHANGELOG.md` if none found
+1. Discover what you can — scan for version files (`package.json`, `pyproject.toml`, `Cargo.toml`, `VERSION`, etc.), changelog (`CHANGELOG.md`, `CHANGES.md`), README version history, git tags to infer version format. Read `project.base_branch` from `.aicontext/config.yml` if available.
+2. Ask only for what can't be determined: version detection strategy, whether to create `CHANGELOG.md` if none found
 3. Generate `.aicontext/release.md` from `.aicontext/templates/release.template.md`, pre-filled with your findings
 4. Show the generated file to the user and ask them to confirm or edit before continuing
 5. Once confirmed, proceed with the release using the new config
@@ -27,7 +27,7 @@ Understand what was built, then verify against the diff:
 1. **Specs** — read specs in `.aicontext/specs/` linked from this version's tasks. These describe the "what and why" — features, requirements, decisions.
 2. **Tasks** — read all task files in `.aicontext/tasks/` that match this version prefix. Completion notes summarize what was delivered, compromises, and follow-ups.
 3. **Briefs** — read briefs in `.aicontext/data/brief/` for this version's tasks (if they exist). These capture important decisions, gotchas, and patterns worth mentioning.
-4. **Git diff** — run `git diff <base_branch>...HEAD` to verify nothing was missed and cross-check against the context above.
+4. **Git diff** — run `git diff {base_branch}...HEAD` (using `project.base_branch` from config, or `base_branch` from `release.md`) to verify nothing was missed and cross-check against the context above.
 5. **AI changelog** — if `ai_changelog` is set in `release.md`: read that file as additional input. Cross-check against the task files: if any task for this version has no entry, auto-generate the missing entries and append them before proceeding.
 
 ## 3. Update files

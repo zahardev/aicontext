@@ -14,6 +14,9 @@ commit:
     # Set to false to disable the trailer, or "default" to use the AI tool's built-in format.
     # Any other string overrides the AI tool's default Co-Authored-By format.
 
+project:
+  base_branch: main             # used by /prepare-release, /draft-pr, /review branch
+
 task_naming:
   pattern: "{version}-{task-name}"
   source: git-branch          # git-branch: extract from branch name | package-json: read version field | manual: ask user each time
