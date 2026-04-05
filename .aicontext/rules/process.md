@@ -92,7 +92,7 @@ Before creating or updating documentation, verify the current date:
 - Sub-steps should be broad enough to be meaningful but specific enough to be actionable
 - Avoid micro-tasks that clutter the plan
 - Focus on deliverable outcomes
-- When executing steps manually (not via `/run-steps`), always stop after completing a step - never start next step without permission
+- When executing steps manually (not via `/run-task`), always stop after completing a step - never start next step without permission
 
 ### Checkbox Format
 - Use `- [ ]` for unchecked items
@@ -111,7 +111,7 @@ Before creating or updating documentation, verify the current date:
 | Deep review | No | Yes | `reviewer` subagent |
 | Full test suite | No | Yes | `test-runner` subagent |
 
-Edit this table to customize your workflow. `/run-steps` reads it at runtime.
+Edit this table to customize your workflow. `/run-task` reads it at runtime.
 
 ### Review Response Rules
 

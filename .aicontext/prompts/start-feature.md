@@ -1,44 +1,38 @@
 # Start Feature
 
-Run a structured discovery interview before starting a new feature. Explore the codebase first — only ask what you cannot determine yourself.
+Run a structured discovery flow before starting a new feature: interview, then spec + task creation.
 
-## Before the Interview
+## 1. Context Gathering
 
 1. Read `.aicontext/project.md` and `.aicontext/structure.md`
 2. Ask the user to describe the feature in one or two sentences
-3. Explore the codebase to understand the existing code related to the feature
+3. Explore the codebase to understand existing code related to the feature
 
-## Interview Protocol
+## 2. Prior-Context Guard
 
-- Ask **one question at a time** — never a list
-- For each decision point, present a **decision package**: 2–3 options with pros/cons and your recommendation. The user confirms or picks an alternative.
-- Skip questions whose answers are already clear from the codebase or the user's description
+Before starting the interview, summarize what is already known from the conversation and codebase exploration:
 
-### Product Dimension
+> "Based on our discussion and the codebase, here's what I already know:
+> - [list key facts, constraints, decisions already established]
+>
+> I'll interview to fill in the gaps."
 
-Cover these areas — explore the codebase first, ask only what's unclear:
+This prevents re-asking questions the user already answered.
 
-- **Scope**: What exactly should this do? Where does it start and stop?
-- **Non-goals**: What is explicitly out of scope?
-- **Edge cases**: What unusual inputs or states need handling?
-- **User-facing behavior**: What does the user see or experience?
-- **Requirements**: What must be true when this is complete?
+## 3. Interview
 
-### Engineering Dimension
+Read and follow `grill-me.md` to run the interview. The interview covers whatever is still unclear — product scope, engineering approach, edge cases, integration points, etc.
 
-Cover these areas — explore the codebase first, ask only what's unclear:
+When grill-me says "No more questions", proceed to the next step.
 
-- **Technology choices**: Libraries, patterns, or approaches to use
-- **Code design**: Data structures, interfaces, patterns
-- **Integration**: How does this connect to existing code?
-- **API contracts**: Inputs, outputs, error cases
-- **Performance**: Any latency, throughput, or memory constraints?
-- **Error handling**: How should failures be surfaced?
-- **Testing approach**: Unit, integration, E2E? What to mock?
+## 4. Scope Question
 
-## Commit Preference
+After the interview, ask:
+> "Should the spec cover just what we discussed, or a broader scope?"
 
-After the interview, ask about commit behaviour for this specific task:
+This lets the user expand the spec to include related work that wasn't part of the interview.
+
+## 5. Commit Preference
 
 Check `.aicontext/config.yml` → `commit` section for project defaults. Present the current defaults and ask:
 > "Project default is `commit.mode: {mode}`. Use the same for this task, or override?"
@@ -58,7 +52,7 @@ If the user wants to override (or no project defaults exist), ask:
 
 Save any overrides to the task file under `## Commit Rules:`.
 
-## Task Split Assessment
+## 6. Task Split Assessment
 
 Before creating files, assess whether the feature has separable work streams:
 
@@ -72,7 +66,9 @@ Before creating files, assess whether the feature has separable work streams:
 
 The user confirms or adjusts the split.
 
-## Creating Output Files
+## 7. Create Spec and Task Files
+
+This step is mandatory — every feature gets a spec and at least one task file.
 
 Check `.aicontext/config.yml` → `task_naming` for the correct version prefix.
 

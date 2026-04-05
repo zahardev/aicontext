@@ -1,6 +1,6 @@
 # Changelog
 
-## [1.6.1] - 2026-04-05 (in progress)
+## [1.7.0] - 2026-04-05 (in progress)
 
 ### Added
 - **`.aicontext/config.yml`**: YAML config file replacing prose settings in `project.md` — commit rules, task naming, spec naming, update check frequency, Claude question style
@@ -15,6 +15,10 @@
 - **"Solution Before Organization" rule** in `standards.md`: confirm approach before asking about task scope/spec assignment
 - **"Checkbox Discipline" rule** in `process.md`: verify items fully match their description before checking off
 - **`installConfig` and `setConfigValue`** CLI functions with 9 tests
+- **`/grill-me` skill**: structured one-at-a-time interview with recommended answers and codebase exploration
+- **`/brainstorm` skill**: generate missing angles, better implementations, and new combinations
+- **`/thoughts` skill**: lightweight "what are your thoughts?" check-in for quick feedback mid-conversation
+- **Spec alignment checks**: `/review-plan` verifies plan steps cover spec requirements; `/finish-task` verifies delivery
 
 ### Changed
 - **`commit.md` is now the single commit codepath** — `finish-task.md`, `step-loop.md`, `do-it.md`, `run-step.md`, `gh-review-fix-loop.md` all delegate to it
@@ -22,6 +26,8 @@
 - `finish-task.md` push logic works correctly with per-step commit mode (push happens at task completion even when no uncommitted changes remain)
 - Spec template updated with grouped `### Problem` / `### Solution` headings and versioned filename convention
 - Task planning rule clarified: steps describe what to build, not behavioral details (those belong in specs)
+- **`/start-feature` rewritten**: delegates interview to `/grill-me`, adds prior-context guard and scope question, mandatory spec+task creation
+- **`/run-steps` renamed to `/run-task`** — clearer name, avoids confusion with `/run-step`
 
 ### Removed
 - Settings sections from `project.md` and `project.template.md` (moved to `config.yml`)
@@ -32,8 +38,8 @@
 
 ### Added
 - **Three-layer context model**: specs (requirements) → tasks (plan + progress) → briefs (working knowledge) for persistent AI context across sessions
-- **New skills**: `/start-feature`, `/run-steps`, `/finish-task`, `/plan-tasks`, `/do-it`, `/align-context`, `/gh-review-fix-loop`
-- **Shared step inner loop** (`step-loop.md`): single source of truth for the implement → review → test → commit cycle, referenced by `/run-steps` and `/do-it`
+- **New skills**: `/start-feature`, `/run-task`, `/finish-task`, `/plan-tasks`, `/do-it`, `/align-context`, `/gh-review-fix-loop`
+- **Shared step inner loop** (`step-loop.md`): single source of truth for the implement → review → test → commit cycle, referenced by `/run-task` and `/do-it`
 - **Spec files** (`.aicontext/specs/`): feature-level requirements, decisions, and non-goals — survive refactors, no file paths or implementation details
 - **Brief files** (`.aicontext/data/brief/`): gitignored working memory the AI appends to after each step — enables seamless session restarts via `/check-task`
 - **Worklog** (`.aicontext/worklog.md`): spec and task status tracking, replaces `changelog.md`. AI-generated, gitignored.
@@ -64,13 +70,13 @@
 - `/gh-review-fix-loop` cycle reordered: fetch first → triage → fix → test → capture count → commit+push → poll
 - Script paths in prompts use `.aicontext/scripts/` (universal) instead of `.claude/scripts/`
 - `removeDeprecatedSkills` now cleans both `.claude/skills/` and `.codex/skills/`
-- Process rule "stop after step" scoped to manual execution only (not `/run-steps`)
+- Process rule "stop after step" scoped to manual execution only (not `/run-task`)
 - Task template simplified: no acceptance criteria or out-of-scope sections (both live in spec)
 - **Merged `deep-reviewer` and `standards-checker` into single `reviewer` agent** — caller specifies criteria prompt, agent is generic
 - **Review prompts are self-contained workflows**: setup, scope, criteria, save with template, present — work identically inline or via agent
 - **Two review tiers**: `/review` = quick correctness (after step), `/deep-review` = comprehensive (after task)
 - Step inner loop simplified from 11 to 9 steps — close-step replaces separate update/brief/elevate steps
-- `/run-steps` commit logic simplified: only commits per-step, per-task commits handled by `/finish-task` via `finish_action`
+- `/run-task` commit logic simplified: only commits per-step, per-task commits handled by `/finish-task` via `finish_action`
 - `/finish-task` warns when `finish_action: nothing` but uncommitted changes exist
 - **Merged `/code-health` into `/deep-review`**: cross-file checks (duplication, consistency, structural metrics) added as expanded phases — `/deep-review all` replaces `/code-health` for full codebase scans
 - **Renamed `/pr-review-check` → `/gh-review-check`** and **`/check-plan` → `/review-plan`** for naming consistency

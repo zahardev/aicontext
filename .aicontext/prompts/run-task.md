@@ -1,4 +1,4 @@
-# Run Steps
+# Run Task
 
 Execute all pending steps in the current task file, accumulating context throughout. One agent implements all steps inline.
 
@@ -23,7 +23,7 @@ If no brief exists for this task:
 
 Follow `ensure-config.md` to read project settings. Task file `## Commit Rules:` can override `commit.mode` for this specific task.
 
-`/run-steps` only commits during execution if `commit.mode` is `per-step`. All other modes (`per-task`, `manual`) are handled by `/finish-task` via `commit.finish_action`.
+`/run-task` only commits during execution if `commit.mode` is `per-step`. All other modes (`per-task`, `manual`) are handled by `/finish-task` via `commit.finish_action`.
 
 **If `commit.mode` is `per-step`**, confirm:
 > "Commit mode is `per-step` (from config.yml). Will commit after each step. Proceed, or override?"

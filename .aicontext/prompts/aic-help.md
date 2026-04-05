@@ -41,11 +41,11 @@ Run `/aic-skills` ( or `use aic-skills` ) to see all available commands.
 
 **New feature (first session or any session):**
 If this is your first time, follow this flow — it guides you through everything.
-`/start` → `/start-feature` → `/run-steps` → `/finish-task`
+`/start` → `/start-feature` → `/run-task` → `/finish-task`
 (`/start` loads project rules and confirms readiness — run it at the beginning of every session.)
 
 **Resume mid-task (new session):**
-`/start` → `/check-task` → `/run-steps` → `/finish-task`
+`/start` → `/check-task` → `/run-task` → `/finish-task`
 
 **Quick fix (no spec needed):**
 Describe the fix in conversation → `/do-it` — creates a task step and implements it.
@@ -59,7 +59,7 @@ Describe the fix in conversation → `/do-it` — creates a task step and implem
 `/gh-review-fix-loop` — full automated cycle: fetch, triage, fix, push, repeat until clean.
 
 **Multiple tasks from one spec:**
-`/start-feature` (creates spec) → `/plan-tasks` (breaks spec into tasks) → `/run-steps` per task
+`/start-feature` (creates spec) → `/plan-tasks` (breaks spec into tasks) → `/run-task` per task
 
 ## Tips
 

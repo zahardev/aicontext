@@ -23,7 +23,7 @@ After the interview, the AI asks about commit preferences for this task (commit 
 
 **2. Review the output** — the AI creates a spec (requirements, decisions, non-goals) and proposes a task breakdown. For large features, it splits the work into multiple tasks. Review the spec and task plan(s) before proceeding.
 
-**3. `/run-steps`** — pick a task and run it. The AI executes all steps automatically. For each step, it:
+**3. `/run-task`** — pick a task and run it. The AI executes all steps automatically. For each step, it:
 1. Implements the step
 2. Runs code review (if configured in quality checks table)
 3. Fixes issues found in review
@@ -36,7 +36,7 @@ You watch and intervene only when needed. The AI stops when it hits a blocker, a
 
 **4. `/finish-task`** — verifies all steps are done, syncs the spec with any decisions made during implementation, writes completion notes, updates the worklog, and handles git (commit / push / PR per your config).
 
-**5. Repeat** — if the spec has more tasks, pick the next one and run `/run-steps` again.
+**5. Repeat** — if the spec has more tasks, pick the next one and run `/run-task` again.
 
 ## Adding Tasks to an Existing Spec
 
@@ -48,7 +48,7 @@ If a spec already exists and needs more tasks (new requirements emerged, or you 
 
 Mid-task, you discuss a new idea with the AI. Instead of manually adding a step:
 
-**`/do-it`** — crystallizes the discussion into a task step, updates the spec and brief if the discussion introduced new requirements or decisions, and implements it immediately using the same review-fix loop as `/run-steps`.
+**`/do-it`** — crystallizes the discussion into a task step, updates the spec and brief if the discussion introduced new requirements or decisions, and implements it immediately using the same review-fix loop as `/run-task`.
 
 ## Resuming a Session
 
@@ -63,7 +63,7 @@ When starting a new session on an existing task:
 
 It surfaces where you left off, detects any drift between spec requirements and task steps, and checks for staleness (e.g., brief is empty despite completed steps, or spec is missing decisions from the brief).
 
-**3. Continue** — ask the AI to continue from where it left off, or use `/run-steps` to execute remaining steps automatically.
+**3. Continue** — ask the AI to continue from where it left off, or use `/run-task` to execute remaining steps automatically.
 
 ## Context Alignment
 

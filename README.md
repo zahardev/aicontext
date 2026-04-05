@@ -37,7 +37,7 @@ Writing a `CLAUDE.md` or `.cursorrules` file gives your AI memory. AIContext giv
 ```
 /start-feature  →  Interview  →  Spec + Task(s)
                                       ↓
-                                /run-steps  →  Implement + Review + Test (automated per step)
+                                /run-task  →  Implement + Review + Test (automated per step)
                                       ↓
                                 /finish-task  →  Sync docs, update worklog, handle git
 ```
@@ -72,7 +72,7 @@ Learn more in the [development model guide](docs/development-model.md).
 - `/plan-tasks` — break an existing spec into multiple tasks
 
 ### Automated execution
-- `/run-steps` — execute all steps with built-in review and test loops
+- `/run-task` — execute all steps with built-in review and test loops
 - `/run-step` — execute a single step with full control
 - `/do-it` — turn a conversation into a task step and implement it immediately
 
@@ -170,7 +170,7 @@ Team members share the same rules and task history. Each person's briefs and pre
 
 | Version | Highlights |
 |---------|------------|
-| **1.6.0** | Professional dev flow — unified prompts, three-layer context (spec/task/brief), structured planning (`/start-feature`, `/run-steps`, `/finish-task`), review consolidation (`/review`, `/deep-review`), PR automation (`/gh-review-fix-loop`), browser inspection (`/web-inspect`) |
+| **1.6.0** | Professional dev flow — unified prompts, three-layer context (spec/task/brief), structured planning (`/start-feature`, `/run-task`, `/finish-task`), review consolidation (`/review`, `/deep-review`), PR automation (`/gh-review-fix-loop`), browser inspection (`/web-inspect`) |
 | **1.5.1** | Fix upgrade command — verify installed version, clear cache, remove misleading update message |
 | **1.5.0** | Codex support, new skills (`/standards-check`, `/draft-issue`, `/code-health`), PR template, tool-agnostic scripts |
 | **1.4.0** | Skills (`/start`, `/check-task`, etc.), PR workflow scripts, agent model upgrades (sonnet/opus) |

@@ -37,4 +37,4 @@ If `.aicontext/worklog.md` doesn't exist, create it from `.aicontext/templates/w
 
 Show the created task file. Ask if the user wants to adjust anything.
 
-Then suggest next actions: `run-steps` to execute all steps automatically, or `run-step` to start with the first one.
+Then suggest next actions: `run-task` to execute all steps automatically, or `run-step` to start with the first one.

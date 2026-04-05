@@ -23,7 +23,7 @@ A spec defines *what* to build and *why*. It contains:
 Specs contain no file paths or implementation details — they survive refactors. One spec can have multiple tasks.
 
 **Created by:** `/start-feature`
-**Updated by:** `/run-steps` (elevates findings), `/do-it`, `/align-context`, `/finish-task`
+**Updated by:** `/run-task` (elevates findings), `/do-it`, `/align-context`, `/finish-task`
 
 ### Task
 
@@ -39,7 +39,7 @@ A task defines *how* to build it and tracks *progress*. It contains:
 The AI checks off steps as it goes. When all steps are done, `/finish-task` closes it out.
 
 **Created by:** `/start-feature`, `/plan-tasks`
-**Updated by:** `/run-steps`, `/do-it`, `/align-context`
+**Updated by:** `/run-task`, `/do-it`, `/align-context`
 
 ### Brief
 
@@ -57,8 +57,8 @@ Entries are concise (1-2 lines), prefixed with `[Step N]`, and never deleted —
 
 The brief is gitignored but never auto-deleted. If you start a new session weeks later, `/check-task` reads the brief and the AI picks up where it left off.
 
-**Created by:** `/run-steps`, `/do-it`, `/align-context`
-**Updated by:** `/run-steps` (after each step), `/do-it`, `/align-context`
+**Created by:** `/run-task`, `/do-it`, `/align-context`
+**Updated by:** `/run-task` (after each step), `/do-it`, `/align-context`
 
 ## How They Work Together
 
@@ -67,13 +67,13 @@ The brief is gitignored but never auto-deleted. If you start a new session weeks
 ```
 /start-feature  →  Spec + Task(s)
                         ↓
-                  /run-steps on Task 1
+                  /run-task on Task 1
                         ↓
               Brief accumulates knowledge
                         ↓
                   /finish-task on Task 1
                         ↓
-                  /run-steps on Task 2 (brief carries over or new brief created)
+                  /run-task on Task 2 (brief carries over or new brief created)
                         ↓
                   /finish-task on Task 2
                         ↓
@@ -91,12 +91,12 @@ New session → /start → /check-task
                      Brief has: [patterns, gotchas, decisions].
                      Spec has: [requirements not yet covered by steps]."
                            ↓
-                    /run-steps continues from Step 4
+                    /run-task continues from Step 4
 ```
 
 ### Requirement Coverage
 
-Whenever the AI adds a requirement to the spec — during `/run-steps`, `/do-it`, or `/align-context` — it immediately checks if the requirement is covered by a task step. If not, it proposes adding a step or creating a separate task.
+Whenever the AI adds a requirement to the spec — during `/run-task`, `/do-it`, or `/align-context` — it immediately checks if the requirement is covered by a task step. If not, it proposes adding a step or creating a separate task.
 
 `/check-task` also runs a full drift scan as a safety net for changes made in prior sessions.
 
@@ -136,7 +136,7 @@ The quality checks table in `.aicontext/rules/process.md` defines what runs when
 | Standards check | No | Yes |
 | Full test suite | No | Yes |
 
-Edit this table to customize your workflow. `/run-steps` reads it at runtime.
+Edit this table to customize your workflow. `/run-task` reads it at runtime.
 
 When findings are returned, the AI assesses each by severity and effort:
 
@@ -159,4 +159,4 @@ Key settings:
 - `commit.finish_action`: nothing / ask / commit / commit+push
 - `commit.co_authored_trailer`: template for the Co-Authored-By trailer
 
-All commits go through `commit.md` — the single commit codepath. Other prompts (`finish-task`, `run-steps`, `do-it`) delegate to it.
+All commits go through `commit.md` — the single commit codepath. Other prompts (`finish-task`, `run-task`, `do-it`) delegate to it.

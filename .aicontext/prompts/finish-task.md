@@ -12,8 +12,9 @@ Read the task file, spec (if linked), and brief (if it exists at `.aicontext/dat
 
 - Confirm all plan steps are checked (`- [x]`)
 - If unchecked steps remain, ask the user: "These steps are still open — mark as done anyway, or complete them first?"
+- **Spec alignment** (did we build everything?): if the task links to a spec, verify every spec requirement was actually delivered. Flag any requirements that aren't covered by completed work.
 
-## 3. Sync Spec
+## 3. Sync Spec (does the spec need updating?)
 
 Read the spec and brief side by side. Check:
 - Are all significant decisions from the brief reflected in the spec's Decisions section?

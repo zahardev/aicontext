@@ -35,8 +35,8 @@ Reads an existing spec and proposes a task breakdown. Use when a spec already ex
 - Proposes task split with scope descriptions
 - Creates task files linked to the spec
 
-### `/run-steps`
-**Prompt:** `run-steps.md`
+### `/run-task`
+**Prompt:** `run-task.md`
 
 Executes all pending steps in the current task file automatically. One agent implements all steps inline, accumulating context throughout.
 
@@ -163,7 +163,7 @@ Loads project context and confirms readiness. Always run at the beginning of a s
 ### `/next-step`
 **Prompt:** `next-step.md`
 
-Completes the current step and starts the next one. Use for manual step-by-step execution (when not using `/run-steps`).
+Completes the current step and starts the next one. Use for manual step-by-step execution (when not using `/run-task`).
 
 ### `/review-plan`
 **Prompt:** `review-plan.md`
@@ -201,4 +201,4 @@ Lists all available AIContext skills grouped by workflow stage (Getting Started,
 
 ### `step-loop.md`
 
-The step inner loop used by `/run-steps` and `/do-it`. Not a skill — it's a shared building block that defines the implement → review → test → commit → update brief → elevate to spec cycle.
+The step inner loop used by `/run-task` and `/do-it`. Not a skill — it's a shared building block that defines the implement → review → test → commit → update brief → elevate to spec cycle.
