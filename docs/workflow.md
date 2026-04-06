@@ -50,6 +50,21 @@ Mid-task, you discuss a new idea with the AI. Instead of manually adding a step:
 
 **`/do-it`** — crystallizes the discussion into a task step, updates the spec and brief if the discussion introduced new requirements or decisions, and implements it immediately using the same review-fix loop as `/run-task`.
 
+## Capturing Ideas Mid-Session
+
+A new idea comes up during a session — related to the current task, a future feature, or a tangential improvement. Instead of losing it to the conversation:
+
+**`/add-idea`** — captures the idea to the `## Ideas` section in `worklog.md`, a lightweight backlog for things not ready to act on yet.
+
+The AI infers the idea type from context:
+- `spec` — a new feature or significant change needing planning
+- `task` — a bounded piece of implementation work
+- `step` — an addition to the current task
+
+When it's not obvious, the AI asks. The idea is saved as a single line: `- [type] description — optional context`.
+
+When an idea is ready to act on, formalize it with `/start-feature` (spec), `/create-task` (task), or `/add-step` (step) — then remove it from the Ideas section. Remove abandoned ideas too.
+
 ## Resuming a Session
 
 When starting a new session on an existing task:

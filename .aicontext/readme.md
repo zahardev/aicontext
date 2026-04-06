@@ -10,7 +10,7 @@ This folder contains AI assistant configuration and project documentation.
 | `config.local.yml` | Personal setting overrides (gitignored) |
 | `project.md` | Project identity, tech stack, architecture |
 | `structure.md` | Folder structure, commands, environment |
-| `worklog.md` | Spec and task status tracking |
+| `worklog.md` | Spec and task status tracking; includes an `## Ideas` section for capturing deferred ideas mid-session |
 | `local.md` | Personal/local prose settings (gitignored, see below) |
 
 ## Override Priority
@@ -95,6 +95,10 @@ Subdirectories are created automatically by skills and scripts when needed.
 1. Paste `prompts/start.md` content (or use `/start` in Claude Code)
 2. AI reads rules and project files
 3. AI confirms readiness
+
+### Capturing Ideas Mid-Session
+1. Use `/add-idea` (or `Use add-idea`) to save the idea to the `## Ideas` section in `worklog.md` — a lightweight backlog for things worth revisiting
+2. When the idea is ready to act on, use `/start-feature` (spec), `/create-task` (task), or `/add-step` (step) to formalize it, then remove the line from Ideas
 
 ### Working on a Task
 1. Paste `prompts/task.md` content (or use `/check-task` in Claude Code)

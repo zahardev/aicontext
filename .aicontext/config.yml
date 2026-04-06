@@ -30,5 +30,5 @@ update_check:
   frequency: weekly         # daily | weekly | biweekly | monthly | never
 
 claude:
-  question_style: interactive   # interactive (AskUserQuestion) | numbered (plain text with 1, 2, 3...)
+  question_style: numbered   # interactive (AskUserQuestion) | numbered (plain text with 1, 2, 3...)
   # Only applies to Claude Code. Other tools always use numbered.

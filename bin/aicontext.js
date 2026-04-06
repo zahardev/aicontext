@@ -28,12 +28,12 @@ const FRAMEWORK_AGENTS = [
 ];
 const DEPRECATED_AGENTS = ['pr-review-summarizer.md', 'deep-reviewer.md', 'standards-checker.md'];
 const FRAMEWORK_SKILLS = [
-  'add-step', 'create-task', 'start', 'start-feature', 'plan-tasks', 'check-task', 'review-plan', 'run-step', 'run-task', 'finish-task',
+  'add-step', 'add-idea', 'create-task', 'start', 'start-feature', 'plan-tasks', 'check-task', 'review-plan', 'run-step', 'run-task', 'finish-task',
   'align-context', 'do-it', 'challenge', 'brainstorm', 'thoughts', 'grill-me', 'commit', 'review', 'deep-review', 'next-step', 'draft-pr', 'gh-review-check',
   'draft-issue', 'prepare-release', 'gh-review-fix-loop', 'web-inspect', 'aic-help', 'aic-skills',
 ];
 const FRAMEWORK_CODEX_SKILLS = [
-  'add-step', 'create-task', 'start', 'start-feature', 'plan-tasks', 'check-task', 'review-plan', 'run-step', 'run-task', 'finish-task',
+  'add-step', 'add-idea', 'create-task', 'start', 'start-feature', 'plan-tasks', 'check-task', 'review-plan', 'run-step', 'run-task', 'finish-task',
   'align-context', 'do-it', 'challenge', 'brainstorm', 'thoughts', 'grill-me', 'commit', 'review', 'deep-review', 'next-step', 'draft-pr', 'gh-review-check',
   'draft-issue', 'prepare-release', 'gh-review-fix-loop', 'web-inspect', 'aic-help', 'aic-skills',
 ];

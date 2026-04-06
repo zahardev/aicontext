@@ -48,6 +48,20 @@ Before creating or updating documentation, verify the current date:
 - Task files: Use format `Month Day, Year` (e.g., "January 23, 2026")
 - Changelog entries: Use format `YYYY-MM-DD` (e.g., "2026-01-23")
 
+## Ideas
+
+`worklog.md` has an `## Ideas` section — a lightweight backlog for deferred ideas that arise during sessions.
+
+**Format:** `- [type] description — optional context`
+**Types:** `spec` (new feature), `task` (bounded work), `step` (addition to current task). Type is optional.
+
+**When to suggest it:** When an idea surfaces that isn't the current task, suggest: `"Use /add-idea to capture this so it's not lost."` Common triggers:
+- "We should also refactor X while we're at it" — out of scope for the current task
+- "What if we added Y at some point?" — not ready to plan yet
+- "This reminds me, we should probably..." — tangential improvement
+
+**Promoting ideas:** When an idea matures, use `/start-feature` (spec), `/create-task` (task), or `/add-step` (step) to formalize it, then remove the line from the Ideas section. Remove abandoned ideas too.
+
 ## Test-Driven Development
 
 ### TDD Workflow

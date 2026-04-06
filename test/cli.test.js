@@ -771,13 +771,13 @@ describe('removeDeprecatedAgents', () => {
 });
 
 describe('FRAMEWORK_SKILLS', () => {
-  it('should contain exactly 28 skill names', () => {
-    assert.strictEqual(FRAMEWORK_SKILLS.length, 28);
+  it('should contain exactly 29 skill names', () => {
+    assert.strictEqual(FRAMEWORK_SKILLS.length, 29);
   });
 
   it('should contain the expected skills', () => {
     const expected = [
-      'add-step', 'create-task', 'start', 'start-feature', 'plan-tasks', 'check-task', 'review-plan', 'run-step', 'run-task', 'finish-task',
+      'add-step', 'add-idea', 'create-task', 'start', 'start-feature', 'plan-tasks', 'check-task', 'review-plan', 'run-step', 'run-task', 'finish-task',
       'align-context', 'do-it', 'challenge', 'brainstorm', 'thoughts', 'grill-me', 'commit', 'review', 'deep-review', 'next-step', 'draft-pr', 'gh-review-check',
       'draft-issue', 'prepare-release', 'gh-review-fix-loop', 'web-inspect', 'aic-help', 'aic-skills',
     ];

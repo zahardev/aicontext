@@ -70,6 +70,7 @@ Learn more in the [development model guide](docs/development-model.md).
 - `/start-feature` — thorough discovery interview before any code is written
 - `/create-task` — quick task creation from conversation when a full interview isn't needed
 - `/plan-tasks` — break an existing spec into multiple tasks
+- `/add-idea` — capture a deferred idea to the worklog mid-session so it's not lost
 
 ### Automated execution
 - `/run-task` — execute all steps with built-in review and test loops
@@ -97,7 +98,7 @@ Learn more in the [development model guide](docs/development-model.md).
 - Blocks destructive commands, enforces TDD, requires explicit permission before implementation
 - Configurable quality checks: what runs after each step vs after the whole task
 
-See the [full skills reference](docs/skills.md) for detailed descriptions of all 25 skills.
+See the [full skills reference](docs/skills.md) for detailed descriptions of all skills.
 
 ## How It Works
 
