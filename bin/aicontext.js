@@ -205,6 +205,16 @@ function hasExistingPrompts(target) {
   return allKnownPrompts.some((file) => fs.existsSync(path.join(promptsDir, file)));
 }
 
+function hasExistingFrameworkFiles(target) {
+  const agentsDir = path.join(target, '.claude', 'agents');
+  const skillsDir = path.join(target, '.claude', 'skills');
+  const codexSkillsDir = path.join(target, '.codex', 'skills');
+  const hasAgent = FRAMEWORK_AGENTS.some((f) => fs.existsSync(path.join(agentsDir, f)));
+  const hasSkill = FRAMEWORK_SKILLS.some((s) => fs.existsSync(path.join(skillsDir, s, 'SKILL.md')));
+  const hasCodexSkill = FRAMEWORK_CODEX_SKILLS.some((s) => fs.existsSync(path.join(codexSkillsDir, s, 'SKILL.md')));
+  return hasAgent || hasSkill || hasCodexSkill || hasExistingPrompts(target);
+}
+
 function removeDeprecatedPrompts(target) {
   const promptsDir = path.join(target, '.aicontext', 'prompts');
   for (const file of DEPRECATED_PROMPTS) {
@@ -660,7 +670,22 @@ async function update(targetDir, skipConfirm = false, keepPrompts = false, overr
 
   // Determine whether to overwrite existing prompts (new prompts are always added)
   let overwritePrompts = !keepPrompts;
-  if (!keepPrompts && hasExistingPrompts(target) && !skipConfirm) {
+
+  // Ask a single bulk question when in fully interactive mode with no pre-set override flags
+  let bulkOverride = false;
+  if (!skipConfirm && !overrideAgents && !overrideSkills && !keepPrompts && hasExistingFrameworkFiles(target)) {
+    bulkOverride = await promptYesNo(
+      'Override all existing framework files? Y = update everything at once, N = choose file by file. (Y/n): '
+    );
+    if (bulkOverride) {
+      overwritePrompts = true;
+      overrideAgents = true;
+      overrideSkills = true;
+    }
+  }
+
+  // If bulk question wasn't used, fall back to the per-prompts question
+  if (!bulkOverride && !keepPrompts && hasExistingPrompts(target) && !skipConfirm) {
     overwritePrompts = await promptYesNo(
       'Would you like to update the existing aicontext prompts? We recommend yes — ensures you have the latest features. (Y/n): '
     );
@@ -672,10 +697,10 @@ async function update(targetDir, skipConfirm = false, keepPrompts = false, overr
   log(`  - .aicontext/prompts/ (${overwritePrompts ? 'all framework prompts' : 'new prompts only'})`, 'yellow');
   log('  - .aicontext/templates/', 'yellow');
   log('  - .claude/CLAUDE.md', 'yellow');
-  log('  - .claude/agents/ (new agents only, existing will be prompted)', 'yellow');
-  log('  - .claude/skills/ (new skills only, existing will be prompted)', 'yellow');
+  log(`  - .claude/agents/ (${overrideAgents ? 'all existing will be overridden' : 'new agents only, existing will be prompted'})`, 'yellow');
+  log(`  - .claude/skills/ (${overrideSkills ? 'all existing will be overridden' : 'new skills only, existing will be prompted'})`, 'yellow');
   log('  - .aicontext/scripts/', 'yellow');
-  log('  - .codex/skills/ (new skills only, existing will be prompted)', 'yellow');
+  log(`  - .codex/skills/ (${overrideSkills ? 'all existing will be overridden' : 'new skills only, existing will be prompted'})`, 'yellow');
   log('  - .cursor/', 'yellow');
   log('  - .github/copilot-instructions.md', 'yellow');
   log('\nPreserved (not modified):', 'green');
@@ -687,7 +712,7 @@ async function update(targetDir, skipConfirm = false, keepPrompts = false, overr
   log('  - .aicontext/tasks/*.md (your tasks)', 'green');
   log('');
 
-  if (!skipConfirm) {
+  if (!skipConfirm && !bulkOverride) {
     const answer = await prompt('Continue? (y/N): ');
     if (answer !== 'y' && answer !== 'yes') {
       log('Update cancelled.', 'dim');
@@ -901,6 +926,7 @@ module.exports = {
   removeDeprecatedSkills,
   getExistingFiles,
   hasExistingPrompts,
+  hasExistingFrameworkFiles,
   readCache,
   writeCache,
   clearCache,

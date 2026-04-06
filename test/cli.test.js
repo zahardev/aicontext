@@ -29,6 +29,7 @@ const {
   removeDeprecatedSkills,
   getExistingFiles,
   hasExistingPrompts,
+  hasExistingFrameworkFiles,
   readCache,
   writeCache,
   clearCache,
@@ -1077,6 +1078,96 @@ describe('update with agent override protection', () => {
     // Agent should be overridden despite version being current
     const content = fs.readFileSync(path.join(tempDir, '.claude', 'agents', 'reviewer.md'), 'utf8');
     assert.notStrictEqual(content, 'customized reviewer');
+  });
+});
+
+describe('hasExistingFrameworkFiles', () => {
+  let tempDir;
+
+  beforeEach(async () => {
+    tempDir = createTempDir();
+    await init(tempDir, true);
+  });
+
+  afterEach(() => {
+    removeTempDir(tempDir);
+  });
+
+  it('should return true when framework agents exist', () => {
+    assert.strictEqual(hasExistingFrameworkFiles(tempDir), true);
+  });
+
+  it('should return false when no framework files exist', () => {
+    const emptyDir = createTempDir();
+    try {
+      assert.strictEqual(hasExistingFrameworkFiles(emptyDir), false);
+    } finally {
+      removeTempDir(emptyDir);
+    }
+  });
+
+  it('should return false after all framework agents and skills are removed', () => {
+    const agentsDir = path.join(tempDir, '.claude', 'agents');
+    const skillsDir = path.join(tempDir, '.claude', 'skills');
+    const codexDir = path.join(tempDir, '.codex', 'skills');
+    const promptsDir = path.join(tempDir, '.aicontext', 'prompts');
+
+    if (fs.existsSync(agentsDir)) fs.rmSync(agentsDir, { recursive: true });
+    if (fs.existsSync(skillsDir)) fs.rmSync(skillsDir, { recursive: true });
+    if (fs.existsSync(codexDir)) fs.rmSync(codexDir, { recursive: true });
+    if (fs.existsSync(promptsDir)) fs.rmSync(promptsDir, { recursive: true });
+
+    assert.strictEqual(hasExistingFrameworkFiles(tempDir), false);
+  });
+});
+
+describe('update bulk overwrite', () => {
+  let tempDir;
+
+  beforeEach(async () => {
+    tempDir = createTempDir();
+    await init(tempDir, true);
+    fs.writeFileSync(path.join(tempDir, '.aicontext', '.version'), '0.0.1');
+  });
+
+  afterEach(() => {
+    removeTempDir(tempDir);
+  });
+
+  it('bulk Y outcome: all agents and skills overwritten (via override flags)', async () => {
+    // Customize an agent and a skill to simulate existing files
+    fs.writeFileSync(path.join(tempDir, '.claude', 'agents', 'reviewer.md'), 'customized');
+    fs.writeFileSync(
+      path.join(tempDir, '.claude', 'skills', 'start', 'SKILL.md'),
+      'customized skill'
+    );
+
+    // Simulate bulk Y outcome: overrideAgents + overrideSkills both true
+    await update(tempDir, true, false, true, true);
+
+    const agentContent = fs.readFileSync(path.join(tempDir, '.claude', 'agents', 'reviewer.md'), 'utf8');
+    const skillContent = fs.readFileSync(path.join(tempDir, '.claude', 'skills', 'start', 'SKILL.md'), 'utf8');
+    assert.notStrictEqual(agentContent, 'customized');
+    assert.notStrictEqual(skillContent, 'customized skill');
+  });
+
+  it('no existing files: update proceeds without bulk question (skipConfirm=false safe)', async () => {
+    // Remove all framework files so hasExistingFrameworkFiles returns false
+    const agentsDir = path.join(tempDir, '.claude', 'agents');
+    const skillsDir = path.join(tempDir, '.claude', 'skills');
+    const codexDir = path.join(tempDir, '.codex', 'skills');
+    const promptsDir = path.join(tempDir, '.aicontext', 'prompts');
+    if (fs.existsSync(agentsDir)) fs.rmSync(agentsDir, { recursive: true });
+    if (fs.existsSync(skillsDir)) fs.rmSync(skillsDir, { recursive: true });
+    if (fs.existsSync(codexDir)) fs.rmSync(codexDir, { recursive: true });
+    if (fs.existsSync(promptsDir)) fs.rmSync(promptsDir, { recursive: true });
+
+    // skipConfirm=true since we can't mock stdin, but hasExistingFrameworkFiles=false
+    // means bulk question would be skipped regardless
+    await update(tempDir, true);
+
+    // Files should be reinstalled
+    assert.strictEqual(fs.existsSync(path.join(tempDir, '.claude', 'agents', 'reviewer.md')), true);
   });
 });
 
