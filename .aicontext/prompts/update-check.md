@@ -31,7 +31,7 @@ Compare `lastChecked` against the frequency:
 
 **If it's not time to check but the cache has a `latestVersion`**: compare it against the CLI version from the last `aicontext version` output stored in the cache. If an update exists, skip to step 4. Otherwise stop here.
 
-**If it's not time to check and no cached update exists**: stop here.
+**If it's not time to check and no cached update exists**: stop here silently — produce no update check output.
 
 ## 3. Run the check
 
@@ -41,7 +41,7 @@ Parse the output — if it contains "Update available", an update exists. If no 
 
 **Fallback — if `aicontext` is not in PATH** (command fails with "not found"): read the installed version from `.aicontext/.version`, then use WebFetch to query `https://registry.npmjs.org/@zahardev/aicontext/latest` and read the `version` field from the JSON response. Compare the two versions. Write the result to the cache file (`/tmp/aicontext-version-cache.json`) as JSON with `latestVersion`, `timestamp` (Unix milliseconds, e.g. `1712345678000`), and `lastChecked` (ISO date string). This is the only path where the AI writes the cache.
 
-If no update is available, stop here.
+If no update is available, stop here silently — produce no update check output.
 
 ## 4. Offer upgrade
 

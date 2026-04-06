@@ -22,4 +22,4 @@ After confirming, add a hint about `/aic-help` (quick start guide) and `/aic-ski
 
 ## 4. Check for updates (housekeeping)
 
-Follow `update-check.md`. This is background housekeeping — not the main task.
+Follow `update-check.md`. This is background housekeeping — not the main task. This step produces output only when an update is available.
