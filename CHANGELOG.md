@@ -15,6 +15,9 @@
 - **"Solution Before Organization" rule** in `standards.md`: confirm approach before asking about task scope/spec assignment
 - **"Checkbox Discipline" rule** in `process.md`: verify items fully match their description before checking off
 - **`installConfig` and `setConfigValue`** CLI functions with 9 tests
+- **Ideas backlog** in `worklog.md`: lightweight `## Ideas` section for capturing deferred ideas mid-session — format `- [type] description — optional context`, types: spec/task/step; included in `worklog.template.md`
+- **`/add-idea` skill**: capture an idea to the worklog without interrupting the session — infers type from context, asks only when ambiguous; supports Claude Code and Codex
+- **Ideas proactive rule** in `process.md`: AI suggests `/add-idea` when an out-of-scope idea surfaces mid-session
 - **`/grill-me` skill**: structured one-at-a-time interview with recommended answers and codebase exploration
 - **`/brainstorm` skill**: generate missing angles, better implementations, and new combinations
 - **`/thoughts` skill**: lightweight "what are your thoughts?" check-in for quick feedback mid-conversation
