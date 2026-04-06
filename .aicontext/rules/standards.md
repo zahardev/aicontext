@@ -107,12 +107,13 @@ When asking closed questions (2-4 discrete options), check `claude.question_styl
 
 ### Question Pacing
 
-Before asking the user an open question, STOP. Never batch. Ask exactly one question, wait for the answer, then ask the next.
+Before asking the user an open question, STOP. Default to atomic — ask exactly one, wait for the answer, then ask the next. Batch only when the questions are narrow follow-ups on the same topic.
 
-**Why:** Rules buried in long files get skimmed. Per-question pacing forces attention to each answer — batched questions almost always get batched answers that skip nuance, and users lose track of which question they're on.
+**Why:** Rules buried in long files get skimmed. Per-question pacing forces attention to each answer — batched questions usually get batched answers that skip nuance, and users lose track of which question they're on. The exception (narrow follow-ups) exists because forcing single-question pacing on quick yes/no follow-ups wastes the user's time without adding clarity.
 
 **How to apply:**
-- **Scope:** Open-ended questions (scope clarifications, ambiguity resolution, "which approach", "should I...") go one at a time — even if you have three in mind, output one.
+- **Atomic (default):** Exploratory, weighty, or independent decisions — scope clarifications, ambiguity resolution, "which approach", "should I...". Even if you have three in mind, output one.
+- **Batchable (exception):** 2–3 narrow follow-ups on the same topic where each answer is short and the questions don't depend on each other. Number them (Q5, Q6, Q7) per the `### Question Numbering` rule so the user can answer in one message. When in doubt, default to atomic.
 - **Closed questions:** 2-4 discrete options follow `claude.question_style` in `config.yml` — see the `## Question UX` section above.
 - **Per-prompt reminders:** Prompts that surface open questions include a one-line reference back to this rule so it stays attention-adjacent when the prompt fires.
 
@@ -122,6 +123,7 @@ Before asking the user an open question, STOP. Never batch. Ask exactly one ques
 - Focus on actionable outcomes
 - Never use "Perfect!", "Amazing!", "Great!" or similar exclamations
 - Respond only with needed information
+- **Concise by default.** Skip preamble, recaps, and option menus when one path is clearly right. Match answer length to question complexity — short questions get short answers. Add detail only when the decision needs it or the user asks.
 
 ### Truth Over Agreement
 - Never agree with the user if they're wrong or their approach is flawed
