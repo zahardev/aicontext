@@ -8,14 +8,22 @@ Crystallize the current discussion into a task file. Use when the discussion is 
 - Determine the task prefix using `task_naming.source` from the config (e.g., extract version from branch if `git-branch`, ask user if `manual`)
 - If the prefix is unclear, ask the user
 
-## 2. Find or Create Spec Link
+## 2. Spec Handling
 
-Check if a spec exists for the current work:
-- If one was discussed or is obvious from context, link to it
-- If the work is part of an existing spec, link to it and add the new task to the spec's `## Tasks` section
-- If no spec is needed (bug fix, hotfix, small standalone work), skip the spec link
+Identify any candidate specs from the discussion context and the `.aicontext/specs/` folder.
 
-Do not create a new spec — that is `/start-feature`'s job.
+Ask the user (use `AskUserQuestion` if `claude.question_style` is `interactive`, numbered list otherwise):
+
+> "Should this task be linked to a spec?"
+> 1. **Use existing spec** — [show candidate spec name(s), or "none found" if none]
+> 2. **Create new spec** — lightweight, derived from the discussion
+> 3. **Standalone task** — no spec
+
+**Option 1:** Link to the chosen spec. Add the new task to the spec's `## Tasks` section.
+
+**Option 2:** Create `.aicontext/specs/spec-{name}.md` from the discussion — include Problem, Solution, Requirements, and Decisions sections. No interview needed; the discussion already covers the content. Link the task to it and add the task to the spec's `## Tasks` section.
+
+**Option 3:** No spec. Task will be added to worklog under "Standalone Tasks".
 
 ## 3. Create Task File
 

@@ -4,7 +4,13 @@ Add a new step to the current task based on what was just discussed.
 
 ## 1. Identify the Task
 
-Read and follow `identify-task.md` to find the active task.
+**If the command was invoked with `here`** (e.g., `/add-step here`):
+- Use the IDE-opened task file as the active task
+- If no task file is open in the IDE, fall back to normal identification below
+
+**Otherwise:**
+- Read and follow `identify-task.md` to find the active task
+- If the IDE-opened task and the conversation-active task differ, check which one the step fits better based on each task's objective — use that one. If equally fitting, prefer the IDE-opened task.
 
 Read the task file and spec (if linked).
 
