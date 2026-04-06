@@ -10,13 +10,15 @@ AIContext gives AI coding assistants persistent memory about your project. It cr
 
 Install: `npx @zahardev/aicontext init`
 
-## After Init
+## Your First Session
 
-`aicontext init` creates:
-- `.aicontext/` — rules, prompts, templates that give the AI context about your project
-- `.claude/`, `.codex/`, `.cursor/`, `.github/` — entry points for each AI tool
+**Always begin a session with `/start`.** It loads your project's rules and confirms the AI is ready. Run it at the start of every session — without it the AI is working without your project's context.
 
-- Run `/aic-skills` (Claude Code) or `use aic-skills` (Codex, Cursor, Copilot) to see all available commands
+For a new feature, the full flow is:
+
+`/start` → `/start-feature` → `/run-task` → `/finish-task`
+
+Skills are invoked as `/skill-name` in Claude Code. In Codex, Cursor, and Copilot, use `use skill-name` instead. Run `/aic-skills` (or `use aic-skills`) any time to see all available commands.
 
 ## Key Concepts
 
@@ -31,18 +33,7 @@ AI assistants forget everything between sessions. AIContext fixes this with four
 
 **Specs** and **Tasks** are committed to the repo — they're your project's decision history. **Briefs** are gitignored working memory for the AI, not for you — remove them once the feature is done.
 
-## Running Skills
-
-In Claude Code, skills are invoked as `/skill-name`. In Codex, Cursor, and Copilot, use `use skill-name` instead. 
-
-Run `/aic-skills` ( or `use aic-skills` ) to see all available commands.
-
-## Typical Workflows
-
-**New feature (first session or any session):**
-If this is your first time, follow this flow — it guides you through everything.
-`/start` → `/start-feature` → `/run-task` → `/finish-task`
-(`/start` loads project rules and confirms readiness — run it at the beginning of every session.)
+## More Workflows
 
 **Resume mid-task (new session):**
 `/start` → `/check-task` → `/run-task` → `/finish-task`
