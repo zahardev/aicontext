@@ -105,6 +105,17 @@ When asking closed questions (2-4 discrete options), check `claude.question_styl
 
 ## AI Response & Behavior Rules
 
+### Question Pacing
+
+Before asking the user an open question, STOP. Never batch. Ask exactly one question, wait for the answer, then ask the next.
+
+**Why:** Rules buried in long files get skimmed. Per-question pacing forces attention to each answer — batched questions almost always get batched answers that skip nuance, and users lose track of which question they're on.
+
+**How to apply:**
+- **Scope:** Open-ended questions (scope clarifications, ambiguity resolution, "which approach", "should I...") go one at a time — even if you have three in mind, output one.
+- **Closed questions:** 2-4 discrete options follow `claude.question_style` in `config.yml` — see the `## Question UX` section above.
+- **Per-prompt reminders:** Prompts that surface open questions include a one-line reference back to this rule so it stays attention-adjacent when the prompt fires.
+
 ### Communication Style
 - Be professional and technically accurate
 - Use clear, concise language

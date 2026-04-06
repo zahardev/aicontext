@@ -24,7 +24,7 @@ Read and follow `identify-task.md` to find the active task.
 - Unclear requirements or ambiguities
 - Conflicts between spec, brief, and current code
 - Current progress: what's done, what's next
-- Any open questions the user should answer before proceeding
+- Any open questions the user should answer before proceeding — follow the Question Pacing rule in `standards.md`: ask exactly one, wait for the answer, then ask the next
 
 ## Staleness Checks
 
