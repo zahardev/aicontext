@@ -7,7 +7,8 @@ Run a structured discovery flow before starting a new feature: interview, then s
 1. Read `.aicontext/project.md` and `.aicontext/structure.md`
 2. Ask the user to describe the feature in one or two sentences
 3. Explore the codebase to understand existing code related to the feature
-4. Build a starting **dimension list** for the interview based on what the codebase exploration surfaced. See `grill-me.md` § 2 for the typical dimensions and the rules around internal-only / live-map. Carry this list into Step 3 so grill-me starts with a seeded map instead of a blank one.
+4. While exploring, note up to ~5 **non-obvious codebase patterns** — conventions a fresh reader would miss in 30 seconds. Step 7 seeds the brief's Codebase Patterns section from this list. Capture as you go; don't reconstruct after the interview.
+5. Build a starting **dimension list** for the interview based on what the codebase exploration surfaced. See `grill-me.md` § 2 for the typical dimensions and the rules around internal-only / live-map. Carry this list into Step 3 so grill-me starts with a seeded map instead of a blank one.
 
 ## 2. Prior-Context Guard
 
@@ -78,9 +79,15 @@ Before creating files, assess whether the feature has separable work streams:
 
 The user confirms or adjusts the split.
 
-## 7. Create Spec and Task Files
+---
 
-This step is mandatory — every feature gets a spec and at least one task file.
+> **Interview complete. Now creating spec, task(s), brief(s), and worklog entries.**
+>
+> The discussion phase is over. The next step is file creation — every output is a file on disk, not a conversational response. Do not summarize the interview, do not ask follow-up questions, do not propose changes. Move directly into Step 7.
+
+## 7. Create Spec, Task, Brief, and Worklog Files
+
+This step is mandatory — every feature gets a spec, at least one task, a brief per task, and worklog entries. All four are created in this single gated step.
 
 Check `.aicontext/config.yml` → `task_naming` for the correct version prefix.
 
@@ -90,10 +97,41 @@ Check `.aicontext/config.yml` → `task_naming` for the correct version prefix.
 - No file paths or implementation details — specs must survive refactors
 - Add a Tasks section with links to all task files
 
-**Brief decision tree** — into each task's brief Decisions section, copy the **full decision tree** from the interview: the final dimension map plus every "Decisions so far" entry. This preserves the *why* behind each spec decision — the spec is a stable contract, the brief holds the working knowledge. Future readers can trace any spec decision back to the rationale. (Brief file creation itself — template, References seeding, Codebase Patterns — is handled in Step 11.)
-
 **Task(s)** — for each task, create `.aicontext/tasks/{version}-{task-name}.md` from `.aicontext/templates/task.template.md`:
 - Fill in: Created date, Spec link (`spec-{name}.md`), Objective, Plan steps
 - Fill in `## Commit Rules:` if the user chose an override (remove section if using project defaults)
 
 Add all task cross-references to the spec's Tasks section.
+
+**Brief(s)** — for each task, create `.aicontext/data/brief/brief-{task-filename}` from `.aicontext/templates/brief.template.md`:
+- **References** — fill in with the spec, this task, `.aicontext/rules/process.md`, `.aicontext/rules/standards.md`, `.aicontext/project.md`, `.aicontext/structure.md`, and `.aicontext/local.md` (if it exists)
+- **Codebase Patterns** — seed from the codebase patterns list captured in Step 1 (one entry per pattern, prefixed `[Step 0]` to mark them as pre-implementation context)
+- **Decisions** — copy the **full decision tree** from the interview: the final dimension map plus every "Decisions so far" entry. This preserves the *why* behind each spec decision — the spec is a stable contract, the brief holds the working knowledge.
+- Leave Gotchas, File References, Bugs & Issues, and Testing empty — they fill in during step execution
+
+**Worklog** — append spec + task entries to `.aicontext/worklog.md` under `## In Progress`:
+- If a `### [Spec Name](specs/spec-{name}.md)` heading already exists under `## In Progress`, append the new task lines under it
+- If no heading exists, create one matching the existing pattern: `### [Spec Name](specs/spec-{name}.md)` followed by one `- [ ] [{task-version}](tasks/{task-filename}) — {short description}` line per task
+
+## 8. Output Summary
+
+**You MUST output this summary — it is the deliverable that proves files were created.** Do not skip it. Do not paraphrase it. The format is fixed so the gate check is trivial.
+
+```
+Created: {N} spec, {N} task(s), {N} brief(s), {N} worklog entries
+
+Spec:
+- .aicontext/specs/spec-{name}.md
+
+Task(s):
+- .aicontext/tasks/{version}-{task-name}.md
+- ...
+
+Brief(s):
+- .aicontext/data/brief/brief-{task-filename}
+- ...
+
+Worklog: {N} entries appended under "{Spec Name}" in In Progress
+```
+
+The counts on the first line are not optional — count what you actually created and write the numbers. If a count is `0`, the step is incomplete and you must fix it before outputting the summary.
