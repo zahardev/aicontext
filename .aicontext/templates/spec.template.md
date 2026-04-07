@@ -1,6 +1,6 @@
 # Spec: [Title]
 
-<!-- Filename convention: spec-{prefix}-{name}.md (prefix follows task naming convention) -->
+<!-- Filename convention: spec-{task-prefix}-{name}.md — task-prefix follows config.yml task_naming pattern (e.g. spec-1.7.0-framework-improvements.md) -->
 
 ## Problem
 
@@ -18,9 +18,14 @@
 
 ## Requirements
 
-- [Requirement 1 — what the system must do, detailed enough for task creation]
-- [Requirement 2]
-- [Requirement 3]
+<!-- Subsections by topic. Checkbox bullets (required). `*Implemented by:*` footer per subsection (required, many-to-many). See process.md "Task Requirements vs Spec Requirements". -->
+
+### [Subsection Title]
+- [ ] [Requirement 1]
+- [ ] [Requirement 2]
+- [x] [Requirement 3 — example of a delivered requirement]
+
+*Implemented by: [{version}-{task-name}](../tasks/{version}-{task-name}.md), [{version}-{other-task-name}](../tasks/{version}-{other-task-name}.md)*
 
 ## Decisions
 

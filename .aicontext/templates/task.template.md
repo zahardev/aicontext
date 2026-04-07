@@ -16,6 +16,12 @@
 ## Objective:
 [Clear, concise description of what this task aims to accomplish]
 
+## Requirements:
+<!-- Behavioral, testable deliverables — a translation of spec requirements into this work bundle's scope. See process.md "Task Requirements vs Spec Requirements". -->
+- [ ] [Concrete deliverable 1]
+- [ ] [Concrete deliverable 2]
+- [x] [Concrete deliverable 3 — example of a delivered requirement]
+
 ## Plan:
 
 ### Step 1: [Step Title]

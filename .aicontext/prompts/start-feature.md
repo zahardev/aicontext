@@ -91,15 +91,18 @@ This step is mandatory — every feature gets a spec, at least one task, a brief
 
 Check `.aicontext/config.yml` → `task_naming` for the correct version prefix.
 
-**Spec** — create `.aicontext/specs/spec-{name}.md`:
-- Use sections: Problem, Solution, Requirements (plain list — detailed enough for task creation), Decisions, User Stories (optional), Non-goals (optional), Tasks
-- Copy grill-me's structured summary **verbatim** into the Decisions section first, then paraphrase or extract Requirements / Non-goals from it. The verbatim copy is the source of truth — never paraphrase it before pasting.
+**Spec** — create `.aicontext/specs/spec-{task-prefix}-{name}.md` (e.g. `spec-1.7.0-framework-improvements.md`) from `.aicontext/templates/spec.template.md`:
+- Sections: Problem, Solution, Requirements, Decisions, User Stories (optional), Non-goals (optional), Tasks
+- Requirements format: checkbox bullets (`- [ ]`) grouped into `### Subsection` headings, each ending with an empty `*Implemented by:*` placeholder (the Task block fills it)
+- Copy grill-me's structured summary **verbatim** into Decisions first, then derive Requirements / Non-goals from it
 - No file paths or implementation details — specs must survive refactors
-- Add a Tasks section with links to all task files
+- Add a Tasks section linking all task files
 
 **Task(s)** — for each task, create `.aicontext/tasks/{version}-{task-name}.md` from `.aicontext/templates/task.template.md`:
 - Fill in: Created date, Spec link (`spec-{name}.md`), Objective, Plan steps
 - Fill in `## Commit Rules:` if the user chose an override (remove section if using project defaults)
+- **`## Requirements:`** — concrete deliverables for this task, derived from the interview (same source as the spec). The implementer's checklist. Many-to-many: one spec req → N task reqs; one task req → M spec reqs. See `process.md "Task Requirements vs Spec Requirements"`.
+- **`*Implemented by:*` footer** — add this task to the footer of each spec subsection it implements (append if footer already exists).
 
 Add all task cross-references to the spec's Tasks section.
 

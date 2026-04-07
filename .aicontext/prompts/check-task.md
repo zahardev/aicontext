@@ -34,7 +34,26 @@ Read and follow `identify-task.md` to find the active task.
 
 ## Spec↔Task Drift
 
-If a spec exists, compare its requirements against the task's plan steps. For each requirement not covered by any step:
+If a spec exists, run two drift checks:
+
+### 1. Spec subsection drift (since task creation)
+
+Locate linked spec subsection(s) via the `*Implemented by:*` footer. *Legacy fallback:* spec has no footers → whole-spec scan, note "Spec not migrated — drift check is whole-spec."
+
+Run both signals (they complement each other):
+
+1. **Git history:** `git log --since={created date} -- .aicontext/specs/spec-{name}.md` — file-level change detection.
+2. **AI semantic comparison:** compare current spec subsection bullets against task `## Requirements:` — flag spec reqs with no matching task req, and vice versa. Best-effort coverage check (no historical snapshot).
+
+Git catches edits; semantic catches mismatches a git-untouched spec can still have. If either detects drift:
+
+> "Spec subsection {name} drifted since {created date}: [list]. Update task Requirements?"
+
+User decides. See `process.md "Task Requirements vs Spec Requirements"`.
+
+### 2. Spec requirements not covered by any step
+
+Compare spec requirements against the task's plan steps. For each requirement not covered by any step:
 
 1. Assess whether it's related to this task's objective or a different topic
 2. Present uncovered requirements grouped by relevance:

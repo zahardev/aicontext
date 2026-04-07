@@ -10,16 +10,20 @@ Read the task file, spec (if linked), and brief (if it exists at `.aicontext/dat
 
 ## 2. Verify Completion
 
-- Confirm all plan steps are checked (`- [x]`)
-- If unchecked steps remain, ask the user: "These steps are still open — mark as done anyway, or complete them first?"
-- **Spec alignment** (did we build everything?): if the task links to a spec, verify every spec requirement was actually delivered. Flag any requirements that aren't covered by completed work.
+- Confirm all plan steps are checked. If any remain, ask: "Mark done anyway, or complete first?"
+- **Task requirements (hard block):** walk `## Requirements:`. Resolve every unchecked bullet via **Deliver** / **Defer** / **Revise** before proceeding. (Legacy: no section → skip + note.)
+- **Spec requirements (warning gate):** walk spec requirements in linked subsection(s) via the `*Implemented by:*` footer. Check what this task delivered (across all steps, genuinely complete). For each still unchecked → warning + same Deliver/Defer/Revise. (Legacy: no footers → whole-spec scan + note.)
 
-## 3. Sync Spec (does the spec need updating?)
+See `process.md "Task Requirements vs Spec Requirements"`.
+
+## 3. Sync Spec (does the spec need new content?)
+
+Step 2 already verified the existing spec requirements were delivered. This step covers what Step 2 doesn't: *adding* new content the brief surfaced during execution.
 
 Read the spec and brief side by side. Check:
 - Are all significant decisions from the brief reflected in the spec's Decisions section?
-- Do any requirements need updating based on what was actually built?
 - Are there new non-goals to document?
+- Did the work surface any *new* requirements that should be added to the spec for a future task to deliver? (Existing requirements are handled by Step 2 — this is for *additions* only.)
 
 Update the spec if anything is missing. Mark the task as complete in the spec's `## Tasks` section (add `✓` or `(complete)` next to the task link).
 
@@ -51,3 +55,18 @@ Check for uncommitted changes (`git status`).
 - `ask` — ask the user what to do (commit / commit+push / leave as-is)
 - `commit` — delegate to `commit.md`
 - `commit+push` — delegate to `commit.md`, then push to remote
+
+## 7. Output Completion Summary
+
+**You MUST output this summary — it proves the task closed cleanly.**
+
+```
+Task {task-name} closed:
+- Plan steps: N/N complete
+- Task requirements: N/N delivered (X deferred, Y revised)
+- Spec requirements: N/M delivered (X deferred, Y revised)
+- Worklog: updated
+- Git: {finish_action result}
+```
+
+Step 2 resolves every warning before reaching this summary. Deferred/revised counts record the user's resolution choices — auditable. Reaching Step 7 with unresolved warnings is an error: return to Step 2.

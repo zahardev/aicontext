@@ -14,7 +14,16 @@ Add a new step to the current task based on what was just discussed.
 
 Read the task file and spec (if linked).
 
-## 2. Add Step
+## 2. Check for Task Requirement Coverage
+
+Read the task's `## Requirements:` section. State out loud which task requirement(s) the new step delivers — never decide silently. Mandatory verbalization prevents silent miscategorization.
+
+- **"This step delivers: *'[exact requirement text]'*"** (one or more, name each exactly) → proceed to step 3
+- **"This step extends scope — no existing requirement covers it"** → ask: *"Add task requirement '[proposed]'?"* (Yes / No). If Yes, append the bullet to `## Requirements:` before continuing.
+
+See `process.md "Task Requirements vs Spec Requirements"`.
+
+## 3. Add Step
 
 Check if a step for this work already exists in the task file. If it does, point to it instead of creating a duplicate.
 
@@ -25,12 +34,12 @@ Create a new step:
 - Keep sub-items broad enough to be meaningful, specific enough to be actionable — no micro-tasks
 - Order sub-items logically with dependencies considered
 
-## 3. Update Spec
+## 4. Update Spec
 
 If the discussion introduced new requirements, decisions, or non-goals — update the spec.
 
-When adding a new requirement, check if it's covered by the step just created. If not, add a sub-item.
+When adding a new spec requirement, check if it's covered by the step just created. If not, add a sub-item.
 
-## 4. Confirm
+## 5. Confirm
 
 Show the step that was added. Do not implement — use `/run-step` or `/do-it` for that.

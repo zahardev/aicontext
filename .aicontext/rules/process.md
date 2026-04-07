@@ -48,6 +48,25 @@ Before creating or updating documentation, verify the current date:
 - Task files: Use format `Month Day, Year` (e.g., "January 23, 2026")
 - Changelog entries: Use format `YYYY-MM-DD` (e.g., "2026-01-23")
 
+### Spec Lifecycle
+
+Specs are the current contract — not a changelog. Delete requirements and decisions when they no longer apply or are no longer being defended. Brief and git history preserve the rationale; spec stays clean.
+
+### Task Requirements vs Spec Requirements
+
+| Layer | Location | Answers |
+|---|---|---|
+| Spec requirements | `spec-{name}.md` `## Requirements` | What must the system do? (broad, durable) |
+| Task requirements | `{task-file}.md` `## Requirements:` | What must this work bundle deliver? (concrete, scoped) |
+
+Task requirements are a translation, not a copy. Many-to-many: one spec requirement → N task requirements; one task requirement → M spec requirements. Task requirements can grow mid-task — `/add-step` offers to add one when a new step extends scope.
+
+**Granularity:** task requirements are *behavioral and testable* — what the work bundle delivers, observable from outside. Not implementation details (file paths, function names, line changes). If a requirement names a code location, it's too small. Test: a requirement should be checkable by someone who can't see the diff.
+
+**Checkbox timing:** `close-step` checks off only what a step delivered 100% unambiguously. `finish-task` walks task requirements (unchecked = hard block) then spec requirements in linked subsections (unchecked = warning). Warnings resolve via one contract: **deliver** / **defer** / **revise**. Task requirements are the gate; spec checkboxes are the consequence.
+
+**Spec drift:** `/check-task` runs `git log` (file-level) and AI semantic comparison (coverage) — both when possible. Git catches edits, semantic catches mismatches a git-untouched spec can still have.
+
 ## Ideas
 
 `worklog.md` has an `## Ideas` section — a lightweight backlog for deferred ideas that arise during sessions.

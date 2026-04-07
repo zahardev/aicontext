@@ -19,9 +19,9 @@ Ask the user (use `AskUserQuestion` if `claude.question_style` is `interactive`,
 > 2. **Create new spec** — lightweight, derived from the discussion
 > 3. **Standalone task** — no spec
 
-**Option 1:** Link to the chosen spec. Add the new task to the spec's `## Tasks` section.
+**Option 1:** Link to the chosen spec. Add the new task to the spec's `## Tasks` section. Also add the task to the `*Implemented by:*` footer of any spec subsection(s) this task implements (append to existing footer if one exists).
 
-**Option 2:** Create `.aicontext/specs/spec-{name}.md` from the discussion — include Problem, Solution, Requirements, and Decisions sections. No interview needed; the discussion already covers the content. Link the task to it and add the task to the spec's `## Tasks` section.
+**Option 2:** Create `.aicontext/specs/spec-{name}.md` from the discussion — include Problem, Solution, Requirements, and Decisions sections. Use checkbox bullets and `*Implemented by:*` footers per the spec template. No interview needed; the discussion already covers the content. Link the task to it and add the task to the spec's `## Tasks` section.
 
 **Option 3:** No spec. Task will be added to worklog under "Standalone Tasks".
 
@@ -32,6 +32,7 @@ Create a task file in `.aicontext/tasks/` using the naming convention from the c
 - **Objective**: derive from the discussion — what this task aims to accomplish
 - **Spec link**: from step 2 (remove section if no spec)
 - **Commit Rules**: remove the section (use project defaults) unless the user specified overrides
+- **Requirements**: concrete deliverables derived from the discussion. Translation of spec requirements (when linked), not a copy. Many-to-many. See `process.md "Task Requirements vs Spec Requirements"`.
 - **Plan steps**: derive from the discussion, following planning guidelines in `process.md`
 
 ## 4. Update Worklog
