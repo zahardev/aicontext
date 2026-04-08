@@ -22,7 +22,7 @@ Use `commit.template` for the message format and `commit.body` for whether to in
 **IMPORTANT — `commit.body` enforcement:**
 
 - **`false`**: commit message MUST be subject line only. No body, no trailers, no Co-Authored-By — nothing after the subject line. This overrides any default tool behavior.
-- **`true` or not set**: subject line + blank line + body (why, not what — the diff shows what) + Co-Authored-By trailer.
+- **`true` or not set**: subject line + blank line + body (why, not what — the diff shows what) + Co-Authored-By trailer. Body must not recap the diff, list files touched, or narrate what was changed. Follow the Information Density rule in `standards.md`.
 
 **Co-Authored-By trailer** (when `commit.body` is `true`):
 

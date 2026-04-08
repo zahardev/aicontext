@@ -63,6 +63,10 @@ Task requirements are a translation, not a copy. Many-to-many: one spec requirem
 
 **Granularity:** task requirements are *behavioral and testable* — what the work bundle delivers, observable from outside. Not implementation details (file paths, function names, line changes). If a requirement names a code location, it's too small. Test: a requirement should be checkable by someone who can't see the diff.
 
+**Phrasing:**
+- Use "should" voice — target state, not description
+- Follow the Information Density rule in `standards.md` — be concise without dropping signal
+
 **Checkbox timing:** `close-step` checks off only what a step delivered 100% unambiguously. `finish-task` walks task requirements (unchecked = hard block) then spec requirements in linked subsections (unchecked = warning). Warnings resolve via one contract: **deliver** / **defer** / **revise**. Task requirements are the gate; spec checkboxes are the consequence.
 
 **Spec drift:** `/check-task` runs `git log` (file-level) and AI semantic comparison (coverage) — both when possible. Git catches edits, semantic catches mismatches a git-untouched spec can still have.
@@ -154,6 +158,24 @@ Freeform investigations and long-form notes live in `.aicontext/data/notes/{YYYY
 - Never use `- [x]` in initial plans
 - Tasks should be ordered logically with dependencies considered
 - Previous steps cannot depend on subsequent steps
+
+### Never include spec or brief updates as plan steps
+
+Spec elevation, brief updates, requirement checkboxes, worklog updates, and spec completion are handled automatically by `close-step.md` and `finish-task.md`. Listing them as explicit plan steps is redundant and pollutes the plan.
+
+**Bad:** "Update spec with new decision", "Append findings to brief", "Check off completed requirements in spec"
+**Good:** omit them — they happen automatically at step/task close.
+
+### Never include manual human steps in plans
+
+Plans are for the agent. If the agent cannot execute a step, it is not a plan step. This includes: manual verification, manual testing, manual QA, user approvals, "check in browser", "verify UX", "ask product team", etc.
+
+Automated test runs via the `test-runner` subagent are agent actions and happen during the step inner loop (see `step-loop.md`), not as separate plan steps — this rule is about *manual* testing only.
+
+Human verification belongs in task requirements (as a checkbox gate the user ticks) or as an interactive question at step/task close, never as a plan step.
+
+**Bad:** "Manually test the login flow", "User verifies the UI looks right", "Get approval from stakeholder"
+**Good:** put the verification in task requirements, or have the AI ask the user interactively at close time.
 
 ## Quality Checks
 

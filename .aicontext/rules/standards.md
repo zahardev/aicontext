@@ -127,18 +127,16 @@ The numbered-batching format mitigates the original concern (users giving shallo
 
 ### Information Density
 
-Conciseness means *the clearest answer with no waste* — not the fewest possible words. Optimize for signal per token, not character count.
+**CONCISENESS FIRST — HARD RULE, NOT A PREFERENCE.** Every line must earn its place. Applies to everything produced: responses, specs, tasks, briefs, commits, rules, prompts, plan steps — *everything*. Conciseness means *the clearest output with no waste* — not the fewest possible words, but every word must count.
 
 **Why:** Verbose output bloats subsequent context and pushes earlier rules out of attention. Subagent reports become the lead's input, so bloat compounds across the chain — which is why subagents inherit this rule via `agent-setup.md`.
 
 **How to apply:**
-- When following a multi-step prompt (close-step, finish-task, etc.), do the work silently and output only the final deliverable. Don't narrate sub-step headers ("1. Update task", "2. Requirement checkboxes...") — those are *your* instructions, not the user's report.
-- Skip preamble and recaps. Don't restate the question.
+- When following a multi-step prompt (close-step, finish-task, etc.), do the work silently and output only the final deliverable. Don't narrate sub-step headers.
+- Skip preamble. Don't restate the question.
 - Don't offer a menu of options when one path is clearly right — pick it.
-- Match length to what the *answer* needs, not what the prompt looks like. A one-line question can have a paragraph answer; a long prompt can warrant a one-line answer.
-- A bullet list isn't automatically concise — choose the format that genuinely compresses the content.
-- **Every line must earn its place.** Before sending, ask: *can I cut anything without losing value?* If yes, cut. If no, the length is justified — 50 lines is fine when every line carries value.
-- **Voice tangents and concerns only when real and actionable.** Hypothetical "worth noting" observations and adjacent thoughts → think silently, drop them. The user's attention is finite; spend it on what changes a decision.
+- Match length to what the output needs, not what the prompt looks like. A one-line question can have a paragraph answer; a long prompt can warrant a one-line answer.
+- **Voice tangents and concerns only when real and actionable.** Hypothetical "worth noting" observations → think silently, drop them. Spend user attention on what changes a decision.
 
 ### Always Offer Next Action
 
