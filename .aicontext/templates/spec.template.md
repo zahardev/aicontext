@@ -18,7 +18,7 @@
 
 ## Requirements
 
-<!-- Subsections by topic. Checkbox bullets (required). `*Implemented by:*` footer per subsection (required, many-to-many). See process.md "Task Requirements vs Spec Requirements". -->
+<!-- Subsections by topic. Checkbox bullets (required). `*Implemented by:*` footer per subsection (required, many-to-many). See process.md "Task Deliverables vs Spec Requirements". -->
 
 ### [Subsection Title]
 - [ ] [Requirement 1]

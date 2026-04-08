@@ -52,22 +52,29 @@ Before creating or updating documentation, verify the current date:
 
 Specs are the current contract — not a changelog. Delete requirements and decisions when they no longer apply or are no longer being defended. Brief and git history preserve the rationale; spec stays clean.
 
-### Task Requirements vs Spec Requirements
+### Task Deliverables vs Spec Requirements
 
 | Layer | Location | Answers |
 |---|---|---|
 | Spec requirements | `spec-{name}.md` `## Requirements` | What must the system do? (broad, durable) |
-| Task requirements | `{task-file}.md` `## Requirements:` | What must this work bundle deliver? (concrete, scoped) |
+| Task deliverables | `{task-file}.md` `## Deliverables:` | What must this work bundle deliver to be done? |
 
-Task requirements are a translation, not a copy. Many-to-many: one spec requirement → N task requirements; one task requirement → M spec requirements. Task requirements can grow mid-task — `/add-step` offers to add one when a new step extends scope.
+Task deliverables are the **definition of done for this work bundle** — not a translation of spec requirements. Four categories:
 
-**Granularity:** task requirements are *behavioral and testable* — what the work bundle delivers, observable from outside. Not implementation details (file paths, function names, line changes). If a requirement names a code location, it's too small. Test: a requirement should be checkable by someone who can't see the diff.
+- **Scoped spec delivery** — slices of spec requirements this bundle satisfies
+- **Process artifacts** — outputs the bundle must produce ("audit captured in brief")
+- **Constraints** — guardrails for this bundle ("no behavior regression", "backwards compatible")
+- **Drive-by fixes** — small unrelated fixes bundled in
+
+Only the first category overlaps with the spec; the other three belong nowhere else. Deliverables can grow mid-task — `/add-step` offers to add one when a new step extends scope.
+
+**Granularity:** deliverables are *checkable at close time* — by reviewing the final state of code, docs, or behavior. Drive-by fixes legitimately name files and lines; that's not "too small".
 
 **Phrasing:**
 - Use "should" voice — target state, not description
 - Follow the Information Density rule in `standards.md` — be concise without dropping signal
 
-**Checkbox timing:** `close-step` checks off only what a step delivered 100% unambiguously. `finish-task` walks task requirements (unchecked = hard block) then spec requirements in linked subsections (unchecked = warning). Warnings resolve via one contract: **deliver** / **defer** / **revise**. Task requirements are the gate; spec checkboxes are the consequence.
+**Checkbox timing:** `close-step` checks off only what a step delivered 100% unambiguously. `finish-task` walks task deliverables (unchecked = hard block) then spec requirements in linked subsections (unchecked = warning). Warnings resolve via one contract: **deliver** / **defer** / **revise**. Task deliverables are the gate; spec checkboxes are the consequence.
 
 **Spec drift:** `/check-task` runs `git log` (file-level) and AI semantic comparison (coverage) — both when possible. Git catches edits, semantic catches mismatches a git-untouched spec can still have.
 
@@ -172,10 +179,10 @@ Plans are for the agent. If the agent cannot execute a step, it is not a plan st
 
 Automated test runs via the `test-runner` subagent are agent actions and happen during the step inner loop (see `step-loop.md`), not as separate plan steps — this rule is about *manual* testing only.
 
-Human verification belongs in task requirements (as a checkbox gate the user ticks) or as an interactive question at step/task close, never as a plan step.
+Human verification belongs in task deliverables (as a checkbox gate the user ticks) or as an interactive question at step/task close, never as a plan step.
 
 **Bad:** "Manually test the login flow", "User verifies the UI looks right", "Get approval from stakeholder"
-**Good:** put the verification in task requirements, or have the AI ask the user interactively at close time.
+**Good:** put the verification in task deliverables, or have the AI ask the user interactively at close time.
 
 ## Quality Checks
 

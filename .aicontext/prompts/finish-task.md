@@ -11,10 +11,10 @@ Read the task file, spec (if linked), and brief (if it exists at `.aicontext/dat
 ## 2. Verify Completion
 
 - Confirm all plan steps are checked. If any remain, ask: "Mark done anyway, or complete first?"
-- **Task requirements (hard block):** walk `## Requirements:`. Resolve every unchecked bullet via **Deliver** / **Defer** / **Revise** before proceeding. (Legacy: no section → skip + note.)
+- **Task deliverables (hard block):** walk `## Deliverables:` (legacy: `## Requirements:`). Resolve every unchecked bullet via **Deliver** / **Defer** / **Revise** before proceeding. (Legacy: no section → skip + note.)
 - **Spec requirements (warning gate):** walk spec requirements in linked subsection(s) via the `*Implemented by:*` footer. Check what this task delivered (across all steps, genuinely complete). For each still unchecked → warning + same Deliver/Defer/Revise. (Legacy: no footers → whole-spec scan + note.)
 
-See `process.md "Task Requirements vs Spec Requirements"`.
+See `process.md "Task Deliverables vs Spec Requirements"`.
 
 ## 3. Sync Spec (does the spec need new content?)
 
@@ -63,7 +63,7 @@ Check for uncommitted changes (`git status`).
 ```
 Task {task-name} closed:
 - Plan steps: N/N complete
-- Task requirements: N/N delivered (X deferred, Y revised)
+- Task deliverables: N/N delivered (X deferred, Y revised)
 - Spec requirements: N/M delivered (X deferred, Y revised)
 - Worklog: updated
 - Git: {finish_action result}

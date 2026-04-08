@@ -14,14 +14,14 @@ Add a new step to the current task based on what was just discussed.
 
 Read the task file and spec (if linked).
 
-## 2. Check for Task Requirement Coverage
+## 2. Check for Deliverable Coverage
 
-Read the task's `## Requirements:` section. State out loud which task requirement(s) the new step delivers — never decide silently. Mandatory verbalization prevents silent miscategorization.
+Read the task's `## Deliverables:` (legacy: `## Requirements:`) section. State out loud which deliverable(s) the new step satisfies — never decide silently. Mandatory verbalization prevents silent miscategorization.
 
-- **"This step delivers: *'[exact requirement text]'*"** (one or more, name each exactly) → proceed to step 3
-- **"This step extends scope — no existing requirement covers it"** → ask: *"Add task requirement '[proposed]'?"* (Yes / No). If Yes, append the bullet to `## Requirements:` before continuing.
+- **"This step delivers: *'[exact deliverable text]'*"** (one or more, name each exactly) → proceed to step 3
+- **"This step extends scope — no existing deliverable covers it"** → ask: *"Add task deliverable '[proposed]'?"* (Yes / No). If Yes, append the bullet to `## Deliverables:` before continuing.
 
-See `process.md "Task Requirements vs Spec Requirements"`.
+See `process.md "Task Deliverables vs Spec Requirements"`.
 
 ## 3. Add Step
 

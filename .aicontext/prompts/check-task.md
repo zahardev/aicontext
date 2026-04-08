@@ -43,13 +43,13 @@ Locate linked spec subsection(s) via the `*Implemented by:*` footer. *Legacy fal
 Run both signals (they complement each other):
 
 1. **Git history:** `git log --since={created date} -- .aicontext/specs/spec-{name}.md` — file-level change detection.
-2. **AI semantic comparison:** compare current spec subsection bullets against task `## Requirements:` — flag spec reqs with no matching task req, and vice versa. Best-effort coverage check (no historical snapshot).
+2. **AI semantic comparison:** compare current spec subsection bullets against task `## Deliverables:` (legacy: `## Requirements:`) — flag spec reqs with no matching task deliverable, and vice versa. Best-effort coverage check (no historical snapshot).
 
 Git catches edits; semantic catches mismatches a git-untouched spec can still have. If either detects drift:
 
-> "Spec subsection {name} drifted since {created date}: [list]. Update task Requirements?"
+> "Spec subsection {name} drifted since {created date}: [list]. Update task Deliverables?"
 
-User decides. See `process.md "Task Requirements vs Spec Requirements"`.
+User decides. See `process.md "Task Deliverables vs Spec Requirements"`.
 
 ### 2. Spec requirements not covered by any step
 

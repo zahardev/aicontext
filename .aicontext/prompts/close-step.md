@@ -9,19 +9,19 @@ N = the step number just completed.
 - Check off completed items (`- [ ]` → `- [x]`)
 - Update the Last Updated date
 
-## 2. Update Requirement Checkboxes (100% rule)
+## 2. Update Checkboxes (100% rule)
 
-Walk the task's `## Requirements:` and the spec requirements in the linked subsection(s) — locate via the spec's `*Implemented by:*` footer.
+Walk the task's `## Deliverables:` (legacy: `## Requirements:`) and the spec requirements in the linked subsection(s) — locate via the spec's `*Implemented by:*` footer.
 
-For each unchecked requirement, ask: did *this step* deliver it **100% unambiguously**?
+For each unchecked item, ask: did *this step* deliver it **100% unambiguously**?
 - Yes → check the box.
 - Partial or unclear → leave unchecked. Cumulative verification happens at task close.
 
-Always walk the lists — never skip. If zero boxes were checked, report `no requirements affected` in the summary. Most steps produce zero checks; that is normal.
+Always walk the lists — never skip. If zero boxes were checked, report `no checks affected` in the summary. Most steps produce zero checks; that is normal.
 
-*Legacy fallbacks:* task has no `## Requirements:` → skip the task-req walk. Spec has no `*Implemented by:*` footers → whole-spec scan.
+*Legacy fallbacks:* task has no `## Deliverables:` or `## Requirements:` → skip the deliverables walk. Spec has no `*Implemented by:*` footers → whole-spec scan.
 
-See `process.md "Task Requirements vs Spec Requirements"`.
+See `process.md "Task Deliverables vs Spec Requirements"`.
 
 ## 3. Update Brief
 
@@ -52,7 +52,7 @@ You MUST output this summary. It is the deliverable that proves context was upda
 ```
 Step N closed:
 - Task: [items checked off]
-- Requirements: +N task / +M spec checked  (or "no requirements affected")
+- Checked: +N deliverables / +M spec requirements  (or "no checks affected")
 - Brief: +[count] entries ([sections touched])
 - Spec: [what changed, or "no changes"]
 ```

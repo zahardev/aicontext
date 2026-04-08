@@ -32,7 +32,7 @@ Create a task file in `.aicontext/tasks/` using the naming convention from the c
 - **Objective**: derive from the discussion — what this task aims to accomplish
 - **Spec link**: from step 2 (remove section if no spec)
 - **Commit Rules**: remove the section (use project defaults) unless the user specified overrides
-- **Requirements**: concrete deliverables derived from the discussion. Translation of spec requirements (when linked), not a copy. Many-to-many. See `process.md "Task Requirements vs Spec Requirements"`.
+- **Deliverables**: definition of done for this work bundle — covers scoped spec delivery, process artifacts, constraints, and drive-by fixes. See `process.md "Task Deliverables vs Spec Requirements"`.
 - **Plan steps**: derive from the discussion, following planning guidelines in `process.md`
 
 ## 4. Update Worklog
