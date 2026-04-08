@@ -21,7 +21,7 @@ See `process.md "Task Requirements vs Spec Requirements"`.
 Step 2 already verified the existing spec requirements were delivered. This step covers what Step 2 doesn't: *adding* new content the brief surfaced during execution.
 
 Read the spec and brief side by side. Check:
-- Are all significant decisions from the brief reflected in the spec's Decisions section?
+- Are all brief `Decision Overrides` entries applied to the spec? Each entry represents a spec revision — verify the spec reflects it.
 - Are there new non-goals to document?
 - Did the work surface any *new* requirements that should be added to the spec for a future task to deliver? (Existing requirements are handled by Step 2 — this is for *additions* only.)
 

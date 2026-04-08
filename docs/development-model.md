@@ -23,7 +23,7 @@ A spec defines *what* to build and *why*. It contains:
 Specs contain no file paths or implementation details — they survive refactors. One spec can have multiple tasks.
 
 **Created by:** `/start-feature`
-**Updated by:** `/run-task` (elevates findings), `/do-it`, `/align-context`, `/finish-task`
+**Updated by:** `/run-task` (syncs new decisions/requirements), `/do-it`, `/align-context`, `/finish-task`
 
 ### Task
 
@@ -48,7 +48,7 @@ The AI checks off steps as it goes. When all steps are done, `/finish-task` clos
 The brief is the AI's working memory. After each step, the AI appends what it learned:
 - **Codebase Patterns** — conventions and patterns discovered
 - **Gotchas** — non-obvious issues or constraints
-- **Decisions** — choices made during implementation and why
+- **Decision Overrides** — spec decisions superseded mid-task (old + why)
 - **File References** — files created or modified
 - **Bugs & Issues** — errors encountered and solutions
 - **Testing** — test results and coverage

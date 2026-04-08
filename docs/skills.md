@@ -43,7 +43,7 @@ Executes all pending steps in the current task file automatically. One agent imp
 - Creates a brief file if one doesn't exist
 - Reads three-layer context (spec → brief → task)
 - Checks commit configuration from `config.yml`
-- For each step: implement → review → fix → test → commit → update brief → elevate to spec
+- For each step: implement → review → fix → test → commit → update brief → sync spec
 - Review-fix inner loop runs up to 5 times per step
 - After all steps: runs standards check and full test suite
 - Stops on blockers, critical findings, or uncovered decisions
@@ -55,7 +55,7 @@ Reads the three-layer context for the current task and surfaces resume state. Es
 
 - Reads: spec (requirements, decisions) → brief (patterns, gotchas) → task (plan, progress)
 - Detects spec↔task drift (requirements not covered by steps)
-- Detects staleness (empty brief with completed steps, unsynced decisions)
+- Detects staleness (empty brief with completed steps, `Decision Overrides` not yet applied to the spec)
 - Backwards compatible with pre-1.6.0 tasks (no spec or brief)
 
 ### `/finish-task`
@@ -64,7 +64,7 @@ Reads the three-layer context for the current task and surfaces resume state. Es
 Closes out a completed task.
 
 - Verifies all plan steps are checked
-- Syncs spec with decisions from the brief
+- Applies any brief `Decision Overrides` to the spec and verifies new decisions/non-goals/requirements landed in the spec
 - Fills completion notes in the task file
 - Updates the worklog (checks off task, moves spec to Done if all tasks complete)
 - Handles git per `commit.finish_action` from `config.yml` (nothing / ask / commit / commit+push), delegates to `commit.md`
@@ -201,4 +201,4 @@ Lists all available AIContext skills grouped by workflow stage (Getting Started,
 
 ### `step-loop.md`
 
-The step inner loop used by `/run-task` and `/do-it`. Not a skill — it's a shared building block that defines the implement → review → test → commit → update brief → elevate to spec cycle.
+The step inner loop used by `/run-task` and `/do-it`. Not a skill — it's a shared building block that defines the implement → review → test → commit → update brief → sync spec cycle.

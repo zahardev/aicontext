@@ -25,7 +25,7 @@
 
 ## Gotchas
 
-## Decisions
+## Decision Overrides
 <!-- Supersession log — record spec decisions overturned mid-task (old + why). Everything else (initial decisions, non-contradicting extensions) lives in the spec. See process.md → Brief content boundary. -->
 
 ## File References

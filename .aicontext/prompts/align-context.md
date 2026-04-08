@@ -26,7 +26,7 @@ If a spec exists:
 If a brief exists, append any knowledge from the current session:
 - Codebase Patterns: patterns or conventions discovered
 - Gotchas: non-obvious issues or constraints
-- Decisions: choices made and why
+- Decision Overrides: spec decisions superseded mid-step (old + why)
 - File References: files created or modified
 - Bugs & Issues: errors encountered and solutions
 - Testing: test results and coverage

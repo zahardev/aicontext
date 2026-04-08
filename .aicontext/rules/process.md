@@ -161,7 +161,7 @@ Freeform investigations and long-form notes live in `.aicontext/data/notes/{YYYY
 
 ### Never include spec or brief updates as plan steps
 
-Spec elevation, brief updates, requirement checkboxes, worklog updates, and spec completion are handled automatically by `close-step.md` and `finish-task.md`. Listing them as explicit plan steps is redundant and pollutes the plan.
+Spec sync, brief updates, requirement checkboxes, worklog updates, and spec completion are handled automatically by `close-step.md` and `finish-task.md`. Listing them as explicit plan steps is redundant and pollutes the plan.
 
 **Bad:** "Update spec with new decision", "Append findings to brief", "Check off completed requirements in spec"
 **Good:** omit them — they happen automatically at step/task close.

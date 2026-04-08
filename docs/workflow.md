@@ -29,8 +29,8 @@ After the interview, the AI asks about commit preferences for this task (commit 
 3. Fixes issues found in review
 4. Runs tests (if configured)
 5. Commits (if configured)
-6. Updates the brief with patterns, gotchas, and decisions learned
-7. Checks if any findings should be elevated to the spec
+6. Updates the brief with patterns, gotchas, and any mid-step `Decision Overrides`
+7. Writes new decisions, requirements, and non-goals directly to the spec
 
 You watch and intervene only when needed. The AI stops when it hits a blocker, a critical review finding, or a decision not covered in planning.
 
@@ -48,7 +48,7 @@ If a spec already exists and needs more tasks (new requirements emerged, or you 
 
 Mid-task, you discuss a new idea with the AI. Instead of manually adding a step:
 
-**`/do-it`** — crystallizes the discussion into a task step, updates the spec and brief if the discussion introduced new requirements or decisions, and implements it immediately using the same review-fix loop as `/run-task`.
+**`/do-it`** — crystallizes the discussion into a task step, updates the spec if the discussion introduced new requirements or decisions, and implements it immediately using the same review-fix loop as `/run-task`.
 
 ## Capturing Ideas Mid-Session
 
@@ -73,10 +73,10 @@ When starting a new session on an existing task:
 
 **2. `/check-task`** — the AI reads all three layers:
 - **Spec** — requirements, decisions, non-goals
-- **Brief** — patterns, gotchas, decisions accumulated during previous work
+- **Brief** — patterns, gotchas, and supersession log of any spec decisions overturned mid-task
 - **Task** — plan steps, what's checked off, what's next
 
-It surfaces where you left off, detects any drift between spec requirements and task steps, and checks for staleness (e.g., brief is empty despite completed steps, or spec is missing decisions from the brief).
+It surfaces where you left off, detects any drift between spec requirements and task steps, and checks for staleness (e.g., brief is empty despite completed steps, or brief `Decision Overrides` haven't been applied to the spec).
 
 **3. Continue** — ask the AI to continue from where it left off, or use `/run-task` to execute remaining steps automatically.
 

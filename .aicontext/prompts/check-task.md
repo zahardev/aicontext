@@ -30,7 +30,7 @@ Read and follow `identify-task.md` to find the active task.
 
 **Brief** — if checked steps exist (`- [x]`) but the brief has no entries (or sections are empty), the brief is stale. Note this explicitly and offer to update it by appending a catch-up entry to each relevant section before proceeding.
 
-**Spec** — if the brief has Decisions entries that are not reflected in the spec, the spec is stale. Note this and offer to elevate those decisions to the spec's Decisions section.
+**Spec** — if the brief has `Decision Overrides` entries not yet applied to the spec, the spec is stale. Note this and offer to apply each supersession (revise the spec to match the override).
 
 ## Spec↔Task Drift
 

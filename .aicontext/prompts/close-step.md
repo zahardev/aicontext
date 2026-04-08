@@ -28,7 +28,7 @@ See `process.md "Task Requirements vs Spec Requirements"`.
 Append findings prefixed with `[Step N]` to the appropriate sections:
 - **Codebase Patterns**: patterns or conventions discovered
 - **Gotchas**: non-obvious issues or constraints
-- **Decisions**: choices made and why
+- **Decision Overrides**: spec decisions superseded mid-step (old + why)
 - **File References**: files created or modified
 - **Bugs & Issues**: errors encountered and solutions
 - **Testing**: test results and coverage
@@ -37,11 +37,11 @@ If no brief exists, create one from `.aicontext/templates/brief.template.md` and
 
 Skip entries for obvious things already visible in the code. Each entry should be 1-2 lines of distilled knowledge.
 
-## 4. Elevate to Spec
+## 4. Sync Spec
 
 <!-- Distinct from Step 2: Step 2 *checks off* existing requirements (verification); this section *adds new* requirements/decisions/non-goals discovered during the step (creation). Two operations on the spec, two distinct triggers. -->
 
-Scan the new brief entries: does any of it change requirements, add a non-goal, or represent an architectural decision? If yes, update the appropriate spec section (Requirements, Non-goals, or Decisions).
+New decisions, requirements, and non-goals from this step go directly to the spec — not the brief. If something *contradicts* an existing spec decision, revise the spec and record the old decision + why it was overturned in the brief's `Decision Overrides`.
 
 When adding a new requirement, immediately check if it's covered by an existing task step — if not, propose adding a step to the current task or creating a separate task.
 
