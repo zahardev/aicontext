@@ -91,6 +91,8 @@ All commits go through `commit.md` — the single commit codepath. Read `.aicont
 - **`commit.body: true`** (default) — subject line + blank line + body + Co-Authored-By trailer from `commit.co_authored_trailer`.
 - **`commit.body: false`** — subject line only. No body, no trailers, no Co-Authored-By — nothing after the subject line.
 
+**Body content rules:** 1-3 lines. Why, not what. No diff recap, file list, narration, or re-explaining what the docs already cover.
+
 ## Question UX
 
 When asking closed questions (2-4 discrete options), check `claude.question_style` in `.aicontext/config.yml`:
