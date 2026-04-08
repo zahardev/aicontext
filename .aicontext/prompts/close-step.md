@@ -58,3 +58,7 @@ Step N closed:
 ```
 
 If Brief shows +0 entries, explain why nothing was learned (this should be rare — most steps produce at least a file reference).
+
+After the summary, append one handoff line based on the task state:
+- If unchecked plan steps remain → `Run /next-step to continue.`
+- If this was the last unchecked step → `Final step closed. Run /finish-task to close the task.`

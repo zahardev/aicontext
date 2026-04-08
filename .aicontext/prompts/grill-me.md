@@ -2,7 +2,7 @@
 
 <!-- Inspired by mattpocock's grill-me skill: https://github.com/mattpocock/skills/blob/main/grill-me/SKILL.md -->
 
-Run a structured interview to thoroughly explore the current topic. Ask one question at a time, walk dimensions breadth-first, and capture decisions as you go.
+Run a structured interview to thoroughly explore the current topic. Walk dimensions breadth-first, batching independent root questions and drilling atomically only when answers depend on prior ones. Capture decisions as you go.
 
 ## 1. Before Asking
 
@@ -22,9 +22,9 @@ The map is **live, not fixed**: after each answer, check whether the answer reve
 
 ## 3. Interview Rules
 
-- **One question at a time** — follow the Question Pacing rule in `standards.md`. Default to atomic (ask, wait, ask the next). The batchable exception (2–3 narrow follow-ups on the same topic) applies only when each question is short and they don't depend on each other.
-- **Breadth-first by default** — cycle through unasked dimensions before going deep on any one. Touch every dimension at least once before circling back for depth on the ones that need it.
-- **Depth-cap exception for surprises** — if an answer reveals something unexpected, you may ask at most 1–2 follow-ups on that thread before explicitly returning to the next unasked dimension. This is the only exception to breadth-first. Never chain into a 4-question rabbit hole.
+- **Question pacing** — follow the Question Pacing rule in `standards.md`
+- **Breadth-first walking** — cycle through unasked dimensions before going deep on any one. Touch every dimension at least once before circling back for depth on the ones that need it
+- **Depth-cap exception for surprises** — if an answer reveals something unexpected, you may ask at most 1–2 follow-ups on that thread before explicitly returning to the next unasked dimension
 - **Recommend an answer** — for each question, suggest what you think the answer is based on codebase exploration and context. The user confirms, corrects, or expands.
 - **Skip what you know** — if the codebase or conversation already answers a dimension, don't ask it
 - **Closed questions** — when there are 2–4 discrete options, check `claude.question_style` in `.aicontext/config.yml`: use `AskUserQuestion` for `interactive`, numbered options for `numbered`

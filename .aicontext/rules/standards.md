@@ -107,23 +107,69 @@ When asking closed questions (2-4 discrete options), check `claude.question_styl
 
 ### Question Pacing
 
-Before asking the user an open question, STOP. Default to atomic — ask exactly one, wait for the answer, then ask the next. Batch only when the questions are narrow follow-ups on the same topic.
+Before asking open questions, apply the **independence test**: *"Does Q1's answer change how I'd phrase Q2?"* If **no**, batch them as a numbered list. If **yes**, ask atomically.
 
-**Why:** Rules buried in long files get skimmed. Per-question pacing forces attention to each answer — batched questions usually get batched answers that skip nuance, and users lose track of which question they're on. The exception (narrow follow-ups) exists because forcing single-question pacing on quick yes/no follow-ups wastes the user's time without adding clarity.
+**Why:** Atomic pacing has two costs. (1) **Token cost**: every API request resends the full conversation history, so N round trips for N independent questions cost ~O(N²) cumulative input tokens vs. ~O(N) for one batched message. Subagents pay this cost in full because their cache is isolated. (2) **Quality cost**: atomic root questions cause the AI to drift to implementation after 1-2 answers — remaining root questions get skipped because the AI accumulated enough context to start sketching a solution. Breadth-first batching forces *collection before convergence*.
+
+The numbered-batching format mitigates the original concern (users giving shallow answers to a wall of questions) — the user sees the full menu, takes their time per number, and uses the existing `### Question Numbering` convention to keep answers threaded.
 
 **How to apply:**
-- **Atomic (default):** Exploratory, weighty, or independent decisions — scope clarifications, ambiguity resolution, "which approach", "should I...". Even if you have three in mind, output one.
-- **Batchable (exception):** 2–3 narrow follow-ups on the same topic where each answer is short and the questions don't depend on each other. Number them (Q5, Q6, Q7) per the `### Question Numbering` rule so the user can answer in one message. When in doubt, default to atomic.
+- **Batch (default for independent questions):** Parallel dimensions whose answers don't depend on each other — root scoping ("scope? priority? constraints? success criteria?"), independent clarifications, parallel config choices. Number them (Q5, Q6, Q7) per `### Question Numbering` so the user can answer in one message.
+- **Atomic (when answers are dependent):** Each answer reshapes the next — drilling into a specific decision, follow-ups that depend on prior answers, ambiguity that blocks further questions. The test: would Q2 make sense without Q1's answer?
+- **Interviews (`grill-me`, `start-feature`):** Always breadth-first first — fire all root scoping questions in one numbered batch, collect answers, *then* drill atomically into whichever dimensions need depth. This prevents "drift to implementation after 2 answers" where the remaining root questions get skipped.
 - **Closed questions:** 2-4 discrete options follow `claude.question_style` in `config.yml` — see the `## Question UX` section above.
 - **Per-prompt reminders:** Prompts that surface open questions include a one-line reference back to this rule so it stays attention-adjacent when the prompt fires.
 
 ### Communication Style
 - Be professional and technically accurate
-- Use clear, concise language
 - Focus on actionable outcomes
 - Never use "Perfect!", "Amazing!", "Great!" or similar exclamations
-- Respond only with needed information
-- **Concise by default.** Skip preamble, recaps, and option menus when one path is clearly right. Match answer length to question complexity — short questions get short answers. Add detail only when the decision needs it or the user asks.
+
+### Information Density
+
+Conciseness means *the clearest answer with no waste* — not the fewest possible words. Optimize for signal per token, not character count.
+
+**Why:** Verbose output bloats subsequent context and pushes earlier rules out of attention. Subagent reports become the lead's input, so bloat compounds across the chain — which is why subagents inherit this rule via `agent-setup.md`.
+
+**How to apply:**
+- When following a multi-step prompt (close-step, finish-task, etc.), do the work silently and output only the final deliverable. Don't narrate sub-step headers ("1. Update task", "2. Requirement checkboxes...") — those are *your* instructions, not the user's report.
+- Skip preamble and recaps. Don't restate the question.
+- Don't offer a menu of options when one path is clearly right — pick it.
+- Match length to what the *answer* needs, not what the prompt looks like. A one-line question can have a paragraph answer; a long prompt can warrant a one-line answer.
+- A bullet list isn't automatically concise — choose the format that genuinely compresses the content.
+- **Every line must earn its place.** Before sending, ask: *can I cut anything without losing value?* If yes, cut. If no, the length is justified — 50 lines is fine when every line carries value.
+- **Voice tangents and concerns only when real and actionable.** Hypothetical "worth noting" observations and adjacent thoughts → think silently, drop them. The user's attention is finite; spend it on what changes a decision.
+
+### Always Offer Next Action
+
+After a workflow prompt finishes (file creation, step close, task finish, review, check), or after a mid-task discussion reaches actionable conclusions, end with a one-line pointer to the next command the user can run. Never leave the user wondering "now what?".
+
+**Format:** one line, after the required summary block.
+
+**Branch on state when possible** — pick the right next command, don't list both. The AI knows the task state after running the prompt; use it.
+
+**Examples:**
+- After `/close-step` with unchecked steps remaining: `Run /next-step to continue.`
+- After `/close-step` on the final step: `Final step closed. Run /finish-task to close the task.`
+- After `/finish-task` with pending tasks in the same spec: `Spec '{Spec Name}' has more pending tasks. Next: '{task-name}'. Would you like to start it now?`
+- After `/finish-task` with spec complete or no spec: `Task closed. Start the next feature with /start-feature.`
+- After `/check-task`: `Resume with /run-step (one step) or /run-task (execute all remaining), or address the flagged items first.`
+- After `/create-task`: `Ready for /run-task or /run-step.`
+- After a mid-task discussion surfaces new work: `/add-step to add it to the plan, or /do-it to add the step and execute immediately.`
+
+**Why:** workflow continuity. The AI holds the map; the user should never have to guess the next command. Next-action pointers are not tangents under Information Density — they are actionable and belong in the reply.
+
+### Tool Output Handling
+
+Large tool output lives in conversation history forever — every subsequent turn pays the cost. For commands expected to produce more than ~50 lines (test runs, build logs, large file dumps, repository scans), redirect output to a file and read only the slice you need.
+
+**Why:** Conversation history is the single biggest hidden context cost. A 2000-line test log shipped inline costs ~10× a one-line `## Result: FAIL` summary plus a path the AI can `Read` if needed.
+
+**How to apply:**
+- Bash commands likely to produce >50 lines: pipe to `/tmp/{name}.log`, then `Grep` or `Read` with `offset`/`limit` for the slice you need.
+- For test runs, prefer the `test-runner` subagent (which filters output to failures + diagnostics).
+- For repository-wide searches, prefer `Grep` with `head_limit` over piping `find` output.
+- When forced to run a long command inline (e.g. for debugging), summarize the takeaway in your reply rather than letting the raw output stand.
 
 ### Truth Over Agreement
 - Never agree with the user if they're wrong or their approach is flawed

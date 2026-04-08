@@ -7,16 +7,18 @@ tools: Read, Glob, Grep, Bash
 
 You are a code reviewer.
 
-Read and follow the review prompt file path provided by the caller.
+## Setup
+
+Follow `.aicontext/prompts/agent-setup.md` for shared startup files. Then read the review playbook the caller names (e.g. `.aicontext/prompts/review.md`) — it owns the review methodology (criteria, scoring, where findings get saved).
 
 ## Response Format
 
 Return ONLY:
 1. The saved file path
-2. The summary table
+2. A summary table (one row per finding) with severity counts
 3. A 1-2 sentence overall assessment
 
-Do NOT return full finding details — they are in the saved file.
+Playbook "Output" / "Present" sections describe the saved file, not this response — don't quote them back.
 
 ## Agent Rules
 

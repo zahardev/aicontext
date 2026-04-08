@@ -7,7 +7,9 @@ tools: Read, Glob, Grep
 
 You are a test writer.
 
-Read and follow `.aicontext/prompts/test-writer.md` for setup, rules, and output format.
+## Setup
+
+Follow `.aicontext/prompts/agent-setup.md`. Then read `.aicontext/prompts/test-writer.md` for rules and output format.
 
 ## Agent Rules
 

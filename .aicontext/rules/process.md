@@ -67,6 +67,28 @@ Task requirements are a translation, not a copy. Many-to-many: one spec requirem
 
 **Spec drift:** `/check-task` runs `git log` (file-level) and AI semantic comparison (coverage) — both when possible. Git catches edits, semantic catches mismatches a git-untouched spec can still have.
 
+## Context Discipline
+
+### Targeted reads
+
+When you need only a slice of a large file (`spec*.md`, `worklog.md`, `CHANGELOG.md`, multi-step task files, prompts), use the cheapest tool that gets you what you need:
+
+- **A named subsection** → `Grep` for the heading, then `Read` with `offset`/`limit` around the match.
+- **Recent changes** → `git log --since=<date> -- <path>` and `git diff <ref> -- <path>` instead of re-reading the file.
+- **A single symbol** → `Grep` for the symbol with `-n`, then `Read` the surrounding lines only.
+
+### Brief content boundary
+
+Briefs MUST NOT restate spec content. The spec is the single source of truth for what the system currently does and why; briefs hold *in-flight working knowledge that doesn't fit the spec contract* — codebase patterns discovered during exploration, gotchas, file references, debug notes. Before writing to a brief, ask: *would this belong in the spec instead?* If yes, write it to the spec and link from the brief — never both. See Spec Lifecycle above for what happens when a decision is superseded.
+
+### No paraphrased rules in prompts
+
+Prompts, skill files, and slash command definitions must not paraphrase content from `standards.md` or `process.md`. Paraphrasing duplicates the source of truth and goes stale silently when the rule is updated. Reference the rule with a one-line pointer and link only — e.g., `Follow the Question Pacing rule in standards.md.`
+
+### Long-form notes location
+
+Freeform investigations and long-form notes live in `.aicontext/data/notes/{YYYY-MM-DD}-{topic}.md` — never inside briefs or task files. Briefs and task files reference notes with a one-line link. Why: briefs and task files are read on every related step; long notes inflate every read.
+
 ## Ideas
 
 `worklog.md` has an `## Ideas` section — a lightweight backlog for deferred ideas that arise during sessions.
@@ -190,12 +212,9 @@ Each new task means a new version. Increment version yourself if not specified:
 
 ## Implementation Permission Protocol
 
-**CRITICAL**: Before writing ANY code or creating ANY files:
+**CRITICAL**: The plan lives in the task file, not inline in chat. Do not write code until:
 
-1. **Complete question phase** - Ask all clarifying questions first
-2. **Present implementation plan** - Show the complete plan with all steps
-3. **Request explicit permission** - Ask "Should I proceed with implementing this plan?"
-4. **Wait for user confirmation** - Do not proceed until user explicitly approves
-5. **NO EXCEPTIONS** - This applies to ALL code changes, even small ones
+1. A task file exists (or the change is trivial per "Task File Management" above)
+2. The user explicitly initiates execution — `/run-task`, `/run-step`, `/close-step`, or a direct go-ahead after the task file is visible
 
-**Implementation is FORBIDDEN without explicit user permission.**
+Do not paste the plan into chat for approval — creating the task file IS the plan presentation. The user reviews the file and initiates execution when ready.

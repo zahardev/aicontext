@@ -24,7 +24,7 @@ Read and follow `identify-task.md` to find the active task.
 - Unclear requirements or ambiguities
 - Conflicts between spec, brief, and current code
 - Current progress: what's done, what's next
-- Any open questions the user should answer before proceeding — follow the Question Pacing rule in `standards.md`: ask exactly one, wait for the answer, then ask the next
+- Any open questions the user should answer before proceeding — follow the Question Pacing rule in `standards.md`
 
 ## Staleness Checks
 
@@ -64,3 +64,7 @@ Compare spec requirements against the task's plan steps. For each requirement no
    > Add steps for the related items? Create a separate task for the others?"
 
 The user confirms the grouping and decides what to do.
+
+## Handoff
+
+After the report, append one line: `Resume with /run-step (one step) or /run-task (execute all remaining), or address the flagged items first.`

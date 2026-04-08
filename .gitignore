@@ -31,6 +31,12 @@ test-project/
 # Brief files (temporary, agent-to-agent knowledge transfer)
 .aicontext/data/brief/
 
+# Long-form notes (freeform investigations, exploratory writing — not part of the spec/task contract)
+.aicontext/data/notes/
+
+# Researcher subagent output (saved investigation notes)
+.aicontext/data/research/
+
 
 # PR review config (project-specific skip paths)
 .aicontext/scripts/pr-reviews-config.json

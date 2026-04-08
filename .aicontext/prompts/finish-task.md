@@ -70,3 +70,7 @@ Task {task-name} closed:
 ```
 
 Step 2 resolves every warning before reaching this summary. Deferred/revised counts record the user's resolution choices — auditable. Reaching Step 7 with unresolved warnings is an error: return to Step 2.
+
+After the summary, append one handoff line based on worklog state:
+- If the just-finished task's spec has other unchecked tasks in the worklog → `Spec '{Spec Name}' has more pending tasks. Next: '{next-task-name}'. Would you like to start it now?`
+- Otherwise (spec complete, or no spec) → `Start the next feature with /start-feature.`
