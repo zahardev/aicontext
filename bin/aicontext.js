@@ -16,10 +16,10 @@ const FRAMEWORK_PROMPTS = [
   'add-step.md', 'aic-help.md', 'aic-skills.md', 'align-context.md', 'challenge.md', 'check-task.md', 'close-step.md',
   'commit.md', 'create-task.md', 'deep-review.md', 'deep-review-criteria.md', 'do-it.md', 'draft-issue.md', 'ensure-config.md', 'identify-task.md',
   'draft-pr.md', 'finish-task.md', 'generate.md', 'gh-review-fix-loop.md', 'next-step.md', 'plan-tasks.md',
-  'gh-review-check.md', 'prepare-release.md', 'review.md', 'review-criteria.md', 'review-scope.md',
-  'auto-setup.md', 'brainstorm.md', 'grill-me.md', 'review-plan.md', 'run-step.md', 'run-task.md', 'start-feature.md', 'start.md', 'step-loop.md', 'test-writer.md', 'thoughts.md', 'update-check.md',
+  'gh-review-check.md', 'install-playwright-cli.md', 'prepare-release.md', 'review.md', 'review-criteria.md', 'detect-review-scope.md',
+  'auto-setup.md', 'brainstorm.md', 'check-update.md', 'interview.md', 'review-task-plan.md', 'run-step.md', 'run-task.md', 'start-feature.md', 'start.md', 'step-loop.md', 'test-writer.md', 'thoughts.md',
 ];
-const DEPRECATED_PROMPTS = ['check_plan.md', 'check_task.md', 'after_step.md', 'plan.md', 'task.md', 'start-task.md', 'diff-review.md', 'branch-review.md', 'standards-check.md', 'pr-review-check.md', 'check-plan.md', 'run-steps.md'];
+const DEPRECATED_PROMPTS = ['check_plan.md', 'check_task.md', 'after_step.md', 'plan.md', 'task.md', 'start-task.md', 'diff-review.md', 'branch-review.md', 'standards-check.md', 'pr-review-check.md', 'check-plan.md', 'run-steps.md', 'review-plan.md', 'review-scope.md', 'update-check.md'];
 const FRAMEWORK_AGENTS = [
   'researcher.md',
   'reviewer.md',
@@ -28,16 +28,16 @@ const FRAMEWORK_AGENTS = [
 ];
 const DEPRECATED_AGENTS = ['pr-review-summarizer.md', 'deep-reviewer.md', 'standards-checker.md'];
 const FRAMEWORK_SKILLS = [
-  'add-step', 'add-idea', 'create-task', 'start', 'start-feature', 'plan-tasks', 'check-task', 'review-plan', 'run-step', 'run-task', 'finish-task',
-  'align-context', 'do-it', 'challenge', 'brainstorm', 'thoughts', 'grill-me', 'commit', 'review', 'deep-review', 'next-step', 'draft-pr', 'gh-review-check',
-  'draft-issue', 'prepare-release', 'gh-review-fix-loop', 'web-inspect', 'aic-help', 'aic-skills',
+  'add-step', 'add-idea', 'create-task', 'start', 'start-feature', 'plan-tasks', 'check-task', 'review-task-plan', 'run-step', 'run-task', 'finish-task',
+  'align-context', 'do-it', 'challenge', 'brainstorm', 'thoughts', 'interview', 'commit', 'review', 'deep-review', 'next-step', 'draft-pr', 'gh-review-check',
+  'draft-issue', 'prepare-release', 'gh-review-fix-loop', 'gh-fix-tests', 'web-inspect', 'aic-help', 'aic-skills',
 ];
 const FRAMEWORK_CODEX_SKILLS = [
-  'add-step', 'add-idea', 'create-task', 'start', 'start-feature', 'plan-tasks', 'check-task', 'review-plan', 'run-step', 'run-task', 'finish-task',
-  'align-context', 'do-it', 'challenge', 'brainstorm', 'thoughts', 'grill-me', 'commit', 'review', 'deep-review', 'next-step', 'draft-pr', 'gh-review-check',
-  'draft-issue', 'prepare-release', 'gh-review-fix-loop', 'web-inspect', 'aic-help', 'aic-skills',
+  'add-step', 'add-idea', 'create-task', 'start', 'start-feature', 'plan-tasks', 'check-task', 'review-task-plan', 'run-step', 'run-task', 'finish-task',
+  'align-context', 'do-it', 'challenge', 'brainstorm', 'thoughts', 'interview', 'commit', 'review', 'deep-review', 'next-step', 'draft-pr', 'gh-review-check',
+  'draft-issue', 'prepare-release', 'gh-review-fix-loop', 'gh-fix-tests', 'web-inspect', 'aic-help', 'aic-skills',
 ];
-const DEPRECATED_SKILLS = ['task', 'after-step', 'next', 'pr', 'start-task', 'diff-review', 'branch-review', 'standards-check', 'pr-review-check', 'check-plan', 'run-steps'];
+const DEPRECATED_SKILLS = ['task', 'after-step', 'next', 'pr', 'start-task', 'diff-review', 'branch-review', 'standards-check', 'pr-review-check', 'check-plan', 'run-steps', 'review-plan'];
 const FRAMEWORK_SCRIPTS = ['pr-reviews.js', 'pr-resolve.js'];
 const CONFIG_FILE = 'config.yml';
 

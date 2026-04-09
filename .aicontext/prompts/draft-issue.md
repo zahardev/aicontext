@@ -1,3 +1,5 @@
+# Draft Issue
+
 Draft a GitHub issue based on the current conversation context.
 
 ## 1. Gather Context

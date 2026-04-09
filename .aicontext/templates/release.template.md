@@ -1,25 +1,10 @@
 ---
-# Where the version number lives in your project
-version_source:
-  file: package.json      # e.g. package.json, pyproject.toml, Cargo.toml, VERSION
-  field: version          # e.g. version, tool.poetry.version — leave blank for plain text files
-
-# Branch to diff against when gathering changes
-base_branch: main         # e.g. main, master, develop
-
 # How the version being released is determined
 # Options:
 #   branch-name  — parsed from current branch name (e.g. version/1.2.3)
 #   git-tag      — latest git tag
 #   manual       — agent asks each time
 version_detection: branch-name
-
-# Changelog format for the public-facing CHANGELOG.md
-# Options:
-#   keep-a-changelog  — versioned sections with ### Added / Changed / Fixed / Removed
-#   date-based        — ## YYYY-MM-DD sections with bullet entries
-#   none              — no public changelog
-changelog_format: keep-a-changelog
 
 # Internal AI changelog used as input when writing the public CHANGELOG.md
 # The skill reads this file to understand what changed, rather than reconstructing from git diff alone.

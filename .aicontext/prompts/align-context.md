@@ -6,7 +6,7 @@ Update all context files to reflect the current state of work. Fix what's stale,
 
 Read and follow `identify-task.md` to find the active task.
 
-Read the task file, spec (if linked), and brief (if it exists at `.aicontext/data/brief/brief-{task-filename}`).
+Read the task file and brief (at `.aicontext/data/brief/brief-{task-filename}` if it exists). For the spec (if linked): if you already Read it earlier in this conversation, rely on that — don't re-Read. Otherwise Read it once (align-context needs a holistic view to catch cross-section conflicts).
 
 ## 2. Task File
 
@@ -15,23 +15,13 @@ Read the task file, spec (if linked), and brief (if it exists at `.aicontext/dat
 
 ## 3. Spec
 
-If a spec exists:
-- Add any decisions made in conversation or during implementation that aren't in the Decisions section
-- Add any new requirements discovered during work
-- Add any non-goals identified during work
-- When adding a new requirement, check if it's covered by a task step — if not, add a step to the task
+If a spec is linked, review it against session knowledge. For each candidate addition (decisions, requirements, non-goals): already present → skip; contradicts existing → revise the spec and record the supersession in the brief's Decision Overrides (see `process.md "Brief content boundary"`); genuinely new → append to the appropriate section. If an Edit fails because your memory is stale, Grep + Read just that section and retry.
+
+When adding a new requirement, check if a task step covers it — if not, add a step.
 
 ## 4. Brief
 
-If a brief exists, append any knowledge from the current session:
-- Codebase Patterns: patterns or conventions discovered
-- Gotchas: non-obvious issues or constraints
-- Decision Overrides: spec decisions superseded mid-step (old + why)
-- File References: files created or modified
-- Bugs & Issues: errors encountered and solutions
-- Testing: test results and coverage
-
-If no brief exists and work has been done, create one from `.aicontext/templates/brief.template.md` and fill in the References section.
+Append session knowledge to the brief's sections. If no brief exists and work has been done, create one from `brief.template.md`.
 
 ## 5. Worklog
 

@@ -12,7 +12,7 @@ Read these files to understand the project:
 
 ## Scope
 
-Follow `.aicontext/prompts/review-scope.md` to determine the review scope.
+Follow `.aicontext/prompts/detect-review-scope.md` to determine the review scope.
 
 ## Review
 

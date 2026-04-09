@@ -439,8 +439,8 @@ describe('version cache', () => {
 });
 
 describe('FRAMEWORK_PROMPTS', () => {
-  it('should contain exactly 38 framework prompt files', () => {
-    assert.strictEqual(FRAMEWORK_PROMPTS.length, 38);
+  it('should contain exactly 39 framework prompt files', () => {
+    assert.strictEqual(FRAMEWORK_PROMPTS.length, 39);
   });
 
   it('should contain the expected prompt files', () => {
@@ -448,8 +448,8 @@ describe('FRAMEWORK_PROMPTS', () => {
       'add-step.md', 'aic-help.md', 'aic-skills.md', 'align-context.md', 'challenge.md', 'check-task.md', 'close-step.md',
       'commit.md', 'create-task.md', 'deep-review.md', 'deep-review-criteria.md', 'do-it.md', 'draft-issue.md', 'ensure-config.md', 'identify-task.md',
       'draft-pr.md', 'finish-task.md', 'generate.md', 'gh-review-fix-loop.md', 'next-step.md', 'plan-tasks.md',
-      'gh-review-check.md', 'prepare-release.md', 'review.md', 'review-criteria.md', 'review-scope.md',
-      'auto-setup.md', 'brainstorm.md', 'grill-me.md', 'review-plan.md', 'run-step.md', 'run-task.md', 'start-feature.md', 'start.md', 'step-loop.md', 'test-writer.md', 'thoughts.md', 'update-check.md',
+      'gh-review-check.md', 'install-playwright-cli.md', 'prepare-release.md', 'review.md', 'review-criteria.md', 'detect-review-scope.md',
+      'auto-setup.md', 'brainstorm.md', 'check-update.md', 'interview.md', 'review-task-plan.md', 'run-step.md', 'run-task.md', 'start-feature.md', 'start.md', 'step-loop.md', 'test-writer.md', 'thoughts.md',
     ];
     assert.deepStrictEqual([...FRAMEWORK_PROMPTS].sort(), [...expected].sort());
   });
@@ -457,7 +457,7 @@ describe('FRAMEWORK_PROMPTS', () => {
 
 describe('DEPRECATED_PROMPTS', () => {
   it('should contain the old prompt file names', () => {
-    const expected = ['check_plan.md', 'check_task.md', 'after_step.md', 'plan.md', 'task.md', 'start-task.md', 'diff-review.md', 'branch-review.md', 'standards-check.md', 'pr-review-check.md', 'check-plan.md', 'run-steps.md'];
+    const expected = ['check_plan.md', 'check_task.md', 'after_step.md', 'plan.md', 'task.md', 'start-task.md', 'diff-review.md', 'branch-review.md', 'standards-check.md', 'pr-review-check.md', 'check-plan.md', 'run-steps.md', 'review-plan.md', 'review-scope.md', 'update-check.md'];
     assert.deepStrictEqual([...DEPRECATED_PROMPTS].sort(), [...expected].sort());
   });
 });
@@ -771,15 +771,15 @@ describe('removeDeprecatedAgents', () => {
 });
 
 describe('FRAMEWORK_SKILLS', () => {
-  it('should contain exactly 29 skill names', () => {
-    assert.strictEqual(FRAMEWORK_SKILLS.length, 29);
+  it('should contain exactly 30 skill names', () => {
+    assert.strictEqual(FRAMEWORK_SKILLS.length, 30);
   });
 
   it('should contain the expected skills', () => {
     const expected = [
-      'add-step', 'add-idea', 'create-task', 'start', 'start-feature', 'plan-tasks', 'check-task', 'review-plan', 'run-step', 'run-task', 'finish-task',
-      'align-context', 'do-it', 'challenge', 'brainstorm', 'thoughts', 'grill-me', 'commit', 'review', 'deep-review', 'next-step', 'draft-pr', 'gh-review-check',
-      'draft-issue', 'prepare-release', 'gh-review-fix-loop', 'web-inspect', 'aic-help', 'aic-skills',
+      'add-step', 'add-idea', 'create-task', 'start', 'start-feature', 'plan-tasks', 'check-task', 'review-task-plan', 'run-step', 'run-task', 'finish-task',
+      'align-context', 'do-it', 'challenge', 'brainstorm', 'thoughts', 'interview', 'commit', 'review', 'deep-review', 'next-step', 'draft-pr', 'gh-review-check',
+      'draft-issue', 'prepare-release', 'gh-review-fix-loop', 'gh-fix-tests', 'web-inspect', 'aic-help', 'aic-skills',
     ];
     assert.deepStrictEqual([...FRAMEWORK_SKILLS].sort(), [...expected].sort());
   });
@@ -793,7 +793,7 @@ describe('FRAMEWORK_SKILLS', () => {
 
 describe('DEPRECATED_SKILLS', () => {
   it('should contain the old skill names', () => {
-    const expected = ['task', 'after-step', 'next', 'pr', 'start-task', 'diff-review', 'branch-review', 'standards-check', 'pr-review-check', 'check-plan', 'run-steps'];
+    const expected = ['task', 'after-step', 'next', 'pr', 'start-task', 'diff-review', 'branch-review', 'standards-check', 'pr-review-check', 'check-plan', 'run-steps', 'review-plan'];
     assert.deepStrictEqual([...DEPRECATED_SKILLS].sort(), [...expected].sort());
   });
 });

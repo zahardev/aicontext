@@ -18,10 +18,10 @@
 - **Ideas backlog** in `worklog.md`: lightweight `## Ideas` section for capturing deferred ideas mid-session — format `- [type] description — optional context`, types: spec/task/step; included in `worklog.template.md`
 - **`/add-idea` skill**: capture an idea to the worklog without interrupting the session — infers type from context, asks only when ambiguous; supports Claude Code and Codex
 - **Ideas proactive rule** in `process.md`: AI suggests `/add-idea` when an out-of-scope idea surfaces mid-session
-- **`/grill-me` skill**: structured one-at-a-time interview with recommended answers and codebase exploration
+- **`/interview` skill**: structured breadth-first interview that walks dimensions, batches independent questions, recommends answers, and captures decisions
 - **`/brainstorm` skill**: generate missing angles, better implementations, and new combinations
 - **`/thoughts` skill**: lightweight "what are your thoughts?" check-in for quick feedback mid-conversation
-- **Spec alignment checks**: `/review-plan` verifies plan steps cover spec requirements; `/finish-task` verifies delivery
+- **Spec alignment checks**: `/review-task-plan` verifies plan steps cover spec requirements; `/finish-task` verifies delivery
 
 ### Changed
 - **`commit.md` is now the single commit codepath** — `finish-task.md`, `step-loop.md`, `do-it.md`, `run-step.md`, `gh-review-fix-loop.md` all delegate to it
@@ -29,8 +29,11 @@
 - `finish-task.md` push logic works correctly with per-step commit mode (push happens at task completion even when no uncommitted changes remain)
 - Spec template updated with grouped `### Problem` / `### Solution` headings and versioned filename convention
 - Task planning rule clarified: steps describe what to build, not behavioral details (those belong in specs)
-- **`/start-feature` rewritten**: delegates interview to `/grill-me`, adds prior-context guard and scope question, mandatory spec+task creation
+- **`/start-feature` rewritten**: delegates interview to `/interview`, adds prior-context guard and scope question, mandatory spec+task creation
 - **`/run-steps` renamed to `/run-task`** — clearer name, avoids confusion with `/run-step`
+- **`/review-plan` renamed to `/review-task-plan`** — disambiguates from verb-verb reading ("review and plan")
+- **`review-scope.md` renamed to `detect-review-scope.md`** — verb-noun matches the file's procedural content (internal helper, not a skill)
+- **`update-check.md` renamed to `check-update.md`** — disambiguates from verb-verb reading ("update the check"); matches framework convention (`check-task`, `check-update`). Internal helper, not a skill.
 
 ### Removed
 - Settings sections from `project.md` and `project.template.md` (moved to `config.yml`)

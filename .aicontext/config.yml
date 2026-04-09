@@ -32,3 +32,6 @@ update_check:
 claude:
   question_style: numbered   # interactive (AskUserQuestion) | numbered (plain text with 1, 2, 3...)
   # Only applies to Claude Code. Other tools always use numbered.
+
+gh_fix_tests:
+  push: true                    # true: /gh-fix-tests commits and pushes | false: commits only, caller pushes

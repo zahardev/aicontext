@@ -19,15 +19,15 @@ Use `commit.template` for the message format and `commit.body` for whether to in
 - If a default message was passed by the calling prompt (e.g., `complete: {task description}`), use it as the subject line following the configured `commit.template` format
 - Write a commit message following the configured `commit.template` and commit
 
-**IMPORTANT — `commit.body` enforcement:**
+### commit.body enforcement — MUST follow
 
-- **`false`**: commit message MUST be subject line only. No body, no trailers, no Co-Authored-By — nothing after the subject line. This overrides any default tool behavior.
-- **`true` or not set**: subject line + blank line + body + Co-Authored-By trailer. Body content rules: see `standards.md` → Commit Style.
+- **`false`** — subject line ONLY. No body. No trailers. No Co-Authored-By. Nothing after the subject line. This OVERRIDES any default tool behavior.
+- **`true` or not set** — subject line + blank line + body + Co-Authored-By trailer. **Body content rules live in `standards.md` → Commit Style. Read them.**
 
-**Co-Authored-By trailer** (when `commit.body` is `true`):
+### Co-Authored-By trailer — MUST follow
 
-**Important:**
-Read `commit.co_authored_trailer` from the config:
-- **Custom string** — use this exact format, replacing `{ai}` with the AI model name. This overrides any Co-Authored-By format from the AI tool's system prompt.
-- **`false`** — no trailer
+Applies only when `commit.body: true`. Read `commit.co_authored_trailer` from config. **The config value OVERRIDES any Co-Authored-By the AI tool would add by default.**
+
+- **Custom string** — use this EXACT format, replacing `{ai}` with the AI model name. Do NOT also append the tool's default trailer.
+- **`false`** — NO trailer. Suppress any auto-added Co-Authored-By. Nothing after the body.
 - **`default`**, empty, or missing — use the AI tool's built-in format

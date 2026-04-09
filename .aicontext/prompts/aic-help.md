@@ -12,7 +12,7 @@ Install: `npx @zahardev/aicontext init`
 
 ## Your First Session
 
-**Always begin a session with `/start`.** It loads your project's rules and confirms the AI is ready. Run it at the start of every session — without it the AI is working without your project's context.
+**Always begin a session with `/start`.** It loads your project's rules and confirms the AI is ready — without it, the AI has no project context.
 
 For a new feature, the full flow is:
 
@@ -22,7 +22,7 @@ Skills are invoked as `/skill-name` in Claude Code. In Codex, Cursor, and Copilo
 
 ## Key Concepts
 
-AI assistants forget everything between sessions. AIContext fixes this with four persistent documents that capture your decisions, track progress, and carry context forward — so the next session picks up exactly where you left off.
+AI assistants forget everything between sessions. AIContext fixes this with four persistent documents — so you pick up exactly where you left off.
 
 | Concept | What | Where |
 |---------|------|-------|

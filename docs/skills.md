@@ -148,6 +148,11 @@ Fetches unresolved PR review comments, classifies them (valid / false positive /
 
 Automates the full PR review cycle: fetch comments → triage → resolve false positives → fix real issues → run tests → commit and push → wait for re-review → repeat. Max 5 cycles.
 
+### `/gh-fix-tests`
+**Prompt:** `gh-fix-tests.md`
+
+Fixes failing CI on the current PR. Fetches failures via `gh run view --log-failed`, diagnoses root cause, fixes, pushes, and waits for CI green. Covers lint, type, build, and tests. Retries up to 3 times. Config: `gh_fix_tests.push` (default `true`).
+
 ## Other Skills
 
 ### `/challenge`
@@ -165,10 +170,10 @@ Loads project context and confirms readiness. Always run at the beginning of a s
 
 Completes the current step and starts the next one. Use for manual step-by-step execution (when not using `/run-task`).
 
-### `/review-plan`
-**Prompt:** `review-plan.md`
+### `/review-task-plan`
+**Prompt:** `review-task-plan.md`
 
-Validates a task plan for dependency issues, missing steps, or over-engineering.
+Validates the current task's plan for behavioral correctness, spec coverage, dependency order, and over-engineering.
 
 ### `/draft-issue`
 **Prompt:** `draft-issue.md`

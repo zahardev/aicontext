@@ -1,12 +1,10 @@
-# Grill Me
-
-<!-- Inspired by mattpocock's grill-me skill: https://github.com/mattpocock/skills/blob/main/grill-me/SKILL.md -->
+# Interview
 
 Run a structured interview to thoroughly explore the current topic. Walk dimensions breadth-first, batching independent root questions and drilling atomically only when answers depend on prior ones. Capture decisions as you go.
 
 ## 1. Before Asking
 
-1. Read `.aicontext/project.md` and `.aicontext/structure.md` to understand the project
+1. Load `.aicontext/project.md` and `.aicontext/structure.md` (skip if already Read earlier in this conversation — rely on memory)
 2. Explore the codebase to understand what already exists related to the topic
 3. Review the current conversation for context already provided
 
@@ -22,14 +20,12 @@ The map is **live, not fixed**: after each answer, check whether the answer reve
 
 ## 3. Interview Rules
 
-- **Question pacing** — follow the Question Pacing rule in `standards.md`
+- **Question pacing and closed-question UX** — follow the Question Pacing and Question UX rules in `standards.md`
 - **Breadth-first walking** — cycle through unasked dimensions before going deep on any one. Touch every dimension at least once before circling back for depth on the ones that need it
-- **Depth-cap exception for surprises** — if an answer reveals something unexpected, you may ask at most 1–2 follow-ups on that thread before explicitly returning to the next unasked dimension
+- **Depth-cap for surprises** — if an answer reveals something unexpected, ask at most 1–2 follow-ups before returning to the next unasked dimension
 - **Recommend an answer** — for each question, suggest what you think the answer is based on codebase exploration and context. The user confirms, corrects, or expands.
 - **Skip what you know** — if the codebase or conversation already answers a dimension, don't ask it
-- **Closed questions** — when there are 2–4 discrete options, check `claude.question_style` in `.aicontext/config.yml`: use `AskUserQuestion` for `interactive`, numbered options for `numbered`
-- **Open-ended questions** — use plain text
-- **No artificial limit** — keep asking until all dimensions are naturally resolved. 30+ rounds is acceptable when quality demands it
+- **No artificial limit** — keep asking until all dimensions are naturally resolved
 
 ## 4. Track Decisions
 
@@ -66,7 +62,7 @@ The caller copies this verbatim — do not paraphrase it yourself.
 
 ## 6. Next Action (standalone mode only)
 
-If grill-me was invoked directly (not via `start-feature` or another orchestrator), end with:
+If this skill was invoked directly (not via `start-feature` or another orchestrator), end with:
 
 > "Want me to create a spec, a task, or leave it here?"
 

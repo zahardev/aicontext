@@ -6,7 +6,7 @@ disable-model-invocation: true
 
 ## Determine scope
 
-Follow `.aicontext/prompts/review-scope.md` to determine scope and count changed lines.
+Follow `.aicontext/prompts/detect-review-scope.md` to determine scope and count changed lines.
 
 ## Run review
 

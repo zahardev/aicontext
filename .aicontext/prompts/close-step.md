@@ -25,15 +25,9 @@ See `process.md "Task Deliverables vs Spec Requirements"`.
 
 ## 3. Update Brief
 
-Append findings prefixed with `[Step N]` to the appropriate sections:
-- **Codebase Patterns**: patterns or conventions discovered
-- **Gotchas**: non-obvious issues or constraints
-- **Decision Overrides**: spec decisions superseded mid-step (old + why)
-- **File References**: files created or modified
-- **Bugs & Issues**: errors encountered and solutions
-- **Testing**: test results and coverage
+Append findings prefixed with `[Step N]` to the appropriate sections — see `brief.template.md` for the sections and `process.md "Brief content boundary"` for what belongs in the brief vs the spec.
 
-If no brief exists, create one from `.aicontext/templates/brief.template.md` and fill in the References section first.
+If no brief exists, create one from `brief.template.md`.
 
 Skip entries for obvious things already visible in the code. Each entry should be 1-2 lines of distilled knowledge.
 
@@ -41,9 +35,9 @@ Skip entries for obvious things already visible in the code. Each entry should b
 
 <!-- Distinct from Step 2: Step 2 *checks off* existing requirements (verification); this section *adds new* requirements/decisions/non-goals discovered during the step (creation). Two operations on the spec, two distinct triggers. -->
 
-New decisions, requirements, and non-goals from this step go directly to the spec — not the brief. If something *contradicts* an existing spec decision, revise the spec and record the old decision + why it was overturned in the brief's `Decision Overrides`.
+New decisions, requirements, and non-goals → spec directly. Supersessions of existing spec decisions → revise the spec and record the override in the brief's `Decision Overrides`. See `process.md "Brief content boundary"`.
 
-When adding a new requirement, immediately check if it's covered by an existing task step — if not, propose adding a step to the current task or creating a separate task.
+When adding a new requirement, check if an existing task step covers it — if not, propose adding a step or creating a separate task.
 
 ## 5. Output Summary
 

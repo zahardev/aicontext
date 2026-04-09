@@ -1,43 +1,49 @@
-# PR Review Check
+# GitHub Review Check
 
-Check unresolved review comments on the current pull request.
+Fetch and triage unresolved PR review comments on the current pull request.
 
-## 1. Fetch reviews
+## 1. Fetch
 
-Run `node .aicontext/scripts/pr-reviews.js` to fetch unresolved PR review comments.
+Run `node .aicontext/scripts/pr-reviews.js`. It saves a structured file to `.aicontext/data/github-pr-reviews/pr-{number}-{iteration}.md` with a summary table and full comment details.
 
-This saves a structured markdown file to `.aicontext/data/github-pr-reviews/pr-{number}-{iteration}.md` with a summary table and full comment details.
+If the command fails (no PR, `gh` CLI missing, etc.), tell the user and stop.
 
-If the command fails (no PR exists, `gh` CLI not installed, etc.), inform the user and stop.
-
-## 2. Read and analyze
+## 2. Analyze
 
 Read the generated file. For each finding, evaluate whether it's valid against the actual code.
 
 ## 3. Report
 
-Present findings to the user grouped by validity:
+Present findings grouped by validity, referencing each by its `#` from the table:
+
 - **Valid** — real issues worth fixing
 - **False positive** — explain why
 - **Low priority** — valid but not worth addressing now
 
-For each finding, reference its `#` from the table.
+Ask the user to confirm the triage before proceeding.
 
 ## 4. Fill actions
 
-After user confirms, update the Action and Reply columns in the file:
-- `resolve` — false positives and bot noise to dismiss on GitHub
-- `fix` — will address in code
-- `skip` — only for human reviewer comments where we are waiting for their response. Never use `skip` for automated CR bot reviews (CodeRabbit, etc.) — those should be either `resolve` or `fix`
+Update the Action and Reply columns in the file:
 
-**Reply column** — fill for every `resolve` and `fix` action. The reply is posted as a comment on the PR thread before resolving. Keep it concise: why it's a false positive, or what was fixed.
+| Action | When |
+|--------|------|
+| `resolve` | False positives and bot noise — dismiss on GitHub |
+| `fix` | Real issues to address in code |
+| `skip` | **Human reviewer only** — waiting for their response. Never use for automated bot reviews (CodeRabbit etc.); those are `resolve` or `fix`. |
+
+**Reply column** — fill for every `resolve` and `fix`. The reply is posted to the PR thread before resolving. Keep it concise: why it's a false positive, or what was fixed.
 
 ## 5. Resolve
 
-If there are any `resolve` actions, ask the user if they want to run:
+If any `resolve` actions exist, ask:
 
-```bash
-node .aicontext/scripts/pr-resolve.js <path-to-review-file>
-```
+> Run `pr-resolve.js` now to dismiss the `resolve` threads on GitHub?
+> 1. Yes — run it
+> 2. Not now — skip
 
-This resolves all threads marked `resolve` on GitHub.
+On yes, run `node .aicontext/scripts/pr-resolve.js <path-to-review-file>`.
+
+---
+
+After completion: `Review triage complete. Next: /commit to commit any fixes you made, or address the fix actions first.`

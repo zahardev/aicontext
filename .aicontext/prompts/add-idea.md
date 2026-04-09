@@ -4,19 +4,17 @@ Capture a deferred idea to the worklog Ideas section without interrupting the se
 
 ## 1. Get the idea description
 
-If the user provided text after the command (e.g., `/add-idea refactor the update check logic`), use that as the description — skip asking.
-
-Otherwise ask (open-ended, plain text):
+If the user provided text after the command, use it as the description — skip asking. Otherwise ask (open-ended):
 > "What's the idea?"
 
 ## 2. Infer type and context
 
 From the conversation and current task context, determine:
 
-- **Type**: `spec` (new feature or significant change needing planning), `task` (bounded implementation work), or `step` (an addition to the current task). Omit if genuinely unclear — no type is better than a wrong type.
+- **Type**: `spec` (new feature or significant change), `task` (bounded implementation work), or `step` (addition to the current task). If multiple fit, ask (below). Only omit as last resort.
 - **Context note**: a brief reference to the related spec or task if obvious. Omit if not clear.
 
-**If the type is ambiguous**, ask using `AskUserQuestion` (if `claude.question_style: interactive` in `config.yml`) or numbered options (if `numbered`):
+**If the type is ambiguous**, ask:
 > "What type of idea is this?"
 > 1. **spec** — new feature or significant change
 > 2. **task** — bounded implementation work
@@ -25,25 +23,13 @@ From the conversation and current task context, determine:
 
 ## 3. Compose the line
 
-- With type and context: `- [type] description — context note`
-- With type only: `- [type] description`
-- Without type: `- description`
+Format: `- [type] description — context note`. Omit `[type]` or `— context note` if not present.
 
 ## 4. Append to worklog
 
 If `.aicontext/worklog.md` doesn't exist, create it from `.aicontext/templates/worklog.template.md`.
 
-Find the `## Ideas` section and append the line.
-
-If the Ideas section doesn't exist, insert it before `## Standalone Tasks`. If `## Standalone Tasks` is also absent, append it at the end of the file:
-
-```markdown
-## Ideas
-<!-- Lightweight seeds for future work. Format: - [type] description — optional context (type is optional) -->
-<!-- Types: spec | task | step. When an idea matures, use /start-feature (spec), /create-task (task), or /add-step (step) to formalize it, then remove the line. Remove abandoned ideas too. -->
-<!-- - [spec] short description — optional context -->
-<!-- - [task] short description -->
-```
+Find the `## Ideas` section and append the line. *Legacy fallback:* if the section is absent (pre-1.7.0 worklog), insert the `## Ideas` block from `worklog.template.md` before `## Standalone Tasks`, or at file end.
 
 ## 5. Confirm
 

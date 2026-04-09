@@ -118,7 +118,7 @@ The numbered-batching format mitigates the original concern (users giving shallo
 **How to apply:**
 - **Batch (default for independent questions):** Parallel dimensions whose answers don't depend on each other — root scoping ("scope? priority? constraints? success criteria?"), independent clarifications, parallel config choices. Number them (Q5, Q6, Q7) per `### Question Numbering` so the user can answer in one message.
 - **Atomic (when answers are dependent):** Each answer reshapes the next — drilling into a specific decision, follow-ups that depend on prior answers, ambiguity that blocks further questions. The test: would Q2 make sense without Q1's answer?
-- **Interviews (`grill-me`, `start-feature`):** Always breadth-first first — fire all root scoping questions in one numbered batch, collect answers, *then* drill atomically into whichever dimensions need depth. This prevents "drift to implementation after 2 answers" where the remaining root questions get skipped.
+- **Interviews (`interview`, `start-feature`):** Always breadth-first first — fire all root scoping questions in one numbered batch, collect answers, *then* drill atomically into whichever dimensions need depth. This prevents "drift to implementation after 2 answers" where the remaining root questions get skipped.
 - **Closed questions:** 2-4 discrete options follow `claude.question_style` in `config.yml` — see the `## Question UX` section above.
 - **Per-prompt reminders:** Prompts that surface open questions include a one-line reference back to this rule so it stays attention-adjacent when the prompt fires.
 
@@ -139,6 +139,7 @@ The numbered-batching format mitigates the original concern (users giving shallo
 - Don't offer a menu of options when one path is clearly right — pick it.
 - Match length to what the output needs, not what the prompt looks like. A one-line question can have a paragraph answer; a long prompt can warrant a one-line answer.
 - **Voice tangents and concerns only when real and actionable.** Hypothetical "worth noting" observations → think silently, drop them. Spend user attention on what changes a decision.
+- **Prompt topic lists are candidates, not required sections.** When a prompt lists things to report/surface/check, omit any with nothing to say — don't render empty headers.
 
 ### Always Offer Next Action
 

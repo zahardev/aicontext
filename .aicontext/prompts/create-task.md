@@ -12,7 +12,7 @@ Crystallize the current discussion into a task file. Use when the discussion is 
 
 Identify any candidate specs from the discussion context and the `.aicontext/specs/` folder.
 
-Ask the user (use `AskUserQuestion` if `claude.question_style` is `interactive`, numbered list otherwise):
+Ask the user:
 
 > "Should this task be linked to a spec?"
 > 1. **Use existing spec** — [show candidate spec name(s), or "none found" if none]
@@ -21,7 +21,7 @@ Ask the user (use `AskUserQuestion` if `claude.question_style` is `interactive`,
 
 **Option 1:** Link to the chosen spec. Add the new task to the spec's `## Tasks` section. Also add the task to the `*Implemented by:*` footer of any spec subsection(s) this task implements (append to existing footer if one exists).
 
-**Option 2:** Create `.aicontext/specs/spec-{name}.md` from the discussion — include Problem, Solution, Requirements, and Decisions sections. Use checkbox bullets and `*Implemented by:*` footers per the spec template. No interview needed; the discussion already covers the content. Link the task to it and add the task to the spec's `## Tasks` section.
+**Option 2:** Create `.aicontext/specs/spec-{name}.md` from `.aicontext/templates/spec.template.md`, populated from the discussion. No interview needed — the discussion already covers the content. Link the task to it and add the task to the spec's `## Tasks` section.
 
 **Option 3:** No spec. Task will be added to worklog under "Standalone Tasks".
 
@@ -32,7 +32,7 @@ Create a task file in `.aicontext/tasks/` using the naming convention from the c
 - **Objective**: derive from the discussion — what this task aims to accomplish
 - **Spec link**: from step 2 (remove section if no spec)
 - **Commit Rules**: remove the section (use project defaults) unless the user specified overrides
-- **Deliverables**: definition of done for this work bundle — covers scoped spec delivery, process artifacts, constraints, and drive-by fixes. See `process.md "Task Deliverables vs Spec Requirements"`.
+- **Deliverables**: definition of done for this work bundle — see `process.md "Task Deliverables vs Spec Requirements"`
 - **Plan steps**: derive from the discussion, following planning guidelines in `process.md`
 
 ## 4. Update Worklog
@@ -46,4 +46,4 @@ If `.aicontext/worklog.md` doesn't exist, create it from `.aicontext/templates/w
 
 Show the created task file. Ask if the user wants to adjust anything.
 
-Then suggest next actions: `run-task` to execute all steps automatically, or `run-step` to start with the first one.
+Then suggest next actions: `/run-task` to execute all steps, or `/run-step` to start with the first one.

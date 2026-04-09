@@ -1,3 +1,5 @@
+# Draft PR
+
 Draft a pull request for the current branch.
 
 ## 1. Gather Context
@@ -27,3 +29,5 @@ Keep it factual — describe what changed, not how.
 ## 3. Save
 
 Save the draft to `.aicontext/data/pr-drafts/` using the branch name as the filename (e.g. `feature-auth.md`).
+
+**Do not output the PR body in chat.** Just save the file and tell the user the filename. Only show the full content in chat if the user explicitly asks to see it.

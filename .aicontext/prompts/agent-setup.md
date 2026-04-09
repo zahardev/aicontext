@@ -15,4 +15,4 @@ All paths are under `.aicontext/`. `local.md` is gitignored — skip silently if
 
 Reply with a summary, not a dump. Save full detail to the path defined in your agent definition; return only the saved path, summary counts, an optional role-defined top-N of the most critical items (e.g. test-runner's top-5 failures), and a 1–2 sentence assessment.
 
-Caller instructions describing a verbose output format describe the *saved file*, not your reply. "Be thorough" means investigation depth, not response format. The reply stays terse regardless.
+Caller instructions describing a verbose output format describe the *saved file*, not your reply. "Be thorough" means investigation depth, not response format — the reply stays terse regardless.

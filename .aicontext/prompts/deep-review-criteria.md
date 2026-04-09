@@ -1,6 +1,6 @@
 # Deep Review Criteria
 
-Comprehensive code review: architecture, correctness, and codebase health. Questions design decisions, checks for bugs and security issues, analyzes placement, responsibilities, API design, side effects, edge cases, extensibility, and systemic code quality.
+Comprehensive code review across architecture, correctness, and codebase health. Questions design decisions rather than approving them.
 
 ## Review Phases
 
@@ -71,7 +71,7 @@ Priority order: **language/platform native > framework-provided > existing proje
 - **Does the name accurately describe what the code does?** Verify the name matches the actual logic.
 - **Are there unexpected side effects?** Check if the method does anything beyond what its name promises.
 
-### Phase 9: Dependencies & Testability
+### Phase 9: Dependencies & State
 
 - **Does the dependency direction make sense?** Lower-level code should not depend on higher-level code.
 - **Are dependencies injected or hidden?** Service locators, singletons, global state, or static calls hide dependencies.

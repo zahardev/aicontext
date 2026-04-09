@@ -12,9 +12,7 @@ If no specs exist:
 
 ## 2. Read Context
 
-- Read the spec (requirements, decisions, non-goals)
-- Read any existing tasks linked in the spec's `## Tasks` section
-- Read `.aicontext/config.yml` → `task_naming` for the correct version prefix
+Follow `ensure-config.md` to read project settings (`task_naming` drives the version prefix). Load the spec and any existing tasks linked in its `## Tasks` section — skip any file already Read earlier in this conversation.
 
 ## 3. Assess Task Split
 
@@ -34,8 +32,4 @@ If existing tasks already cover some requirements, note which are already covere
 
 ## 4. Create Tasks
 
-After user confirms, create each task from `.aicontext/templates/task.template.md`:
-- Fill in: Created date, Spec link, Objective, Plan steps
-- Steps should be derived from the spec requirements assigned to this task
-
-Add all task cross-references to the spec's `## Tasks` section.
+After user confirms, create each task from `.aicontext/templates/task.template.md`. Derive plan steps from the spec requirements assigned to that task. Append each task to the spec's `## Tasks` section, and to the `*Implemented by:*` footer of any spec subsection(s) the task implements.

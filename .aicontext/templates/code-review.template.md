@@ -3,12 +3,14 @@
 Date: {date}
 Scope: {scope description, e.g., "uncommitted changes", "branch vs main", "full codebase"}
 
+<!-- If no issues found, replace Summary/Findings/Positive with: `## Result: APPROVED` -->
+
 ## Summary
 
 | # | Severity | Recommendation | Action | File:Line | Finding |
 |---|----------|----------------|--------|-----------|---------|
 | 1 | critical | fix | fix | `file:42` | {short description} |
-| 2 | important | fix | skip | `file:88` | {short description} |
+| 2 | major | fix | skip | `file:88` | {short description} |
 | 3 | minor | skip | — | `file:120` | {short description} |
 
 ## Refactoring Actions

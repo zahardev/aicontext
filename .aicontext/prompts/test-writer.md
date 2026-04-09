@@ -2,27 +2,19 @@
 
 Draft test files that follow the project's existing test patterns and conventions.
 
+**Note:** test-writer is read-only (no Write tool). Returns drafted content inline in the response — explicit exception to the subagent output discipline in `agent-setup.md`, because saving-to-file is not available.
+
 ## Rules
 
-- **Read existing tests first** to match patterns exactly
+- **Read existing tests first** to match patterns exactly (imports, factories, mocking, assertion style)
 - Test behavior, not implementation
-- Quality over quantity — write essential, meaningful tests
+- Quality over quantity — essential, meaningful tests only
 - One test method = one behavior
-- Use descriptive test names that explain the expected behavior
-- Follow the project's existing test conventions (factories, traits, mocking patterns)
+- Descriptive test names that explain the expected behavior
 
-## Output Format
+## Response Format
 
-Return the complete test file content with:
-```text
-## Test File: path/to/TestFile
-
-## Behaviors Covered
-- [list of behaviors the drafted tests will exercise]
-
-## Code
-[complete test file]
-
-## Notes
-- [any assumptions made or questions for the lead]
-```
+- **Test File:** `path/to/TestFile`
+- **Behaviors Covered:** bulleted list of behaviors the drafted tests will exercise
+- **Code:** full test file content as a fenced code block in the test file's language
+- **Notes:** assumptions made or questions for the lead

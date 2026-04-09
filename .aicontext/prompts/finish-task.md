@@ -6,7 +6,7 @@ Close out the current task: verify completion, sync spec, write completion notes
 
 Read and follow `identify-task.md` to find the active task.
 
-Read the task file, spec (if linked), and brief (if it exists at `.aicontext/data/brief/brief-{task-filename}`).
+Load the task file, spec (if linked), and brief (at `.aicontext/data/brief/brief-{task-filename}` if it exists). Skip any file already Read earlier in this conversation — rely on memory.
 
 ## 2. Verify Completion
 
@@ -18,14 +18,14 @@ See `process.md "Task Deliverables vs Spec Requirements"`.
 
 ## 3. Sync Spec (does the spec need new content?)
 
-Step 2 already verified the existing spec requirements were delivered. This step covers what Step 2 doesn't: *adding* new content the brief surfaced during execution.
+Step 2 verified existing spec requirements; this step *adds* new content the brief surfaced during execution.
 
-Read the spec and brief side by side. Check:
-- Are all brief `Decision Overrides` entries applied to the spec? Each entry represents a spec revision — verify the spec reflects it.
+Cross-reference the spec and brief (both loaded in Step 1):
+- Are all brief `Decision Overrides` entries applied to the spec? Each represents a spec revision — verify the spec reflects it.
 - Are there new non-goals to document?
-- Did the work surface any *new* requirements that should be added to the spec for a future task to deliver? (Existing requirements are handled by Step 2 — this is for *additions* only.)
+- Did the work surface *new* requirements for a future task to deliver?
 
-Update the spec if anything is missing. Mark the task as complete in the spec's `## Tasks` section (add `✓` or `(complete)` next to the task link).
+Update the spec if anything is missing. Mark the task complete in the spec's `## Tasks` section (`✓` or `(complete)` next to the task link).
 
 ## 4. Fill Completion Notes
 
