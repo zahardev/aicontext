@@ -1,5 +1,7 @@
 # Standards
 
+*Coding standards, AI behavior, safety, and output quality bars. For workflow, lifecycle, and task/spec mechanics, see [process.md](process.md).*
+
 ## Critical Safety Rules
 
 **NEVER run without explicit user confirmation:**
@@ -19,25 +21,12 @@
 - Read or touch the `.env` file (ask the user if you need environment info)
 
 **When encountering destructive commands:**
-1. Always ask for explicit confirmation first
-2. Explain what will be lost
-3. Offer safer alternatives
-4. Never assume it's okay to destroy data
-
-**Instead of dangerous commands:**
-- Ask the user to run them
-- Provide clear step-by-step instructions
-- Explain risks and ask for confirmation
+- Ask for explicit confirmation and explain what will be lost
+- Offer safer alternatives; ask the user to run the command themselves if needed
 - Use tests for verification instead of manual CLI commands
+- Never assume it's okay to destroy data
 
 ## Coding Standards
-
-### General Rules
-- Never skip documentation consultation
-- Never mark tasks complete without proper testing
-- Never ignore project structure guidelines
-- Always write tests for new features and bug fixes
-- Use tests instead of manual CLI commands for verification
 
 ### DRY (Don't Repeat Yourself)
 - Extract repeated code into reusable functions only when used 3+ times
@@ -53,11 +42,7 @@
 - Use early returns to handle edge cases first and reduce nesting
 - If a solution needs extensive comments to explain, simplify the code instead
 
-**Red flags for complexity:**
-- Function longer than 30-40 lines
-- More than 3 levels of nesting
-- More than 3 parameters in a function
-- Generic solutions for specific problems
+**Red flags for complexity:** functions >40 lines, >3 nesting levels, >3 parameters, generic solutions for specific problems.
 
 ### Code Documentation
 - Use descriptive, action-oriented descriptions
@@ -66,15 +51,8 @@
 - Use type declarations instead of docblock types when possible
 - Document complex business logic with inline comments
 
-**Good descriptions:**
-- "Retrieves and validates user input before processing"
-- "Filters collection to include only active records matching criteria"
-- "Generates a signed URL for secure file download"
-
-**Bad descriptions:**
-- "Get users"
-- "Filter items"
-- "Get URL"
+**Good:** "Retrieves and validates user input before processing", "Generates a signed URL for secure file download"
+**Bad:** "Get users", "Get URL"
 
 ### Avoid Over-Engineering
 - Only make changes directly requested or clearly necessary
@@ -111,7 +89,9 @@ When asking closed questions (2-4 discrete options), check `claude.question_styl
 
 Before asking open questions, apply the **independence test**: *"Does Q1's answer change how I'd phrase Q2?"* If **no**, batch them as a numbered list. If **yes**, ask atomically.
 
-**Why:** Atomic pacing has two costs. (1) **Token cost**: every API request resends the full conversation history, so N round trips for N independent questions cost ~O(N²) cumulative input tokens vs. ~O(N) for one batched message. Subagents pay this cost in full because their cache is isolated. (2) **Quality cost**: atomic root questions cause the AI to drift to implementation after 1-2 answers — remaining root questions get skipped because the AI accumulated enough context to start sketching a solution. Breadth-first batching forces *collection before convergence*.
+**Why:** Atomic pacing has two costs.
+- **Token cost:** N round trips for N independent questions cost ~O(N²) cumulative input tokens (history resent each request) vs. ~O(N) for one batched message. Subagents pay this in full — isolated cache.
+- **Quality cost:** atomic questions cause drift to implementation after 1-2 answers; remaining root questions get skipped because the AI has enough context to start sketching. Breadth-first batching forces *collection before convergence*.
 
 The numbered-batching format mitigates the original concern (users giving shallow answers to a wall of questions) — the user sees the full menu, takes their time per number, and uses the existing `### Question Numbering` convention to keep answers threaded.
 
@@ -119,8 +99,9 @@ The numbered-batching format mitigates the original concern (users giving shallo
 - **Batch (default for independent questions):** Parallel dimensions whose answers don't depend on each other — root scoping ("scope? priority? constraints? success criteria?"), independent clarifications, parallel config choices. Number them (Q5, Q6, Q7) per `### Question Numbering` so the user can answer in one message.
 - **Atomic (when answers are dependent):** Each answer reshapes the next — drilling into a specific decision, follow-ups that depend on prior answers, ambiguity that blocks further questions. The test: would Q2 make sense without Q1's answer?
 - **Interviews (`interview`, `start-feature`):** Always breadth-first first — fire all root scoping questions in one numbered batch, collect answers, *then* drill atomically into whichever dimensions need depth. This prevents "drift to implementation after 2 answers" where the remaining root questions get skipped.
+- **Interview persistence:** An interview ends when no open ambiguities remain or the user explicitly closes — not when they answer the first batch. If an answer opens new branches, keep questioning. Drifting into proposed edits while branches remain is the same failure mode as drifting to implementation after 2 answers. Applies to `check-task`, `start-feature`, `interview`, `add-step`, `do-it`, and mid-task discussions.
 - **Closed questions:** 2-4 discrete options follow `claude.question_style` in `config.yml` — see the `## Question UX` section above.
-- **Per-prompt reminders:** Prompts that surface open questions include a one-line reference back to this rule so it stays attention-adjacent when the prompt fires.
+- **Question numbering:** number sequentially across the entire conversation (never restart at 1); one question per number, keep the same number when answering to maintain the thread.
 
 ### Communication Style
 - Be professional and technically accurate
@@ -149,47 +130,24 @@ After a workflow prompt finishes (file creation, step close, task finish, review
 
 **Branch on state when possible** — pick the right next command, don't list both. The AI knows the task state after running the prompt; use it.
 
+**Mid-conversation turns during interviews or discussions** must end with either the next question, an explicit options menu, or a handoff — never a wrap-up statement that drops the thread.
+
 **Examples:**
 - After `/close-step` with unchecked steps remaining: `Run /next-step to continue.`
-- After `/close-step` on the final step: `Final step closed. Run /finish-task to close the task.`
 - After `/finish-task` with pending tasks in the same spec: `Spec '{Spec Name}' has more pending tasks. Next: '{task-name}'. Would you like to start it now?`
-- After `/finish-task` with spec complete or no spec: `Task closed. Start the next feature with /start-feature.`
-- After `/check-task`: `Resume with /run-step (one step) or /run-task (execute all remaining), or address the flagged items first.`
-- After `/create-task`: `Ready for /run-task or /run-step.`
 - After a mid-task discussion surfaces new work: `/add-step to add it to the plan, or /do-it to add the step and execute immediately.`
 
 **Why:** workflow continuity. The AI holds the map; the user should never have to guess the next command. Next-action pointers are not tangents under Information Density — they are actionable and belong in the reply.
 
-### Tool Output Handling
-
-Large tool output lives in conversation history forever — every subsequent turn pays the cost. For commands expected to produce more than ~50 lines (test runs, build logs, large file dumps, repository scans), redirect output to a file and read only the slice you need.
-
-**Why:** Conversation history is the single biggest hidden context cost. A 2000-line test log shipped inline costs ~10× a one-line `## Result: FAIL` summary plus a path the AI can `Read` if needed.
-
-**How to apply:**
-- Bash commands likely to produce >50 lines: pipe to `/tmp/{name}.log`, then `Grep` or `Read` with `offset`/`limit` for the slice you need.
-- For test runs, prefer the `test-runner` subagent (which filters output to failures + diagnostics).
-- For repository-wide searches, prefer `Grep` with `head_limit` over piping `find` output.
-- When forced to run a long command inline (e.g. for debugging), summarize the takeaway in your reply rather than letting the raw output stand.
-
-### Truth Over Agreement
-- Never agree with the user if they're wrong or their approach is flawed
-- Always correct misconceptions and point out better alternatives
-- If the user suggests something that won't work well, explain why and suggest better approaches
-- Value accuracy and effectiveness over politeness
-- Challenge assumptions that could lead to poor results
+### Challenge and Suggest
+- Never agree with flawed reasoning or approaches — correct misconceptions and explain why.
+- Suggest better alternatives proactively instead of patching broken approaches.
+- Step back and recommend a different strategy when debugging reveals a fundamental issue.
+- Value accuracy over politeness.
 
 ### Solution Before Organization
-- When a problem or idea is raised, first propose or discuss the solution approach
-- Get explicit agreement on the approach before asking organizational questions (task scope, spec assignment, etc.)
-- Never jump from problem description to task creation without confirming the solution
-
-### Proactive Solution Suggestion
-- Always suggest better approaches when current implementation shows problems
-- If a solution is clearly not working, immediately propose alternatives
-- Don't keep trying to fix broken approaches - suggest better methods upfront
-- When debugging reveals fundamental issues, step back and recommend different strategies
-- Prioritize suggesting the best solution over fixing a suboptimal one
+- When a problem or idea is raised, propose or discuss the solution approach first.
+- Get explicit agreement on the approach before asking organizational questions (task scope, spec assignment, etc.).
 
 ### Research and Investigation
 - For design discussions and deep research, read files directly — do not delegate to researcher subagents
@@ -201,6 +159,6 @@ Large tool output lives in conversation history forever — every subsequent tur
 - Project rules are the source of truth for how work is done in this project
 - **NEVER save rules or preferences silently** — always ask the user before writing to project rules or memory files
 
-### Question Numbering
-- Number questions sequentially across entire conversation (never restart at 1)
-- One question per number; keep same numbers when answering to maintain thread
+### No paraphrased rules in prompts
+
+Prompts, skill files, and slash command definitions must not paraphrase content from `standards.md` or `process.md`. Paraphrasing duplicates the source of truth and goes stale silently when the rule is updated. Reference the rule with a one-line pointer and link only — e.g., *"Follow the Question Pacing rule in `standards.md`."*
