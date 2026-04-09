@@ -344,6 +344,14 @@ async function copyFrameworkSkills(packageRoot, target, overrideSkills = false, 
   }
 }
 
+// Maps a commit-interview answer to a config value.
+// '2' → 'true' (yes), '3' → 'false' (no), anything else → null (keep template default 'ask').
+function resolveCommitAnswer(answer) {
+  if (answer === '2') return 'true';
+  if (answer === '3') return 'false';
+  return null;
+}
+
 function setConfigValue(content, section, key, value) {
   const lines = content.split('\n');
   let inSection = false;
@@ -421,12 +429,17 @@ async function installConfig(packageRoot, target, skipConfirm = false) {
         content = setConfigValue(content, 'project', 'base_branch', baseBranch);
       }
 
-      // Commit mode
-      const commitAnswer = await prompt('  Commit mode — 1) per-task (default), 2) per-step, 3) manual: ');
-      if (commitAnswer === '2') {
-        content = setConfigValue(content, 'commit', 'mode', 'per-step');
-      } else if (commitAnswer === '3') {
-        content = setConfigValue(content, 'commit', 'mode', 'manual');
+      // Lifecycle commit actions — two questions, one per timing
+      const stepCommitAnswer = await prompt('  After each step, commit? — 1) ask per run (default), 2) yes, 3) no: ');
+      const stepCommitValue = resolveCommitAnswer(stepCommitAnswer);
+      if (stepCommitValue !== null) {
+        content = setConfigValue(content, 'after_step', 'commit', stepCommitValue);
+      }
+
+      const taskCommitAnswer = await prompt('  After task completion, commit? — 1) ask per run (default), 2) yes, 3) no: ');
+      const taskCommitValue = resolveCommitAnswer(taskCommitAnswer);
+      if (taskCommitValue !== null) {
+        content = setConfigValue(content, 'after_task', 'commit', taskCommitValue);
       }
 
       // Update check frequency
@@ -920,6 +933,7 @@ module.exports = {
   copyFrameworkScripts,
   installConfig,
   setConfigValue,
+  resolveCommitAnswer,
   setAgentModel,
   removeDeprecatedPrompts,
   removeDeprecatedAgents,

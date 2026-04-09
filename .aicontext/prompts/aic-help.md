@@ -54,7 +54,7 @@ Describe the fix in conversation → `/do-it` — creates a task step and implem
 
 ## Tips
 
-- **Configure commits once.** Set `commit.mode` and `commit.finish_action` in `.aicontext/config.yml` so skills handle git automatically.
+- **Configure lifecycle once.** Set `after_step` and `after_task` in `.aicontext/config.yml` (review, tests, commit, push) — values are `true | false | ask`. `ask` prompts upfront at `/run-step` / `/run-task`, then runs unattended.
 - **Don't restart sessions unnecessarily.** The agent accumulates context across steps — restarting loses that. Use `/check-task` when you must restart.
 
 ## Customization

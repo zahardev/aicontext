@@ -3,6 +3,7 @@
 ## [1.7.0] - 2026-04-05 (in progress)
 
 ### Added
+- **Unified lifecycle config** in `config.yml` under `after_step` and `after_task` sections covering review, tests, commit, and push. Review/tests take scope values (`partial | full | false | ask`); commit/push take boolean values (`true | false | ask`). `ask` fires upfront at `/run-step` or `/run-task` entry with a two-stage prompt: Stage 1 picks the action for this run (with timing-specific recommendations — `No` for step, `Full`/`Yes` for task, `No` for push), Stage 2 asks whether to save the answer as the new default in `config.yml`. `run-task` batches every `ask` entry into a single upfront prompt so the run proceeds unattended. The `reviewer` subagent now receives an explicit corpus (working-tree diff for uncommitted steps, last-commit diff for committed steps, branch diff for task close) — step-loop.md and run-task.md compute the corpus automatically based on commit state. Deprecated `commit.mode` / `commit.finish_action` / `after_task.deep_review` / `after_task.full_tests` keys are silently migrated on first read via `ensure-config.md`. `after_task.commit` is skipped automatically when any step committed during the run (detected via `git log --since="{task created}"`); `after_task.push` fires independently so step-level commits still reach the remote.
 - **`.aicontext/config.yml`**: YAML config file replacing prose settings in `project.md` — commit rules, task naming, spec naming, update check frequency, Claude question style
 - **`config.local.yml`**: gitignored personal config overrides
 - **`ensure-config.md`**: reusable prompt for config loading — creates from template if missing, fills missing keys, migrates stale settings from `project.md`
@@ -36,6 +37,9 @@
 - **`update-check.md` renamed to `check-update.md`** — disambiguates from verb-verb reading ("update the check"); matches framework convention (`check-task`, `check-update`). Internal helper, not a skill.
 
 ### Removed
+- **`commit.mode` and `commit.finish_action` config keys** — replaced by `after_step` / `after_task` sections. Silent one-time migration on read.
+- **Quality Checks Timing Table** in `process.md` — replaced by a one-line pointer to `config.yml` `after_step` / `after_task`
+- **`## Commit Rules:` section** in `task.template.md` — per-task overrides removed; lifecycle config lives in `config.yml` only
 - Settings sections from `project.md` and `project.template.md` (moved to `config.yml`)
 - `commit+push+pr` finish action (was listed but unsupported since 1.6.0)
 - Specs and worklog from git tracking (gitignored — project-specific working files)

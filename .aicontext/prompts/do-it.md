@@ -12,4 +12,4 @@ If the discussion produced technical knowledge worth preserving, append it to th
 
 ## 3. Implement
 
-Follow the step inner loop in `.aicontext/prompts/step-loop.md`. It handles review, tests, commit (per `commit.mode`), and step close.
+Follow the step inner loop in `.aicontext/prompts/step-loop.md`. It handles review, tests, commit, and step close per the resolved `after_step.*` config.

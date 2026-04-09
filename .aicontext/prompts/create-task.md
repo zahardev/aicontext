@@ -31,7 +31,6 @@ Create a task file in `.aicontext/tasks/` using the naming convention from the c
 
 - **Objective**: derive from the discussion — what this task aims to accomplish
 - **Spec link**: from step 2 (remove section if no spec)
-- **Commit Rules**: remove the section (use project defaults) unless the user specified overrides
 - **Deliverables**: definition of done for this work bundle — see `process.md "Task Deliverables vs Spec Requirements"`
 - **Plan steps**: derive from the discussion, following planning guidelines in `process.md`
 

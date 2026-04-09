@@ -67,7 +67,7 @@ Closes out a completed task.
 - Applies any brief `Decision Overrides` to the spec and verifies new decisions/non-goals/requirements landed in the spec
 - Fills completion notes in the task file
 - Updates the worklog (checks off task, moves spec to Done if all tasks complete)
-- Handles git per `commit.finish_action` from `config.yml` (nothing / ask / commit / commit+push), delegates to `commit.md`
+- Handles git per `after_task.commit` and `after_task.push` in `config.yml`, delegates to `commit.md`; skips the commit when step-level commits already covered the work
 
 ### `/create-task`
 **Prompt:** `create-task.md`

@@ -6,7 +6,7 @@ This folder contains AI assistant configuration and project documentation.
 
 | File | Purpose |
 |------|---------|
-| `config.yml` | Project settings — commit rules, task naming, update checks |
+| `config.yml` | Project settings — lifecycle config (`after_step` / `after_task`), commit rules, task naming, update checks |
 | `config.local.yml` | Personal setting overrides (gitignored) |
 | `project.md` | Project identity, tech stack, architecture |
 | `structure.md` | Folder structure, commands, environment |

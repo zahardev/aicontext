@@ -14,4 +14,4 @@ Follow `identify-task.md` to find the active task. Then read the task file, spec
 
 ## 3. Execute
 
-Follow `.aicontext/prompts/step-loop.md`. It handles review, tests, commit (per `commit.mode`), and step close.
+Follow `.aicontext/prompts/step-loop.md`. It batches `after_step.*` `ask` entries upfront, then runs review, tests, commit, and step close per the resolved config.

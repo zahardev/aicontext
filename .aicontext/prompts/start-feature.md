@@ -52,7 +52,7 @@ Create all four — one spec, one or more tasks, one brief per task, and worklog
 
 **Spec** — `.aicontext/specs/spec-{task-filename}.md` from `spec.template.md`. Copy the interview's structured summary **verbatim** into `## Decisions`, then derive `## Requirements` and `## Non-Goals` from it. No file paths or implementation details.
 
-**Task(s)** — `.aicontext/tasks/{task-filename}.md` from `task.template.md`. Remove the `## Commit Rules:` section (project defaults cover the common case). Append the task to each implementing spec subsection's `*Implemented by:*` footer and to the spec's `## Tasks` section.
+**Task(s)** — `.aicontext/tasks/{task-filename}.md` from `task.template.md`. Append the task to each implementing spec subsection's `*Implemented by:*` footer and to the spec's `## Tasks` section.
 
 **Brief(s)** — `.aicontext/data/brief/brief-{task-filename}.md` from `brief.template.md`. If Step 1 exploration surfaced non-obvious codebase patterns, add them to `## Codebase Patterns` prefixed `[Step 0]`.
 

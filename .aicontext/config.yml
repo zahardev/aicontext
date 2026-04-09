@@ -2,13 +2,22 @@
 # Managed by CLI (aicontext init/update), customized by AI during /start.
 # For personal overrides, create config.local.yml (gitignored, overrides shared settings).
 #
-# Prompts reference settings as nested paths: commit.mode, task_naming.pattern, etc.
+# Prompts reference settings as nested paths: after_step.commit, task_naming.pattern, etc.
+
+after_step:
+  review: ask                 # code review via `reviewer` subagent (partial|full|false|ask)
+  tests: ask                  # tests via `test-runner` subagent (partial|full|false|ask)
+  commit: false               # commit after each step (true|false|ask)
+
+after_task:
+  review: full                # code review at task close (partial|full|false|ask)
+  tests: full                 # tests at task close (partial|full|false|ask)
+  commit: true                # commit at task close, skipped if any step committed during the run
+  push: ask                   # push to remote at task close
 
 commit:
-  mode: per-task              # manual | per-step | per-task
   template: description       # description | "description (#issue_id)" | "type: description" | custom string
   body: true                  # true: subject + body + trailer | false: subject line only
-  finish_action: commit       # nothing | ask | commit | commit+push
   co_authored_trailer: "Co-Authored-By: {ai} via AIContext"
     # {ai} is replaced with the AI model name at commit time (e.g. "Claude", "GPT-4o").
     # Set to false to disable the trailer, or "default" to use the AI tool's built-in format.

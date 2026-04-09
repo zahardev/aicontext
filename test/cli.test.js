@@ -22,6 +22,7 @@ const {
   copyFrameworkSkills,
   copyFrameworkScripts,
   installConfig,
+  resolveCommitAnswer,
   setConfigValue,
   setAgentModel,
   removeDeprecatedPrompts,
@@ -1473,7 +1474,7 @@ describe('installConfig', () => {
     fs.mkdirSync(templateDir, { recursive: true });
     fs.writeFileSync(
       path.join(templateDir, 'config.template.yml'),
-      'commit:\n  mode: per-task\n  body: true\ntask_naming:\n  pattern: "{version}-{task-name}"\n'
+      'after_step:\n  commit: ask\nafter_task:\n  commit: ask\n  push: ask\ncommit:\n  body: true\ntask_naming:\n  pattern: "{version}-{task-name}"\n'
     );
   });
 
@@ -1488,26 +1489,28 @@ describe('installConfig', () => {
     const configPath = path.join(tempDir, '.aicontext', 'config.yml');
     assert.ok(fs.existsSync(configPath));
     const content = fs.readFileSync(configPath, 'utf8');
-    assert.ok(content.includes('mode: per-task'));
+    assert.ok(content.includes('after_step:'));
+    assert.ok(content.includes('after_task:'));
   });
 
   it('should not overwrite existing config.yml', async () => {
     const aiDir = path.join(tempDir, '.aicontext');
     fs.mkdirSync(aiDir, { recursive: true });
-    fs.writeFileSync(path.join(aiDir, 'config.yml'), 'commit:\n  mode: manual\n');
+    fs.writeFileSync(path.join(aiDir, 'config.yml'), 'after_step:\n  commit: true\n');
     await installConfig(packageRoot, tempDir, true);
     const content = fs.readFileSync(path.join(aiDir, 'config.yml'), 'utf8');
-    assert.ok(content.includes('mode: manual'));
+    assert.ok(content.includes('commit: true'));
   });
 
   it('should add missing sections from template', async () => {
     const aiDir = path.join(tempDir, '.aicontext');
     fs.mkdirSync(aiDir, { recursive: true });
-    fs.writeFileSync(path.join(aiDir, 'config.yml'), 'commit:\n  mode: manual\n');
+    fs.writeFileSync(path.join(aiDir, 'config.yml'), 'after_step:\n  commit: true\n');
     await installConfig(packageRoot, tempDir, true);
     const content = fs.readFileSync(path.join(aiDir, 'config.yml'), 'utf8');
-    assert.ok(content.includes('mode: manual'), 'should preserve existing commit.mode');
+    assert.ok(content.includes('commit: true'), 'should preserve existing after_step.commit');
     assert.ok(content.includes('task_naming:'), 'should add missing task_naming section');
+    assert.ok(content.includes('after_task:'), 'should add missing after_task section');
   });
 
   it('should not duplicate existing sections', async () => {
@@ -1515,12 +1518,12 @@ describe('installConfig', () => {
     fs.mkdirSync(aiDir, { recursive: true });
     fs.writeFileSync(
       path.join(aiDir, 'config.yml'),
-      'commit:\n  mode: manual\ntask_naming:\n  pattern: custom\n'
+      'after_step:\n  commit: false\ntask_naming:\n  pattern: custom\n'
     );
     await installConfig(packageRoot, tempDir, true);
     const content = fs.readFileSync(path.join(aiDir, 'config.yml'), 'utf8');
-    const commitCount = (content.match(/^commit:/gm) || []).length;
-    assert.strictEqual(commitCount, 1, 'should not duplicate commit section');
+    const stepCount = (content.match(/^after_step:/gm) || []).length;
+    assert.strictEqual(stepCount, 1, 'should not duplicate after_step section');
   });
 
   it('should do nothing if template is missing', async () => {
@@ -1529,5 +1532,28 @@ describe('installConfig', () => {
     await installConfig(emptyRoot, tempDir, true);
     assert.ok(!fs.existsSync(path.join(tempDir, '.aicontext', 'config.yml')));
     removeTempDir(emptyRoot);
+  });
+});
+
+describe('resolveCommitAnswer', () => {
+  it('maps "2" to "true" (yes)', () => {
+    assert.strictEqual(resolveCommitAnswer('2'), 'true');
+  });
+
+  it('maps "3" to "false" (no)', () => {
+    assert.strictEqual(resolveCommitAnswer('3'), 'false');
+  });
+
+  it('maps "1" (default) to null — keep template "ask"', () => {
+    assert.strictEqual(resolveCommitAnswer('1'), null);
+  });
+
+  it('maps empty string (user pressed enter) to null', () => {
+    assert.strictEqual(resolveCommitAnswer(''), null);
+  });
+
+  it('maps unknown inputs to null — keep template default', () => {
+    assert.strictEqual(resolveCommitAnswer('9'), null);
+    assert.strictEqual(resolveCommitAnswer('yes'), null);
   });
 });

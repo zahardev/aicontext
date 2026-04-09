@@ -2,13 +2,41 @@
 # Managed by CLI (aicontext init/update), customized by AI during /start.
 # For personal overrides, create config.local.yml (gitignored, overrides shared settings).
 #
-# Prompts reference settings as nested paths: commit.mode, task_naming.pattern, etc.
+# Prompts reference settings as nested paths: after_step.commit, task_naming.pattern, etc.
+
+# Lifecycle actions — what happens after each step and after task completion.
+#
+# Review / tests values: partial | full | false | ask
+#   - partial: scoped to this step's changes (review) or step-related tests
+#   - full:    whole-branch diff with deep-review pass (review) or full test suite
+#   - false:   skip
+#   - ask:     prompt upfront at /run-step or /run-task entry
+#
+# Commit / push values: true | false | ask
+#
+# When `ask` fires, the user picks the action for this run, then answers a
+# second y/N "save as default?" prompt that can persist the choice to config.
+# `/run-task` batches every `ask` entry (from both sections) into one upfront
+# prompt so the run proceeds unattended after a single answer round.
+#
+# Corpus for review is computed automatically by step-loop.md / run-task.md:
+#   - after_step (uncommitted):  working tree
+#   - after_step (committed):    last commit (HEAD^..HEAD)
+#   - after_task:                branch diff ({base-branch}...HEAD) + working tree
+after_step:
+  review: ask                 # code review via `reviewer` subagent after each step
+  tests: ask                  # tests via `test-runner` subagent
+  commit: ask                 # commit after each step
+
+after_task:
+  review: ask                 # code review at task close via `reviewer` subagent
+  tests: ask                  # tests at task close via `test-runner` subagent
+  commit: ask                 # commit at task close (skipped if any step committed during the run)
+  push: ask                   # push to remote at task close
 
 commit:
-  mode: per-task              # manual | per-step | per-task
   template: description       # description | "description (#issue_id)" | "type: description" | custom string
   body: true                  # true: subject + body + trailer | false: subject line only
-  finish_action: commit       # nothing | ask | commit | commit+push
   co_authored_trailer: "Co-Authored-By: {ai} via AIContext"
     # {ai} is replaced with the AI model name at commit time (e.g. "Claude", "GPT-4o").
     # Set to false to disable the trailer, or "default" to use the AI tool's built-in format.

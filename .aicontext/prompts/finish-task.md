@@ -46,15 +46,13 @@ Update `.aicontext/worklog.md`:
 
 ## 6. Handle Git
 
-Follow `ensure-config.md` to read project settings. Read `commit.finish_action` from the config (task file `## Commit Rules:` overrides if present).
+Follow `ensure-config.md` to read project settings. Read `after_task.commit` and `after_task.push` (resolved values — `/run-task` and `/run-step` resolve `ask` upfront).
 
-Check for uncommitted changes (`git status`).
+Commit and push are independent gates — `after_task.push` can fire without `after_task.commit` (step-level commits still need to reach the remote):
 
-**If there are uncommitted changes:**
-- `nothing` — skip
-- `ask` — ask the user what to do (commit / commit+push / leave as-is)
-- `commit` — delegate to `commit.md`
-- `commit+push` — delegate to `commit.md`, then push to remote
+**Commit** — if `after_task.commit` resolved to Yes **and** `git status` shows uncommitted changes, delegate to `commit.md`. If there are no uncommitted changes (step-level commits already covered everything), silently skip and note `"commit: skipped — no uncommitted changes"` in the summary.
+
+**Push** — if `after_task.push` resolved to Yes and the current branch is ahead of its upstream (`git rev-list @{u}..HEAD --count > 0`), `git push`. Fires independently of the commit gate.
 
 ## 7. Output Completion Summary
 
@@ -66,7 +64,7 @@ Task {task-name} closed:
 - Task deliverables: N/N delivered (X deferred, Y revised)
 - Spec requirements: N/M delivered (X deferred, Y revised)
 - Worklog: updated
-- Git: {finish_action result}
+- Git: {commit / push result, or "skipped — step-level commits covered the task"}
 ```
 
 Step 2 resolves every warning before reaching this summary. Deferred/revised counts record the user's resolution choices — auditable. Reaching Step 7 with unresolved warnings is an error: return to Step 2.

@@ -148,15 +148,22 @@ When findings are returned, the AI assesses each by severity and effort:
 | Low | High | Skip — note in brief |
 | False positive | — | Dismiss |
 
-## Commit Configuration
+## Lifecycle and Commit Configuration
 
-Commit settings live in `.aicontext/config.yml` under the `commit` section. Personal overrides go in `config.local.yml` (gitignored). Task-level overrides remain in the task file `## Commit Rules:`.
+Lifecycle and commit settings live in `.aicontext/config.yml`. Personal overrides go in `config.local.yml` (gitignored).
 
-Key settings:
-- `commit.mode`: manual / per-step / per-task
+**Lifecycle actions** under `after_step` and `after_task` — same vocabulary at both timings. Review and tests take scope values (`partial` | `full` | `false` | `ask`); commit and push take boolean values (`true` | `false` | `ask`). `ask` fires upfront at `/run-step` or `/run-task` entry with a two-stage prompt (Stage 1: pick action with timing-specific recommendation; Stage 2: save as default?). Once answered, the run proceeds unattended.
+
+- `after_step.review` / `tests` / `commit` — fire after each step
+- `after_task.review` / `tests` / `commit` / `push` — fire at task close
+
+`after_task.commit` is skipped automatically if any step committed during the run — step-level commits already cover the work. `after_task.push` fires independently so step-level commits still reach the remote.
+
+The `reviewer` subagent receives an explicit corpus based on commit state: working-tree diff for uncommitted steps, last commit (`HEAD^..HEAD`) for committed steps, branch diff (`{base-branch}...HEAD` + uncommitted working tree) for task close.
+
+**Commit format** under `commit`:
 - `commit.template`: description / description (#issue_id) / type: description / custom
 - `commit.body`: true (subject + body + trailer) / false (subject only)
-- `commit.finish_action`: nothing / ask / commit / commit+push
 - `commit.co_authored_trailer`: template for the Co-Authored-By trailer
 
 All commits go through `commit.md` — the single commit codepath. Other prompts (`finish-task`, `run-task`, `do-it`) delegate to it.

@@ -5,7 +5,7 @@
 ## Critical Safety Rules
 
 **NEVER run without explicit user confirmation:**
-- `git push` - Any push to remote (including non-force). Always ask first, unless pre-authorized by `commit.finish_action: commit+push` or an active `/gh-review-fix-loop` cycle.
+- `git push` - Any push to remote (including non-force). Always ask first, unless pre-authorized by `after_task.push: true` (or `ask` resolved to Yes upfront) or an active `/gh-review-fix-loop` cycle.
 - `git push --force` - Destructive git operations
 - Database wipe/reset commands
 - Volume/container deletion commands
@@ -99,7 +99,8 @@ The numbered-batching format mitigates the original concern (users giving shallo
 - **Batch (default for independent questions):** Parallel dimensions whose answers don't depend on each other — root scoping ("scope? priority? constraints? success criteria?"), independent clarifications, parallel config choices. Number them (Q5, Q6, Q7) per `### Question Numbering` so the user can answer in one message.
 - **Atomic (when answers are dependent):** Each answer reshapes the next — drilling into a specific decision, follow-ups that depend on prior answers, ambiguity that blocks further questions. The test: would Q2 make sense without Q1's answer?
 - **Interviews (`interview`, `start-feature`):** Always breadth-first first — fire all root scoping questions in one numbered batch, collect answers, *then* drill atomically into whichever dimensions need depth. This prevents "drift to implementation after 2 answers" where the remaining root questions get skipped.
-- **Interview persistence:** An interview ends when no open ambiguities remain or the user explicitly closes — not when they answer the first batch. If an answer opens new branches, keep questioning. Drifting into proposed edits while branches remain is the same failure mode as drifting to implementation after 2 answers. Applies to `check-task`, `start-feature`, `interview`, `add-step`, `do-it`, and mid-task discussions.
+- **Interview persistence:** An interview ends when no ambiguities remain or the user explicitly closes — not when they answer the first batch. If an answer opens new branches, keep questioning. Applies to `check-task`, `start-feature`, `interview`, `add-step`, `do-it`, and mid-task discussions.
+- **Self-raised concerns are questions.** When raising concerns about your own proposal: (1) hold all downstream output — no plans, edits, or "applying now" — until each concern has a user answer; (2) end each concern with a numbered question on its own line (`**Qn. …**`), never buried in trailing prose; (3) a labeled recommendation inside the exposition ("My pick: X because Y") is information, not a resolution — proceeding without an answer is the failure mode.
 - **Closed questions:** 2-4 discrete options follow `claude.question_style` in `config.yml` — see the `## Question UX` section above.
 - **Question numbering:** number sequentially across the entire conversation (never restart at 1); one question per number, keep the same number when answering to maintain the thread.
 

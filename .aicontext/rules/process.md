@@ -158,16 +158,7 @@ Human verification belongs in task deliverables (as a checkbox gate the user tic
 
 ## Quality Checks
 
-### Timing Table
-
-| Check | After Step | After Task | Skill |
-|-------|------------|------------|-------|
-| Code review | Yes | No | `reviewer` subagent |
-| Step-related tests | Yes | No | `test-runner` subagent |
-| Deep review | No | Yes | `reviewer` subagent |
-| Full test suite | No | Yes | `test-runner` subagent |
-
-Edit this table to customize your workflow. `/run-task` reads it at runtime.
+Lifecycle actions (code review, tests, commit, push) are configured in `.aicontext/config.yml` under `after_step` and `after_task`. Review/tests take scope values (`partial | full | false | ask`); commit/push take boolean values (`true | false | ask`). `ask` prompts upfront at `/run-step` or `/run-task` entry. Edit the config to customize your workflow.
 
 ### Review Response Rules
 
