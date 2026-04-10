@@ -52,7 +52,7 @@ Commit and push are independent gates — `after_task.push` can fire without `af
 
 **Commit** — if `after_task.commit` resolved to Yes **and** `git status` shows uncommitted changes, delegate to `commit.md`. If there are no uncommitted changes (step-level commits already covered everything), silently skip and note `"commit: skipped — no uncommitted changes"` in the summary.
 
-**Push** — if `after_task.push` resolved to Yes and the current branch is ahead of its upstream (`git rev-list @{u}..HEAD --count > 0`), `git push`. Fires independently of the commit gate.
+**Push** — if `after_task.push` resolved to Yes: check if upstream exists (`git rev-parse --verify @{u}`). If upstream exists and branch is ahead (`git rev-list @{u}..HEAD --count > 0`), `git push`. If no upstream, push with `git push -u origin {current-branch}`. Fires independently of the commit gate.
 
 ## 7. Output Completion Summary
 

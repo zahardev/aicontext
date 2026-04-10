@@ -10,7 +10,7 @@ If `.aicontext/release.md` doesn't exist, run first-time setup:
 
 ## 2. Gather context
 
-Read `.aicontext/local.md` (if present) and the `## Notes` section in `release.md` for project-specific rules.
+Follow `ensure-config.md` to load project settings. Read `.aicontext/local.md` (if present) and the `## Notes` section in `release.md` for project-specific rules.
 
 Determine the version from `release.md` `version_detection`:
 - `branch-name` → parse current branch (e.g. `version/X.Y.Z`)

@@ -28,7 +28,7 @@ If `false`: skip file creation.
 
 ### GitHub issue
 
-If `issue.create_in_github` is `true`: run `gh issue create --title "{title}" --body "{body without the title line}"` and show the URL.
+If `issue.create_in_github` is `true`: write the body (without the title line) to a temp file, run `gh issue create --title "{title}" --body-file {tmp_file}`, show the URL, then delete the temp file.
 
 If `ask`: prompt the user:
 

@@ -15,7 +15,7 @@ const CACHE_TTL = 60 * 60 * 1000; // 1 hour in milliseconds
 const FRAMEWORK_PROMPTS = [
   'add-step.md', 'aic-help.md', 'aic-skills.md', 'align-context.md', 'challenge.md', 'check-task.md', 'close-step.md',
   'commit.md', 'create-task.md', 'deep-review.md', 'deep-review-criteria.md', 'do-it.md', 'draft-issue.md', 'ensure-config.md', 'identify-task.md',
-  'draft-pr.md', 'finish-task.md', 'generate.md', 'gh-review-fix-loop.md', 'next-step.md', 'plan-tasks.md',
+  'draft-pr.md', 'finish-task.md', 'generate.md', 'gh-fix-tests.md', 'gh-review-fix-loop.md', 'next-step.md', 'plan-tasks.md',
   'gh-review-check.md', 'install-playwright-cli.md', 'prepare-release.md', 'review.md', 'review-criteria.md', 'detect-review-scope.md',
   'auto-setup.md', 'brainstorm.md', 'check-update.md', 'interview.md', 'review-task-plan.md', 'run-step.md', 'run-task.md', 'start-feature.md', 'start.md', 'step-loop.md', 'test-writer.md', 'thoughts.md',
 ];
@@ -403,7 +403,7 @@ async function installConfig(packageRoot, target, skipConfirm = false) {
       // Base branch — auto-detect, offer choices
       let detectedBranch = 'main';
       try {
-        const branches = execSync('git branch', { stdio: ['pipe', 'pipe', 'pipe'] }).toString();
+        const branches = execSync('git branch', { cwd: target, stdio: ['pipe', 'pipe', 'pipe'] }).toString();
         if (/\bmain\b/.test(branches)) detectedBranch = 'main';
         else if (/\bmaster\b/.test(branches)) detectedBranch = 'master';
         else if (/\bdevelop\b/.test(branches)) detectedBranch = 'develop';

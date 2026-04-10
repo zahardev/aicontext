@@ -440,15 +440,15 @@ describe('version cache', () => {
 });
 
 describe('FRAMEWORK_PROMPTS', () => {
-  it('should contain exactly 39 framework prompt files', () => {
-    assert.strictEqual(FRAMEWORK_PROMPTS.length, 39);
+  it('should contain exactly 40 framework prompt files', () => {
+    assert.strictEqual(FRAMEWORK_PROMPTS.length, 40);
   });
 
   it('should contain the expected prompt files', () => {
     const expected = [
       'add-step.md', 'aic-help.md', 'aic-skills.md', 'align-context.md', 'challenge.md', 'check-task.md', 'close-step.md',
       'commit.md', 'create-task.md', 'deep-review.md', 'deep-review-criteria.md', 'do-it.md', 'draft-issue.md', 'ensure-config.md', 'identify-task.md',
-      'draft-pr.md', 'finish-task.md', 'generate.md', 'gh-review-fix-loop.md', 'next-step.md', 'plan-tasks.md',
+      'draft-pr.md', 'finish-task.md', 'generate.md', 'gh-fix-tests.md', 'gh-review-fix-loop.md', 'next-step.md', 'plan-tasks.md',
       'gh-review-check.md', 'install-playwright-cli.md', 'prepare-release.md', 'review.md', 'review-criteria.md', 'detect-review-scope.md',
       'auto-setup.md', 'brainstorm.md', 'check-update.md', 'interview.md', 'review-task-plan.md', 'run-step.md', 'run-task.md', 'start-feature.md', 'start.md', 'step-loop.md', 'test-writer.md', 'thoughts.md',
     ];
