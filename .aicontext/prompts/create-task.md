@@ -7,6 +7,7 @@ Crystallize the current discussion into a task file. Use when the discussion is 
 - Follow `ensure-config.md` to read project settings
 - Determine the task prefix using `task_naming.source` from the config (e.g., extract version from branch if `git-branch`, ask user if `manual`)
 - If the prefix is unclear, ask the user
+- If `task_naming.pattern` contains `{issue_id}`: check the current conversation for a GitHub issue number created via `/draft-issue`. If found, use it. Otherwise, ask the user for the issue number.
 
 ## 2. Spec Handling
 

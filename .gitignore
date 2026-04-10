@@ -23,6 +23,7 @@ test-project/
 .aicontext/structure.md
 .aicontext/release.md
 .aicontext/worklog.md
+.aicontext/config.yml
 
 # Project tasks
 .aicontext/tasks/*

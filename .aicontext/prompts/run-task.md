@@ -28,7 +28,7 @@ For each pending step (unchecked `- [ ]` in the task file), follow `.aicontext/p
 
 Run after-task actions based on resolved `after_task.*` values:
 
-1. **Review** — if `after_task.review` resolved to `partial` or `full`: compute corpus (`{base-branch}...HEAD` + uncommitted working tree), call `reviewer` subagent (Claude Code only; run inline in other tools) with corpus + scope
+1. **Review** — if `after_task.review` resolved to `partial` or `full`: compute corpus (`{base-branch}...HEAD` + uncommitted working tree), call `reviewer` subagent (Claude Code only; run inline in other tools). Tell the reviewer which playbook to follow: `partial` → `review.md`, `full` → `deep-review.md`
 2. **Tests** — if `after_task.tests` resolved to `partial`: step-related tests; if `full`: full suite. Call `test-runner` subagent (Claude Code only; run inline in other tools)
 3. Fix any issues found
 4. `All steps complete. Run /finish-task to close the task.`

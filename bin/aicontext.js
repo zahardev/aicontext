@@ -391,11 +391,9 @@ async function installConfig(packageRoot, target, skipConfirm = false) {
       let content = fs.readFileSync(configDest, 'utf8');
 
       // Task naming
-      const namingAnswer = await prompt('  Task naming pattern — 1) version-based (default), 2) issue ID-based, 3) date-based: ');
+      const namingAnswer = await prompt('  Task naming pattern — 1) version-based (default), 2) with issue ID, 3) date-based: ');
       if (namingAnswer === '2') {
-        const prefix = await prompt('  Issue tracker prefix (e.g., JIRA, GH): ');
-        content = setConfigValue(content, 'task_naming', 'pattern', `"{${prefix.toUpperCase() || 'ISSUE'}-id}-{task-name}"`);
-        content = setConfigValue(content, 'task_naming', 'source', 'manual');
+        content = setConfigValue(content, 'task_naming', 'pattern', '"{version}-{issue_id}-{task-name}"');
       } else if (namingAnswer === '3') {
         content = setConfigValue(content, 'task_naming', 'pattern', '"{date}-{task-name}"');
         content = setConfigValue(content, 'task_naming', 'source', 'manual');

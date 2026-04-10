@@ -41,7 +41,7 @@ Pass the corpus explicitly to the reviewer subagent along with the resolved scop
 ## Loop
 
 1. **Implement** the step
-2. **Review** — if `after_step.review` resolved to `partial` or `full`: compute corpus (see above), call `reviewer` subagent (Claude Code; inline otherwise) with corpus + scope
+2. **Review** — if `after_step.review` resolved to `partial` or `full`: compute corpus (see above), call `reviewer` subagent (Claude Code; inline otherwise). Tell the reviewer which playbook to follow: `partial` → `review.md`, `full` → `deep-review.md`
 3. **Assess** findings using the severity × effort table in `process.md`
 4. **Fix** actionable issues
 5. **Re-review** — repeat 2–4 up to 5 times total. If issues remain after 5 iterations, stop and tell the user: "I've done 5 review cycles — please check if there are remaining issues." The user decides to resolve manually or run another cycle.
