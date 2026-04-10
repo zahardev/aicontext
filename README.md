@@ -34,7 +34,7 @@ Run `/aic-help` (or `use aic-help`) for a guided tour of available workflows and
 
 Writing a `CLAUDE.md` or `.cursorrules` file gives your AI memory. AIContext gives it a **way of working** — built on [Spec Driven Development](https://martinfowler.com/articles/exploring-gen-ai/sdd-3-tools.html), where the spec is the source of truth and code is derived from it:
 
-```
+```text
 /start-feature  →  Interview  →  Spec + Task(s)
                                       ↓
                                 /run-task  →  Implement + Review + Test (automated per step)
