@@ -1,21 +1,12 @@
 # Web Inspect
 
-Browser-based investigation using [playwright-cli](https://github.com/microsoft/playwright-cli) (Apache 2.0). Use this when you need to visually inspect a web page, check console errors, interact with UI elements, or capture screenshots.
+Browser-based investigation using `playwright-cli`. Use when you need to visually inspect a web page, check console errors, interact with UI elements, or capture screenshots.
 
-## Install
-
-If `playwright-cli` is not available, guide the user:
-
-```bash
-npm install -g @playwright/cli@latest
-playwright-cli install-browser
-```
-
-After installation, verify: `playwright-cli --version`
+*If `playwright-cli` is not installed, follow `install-playwright-cli.md` first.*
 
 ## Core Workflow
 
-Always use **headed mode** so the user can see the browser and intervene when needed (e.g., login, CAPTCHA).
+Always use **headed mode** so the user can see the browser and intervene when needed (login, CAPTCHA).
 
 ### 1. Open the browser
 
@@ -29,71 +20,51 @@ playwright-cli open --headed <url>
 playwright-cli snapshot
 ```
 
-Returns a text representation of the page with element refs (e.g., `e1`, `e2`, `e3`). Use these refs to target elements — don't guess selectors.
+Returns a text representation of the page with element refs (`e1`, `e2`, ...). Target elements by ref, never guess selectors. Re-snapshot after any interaction that mutates the page (submit, navigation, modal).
 
 ### 3. Interact with elements
 
 ```bash
-playwright-cli click <ref>              # click an element
-playwright-cli fill <ref> "<text>"      # type into an input
-playwright-cli select <ref> "<value>"   # pick a dropdown option
-playwright-cli hover <ref>              # hover over element
-playwright-cli check <ref>              # check a checkbox
+playwright-cli click <ref>              # click
+playwright-cli fill <ref> "<text>"      # type into input
+playwright-cli select <ref> "<value>"   # dropdown
+playwright-cli hover <ref>              # hover
+playwright-cli check <ref>              # checkbox
 ```
-
-After any interaction that changes the page (submit, navigation, modal), run `snapshot` again to get updated refs.
 
 ### 4. Check for errors
 
 ```bash
-playwright-cli console error            # show JS errors
-playwright-cli console                  # show all console messages
-playwright-cli network                  # show network requests since page load
+playwright-cli console error            # JS errors only — check this first when debugging
+playwright-cli console                  # all console messages
+playwright-cli network                  # network requests since page load
 ```
 
 ### 5. Capture state
 
 ```bash
-playwright-cli screenshot                        # visible viewport
-playwright-cli screenshot --full-page             # full scrollable page
-playwright-cli screenshot <ref>                   # specific element
-playwright-cli screenshot --filename "name.png"   # save with name
+playwright-cli screenshot [--full-page] [<ref>] [--filename "name.png"]
 ```
+
+Viewport by default, `--full-page` for long scrollable content, `<ref>` for a specific element. Screenshots beat snapshots for layout/styling questions.
 
 ### 6. Run JavaScript
 
 ```bash
 playwright-cli eval "() => document.title"
-playwright-cli eval "() => window.innerWidth"
-playwright-cli eval "() => document.querySelectorAll('.error').length"
 ```
 
 ## Authentication
 
-**Default (recommended):** The browser opens in headed mode — the user logs in manually. This avoids sharing credentials with the AI agent.
+**Default:** headed mode — the user logs in manually. Never ask for credentials.
 
-**For repeated sessions:** The user can save and restore auth state:
+**For repeated sessions:** save and restore auth state:
 
 ```bash
 playwright-cli state-save                # after manual login (filename optional)
-playwright-cli state-load auth.json     # in future sessions
+playwright-cli state-load auth.json      # in future sessions
 ```
 
-The user decides where to keep auth state files. Never ask for credentials.
+## More commands
 
-## Best Practices
-
-- **Snapshot before acting** — always get refs first, never guess selectors
-- **Re-snapshot after changes** — page mutations invalidate previous refs
-- **Console first for debugging** — check `console error` before visual inspection
-- **Screenshots for visual issues** — when layout/styling is the question, a screenshot is more useful than a snapshot
-- **Headed by default** — only use headless when explicitly requested by the user
-
-## Advanced Commands
-
-For commands not covered here (tabs, cookies, storage, tracing, video, network mocking, keyboard/mouse control):
-
-```bash
-playwright-cli --help              # full command list
-playwright-cli --help <command>    # details for a specific command
-```
+For tabs, cookies, storage, tracing, video, network mocking, keyboard/mouse control: `playwright-cli --help` or `playwright-cli --help <command>`.

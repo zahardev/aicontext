@@ -6,10 +6,12 @@ This folder contains AI assistant configuration and project documentation.
 
 | File | Purpose |
 |------|---------|
+| `config.yml` | Project settings — lifecycle config (`after_step` / `after_task`), commit rules, task naming, update checks |
+| `config.local.yml` | Personal setting overrides (gitignored) |
 | `project.md` | Project identity, tech stack, architecture |
 | `structure.md` | Folder structure, commands, environment |
-| `worklog.md` | Spec and task status tracking |
-| `local.md` | Personal/local settings (gitignored, see below) |
+| `worklog.md` | Spec and task status tracking; includes an `## Ideas` section for capturing deferred ideas mid-session |
+| `local.md` | Personal/local prose settings (gitignored, see below) |
 
 ## Override Priority
 
@@ -94,6 +96,10 @@ Subdirectories are created automatically by skills and scripts when needed.
 2. AI reads rules and project files
 3. AI confirms readiness
 
+### Capturing Ideas Mid-Session
+1. Use `/add-idea` (or `Use add-idea`) to save the idea to the `## Ideas` section in `worklog.md` — a lightweight backlog for things worth revisiting
+2. When the idea is ready to act on, use `/start-feature` (spec), `/create-task` (task), or `/add-step` (step) to formalize it, then remove the line from Ideas
+
 ### Working on a Task
 1. Paste `prompts/task.md` content (or use `/check-task` in Claude Code)
 2. Create/update task file in `tasks/` using `templates/task.template.md`
@@ -103,7 +109,7 @@ Subdirectories are created automatically by skills and scripts when needed.
 
 ### Reviewing Work
 1. Paste `prompts/review.md` (or use `/review`) for code review
-2. Paste `prompts/review-plan.md` (or use `/review-plan`) to validate plans
+2. Paste `prompts/review-task-plan.md` (or use `/review-task-plan`) to validate plans
 
 ### Pull Request Workflow (Claude Code / Codex)
 1. Use `/draft-pr` to draft a pull request from the task file and git changes
@@ -133,7 +139,7 @@ Skills automate common workflows. Both Claude Code (`.claude/skills/`) and Codex
 |-------|-------------------|-------------|
 | `start` | `prompts/start.md` | Confirm project readiness |
 | `check-task` | `prompts/task.md` | Analyze task before implementation |
-| `review-plan` | `prompts/review-plan.md` | Validate plan for issues |
+| `review-task-plan` | `prompts/review-task-plan.md` | Validate task plan for issues |
 | `review` | `prompts/review.md` | Review code (scope: diff, branch, commit, path) |
 | `deep-review` | `prompts/deep-review.md` | Comprehensive architecture + correctness review |
 | `next-step` | — | Complete step, reflect, start next |

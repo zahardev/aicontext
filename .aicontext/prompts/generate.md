@@ -20,51 +20,6 @@ Read and analyze the following files (if they exist):
 | Dart/Flutter | `pubspec.yaml` |
 | .NET | `*.csproj`, `*.sln` |
 
-### Framework-Specific Files
-
-#### PHP / Laravel
-- `artisan` - Laravel CLI
-- `config/app.php` - Application config
-- `routes/web.php`, `routes/api.php` - Route definitions
-- `database/migrations/` - Database migrations
-- `app/Models/`, `app/Http/Controllers/` - MVC structure
-
-#### PHP / WordPress
-- `wp-config.php` - WordPress config
-- `functions.php` - Theme functions
-- `style.css` (with Theme Name header) - Theme identification
-- Plugin main file with plugin header
-- `wp-content/plugins/`, `wp-content/themes/`
-
-#### Python / Django
-- `manage.py` - Django CLI
-- `settings.py` or `settings/` - Configuration
-- `urls.py` - URL routing
-- `models.py` - Database models
-
-#### Python / FastAPI / Flask
-- `main.py` or `app.py` - Entry point
-- `requirements.txt` - Dependencies
-
-#### JavaScript / Next.js
-- `next.config.js` or `next.config.mjs` - Next.js config
-- `app/` or `pages/` - Routing structure
-- `components/` - React components
-
-#### JavaScript / React (Vite/CRA)
-- `vite.config.js` or `react-scripts` in package.json
-- `src/App.jsx` or `src/App.tsx`
-
-#### Dart / Flutter
-- `pubspec.yaml` - Dependencies
-- `lib/main.dart` - Entry point
-- `android/`, `ios/` - Platform folders
-
-#### Mobile / React Native
-- `app.json` - App config
-- `metro.config.js` - Metro bundler
-- `android/`, `ios/` - Platform folders
-
 ### Configuration Files
 - `docker-compose.yml` / `Dockerfile`
 - `Makefile`
@@ -127,20 +82,20 @@ From your analysis, identify:
    - Dangerous commands for this stack
    - Production vs development concerns
 
-6. **Task Naming Convention**
-   - Ask the user how they want to name task files in `.aicontext/tasks/`
-   - Common patterns:
-     - Version-based: `{version}-{task-name}.md` (e.g., `1.3.0-feature-name.md`)
-     - Issue ID-based: `{issue-id}-{task-name}.md` (e.g., `JIRA-123-feature-name.md`)
-     - Date-based: `{date}-{task-name}.md` (e.g., `2026-01-25-feature-name.md`)
-   - After choosing pattern, ask about **ID source and rules**:
-     - **Version-based**: Where to get version? (git branch pattern, package.json, manual)
-     - **Issue ID-based**: What's the issue tracker? (Jira, GitHub, Linear, etc.) What's the project prefix?
-     - **Date-based**: No additional rules needed (use current date)
-   - Store both pattern AND rules in project.md so AI can follow them automatically
-   - Default to version-based with git branch detection if user has no preference
+## Step 4: Confirm Extracted Information
 
-## Step 4: Configure Claude Code Agents (if applicable)
+Before generating files, show the user a summary of the *inferred* parts: project identity (description/purpose), tech stack (including anything not in package files — cache, queue, storage, external services), and safety rules. Skip architecture and commands — those are read directly from the codebase and easy to spot-check in the generated files.
+
+Ask:
+
+> "Does this look correct?"
+> 1. **Yes** — proceed to generate
+> 2. **Needs changes** — describe corrections
+> 3. **Abort** — stop, don't generate
+
+Wait for the answer before proceeding.
+
+## Step 5: Configure Claude Code Agents (if applicable)
 
 If the project uses Claude Code, configure agent models based on available capabilities:
 
@@ -156,7 +111,7 @@ If the project uses Claude Code, configure agent models based on available capab
 3. **Confirm with the user** before updating: show the proposed model assignments and ask if they'd like to adjust
 4. Update the `model:` field in `.claude/agents/*.md` files accordingly
 
-## Step 5: Generate Files
+## Step 6: Generate Files
 
 Using the templates in `.aicontext/templates/`, generate:
 
@@ -166,7 +121,6 @@ Using the templates in `.aicontext/templates/`, generate:
 - Key features
 - Architecture overview
 - Project-specific safety rules
-- Task naming convention (from user's preference)
 
 ### `.aicontext/structure.md`
 - Folder tree (key directories only)
@@ -175,7 +129,8 @@ Using the templates in `.aicontext/templates/`, generate:
 - Test structure
 
 ### `.aicontext/worklog.md`
-- Scan `.aicontext/specs/` and `.aicontext/tasks/` for existing files
+- If `.aicontext/changelog.md` exists (deprecated predecessor), migrate its content into worklog format — preserve existing status (In Progress / Done, dates)
+- Otherwise scan `.aicontext/specs/` and `.aicontext/tasks/` for existing files
 - If specs and tasks exist: build the worklog with actual status (In Progress / Done, tasks under their specs)
 - If no specs or tasks exist: create with empty sections (In Progress, Done, Standalone Tasks)
 - Use the template at `.aicontext/templates/worklog.template.md` for format reference

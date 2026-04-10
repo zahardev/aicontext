@@ -1,6 +1,8 @@
 # Development Model
 
-AIContext organizes work in three layers that keep the AI aligned across sessions, features, and team members.
+AIContext follows [Spec Driven Development](https://martinfowler.com/articles/exploring-gen-ai/sdd-3-tools.html) — the spec precedes and outlives implementation. Requirements are written in domain language, not tied to code structure, and survive refactors. Tasks are ephemeral delivery vehicles; the spec is the durable contract.
+
+Work is organized in three layers that keep the AI aligned across sessions, features, and team members.
 
 ## The Three Layers
 
@@ -15,7 +17,7 @@ Spec (what & why)  →  Task (how & progress)  →  Brief (working knowledge)
 A spec defines *what* to build and *why*. It contains:
 - **Problem** — what is broken, painful, or missing
 - **Solution** — high-level approach
-- **Requirements** — what the system must do, detailed enough for task creation (plain list, no checkboxes)
+- **Requirements** — what the system must do, as checkbox items grouped by subsection with `*Implemented by:*` footers linking to tasks
 - **Decisions** — architectural choices with reasoning
 - **Non-goals** — what is explicitly out of scope
 - **Tasks** — links to task files that implement this spec
@@ -23,7 +25,7 @@ A spec defines *what* to build and *why*. It contains:
 Specs contain no file paths or implementation details — they survive refactors. One spec can have multiple tasks.
 
 **Created by:** `/start-feature`
-**Updated by:** `/run-steps` (elevates findings), `/do-it`, `/align-context`, `/finish-task`
+**Updated by:** `/run-task` (syncs new decisions/requirements), `/do-it`, `/align-context`, `/finish-task`
 
 ### Task
 
@@ -32,14 +34,14 @@ Specs contain no file paths or implementation details — they survive refactors
 A task defines *how* to build it and tracks *progress*. It contains:
 - **Spec link** — which spec this implements
 - **Objective** — what this task accomplishes
+- **Deliverables** — definition of done for this work bundle
 - **Plan** — step-by-step with checkboxes (`- [ ]` / `- [x]`)
-- **Commit Rules** — optional per-task override of project commit settings
 - **Completion Notes** — what was built, compromises, follow-ups
 
 The AI checks off steps as it goes. When all steps are done, `/finish-task` closes it out.
 
 **Created by:** `/start-feature`, `/plan-tasks`
-**Updated by:** `/run-steps`, `/do-it`, `/align-context`
+**Updated by:** `/run-task`, `/do-it`, `/align-context`
 
 ### Brief
 
@@ -48,17 +50,14 @@ The AI checks off steps as it goes. When all steps are done, `/finish-task` clos
 The brief is the AI's working memory. After each step, the AI appends what it learned:
 - **Codebase Patterns** — conventions and patterns discovered
 - **Gotchas** — non-obvious issues or constraints
-- **Decisions** — choices made during implementation and why
-- **File References** — files created or modified
-- **Bugs & Issues** — errors encountered and solutions
-- **Testing** — test results and coverage
+- **Decision Overrides** — spec decisions superseded mid-task (old + why)
 
 Entries are concise (1-2 lines), prefixed with `[Step N]`, and never deleted — only appended. Later entries take precedence.
 
 The brief is gitignored but never auto-deleted. If you start a new session weeks later, `/check-task` reads the brief and the AI picks up where it left off.
 
-**Created by:** `/run-steps`, `/do-it`, `/align-context`
-**Updated by:** `/run-steps` (after each step), `/do-it`, `/align-context`
+**Created by:** `/run-task`, `/do-it`, `/align-context`
+**Updated by:** `/run-task` (after each step), `/do-it`, `/align-context`
 
 ## How They Work Together
 
@@ -67,13 +66,13 @@ The brief is gitignored but never auto-deleted. If you start a new session weeks
 ```
 /start-feature  →  Spec + Task(s)
                         ↓
-                  /run-steps on Task 1
+                  /run-task on Task 1
                         ↓
               Brief accumulates knowledge
                         ↓
                   /finish-task on Task 1
                         ↓
-                  /run-steps on Task 2 (brief carries over or new brief created)
+                  /run-task on Task 2 (brief carries over or new brief created)
                         ↓
                   /finish-task on Task 2
                         ↓
@@ -91,12 +90,12 @@ New session → /start → /check-task
                      Brief has: [patterns, gotchas, decisions].
                      Spec has: [requirements not yet covered by steps]."
                            ↓
-                    /run-steps continues from Step 4
+                    /run-task continues from Step 4
 ```
 
 ### Requirement Coverage
 
-Whenever the AI adds a requirement to the spec — during `/run-steps`, `/do-it`, or `/align-context` — it immediately checks if the requirement is covered by a task step. If not, it proposes adding a step or creating a separate task.
+Whenever the AI adds a requirement to the spec — during `/run-task`, `/do-it`, or `/align-context` — it immediately checks if the requirement is covered by a task step. If not, it proposes adding a step or creating a separate task.
 
 `/check-task` also runs a full drift scan as a safety net for changes made in prior sessions.
 
@@ -127,16 +126,9 @@ The worklog is AI-generated (not created by the CLI) and gitignored. `/finish-ta
 
 ## Quality Checks
 
-The quality checks table in `.aicontext/rules/process.md` defines what runs when:
+Quality checks are configured in `.aicontext/config.yml` under `after_step` and `after_task`. Review and tests take scope values (`partial` | `full` | `false` | `ask`); commit and push take boolean values (`true` | `false` | `ask`).
 
-| Check | After Step | After Task |
-|-------|------------|------------|
-| Code review | Yes | No |
-| Step-related tests | Yes | No |
-| Standards check | No | Yes |
-| Full test suite | No | Yes |
-
-Edit this table to customize your workflow. `/run-steps` reads it at runtime.
+When set to `ask`, the AI prompts at the start of `/run-task` or `/run-step` with user-friendly options (e.g., "Quick review — this step's changes" or "Deep review — architecture + correctness") and offers to save your choice as the default.
 
 When findings are returned, the AI assesses each by severity and effort:
 
@@ -148,16 +140,22 @@ When findings are returned, the AI assesses each by severity and effort:
 | Low | High | Skip — note in brief |
 | False positive | — | Dismiss |
 
-## Commit Configuration
+## Lifecycle and Commit Configuration
 
-Commit rules have three levels (first found wins):
-1. **Task file** `## Commit Rules:` — per-task override
-2. **`local.md`** — personal preference (gitignored)
-3. **`project.md`** `## Commit Rules` — project defaults (shared)
+Lifecycle and commit settings live in `.aicontext/config.yml`. Personal overrides go in `config.local.yml` (gitignored).
 
-Three fields:
-- `commit_mode`: manual / per-step / per-task
-- `commit_template`: description / description (#issue_id) / type: description / custom
-- `finish_action`: nothing / commit / commit+push / commit+push+pr
+**Lifecycle actions** under `after_step` and `after_task` — same vocabulary at both timings. Review and tests take scope values (`partial` | `full` | `false` | `ask`); commit and push take boolean values (`true` | `false` | `ask`). `ask` fires upfront at `/run-step` or `/run-task` entry with a two-stage prompt (Stage 1: pick action with timing-specific recommendation; Stage 2: save as default?). Once answered, the run proceeds unattended.
 
-If no rules exist, `/run-steps` asks at start and offers to save to `project.md` (team) or `local.md` (personal).
+- `after_step.review` / `tests` / `commit` — fire after each step
+- `after_task.review` / `tests` / `commit` / `push` — fire at task close
+
+`after_task.commit` is skipped automatically if any step committed during the run — step-level commits already cover the work. `after_task.push` fires independently so step-level commits still reach the remote.
+
+The `reviewer` subagent receives an explicit corpus based on commit state: working-tree diff for uncommitted steps, last commit (`HEAD^..HEAD`) for committed steps, branch diff (`{base-branch}...HEAD` + uncommitted working tree) for task close.
+
+**Commit format** under `commit`:
+- `commit.template`: description / description (#issue_id) / type: description / custom
+- `commit.body`: true (subject + body + trailer) / false (subject only)
+- `commit.co_authored_trailer`: template for the Co-Authored-By trailer
+
+All commits go through `commit.md` — the single commit codepath. Other prompts (`finish-task`, `run-task`, `do-it`) delegate to it.

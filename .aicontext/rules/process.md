@@ -1,114 +1,164 @@
 # Process Rules
 
-## Before Starting Any Task
+*Workflow, lifecycle, and task/spec/brief mechanics. For coding standards, AI behavior, safety, and output quality bars, see [standards.md](standards.md).*
 
-1. **Create a task file** in `.aicontext/tasks/` using the template at `.aicontext/templates/task.template.md`
-   - Check `project.md` → "Task Naming Convention" for the pattern and ID rules
-   - If rules are missing or unclear, ask user and update `project.md` with the rules
-   - This is the primary record of work - update it throughout the task
-2. Read `.aicontext/project.md` to understand current project state
-3. Check task dependencies and prerequisites
-4. Verify scope understanding
-5. Review related code and existing tests
-6. Ask clarifying questions if requirements are ambiguous
+## Task Lifecycle
 
-**Note:** If your AI tool has in-session task tracking (like Claude Code's todo list), use it as a supplement for real-time progress, but the task file remains the source of truth.
+### Starting a task
 
-## Task Execution Protocol
+1. **Create a task file** in `.aicontext/tasks/` using `.aicontext/templates/task.template.md`. Follow `task_naming` in `.aicontext/config.yml` for the pattern; ask and update config if unclear. Skip task files only for trivial changes (typo fixes, single-line edits).
+2. Read `.aicontext/project.md` for current project state and `.aicontext/structure.md` before creating files/folders.
+3. Check dependencies, review related code and existing tests, and consider impact on database schema, API contracts, third-party integrations.
+4. Ask clarifying questions and complete the question phase before implementation.
+5. Research latest best practices if applicable; link to official docs.
+6. Get explicit permission before creating the implementation plan.
 
-When asked for a feature or bug fix:
+**Task file is the source of truth.** In-session tools (Claude Code todo list, Cursor agent tasks) supplement real-time progress — the task file persists.
 
-### 1. Task Assessment
-- Check for discrepancies with existing features or tests
-- Consider impact on: database schema, API contracts, third-party integrations
-- Ask clarifying questions - complete question phase before implementation
-- Research latest best practices if applicable (provide links to official docs)
-- Get explicit permission before creating implementation plan
+**Date format:** task files use `Month Day, Year` (e.g., "January 23, 2026"); changelog entries use `YYYY-MM-DD`. Always use the current real date.
 
-### 2. Project Structure Compliance
-- Consult `.aicontext/structure.md` before creating files/folders
-- Update structure.md if you create new components
-- Follow established project conventions
+**Error handling:** document bugs, root causes, and resolution steps inside the task file.
 
-### 3. Error Handling
-- Document bugs and solutions in task files (`.aicontext/tasks/{version}-{task_name}.md`)
-- Include error details, root cause, and resolution steps
+## Implementation Permission Protocol
 
-## Task File Management
+**CRITICAL:** The plan lives in the task file, not inline in chat. Do not write code until the user explicitly initiates execution — `/run-task`, `/run-step`, `/close-step`, or a direct go-ahead after the task file is visible.
 
-**REQUIRED**: Create a task file BEFORE starting any feature or bug fix. This ensures work is tracked persistently across sessions and visible to the team.
+Do not paste the plan into chat for approval — creating the task file IS the plan presentation. The user reviews the file and initiates execution when ready.
 
-Use the template at `.aicontext/templates/task.template.md`. Skip task files only for trivial changes (typo fixes, single-line edits).
+## Spec Lifecycle
 
-### Date Requirements
+Specs are the current contract — not a changelog. Delete requirements and decisions when they no longer apply or are no longer being defended. Brief and git history preserve the rationale; spec stays clean.
 
-**IMPORTANT**: Always use real current date when creating task files.
+## Task Deliverables vs Spec Requirements
 
-Before creating or updating documentation, verify the current date:
-- Task files: Use format `Month Day, Year` (e.g., "January 23, 2026")
-- Changelog entries: Use format `YYYY-MM-DD` (e.g., "2026-01-23")
+| Layer | Location | Answers |
+|---|---|---|
+| Spec requirements | `spec-{name}.md` `## Requirements` | What must the system do? (broad, durable) |
+| Task deliverables | `{task-file}.md` `## Deliverables:` | What must this work bundle deliver to be done? |
+
+Task deliverables are the **definition of done for this work bundle** — not a translation of spec requirements. Four categories:
+
+- **Scoped spec delivery** — slices of spec requirements this bundle satisfies
+- **Process artifacts** — outputs the bundle must produce ("audit captured in brief")
+- **Constraints** — guardrails for this bundle ("no behavior regression", "backwards compatible")
+- **Drive-by fixes** — small unrelated fixes bundled in
+
+Only the first category overlaps with the spec; the other three belong nowhere else. Deliverables can grow mid-task — `/add-step` offers to add one when a new step extends scope.
+
+**Granularity:** deliverables are *checkable at close time* — by reviewing the final state of code, docs, or behavior. Drive-by fixes legitimately name files and lines; that's not "too small".
+
+**Phrasing:**
+- Use "should" voice — target state, not description
+- Follow the Information Density rule in `standards.md` — be concise without dropping signal
+
+**Checkbox timing:** `close-step` checks off only what a step delivered 100% unambiguously. `finish-task` walks task deliverables (unchecked = hard block) then spec requirements in linked subsections (unchecked = warning). Warnings resolve via one contract: **deliver** / **defer** / **revise**. Task deliverables are the gate; spec checkboxes are the consequence.
+
+**Spec drift:** `/check-task` runs `git log` (file-level) and AI semantic comparison (coverage) — both when possible. Git catches edits, semantic catches mismatches a git-untouched spec can still have.
+
+## Context Discipline
+
+### Targeted reads
+
+When you need only a slice of a large file (`spec*.md`, `worklog.md`, `CHANGELOG.md`, multi-step task files, prompts), use the cheapest tool that gets you what you need:
+
+- **A named subsection** → `Grep` for the heading, then `Read` with `offset`/`limit` around the match.
+- **Recent changes** → `git log --since=<date> -- <path>` and `git diff <ref> -- <path>` instead of re-reading the file.
+- **A single symbol** → `Grep` for the symbol with `-n`, then `Read` the surrounding lines only.
+
+### Tool output handling
+
+Large tool output lives in conversation history forever — every subsequent turn pays the cost. A 2000-line test log shipped inline costs ~10× a one-line `## Result: FAIL` summary plus a path the AI can `Read` if needed.
+
+- Bash commands likely to produce >50 lines: pipe to `/tmp/{name}.log`, then `Grep` or `Read` with `offset`/`limit` for the slice you need.
+- For test runs, prefer the `test-runner` subagent (which filters output to failures + diagnostics).
+- For repository-wide searches, prefer `Grep` with `head_limit` over piping `find` output.
+- When forced to run a long command inline (e.g. for debugging), summarize the takeaway in your reply rather than letting the raw output stand.
+
+### Brief content boundary
+
+Briefs MUST NOT restate spec content. The spec is the single source of truth for what the system currently does and why; briefs hold *in-flight working knowledge that doesn't fit the spec contract* — codebase patterns discovered during exploration, gotchas, file references, debug notes. Before writing to a brief, ask: *would this belong in the spec instead?* If yes, write it to the spec and link from the brief — never both. See Spec Lifecycle above for what happens when a decision is superseded.
+
+### Long-form notes location
+
+Freeform investigations and long-form notes live in `.aicontext/data/notes/{YYYY-MM-DD}-{topic}.md` — never inside briefs or task files. Briefs and task files reference notes with a one-line link. Why: briefs and task files are read on every related step; long notes inflate every read.
+
+## Worklog
+
+`.aicontext/worklog.md` tracks spec/task status and the ideas backlog.
+
+### After task completion
+
+Update `worklog.md` — check off the task under its spec, or add to Standalone Tasks if no spec.
+
+### Ideas backlog
+
+`worklog.md` has an `## Ideas` section — a lightweight backlog for deferred ideas that arise during sessions.
+
+**Format:** `- [type] description — optional context`
+**Types:** `spec` (new feature), `task` (bounded work), `step` (addition to current task). Type is optional.
+
+**When to suggest it:** When an idea surfaces that isn't the current task, suggest: `"Use /add-idea to capture this so it's not lost."` Common triggers:
+- "We should also refactor X while we're at it" — out of scope for the current task
+- "What if we added Y at some point?" — not ready to plan yet
+- "This reminds me, we should probably..." — tangential improvement
+
+**Promoting ideas:** When an idea matures, use `/start-feature` (spec), `/create-task` (task), or `/add-step` (step) to formalize it, then remove the line from the Ideas section. Remove abandoned ideas too.
 
 ## Test-Driven Development
 
-### TDD Workflow
-1. Write failing test first
+### Workflow
+1. Write failing test
 2. Implement the feature
 3. Verify test passes
 4. Move to next step
 
-### TDD Rules
-- Create only tests that will fail before implementation
-- Update existing tests when possible instead of creating duplicates
+### Rules
+- Update existing tests instead of creating duplicates when possible
 - Test the specific step being implemented, not all functionality at once
-- **Quality over quantity**: Create essential, meaningful tests
-- **Test behavior, not implementation**: Test what the feature does, not how
-
-### For Multi-Step Features
-1. Test for Feature A (should fail)
-2. Implement Feature A
-3. Test for Feature B (should fail) - can now assume Feature A works
-4. Implement Feature B
-
-**Avoid**: Creating all tests first, then implementing everything
+- **Quality over quantity:** essential, meaningful tests only
+- **Test behavior, not implementation:** what the feature does, not how
+- **Multi-step features:** interleave — test + implement Feature A, then test + implement Feature B. Don't write all tests upfront.
 
 ## Task Planning Guidelines
 
 ### Plans Must Describe WHAT, Not HOW
-- Focus on goals, outcomes, or deliverables
-- Implementation details are discovered during implementation
 
-**Good examples:**
+Task steps describe what to build or change — behavior descriptions belong in the spec, implementation details are discovered during implementation.
+
+**Good:**
 - "Add user authentication endpoint"
-- "Create data lookup service"
+- "Add update check step to start.md"
 
-**Bad examples:**
+**Bad:**
 - "Create UserController with login() method using Library X"
-- "Write DataService class with lookup() function"
-
-### Task Granularity
-- Sub-steps should be broad enough to be meaningful but specific enough to be actionable
-- Avoid micro-tasks that clutter the plan
-- Focus on deliverable outcomes
-- When executing steps manually (not via `/run-steps`), always stop after completing a step - never start next step without permission
+- "If update available: show notification, then ask 'Would you like to upgrade?' (Yes / Not now)"
 
 ### Checkbox Format
-- Use `- [ ]` for unchecked items
-- Never use `- [x]` in initial plans
-- Tasks should be ordered logically with dependencies considered
-- Previous steps cannot depend on subsequent steps
+- Use `- [ ]` for unchecked items; never `- [x]` in initial plans
+- Order steps by dependency — a step cannot depend on a later step
+- When executing steps manually (not via `/run-task`), stop after each step and wait for permission
+
+### Never include spec or brief updates as plan steps
+
+Spec sync, brief updates, requirement checkboxes, worklog updates, and spec completion are handled automatically by `close-step.md` and `finish-task.md`. Listing them as explicit plan steps is redundant and pollutes the plan.
+
+**Bad:** "Update spec with new decision", "Append findings to brief", "Check off completed requirements in spec"
+**Good:** omit them — they happen automatically at step/task close.
+
+### Never include manual human steps in plans
+
+Plans are for the agent. If the agent cannot execute a step, it is not a plan step. This includes: manual verification, manual testing, manual QA, user approvals, "check in browser", "verify UX", "ask product team", etc.
+
+Automated test runs via the `test-runner` subagent are agent actions and happen during the step inner loop (see `step-loop.md`), not as separate plan steps — this rule is about *manual* testing only.
+
+Human verification belongs in task deliverables (as a checkbox gate the user ticks) or as an interactive question at step/task close, never as a plan step.
+
+**Bad:** "Manually test the login flow", "User verifies the UI looks right", "Get approval from stakeholder"
+**Good:** put the verification in task deliverables, or have the AI ask the user interactively at close time.
 
 ## Quality Checks
 
-### Timing Table
-
-| Check | After Step | After Task | Skill |
-|-------|------------|------------|-------|
-| Code review | Yes | No | `reviewer` subagent |
-| Step-related tests | Yes | No | `test-runner` subagent |
-| Deep review | No | Yes | `reviewer` subagent |
-| Full test suite | No | Yes | `test-runner` subagent |
-
-Edit this table to customize your workflow. `/run-steps` reads it at runtime.
+Lifecycle actions (code review, tests, commit, push) are configured in `.aicontext/config.yml` under `after_step` and `after_task`. Review/tests take scope values (`partial | full | false | ask`); commit/push take boolean values (`true | false | ask`). `ask` prompts upfront at `/run-step` or `/run-task` entry. Edit the config to customize your workflow.
 
 ### Review Response Rules
 
@@ -123,19 +173,9 @@ When a quality check returns findings, use this table to decide what to fix:
 | Low | High | Skip — note in brief |
 | False positive | — | Resolve / dismiss |
 
-## Task Completion Criteria
+## Checkbox Discipline
 
-Mark tasks complete only when:
-- All functionality implemented correctly
-- Code follows project structure guidelines
-- No errors or warnings remain
-- Tests written and passing
-- All task list items completed
-- **VERIFICATION REQUIRED**: Task must be tested/verified to actually work
-
-### After Task Completion
-
-Update `.aicontext/worklog.md` — check off the task under its spec, or add to Standalone Tasks if no spec.
+Before checking off any item (`- [ ]` → `- [x]`), re-read its description and verify the work fully matches what it says. A partial implementation is not done — leave it unchecked and note what remains. This is the operational rule for "mark complete only when done" — applies to plan steps, task deliverables, and spec requirements alike.
 
 ## Version Management
 
@@ -147,15 +187,3 @@ Each new task means a new version. Increment version yourself if not specified:
 ### Version Update Timing
 - **NEVER** update the script version during implementation steps
 - **ONLY** update the version as the final step before marking the entire version as complete
-
-## Implementation Permission Protocol
-
-**CRITICAL**: Before writing ANY code or creating ANY files:
-
-1. **Complete question phase** - Ask all clarifying questions first
-2. **Present implementation plan** - Show the complete plan with all steps
-3. **Request explicit permission** - Ask "Should I proceed with implementing this plan?"
-4. **Wait for user confirmation** - Do not proceed until user explicitly approves
-5. **NO EXCEPTIONS** - This applies to ALL code changes, even small ones
-
-**Implementation is FORBIDDEN without explicit user permission.**

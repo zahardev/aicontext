@@ -1,12 +1,11 @@
 ---
 name: review
 description: Review code changes for bugs, security, edge cases. Scope with args — diff (default), branch, commit, path, or IDE selection. Delegates to reviewer agent for large scope.
-disable-model-invocation: true
 ---
 
 ## Determine scope
 
-Follow `.aicontext/prompts/review-scope.md` to determine scope and count changed lines.
+Follow `.aicontext/prompts/detect-review-scope.md` to determine scope and count changed lines.
 
 ## Run review
 

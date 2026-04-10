@@ -1,11 +1,39 @@
 # Changelog
 
+## [1.7.0] - 2026-04-10
+
+### Added
+- **Adaptive workflow config** — the AI asks your preferences on first run (reviews, tests, commits, push) and remembers them. All settings live in `config.yml` with personal overrides in `config.local.yml` (gitignored). Interactive setup during `aicontext init`
+- **`/draft-issue` creates GitHub issues** — optionally create issues on GitHub directly, save locally, or both. Editable issue template. Auto-fills issue ID for subsequent task creation
+- **`/interview` skill** — structured breadth-first interview that recommends answers based on codebase exploration and captures decisions
+- **`/brainstorm` skill** — generate missing angles, better implementations, and new combinations
+- **`/thoughts` skill** — lightweight "what do you think?" check-in mid-conversation
+- **`/add-idea` skill** — capture deferred ideas to a backlog mid-session so they're not lost. AI suggests it when out-of-scope ideas surface
+- **`/gh-fix-tests` skill** — automated CI fix: fetches failing checks from GitHub, diagnoses root causes, fixes, pushes, and retries up to 3 times until green
+- **Spec alignment checks** — plan and task-close verification that spec requirements are covered
+- **Co-Authored-By trailer config** — customizable format, or disable entirely
+- **Spec Driven Development** framing — docs and README position AIContext as an SDD framework
+
+### Changed
+- **`/start-feature` interview improved** — batches independent questions, recommends answers, walks dimensions breadth-first
+- **`/run-steps` renamed to `/run-task`**
+- **`/review-plan` renamed to `/review-task-plan`**
+- **Quality check prompts use friendly labels** — "Quick review — this step's changes" instead of "Partial"
+- **Review scope maps to the right playbook** — quick review for step-level, deep review for task-level
+- Unified commit codepath — all prompts delegate to the same commit logic
+- Spec requirements now use checkboxes with traceability footers
+
+### Removed
+- Old `commit.mode` / `commit.finish_action` config keys (silently migrated)
+- Per-task commit rule overrides (lifecycle config lives in `config.yml` only)
+- Specs and worklog from git tracking (project-specific working files, now gitignored)
+
 ## [1.6.0] - 2026-04-03
 
 ### Added
 - **Three-layer context model**: specs (requirements) → tasks (plan + progress) → briefs (working knowledge) for persistent AI context across sessions
-- **New skills**: `/start-feature`, `/run-steps`, `/finish-task`, `/plan-tasks`, `/do-it`, `/align-context`, `/gh-review-fix-loop`
-- **Shared step inner loop** (`step-loop.md`): single source of truth for the implement → review → test → commit cycle, referenced by `/run-steps` and `/do-it`
+- **New skills**: `/start-feature`, `/run-task`, `/finish-task`, `/plan-tasks`, `/do-it`, `/align-context`, `/gh-review-fix-loop`
+- **Shared step inner loop** (`step-loop.md`): single source of truth for the implement → review → test → commit cycle, referenced by `/run-task` and `/do-it`
 - **Spec files** (`.aicontext/specs/`): feature-level requirements, decisions, and non-goals — survive refactors, no file paths or implementation details
 - **Brief files** (`.aicontext/data/brief/`): gitignored working memory the AI appends to after each step — enables seamless session restarts via `/check-task`
 - **Worklog** (`.aicontext/worklog.md`): spec and task status tracking, replaces `changelog.md`. AI-generated, gitignored.
@@ -36,13 +64,13 @@
 - `/gh-review-fix-loop` cycle reordered: fetch first → triage → fix → test → capture count → commit+push → poll
 - Script paths in prompts use `.aicontext/scripts/` (universal) instead of `.claude/scripts/`
 - `removeDeprecatedSkills` now cleans both `.claude/skills/` and `.codex/skills/`
-- Process rule "stop after step" scoped to manual execution only (not `/run-steps`)
+- Process rule "stop after step" scoped to manual execution only (not `/run-task`)
 - Task template simplified: no acceptance criteria or out-of-scope sections (both live in spec)
 - **Merged `deep-reviewer` and `standards-checker` into single `reviewer` agent** — caller specifies criteria prompt, agent is generic
 - **Review prompts are self-contained workflows**: setup, scope, criteria, save with template, present — work identically inline or via agent
 - **Two review tiers**: `/review` = quick correctness (after step), `/deep-review` = comprehensive (after task)
 - Step inner loop simplified from 11 to 9 steps — close-step replaces separate update/brief/elevate steps
-- `/run-steps` commit logic simplified: only commits per-step, per-task commits handled by `/finish-task` via `finish_action`
+- `/run-task` commit logic simplified: only commits per-step, per-task commits handled by `/finish-task` via `finish_action`
 - `/finish-task` warns when `finish_action: nothing` but uncommitted changes exist
 - **Merged `/code-health` into `/deep-review`**: cross-file checks (duplication, consistency, structural metrics) added as expanded phases — `/deep-review all` replaces `/code-health` for full codebase scans
 - **Renamed `/pr-review-check` → `/gh-review-check`** and **`/check-plan` → `/review-plan`** for naming consistency

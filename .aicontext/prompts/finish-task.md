@@ -6,21 +6,26 @@ Close out the current task: verify completion, sync spec, write completion notes
 
 Read and follow `identify-task.md` to find the active task.
 
-Read the task file, spec (if linked), and brief (if it exists at `.aicontext/data/brief/brief-{task-filename}`).
+Load the task file, spec (if linked), and brief (at `.aicontext/data/brief/brief-{task-filename}` if it exists). Skip any file already Read earlier in this conversation — rely on memory.
 
 ## 2. Verify Completion
 
-- Confirm all plan steps are checked (`- [x]`)
-- If unchecked steps remain, ask the user: "These steps are still open — mark as done anyway, or complete them first?"
+- Confirm all plan steps are checked. If any remain, ask: "Mark done anyway, or complete first?"
+- **Task deliverables (hard block):** walk `## Deliverables:` (legacy: `## Requirements:`). Resolve every unchecked bullet via **Deliver** / **Defer** / **Revise** before proceeding. (Legacy: no section → skip + note.)
+- **Spec requirements (warning gate):** walk spec requirements in linked subsection(s) via the `*Implemented by:*` footer. Check what this task delivered (across all steps, genuinely complete). For each still unchecked → warning + same Deliver/Defer/Revise. (Legacy: no footers → whole-spec scan + note.)
 
-## 3. Sync Spec
+See `process.md "Task Deliverables vs Spec Requirements"`.
 
-Read the spec and brief side by side. Check:
-- Are all significant decisions from the brief reflected in the spec's Decisions section?
-- Do any requirements need updating based on what was actually built?
+## 3. Sync Spec (does the spec need new content?)
+
+Step 2 verified existing spec requirements; this step *adds* new content the brief surfaced during execution.
+
+Cross-reference the spec and brief (both loaded in Step 1):
+- Are all brief `Decision Overrides` entries applied to the spec? Each represents a spec revision — verify the spec reflects it.
 - Are there new non-goals to document?
+- Did the work surface *new* requirements for a future task to deliver?
 
-Update the spec if anything is missing. Mark the task as complete in the spec's `## Tasks` section (add `✓` or `(complete)` next to the task link).
+Update the spec if anything is missing. Mark the task complete in the spec's `## Tasks` section (`✓` or `(complete)` next to the task link).
 
 ## 4. Fill Completion Notes
 
@@ -41,21 +46,29 @@ Update `.aicontext/worklog.md`:
 
 ## 6. Handle Git
 
-Check for uncommitted changes (`git status`).
+Follow `ensure-config.md` to read project settings. Read `after_task.commit` and `after_task.push` (resolved values — `/run-task` and `/run-step` resolve `ask` upfront).
 
-**If there are uncommitted changes**, determine `finish_action`:
-1. Check task file `## Commit Rules:` for `finish_action`
-2. Fall back to `local.md` for `finish_action`
-3. Fall back to `project.md` → `## Commit Rules` for `finish_action`
-4. If not configured, ask:
-   > "You have uncommitted changes. What would you like to do?"
-   > 1. `nothing` — leave as-is, I'll handle git myself
-   > 2. `commit` — commit with a task completion message
-   > 3. `commit+push` — commit and push to remote
+Commit and push are independent gates — `after_task.push` can fire without `after_task.commit` (step-level commits still need to reach the remote):
 
-**If `finish_action` is `nothing`** but there are uncommitted changes, warn:
-> "You have uncommitted changes but `finish_action` is `nothing`. Want me to commit anyway, or leave as-is?"
+**Commit** — if `after_task.commit` resolved to Yes **and** `git status` shows uncommitted changes, delegate to `commit.md`. If there are no uncommitted changes (step-level commits already covered everything), silently skip and note `"commit: skipped — no uncommitted changes"` in the summary.
 
-Execute the chosen action. For commit messages use the configured `commit_template`, or default to: `complete: {task description}`.
+**Push** — if `after_task.push` resolved to Yes: check if upstream exists (`git rev-parse --verify @{u}`). If upstream exists and branch is ahead (`git rev-list @{u}..HEAD --count > 0`), `git push`. If no upstream, push with `git push -u origin {current-branch}`. Fires independently of the commit gate.
 
-**If there are no uncommitted changes**, skip this step.
+## 7. Output Completion Summary
+
+**You MUST output this summary — it proves the task closed cleanly.**
+
+```
+Task {task-name} closed:
+- Plan steps: N/N complete
+- Task deliverables: N/N delivered (X deferred, Y revised)
+- Spec requirements: N/M delivered (X deferred, Y revised)
+- Worklog: updated
+- Git: {commit / push result, or "skipped — step-level commits covered the task"}
+```
+
+Step 2 resolves every warning before reaching this summary. Deferred/revised counts record the user's resolution choices — auditable. Reaching Step 7 with unresolved warnings is an error: return to Step 2.
+
+After the summary, append one handoff line based on worklog state:
+- If the just-finished task's spec has other unchecked tasks in the worklog → `Spec '{Spec Name}' has more pending tasks. Next: '{next-task-name}'. Would you like to start it now?`
+- Otherwise (spec complete, or no spec) → `Start the next feature with /start-feature.`

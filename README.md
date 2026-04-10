@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/logo.svg" alt="AIContext" width="480">
+  <img src="assets/logo2.svg" alt="AIContext" width="500">
 </p>
 
 <p align="center">
@@ -30,25 +30,29 @@ Run `/aic-help` (or `use aic-help`) for a guided tour of available workflows and
 
 ## What Makes AIContext Different
 
-### Not just context files — a development workflow
+### Not just context files — a Spec Driven Development workflow
 
-Writing a `CLAUDE.md` or `.cursorrules` file gives your AI memory. AIContext gives it a **way of working**:
+Writing a `CLAUDE.md` or `.cursorrules` file gives your AI memory. AIContext gives it a **way of working** — built on [Spec Driven Development](https://martinfowler.com/articles/exploring-gen-ai/sdd-3-tools.html), where the spec is the source of truth and code is derived from it:
 
-```
+```text
 /start-feature  →  Interview  →  Spec + Task(s)
                                       ↓
-                                /run-steps  →  Implement + Review + Test (automated per step)
+                                /run-task  →  Implement + Review + Test (automated per step)
                                       ↓
                                 /finish-task  →  Sync docs, update worklog, handle git
 ```
 
-**The AI interviews you** before writing code — one question at a time, exploring your codebase to avoid asking what it can determine itself. It presents options with pros/cons and recommendations — you pick, not type.
+**The AI interviews you** before writing code — exploring your codebase to avoid asking what it can determine itself. It recommends answers based on what it found, walks every dimension breadth-first so nothing is missed, and captures decisions as it goes. You confirm or correct — not explain from scratch.
 
 **The AI executes the plan** — each step is implemented, reviewed, and tested automatically. You supervise rather than drive.
 
 **The AI reviews its own code** — built-in review catches bugs, security issues, and architectural problems before you even look at the diff.
 
 **The AI tests in the browser** — `/web-inspect` opens real pages, checks console errors, interacts with elements, and captures screenshots. No more copy-pasting console errors.
+
+**The AI drives the process** — after every action, the AI tells you what to do next. Finished a step? "Run `/next-step` to continue." Closed a task? "Spec has more pending tasks — start the next one?" You never have to guess the next command.
+
+**The AI adapts to your workflow** — on first run, it asks how you like to work: reviews after every step or only at the end? Commit per step or per task? Push automatically? It remembers your answers and never asks again.
 
 **The AI remembers across sessions** — specs, tasks, and briefs capture everything. Start a new session, run `/check-task`, and the AI picks up where it left off. No knowledge is lost.
 
@@ -70,9 +74,10 @@ Learn more in the [development model guide](docs/development-model.md).
 - `/start-feature` — thorough discovery interview before any code is written
 - `/create-task` — quick task creation from conversation when a full interview isn't needed
 - `/plan-tasks` — break an existing spec into multiple tasks
+- `/add-idea` — capture a deferred idea to the worklog mid-session so it's not lost
 
 ### Automated execution
-- `/run-steps` — execute all steps with built-in review and test loops
+- `/run-task` — execute all steps with built-in review and test loops
 - `/run-step` — execute a single step with full control
 - `/do-it` — turn a conversation into a task step and implement it immediately
 
@@ -86,18 +91,25 @@ Learn more in the [development model guide](docs/development-model.md).
 - `/finish-task` — close out a task: sync spec, write completion notes, handle git
 - `/align-context` — sync all context files with current state
 
-### PR workflow
+### Issue & PR workflow
+- `/draft-issue` — draft a GitHub issue from conversation context, optionally create it on GitHub directly
 - `/draft-pr` — generate PR description from task context and git history
 - `/gh-review-fix-loop` — automate the review-fix-push cycle (works with CodeRabbit, human reviewers, etc.)
+- `/gh-fix-tests` — fix failing CI checks automatically: diagnose, fix, push, retry until green
+
+### Thinking tools
+- `/interview` — structured discovery on any topic — the AI walks dimensions, recommends answers, and captures decisions
+- `/brainstorm` — generate missing angles, better implementations, and new combinations
+- `/thoughts` — quick "what do you think?" check-in for feedback mid-conversation
 
 ### Browser inspection
 - `/web-inspect` — open pages, check console errors, interact with elements, capture screenshots
 
 ### Safety guardrails
 - Blocks destructive commands, enforces TDD, requires explicit permission before implementation
-- Configurable quality checks: what runs after each step vs after the whole task
+- Configurable quality checks: what runs after each step vs after the whole task — adapts to your preferences
 
-See the [full skills reference](docs/skills.md) for detailed descriptions of all 25 skills.
+See the [full skills reference](docs/skills.md) for detailed descriptions of all skills.
 
 ## How It Works
 
@@ -154,7 +166,11 @@ Team members share the same rules and task history. Each person's briefs and pre
 
 ## Customization
 
-- **Team rules**: Edit `.aicontext/project.md` or add files to `.aicontext/rules/`
+One config file controls how the AI works — no prompt engineering needed:
+
+- **Project settings**: Edit `.aicontext/config.yml` (review/test/commit behavior, task naming, update checks)
+- **Personal overrides**: Create `.aicontext/config.local.yml` (gitignored, overrides shared settings)
+- **Team rules**: Edit `.aicontext/project.md`
 - **Personal rules**: Edit `.aicontext/local.md` (gitignored)
 - **Remove unused tools**: Delete `.cursor/`, `.codex/`, `.github/`, or `.claude/` as needed
 
@@ -168,14 +184,13 @@ Team members share the same rules and task history. Each person's briefs and pre
 
 | Version | Highlights |
 |---------|------------|
-| **1.6.0** | Professional dev flow — unified prompts, three-layer context (spec/task/brief), structured planning (`/start-feature`, `/run-steps`, `/finish-task`), review consolidation (`/review`, `/deep-review`), PR automation (`/gh-review-fix-loop`), browser inspection (`/web-inspect`) |
-| **1.5.1** | Fix upgrade command — verify installed version, clear cache, remove misleading update message |
-| **1.5.0** | Codex support, new skills (`/standards-check`, `/draft-issue`, `/code-health`), PR template, tool-agnostic scripts |
-| **1.4.0** | Skills (`/start`, `/check-task`, etc.), PR workflow scripts, agent model upgrades (sonnet/opus) |
-| **1.3.0** | Claude Code subagents (researcher, reviewer, test-runner, etc.), override protection |
-| **1.2.0** | Auto-update checking, `aicontext upgrade`, confirmation prompts, `.ai/` → `.aicontext/` rename |
-| **1.1.0** | Data directory for screenshots/specs, changelog preservation |
-| **1.0.0** | Initial release — rules, prompts, templates, multi-tool support |
+| **1.7.0** | Adaptive workflow — the AI learns your preferences and stops asking. GitHub issue creation. Thinking tools (`/interview`, `/brainstorm`, `/thoughts`). Automated CI fix (`/gh-fix-tests`). Ideas backlog. Smarter interviews that recommend answers. |
+| **1.6.0** | The big workflow release — three-layer context (spec/task/brief), structured planning, automated execution with review and test loops, PR automation, browser inspection with `/web-inspect`. |
+| **1.5.0** | Codex support, `/draft-issue`, tool-agnostic PR scripts. |
+| **1.4.0** | Slash command skills, PR workflow scripts, agent model upgrades to sonnet/opus. |
+| **1.3.0** | Claude Code subagents — reviewer, researcher, test-runner working in parallel. |
+| **1.2.0** | Auto-update checking, `aicontext upgrade`, `.ai/` → `.aicontext/` rename. |
+| **1.0.0** | Initial release — rules, prompts, templates, multi-tool support. |
 
 See [CHANGELOG.md](CHANGELOG.md) for full details.
 

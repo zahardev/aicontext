@@ -13,30 +13,24 @@ Always begin with `/start`. The AI reads all project rules and context files, th
 
 The core development workflow — from idea to working code.
 
-**1. `/start-feature`** — the AI runs a structured discovery interview: one question at a time, exploring the codebase instead of asking when the answer is available. For each decision point, it presents options with pros/cons and its recommendation.
-
-The interview covers two dimensions:
-- **Product**: scope, non-goals, edge cases, user-facing behavior, requirements
-- **Engineering**: technology choices, code design, integration, API contracts, performance, error handling, testing approach
-
-After the interview, the AI asks about commit preferences for this task (commit after each step, after all steps, or manually).
+**1. `/start-feature`** — the AI runs a structured discovery interview, exploring the codebase first to avoid asking what it can determine itself. It batches independent questions together, recommends answers based on what it found, and walks every dimension breadth-first so nothing is missed. Dimensions include product scope, requirements, edge cases, engineering approach, integration points, and more — adapted to what the feature needs.
 
 **2. Review the output** — the AI creates a spec (requirements, decisions, non-goals) and proposes a task breakdown. For large features, it splits the work into multiple tasks. Review the spec and task plan(s) before proceeding.
 
-**3. `/run-steps`** — pick a task and run it. The AI executes all steps automatically. For each step, it:
+**3. `/run-task`** — pick a task and run it. The AI executes all steps automatically. For each step, it:
 1. Implements the step
 2. Runs code review (if configured in quality checks table)
 3. Fixes issues found in review
 4. Runs tests (if configured)
 5. Commits (if configured)
-6. Updates the brief with patterns, gotchas, and decisions learned
-7. Checks if any findings should be elevated to the spec
+6. Updates the brief with patterns, gotchas, and any mid-step `Decision Overrides`
+7. Writes new decisions, requirements, and non-goals directly to the spec
 
 You watch and intervene only when needed. The AI stops when it hits a blocker, a critical review finding, or a decision not covered in planning.
 
 **4. `/finish-task`** — verifies all steps are done, syncs the spec with any decisions made during implementation, writes completion notes, updates the worklog, and handles git (commit / push / PR per your config).
 
-**5. Repeat** — if the spec has more tasks, pick the next one and run `/run-steps` again.
+**5. Repeat** — if the spec has more tasks, pick the next one and run `/run-task` again.
 
 ## Adding Tasks to an Existing Spec
 
@@ -48,7 +42,22 @@ If a spec already exists and needs more tasks (new requirements emerged, or you 
 
 Mid-task, you discuss a new idea with the AI. Instead of manually adding a step:
 
-**`/do-it`** — crystallizes the discussion into a task step, updates the spec and brief if the discussion introduced new requirements or decisions, and implements it immediately using the same review-fix loop as `/run-steps`.
+**`/do-it`** — crystallizes the discussion into a task step, updates the spec if the discussion introduced new requirements or decisions, and implements it immediately using the same review-fix loop as `/run-task`.
+
+## Capturing Ideas Mid-Session
+
+A new idea comes up during a session — related to the current task, a future feature, or a tangential improvement. Instead of losing it to the conversation:
+
+**`/add-idea`** — captures the idea to the `## Ideas` section in `worklog.md`, a lightweight backlog for things not ready to act on yet.
+
+The AI infers the idea type from context:
+- `spec` — a new feature or significant change needing planning
+- `task` — a bounded piece of implementation work
+- `step` — an addition to the current task
+
+When it's not obvious, the AI asks. The idea is saved as a single line: `- [type] description — optional context`.
+
+When an idea is ready to act on, formalize it with `/start-feature` (spec), `/create-task` (task), or `/add-step` (step) — then remove it from the Ideas section. Remove abandoned ideas too.
 
 ## Resuming a Session
 
@@ -58,12 +67,12 @@ When starting a new session on an existing task:
 
 **2. `/check-task`** — the AI reads all three layers:
 - **Spec** — requirements, decisions, non-goals
-- **Brief** — patterns, gotchas, decisions accumulated during previous work
+- **Brief** — patterns, gotchas, and supersession log of any spec decisions overturned mid-task
 - **Task** — plan steps, what's checked off, what's next
 
-It surfaces where you left off, detects any drift between spec requirements and task steps, and checks for staleness (e.g., brief is empty despite completed steps, or spec is missing decisions from the brief).
+It surfaces where you left off, detects any drift between spec requirements and task steps, and checks for staleness (e.g., brief is empty despite completed steps, or brief `Decision Overrides` haven't been applied to the spec).
 
-**3. Continue** — ask the AI to continue from where it left off, or use `/run-steps` to execute remaining steps automatically.
+**3. Continue** — ask the AI to continue from where it left off, or use `/run-task` to execute remaining steps automatically.
 
 ## Context Alignment
 
@@ -141,11 +150,31 @@ For a fully automated approach, use `/gh-review-fix-loop` after creating a PR. I
 6. Commits, pushes, and waits for the next review pass
 7. Repeats until clean or max 5 cycles
 
+### Fixing Failing CI
+
+Use `/gh-fix-tests` when CI checks are failing on your PR. The AI fetches the failure logs, diagnoses root causes, fixes the code, pushes, and waits for CI to go green — retrying up to 3 times before escalating to you. Covers lint, type-check, build, and test failures.
+
+## Thinking Tools
+
+### Structured Interview
+
+Use `/interview` for structured discovery on any topic — not just features. The AI walks dimensions breadth-first, recommends answers based on codebase exploration, and produces a structured summary of decisions made. Use it for architecture discussions, debugging strategies, or any decision that needs thorough exploration.
+
+### Brainstorming
+
+Use `/brainstorm` when you want the AI to generate missing angles, better implementations, and new combinations. It thinks divergently — producing ideas you haven't considered — then converges on the most promising ones.
+
+### Quick Feedback
+
+Use `/thoughts` for a lightweight "what do you think?" check-in. The AI shares its perspective on the current approach without a full interview or brainstorm.
+
 ## Other Workflows
 
 ### Drafting a GitHub Issue
 
-Use `/draft-issue` during a conversation where you've discussed a feature or bug. The AI extracts requirements, decisions, and scope from the conversation and saves a structured issue draft to `.aicontext/data/issue-drafts/`.
+Use `/draft-issue` during a conversation where you've discussed a feature or bug. The AI extracts requirements from the conversation and drafts a structured issue using the template at `.aicontext/templates/issue.template.md`.
+
+Depending on your `config.yml` settings (`issue.save_to_file` and `issue.create_in_github`), the AI can save the draft locally, create the issue on GitHub via `gh issue create`, or both. By default, it saves locally and asks about GitHub creation.
 
 ### Codebase Health Scan
 

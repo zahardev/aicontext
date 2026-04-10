@@ -1,14 +1,6 @@
 # Project Rules
 
-Before starting any session, read the project rules in this order:
-
-1. `.aicontext/rules/process.md` - Task management, TDD process
-2. `.aicontext/rules/standards.md` - Coding standards, safety rules, AI behavior
-3. `.aicontext/project.md` - Project overview, tech stack, architecture
-4. `.aicontext/structure.md` - Commands, folder structure, environment
-5. `.aicontext/local.md` - Personal/local settings (MUST read if exists, gitignored)
-
-Files are listed in override order — later files take precedence over earlier ones.
+Before starting any session, read and follow `.aicontext/prompts/start.md`.
 
 ## Agents
 
@@ -34,6 +26,3 @@ When subagents are available, **delegate these tasks instead of performing them 
 
 **Model defaults:** Agents default to `sonnet`, except `reviewer` which defaults to `opus` for thorough analysis. Free plan users can downgrade all agents to haiku during `aicontext init`.
 
-## Auto-Setup
-
-**Important:** If `.aicontext/project.md` is missing, read `.aicontext/prompts/generate.md` and create the missing files before proceeding.

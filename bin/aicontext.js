@@ -14,12 +14,12 @@ const CACHE_FILE = path.join(os.tmpdir(), 'aicontext-version-cache.json');
 const CACHE_TTL = 60 * 60 * 1000; // 1 hour in milliseconds
 const FRAMEWORK_PROMPTS = [
   'add-step.md', 'aic-help.md', 'aic-skills.md', 'align-context.md', 'challenge.md', 'check-task.md', 'close-step.md',
-  'commit.md', 'create-task.md', 'deep-review.md', 'deep-review-criteria.md', 'do-it.md', 'draft-issue.md', 'identify-task.md',
-  'draft-pr.md', 'finish-task.md', 'generate.md', 'gh-review-fix-loop.md', 'next-step.md', 'plan-tasks.md',
-  'gh-review-check.md', 'prepare-release.md', 'review.md', 'review-criteria.md', 'review-scope.md',
-  'review-plan.md', 'run-step.md', 'run-steps.md', 'start-feature.md', 'start.md', 'step-loop.md', 'test-writer.md',
+  'commit.md', 'create-task.md', 'deep-review.md', 'deep-review-criteria.md', 'do-it.md', 'draft-issue.md', 'ensure-config.md', 'identify-task.md',
+  'draft-pr.md', 'finish-task.md', 'generate.md', 'gh-fix-tests.md', 'gh-review-fix-loop.md', 'next-step.md', 'plan-tasks.md',
+  'gh-review-check.md', 'install-playwright-cli.md', 'prepare-release.md', 'review.md', 'review-criteria.md', 'detect-review-scope.md',
+  'auto-setup.md', 'brainstorm.md', 'check-update.md', 'interview.md', 'review-task-plan.md', 'run-step.md', 'run-task.md', 'start-feature.md', 'start.md', 'step-loop.md', 'test-writer.md', 'thoughts.md',
 ];
-const DEPRECATED_PROMPTS = ['check_plan.md', 'check_task.md', 'after_step.md', 'plan.md', 'task.md', 'start-task.md', 'diff-review.md', 'branch-review.md', 'standards-check.md', 'pr-review-check.md', 'check-plan.md'];
+const DEPRECATED_PROMPTS = ['check_plan.md', 'check_task.md', 'after_step.md', 'plan.md', 'task.md', 'start-task.md', 'diff-review.md', 'branch-review.md', 'standards-check.md', 'pr-review-check.md', 'check-plan.md', 'run-steps.md', 'review-plan.md', 'review-scope.md', 'update-check.md'];
 const FRAMEWORK_AGENTS = [
   'researcher.md',
   'reviewer.md',
@@ -28,17 +28,18 @@ const FRAMEWORK_AGENTS = [
 ];
 const DEPRECATED_AGENTS = ['pr-review-summarizer.md', 'deep-reviewer.md', 'standards-checker.md'];
 const FRAMEWORK_SKILLS = [
-  'add-step', 'create-task', 'start', 'start-feature', 'plan-tasks', 'check-task', 'review-plan', 'run-step', 'run-steps', 'finish-task',
-  'align-context', 'do-it', 'challenge', 'commit', 'review', 'deep-review', 'next-step', 'draft-pr', 'gh-review-check',
-  'draft-issue', 'prepare-release', 'gh-review-fix-loop', 'web-inspect', 'aic-help', 'aic-skills',
+  'add-step', 'add-idea', 'create-task', 'start', 'start-feature', 'plan-tasks', 'check-task', 'review-task-plan', 'run-step', 'run-task', 'finish-task',
+  'align-context', 'do-it', 'challenge', 'brainstorm', 'thoughts', 'interview', 'commit', 'review', 'deep-review', 'next-step', 'draft-pr', 'gh-review-check',
+  'draft-issue', 'prepare-release', 'gh-review-fix-loop', 'gh-fix-tests', 'web-inspect', 'aic-help', 'aic-skills',
 ];
 const FRAMEWORK_CODEX_SKILLS = [
-  'add-step', 'create-task', 'start', 'start-feature', 'plan-tasks', 'check-task', 'review-plan', 'run-step', 'run-steps', 'finish-task',
-  'align-context', 'do-it', 'challenge', 'commit', 'review', 'deep-review', 'next-step', 'draft-pr', 'gh-review-check',
-  'draft-issue', 'prepare-release', 'gh-review-fix-loop', 'web-inspect', 'aic-help', 'aic-skills',
+  'add-step', 'add-idea', 'create-task', 'start', 'start-feature', 'plan-tasks', 'check-task', 'review-task-plan', 'run-step', 'run-task', 'finish-task',
+  'align-context', 'do-it', 'challenge', 'brainstorm', 'thoughts', 'interview', 'commit', 'review', 'deep-review', 'next-step', 'draft-pr', 'gh-review-check',
+  'draft-issue', 'prepare-release', 'gh-review-fix-loop', 'gh-fix-tests', 'web-inspect', 'aic-help', 'aic-skills',
 ];
-const DEPRECATED_SKILLS = ['task', 'after-step', 'next', 'pr', 'start-task', 'diff-review', 'branch-review', 'standards-check', 'pr-review-check', 'check-plan'];
+const DEPRECATED_SKILLS = ['task', 'after-step', 'next', 'pr', 'start-task', 'diff-review', 'branch-review', 'standards-check', 'pr-review-check', 'check-plan', 'run-steps', 'review-plan'];
 const FRAMEWORK_SCRIPTS = ['pr-reviews.js', 'pr-resolve.js'];
+const CONFIG_FILE = 'config.yml';
 
 // Colors for terminal output
 const colors = {
@@ -92,10 +93,7 @@ function fetchLatestVersion() {
 function readCache() {
   try {
     if (fs.existsSync(CACHE_FILE)) {
-      const data = JSON.parse(fs.readFileSync(CACHE_FILE, 'utf8'));
-      if (Date.now() - data.timestamp < CACHE_TTL) {
-        return data.latestVersion;
-      }
+      return JSON.parse(fs.readFileSync(CACHE_FILE, 'utf8'));
     }
   } catch {
     // Ignore cache errors
@@ -105,7 +103,11 @@ function readCache() {
 
 function writeCache(latestVersion) {
   try {
-    fs.writeFileSync(CACHE_FILE, JSON.stringify({ latestVersion, timestamp: Date.now() }));
+    fs.writeFileSync(CACHE_FILE, JSON.stringify({
+      latestVersion,
+      timestamp: Date.now(),
+      lastChecked: new Date().toISOString(),
+    }));
   } catch {
     // Ignore cache write errors
   }
@@ -120,8 +122,13 @@ function clearCache() {
 }
 
 async function checkForUpdates() {
-  // Check cache first
-  let latestVersion = readCache();
+  const cache = readCache();
+  let latestVersion = null;
+
+  // Use cached version if still fresh
+  if (cache?.latestVersion && cache.timestamp && Date.now() - cache.timestamp < CACHE_TTL) {
+    latestVersion = cache.latestVersion;
+  }
 
   if (!latestVersion) {
     // Fetch from npm registry
@@ -196,6 +203,16 @@ function hasExistingPrompts(target) {
   if (!fs.existsSync(promptsDir)) return false;
   const allKnownPrompts = [...FRAMEWORK_PROMPTS, ...DEPRECATED_PROMPTS];
   return allKnownPrompts.some((file) => fs.existsSync(path.join(promptsDir, file)));
+}
+
+function hasExistingFrameworkFiles(target) {
+  const agentsDir = path.join(target, '.claude', 'agents');
+  const skillsDir = path.join(target, '.claude', 'skills');
+  const codexSkillsDir = path.join(target, '.codex', 'skills');
+  const hasAgent = FRAMEWORK_AGENTS.some((f) => fs.existsSync(path.join(agentsDir, f)));
+  const hasSkill = FRAMEWORK_SKILLS.some((s) => fs.existsSync(path.join(skillsDir, s, 'SKILL.md')));
+  const hasCodexSkill = FRAMEWORK_CODEX_SKILLS.some((s) => fs.existsSync(path.join(codexSkillsDir, s, 'SKILL.md')));
+  return hasAgent || hasSkill || hasCodexSkill || hasExistingPrompts(target);
 }
 
 function removeDeprecatedPrompts(target) {
@@ -327,6 +344,154 @@ async function copyFrameworkSkills(packageRoot, target, overrideSkills = false, 
   }
 }
 
+// Maps a commit-interview answer to a config value.
+// '2' → 'true' (yes), '3' → 'false' (no), anything else → null (keep template default 'ask').
+function resolveCommitAnswer(answer) {
+  if (answer === '2') return 'true';
+  if (answer === '3') return 'false';
+  return null;
+}
+
+function setConfigValue(content, section, key, value) {
+  const lines = content.split('\n');
+  let inSection = false;
+  for (let i = 0; i < lines.length; i++) {
+    if (lines[i].match(new RegExp(`^${section}:\\s*$`))) {
+      inSection = true;
+      continue;
+    }
+    if (inSection && /^[a-z_]+:/.test(lines[i])) break; // next section
+    if (inSection) {
+      // Match both active and commented keys
+      const isCommented = /^\s+#/.test(lines[i]);
+      const keyPattern = new RegExp(`^(\\s+)#?\\s*${key}:\\s*`);
+      if (keyPattern.test(lines[i])) {
+        const indent = lines[i].match(/^\s+/)?.[0] || '  ';
+        // Only preserve trailing comments on active (non-commented) lines
+        const comment = !isCommented ? (lines[i].match(/\s+#\s.*$/)?.[0] || '') : '';
+        lines[i] = `${indent}${key}: ${value}${comment}`;
+        return lines.join('\n');
+      }
+    }
+  }
+  return content;
+}
+
+async function installConfig(packageRoot, target, skipConfirm = false) {
+  const templateSrc = path.join(packageRoot, '.aicontext', 'templates', 'config.template.yml');
+  const configDest = path.join(target, '.aicontext', CONFIG_FILE);
+
+  if (!fs.existsSync(templateSrc)) return;
+
+  if (!fs.existsSync(configDest)) {
+    fs.copyFileSync(templateSrc, configDest);
+
+    if (!skipConfirm) {
+      log('\nConfiguring project settings:', 'cyan');
+      let content = fs.readFileSync(configDest, 'utf8');
+
+      // Task naming
+      const namingAnswer = await prompt('  Task naming pattern — 1) version-based (default), 2) with issue ID, 3) date-based: ');
+      if (namingAnswer === '2') {
+        content = setConfigValue(content, 'task_naming', 'pattern', '"{version}-{issue_id}-{task-name}"');
+      } else if (namingAnswer === '3') {
+        content = setConfigValue(content, 'task_naming', 'pattern', '"{date}-{task-name}"');
+        content = setConfigValue(content, 'task_naming', 'source', 'manual');
+      }
+      // Default (1 or empty) keeps the template values
+
+      // Base branch — auto-detect, offer choices
+      let detectedBranch = 'main';
+      try {
+        const branches = execSync('git branch', { cwd: target, stdio: ['pipe', 'pipe', 'pipe'] }).toString();
+        if (/\bmain\b/.test(branches)) detectedBranch = 'main';
+        else if (/\bmaster\b/.test(branches)) detectedBranch = 'master';
+        else if (/\bdevelop\b/.test(branches)) detectedBranch = 'develop';
+      } catch { /* not a git repo, keep default */ }
+      const branchOptions = detectedBranch === 'main' ? '1) main (detected), 2) master, 3) develop, 4) other'
+        : detectedBranch === 'master' ? '1) master (detected), 2) main, 3) develop, 4) other'
+        : '1) develop (detected), 2) main, 3) master, 4) other';
+      const branchAnswer = await prompt(`  Base branch — ${branchOptions}: `);
+      const branchMap = {
+        main: { '2': 'master', '3': 'develop' },
+        master: { '2': 'main', '3': 'develop' },
+        develop: { '2': 'main', '3': 'master' },
+      };
+      let baseBranch = detectedBranch;
+      if (branchAnswer === '4') {
+        baseBranch = await prompt('  Enter branch name: ') || detectedBranch;
+      } else if (branchMap[detectedBranch]?.[branchAnswer]) {
+        baseBranch = branchMap[detectedBranch][branchAnswer];
+      }
+      if (baseBranch !== 'main') {
+        content = setConfigValue(content, 'project', 'base_branch', baseBranch);
+      }
+
+      // Lifecycle commit actions — two questions, one per timing
+      const stepCommitAnswer = await prompt('  After each step, commit? — 1) ask per run (default), 2) yes, 3) no: ');
+      const stepCommitValue = resolveCommitAnswer(stepCommitAnswer);
+      if (stepCommitValue !== null) {
+        content = setConfigValue(content, 'after_step', 'commit', stepCommitValue);
+      }
+
+      const taskCommitAnswer = await prompt('  After task completion, commit? — 1) ask per run (default), 2) yes, 3) no: ');
+      const taskCommitValue = resolveCommitAnswer(taskCommitAnswer);
+      if (taskCommitValue !== null) {
+        content = setConfigValue(content, 'after_task', 'commit', taskCommitValue);
+      }
+
+      // Update check frequency
+      const updateAnswer = await prompt('  Update check frequency — 1) weekly (default), 2) daily, 3) biweekly, 4) monthly, 5) never: ');
+      const freqMap = { '2': 'daily', '3': 'biweekly', '4': 'monthly', '5': 'never' };
+      const freq = freqMap[updateAnswer] || 'weekly';
+      content = setConfigValue(content, 'update_check', 'frequency', freq);
+
+      fs.writeFileSync(configDest, content);
+      log('  Settings saved to .aicontext/config.yml', 'dim');
+    }
+
+    return;
+  }
+
+  // Config exists — add missing top-level sections from template
+  const template = fs.readFileSync(templateSrc, 'utf8');
+  const existing = fs.readFileSync(configDest, 'utf8');
+
+  const existingSections = new Set(
+    (existing.match(/^[a-z_]+:/gm) || []).map((s) => s.replace(':', ''))
+  );
+
+  const blocks = [];
+  let currentBlock = [];
+  let currentName = null;
+
+  for (const line of template.split('\n')) {
+    const sectionMatch = line.match(/^([a-z_]+):\s*$/);
+    if (sectionMatch) {
+      if (currentName) {
+        blocks.push({ name: currentName, content: currentBlock.join('\n') });
+      }
+      currentName = sectionMatch[1];
+      currentBlock = [line];
+    } else if (currentName) {
+      currentBlock.push(line);
+    }
+  }
+  if (currentName) {
+    blocks.push({ name: currentName, content: currentBlock.join('\n') });
+  }
+
+  const newBlocks = blocks.filter((b) => !existingSections.has(b.name));
+
+  if (newBlocks.length > 0) {
+    const addition = '\n' + newBlocks.map((b) => b.content).join('\n\n');
+    fs.writeFileSync(configDest, existing.trimEnd() + '\n' + addition + '\n');
+    for (const block of newBlocks) {
+      log(`  Added new config section: ${block.name}`, 'dim');
+    }
+  }
+}
+
 function copyFrameworkScripts(packageRoot, target) {
   const srcDir = path.join(packageRoot, '.aicontext', 'scripts');
   const destDir = path.join(target, '.aicontext', 'scripts');
@@ -435,6 +600,10 @@ async function init(targetDir, skipConfirm = false, keepPrompts = false, overrid
   copyRecursive(path.join(packageRoot, '.aicontext', 'readme.md'), path.join(target, '.aicontext', 'readme.md'));
   copyRecursive(path.join(packageRoot, '.aicontext', '.gitignore'), path.join(target, '.aicontext', '.gitignore'));
 
+  // Create config file with defaults and ask interactive questions
+  log('Creating config...', 'dim');
+  await installConfig(packageRoot, target, skipConfirm);
+
   // Copy tool-specific files
   log('Copying tool entry points...', 'dim');
   copyRecursive(path.join(packageRoot, '.claude', 'CLAUDE.md'), path.join(target, '.claude', 'CLAUDE.md'));
@@ -512,7 +681,22 @@ async function update(targetDir, skipConfirm = false, keepPrompts = false, overr
 
   // Determine whether to overwrite existing prompts (new prompts are always added)
   let overwritePrompts = !keepPrompts;
-  if (!keepPrompts && hasExistingPrompts(target) && !skipConfirm) {
+
+  // Ask a single bulk question when in fully interactive mode with no pre-set override flags
+  let bulkOverride = false;
+  if (!skipConfirm && !overrideAgents && !overrideSkills && !keepPrompts && hasExistingFrameworkFiles(target)) {
+    bulkOverride = await promptYesNo(
+      'Override all existing framework files? Y = update everything at once, N = choose file by file. (Y/n): '
+    );
+    if (bulkOverride) {
+      overwritePrompts = true;
+      overrideAgents = true;
+      overrideSkills = true;
+    }
+  }
+
+  // If bulk question wasn't used, fall back to the per-prompts question
+  if (!bulkOverride && !keepPrompts && hasExistingPrompts(target) && !skipConfirm) {
     overwritePrompts = await promptYesNo(
       'Would you like to update the existing aicontext prompts? We recommend yes — ensures you have the latest features. (Y/n): '
     );
@@ -524,21 +708,22 @@ async function update(targetDir, skipConfirm = false, keepPrompts = false, overr
   log(`  - .aicontext/prompts/ (${overwritePrompts ? 'all framework prompts' : 'new prompts only'})`, 'yellow');
   log('  - .aicontext/templates/', 'yellow');
   log('  - .claude/CLAUDE.md', 'yellow');
-  log('  - .claude/agents/ (new agents only, existing will be prompted)', 'yellow');
-  log('  - .claude/skills/ (new skills only, existing will be prompted)', 'yellow');
+  log(`  - .claude/agents/ (${overrideAgents ? 'all existing will be overridden' : 'new agents only, existing will be prompted'})`, 'yellow');
+  log(`  - .claude/skills/ (${overrideSkills ? 'all existing will be overridden' : 'new skills only, existing will be prompted'})`, 'yellow');
   log('  - .aicontext/scripts/', 'yellow');
-  log('  - .codex/skills/ (new skills only, existing will be prompted)', 'yellow');
+  log(`  - .codex/skills/ (${overrideSkills ? 'all existing will be overridden' : 'new skills only, existing will be prompted'})`, 'yellow');
   log('  - .cursor/', 'yellow');
   log('  - .github/copilot-instructions.md', 'yellow');
   log('\nPreserved (not modified):', 'green');
   log('  - .aicontext/project.md', 'green');
   log('  - .aicontext/structure.md', 'green');
   log('  - .aicontext/worklog.md (if exists)', 'green');
+  log('  - .aicontext/config.yml (your settings — new keys added, existing preserved)', 'green');
   log('  - .aicontext/local.md', 'green');
   log('  - .aicontext/tasks/*.md (your tasks)', 'green');
   log('');
 
-  if (!skipConfirm) {
+  if (!skipConfirm && !bulkOverride) {
     const answer = await prompt('Continue? (y/N): ');
     if (answer !== 'y' && answer !== 'yes') {
       log('Update cancelled.', 'dim');
@@ -562,6 +747,9 @@ async function update(targetDir, skipConfirm = false, keepPrompts = false, overr
 
   log('Updating data directory...', 'dim');
   copyRecursive(path.join(packageRoot, '.aicontext', 'data', '.gitignore'), path.join(target, '.aicontext', 'data', '.gitignore'));
+
+  log('Updating config...', 'dim');
+  await installConfig(packageRoot, target, skipConfirm);
 
   // Deprecate old changelog.md
   const oldChangelogPath = path.join(target, '.aicontext', 'changelog.md');
@@ -741,12 +929,16 @@ module.exports = {
   copyFrameworkSkills,
   copyFrameworkCodexSkills,
   copyFrameworkScripts,
+  installConfig,
+  setConfigValue,
+  resolveCommitAnswer,
   setAgentModel,
   removeDeprecatedPrompts,
   removeDeprecatedAgents,
   removeDeprecatedSkills,
   getExistingFiles,
   hasExistingPrompts,
+  hasExistingFrameworkFiles,
   readCache,
   writeCache,
   clearCache,

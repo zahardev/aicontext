@@ -17,10 +17,9 @@ Skills are invocable commands that automate common development tasks. Each skill
 
 Runs a structured discovery interview before starting a new feature. Explores the codebase first — only asks what it cannot determine itself.
 
-- Asks one question at a time — never a list
-- For each decision point, presents 2-3 options with pros/cons and a recommendation
-- Covers product dimensions (scope, requirements, edge cases) and engineering dimensions (design, integration, testing)
-- Asks about commit preferences for this task
+- Batches independent questions together, drills atomically only when answers depend on prior ones
+- Recommends answers based on codebase exploration — you confirm or correct
+- Walks dimensions breadth-first so nothing is missed
 - Proposes task split for large features with separable work streams
 - Always creates a spec + task file(s)
 
@@ -35,17 +34,17 @@ Reads an existing spec and proposes a task breakdown. Use when a spec already ex
 - Proposes task split with scope descriptions
 - Creates task files linked to the spec
 
-### `/run-steps`
-**Prompt:** `run-steps.md`
+### `/run-task`
+**Prompt:** `run-task.md`
 
 Executes all pending steps in the current task file automatically. One agent implements all steps inline, accumulating context throughout.
 
 - Creates a brief file if one doesn't exist
 - Reads three-layer context (spec → brief → task)
-- Checks commit configuration (task → local.md → project.md)
-- For each step: implement → review → fix → test → commit → update brief → elevate to spec
+- Checks commit configuration from `config.yml`
+- For each step: implement → review → fix → test → commit → update brief → sync spec
 - Review-fix inner loop runs up to 5 times per step
-- After all steps: runs standards check and full test suite
+- After all steps: runs review and tests per `after_task` config
 - Stops on blockers, critical findings, or uncovered decisions
 
 ### `/check-task`
@@ -55,7 +54,7 @@ Reads the three-layer context for the current task and surfaces resume state. Es
 
 - Reads: spec (requirements, decisions) → brief (patterns, gotchas) → task (plan, progress)
 - Detects spec↔task drift (requirements not covered by steps)
-- Detects staleness (empty brief with completed steps, unsynced decisions)
+- Detects staleness (empty brief with completed steps, `Decision Overrides` not yet applied to the spec)
 - Backwards compatible with pre-1.6.0 tasks (no spec or brief)
 
 ### `/finish-task`
@@ -64,10 +63,10 @@ Reads the three-layer context for the current task and surfaces resume state. Es
 Closes out a completed task.
 
 - Verifies all plan steps are checked
-- Syncs spec with decisions from the brief
+- Applies any brief `Decision Overrides` to the spec and verifies new decisions/non-goals/requirements landed in the spec
 - Fills completion notes in the task file
 - Updates the worklog (checks off task, moves spec to Done if all tasks complete)
-- Handles git per configured `finish_action` (nothing / commit / commit+push / commit+push+pr)
+- Handles git per `after_task.commit` and `after_task.push` in `config.yml`, delegates to `commit.md`; skips the commit when step-level commits already covered the work
 
 ### `/create-task`
 **Prompt:** `create-task.md`
@@ -148,7 +147,32 @@ Fetches unresolved PR review comments, classifies them (valid / false positive /
 
 Automates the full PR review cycle: fetch comments → triage → resolve false positives → fix real issues → run tests → commit and push → wait for re-review → repeat. Max 5 cycles.
 
+### `/gh-fix-tests`
+**Prompt:** `gh-fix-tests.md`
+
+Fixes failing CI on the current PR. Fetches failures via `gh run view --log-failed`, diagnoses root cause, fixes, pushes, and waits for CI green. Covers lint, type, build, and tests. Retries up to 3 times. Config: `gh_fix_tests.push` (default `true`).
+
 ## Other Skills
+
+### `/interview`
+**Prompt:** `interview.md`
+
+Structured discovery on any topic — not tied to feature creation. Walks dimensions breadth-first, recommends answers based on codebase exploration, and produces a structured summary of decisions. Use for architecture discussions, debugging strategies, or any decision that needs thorough exploration.
+
+### `/brainstorm`
+**Prompt:** `brainstorm.md`
+
+Generates missing angles, better implementations, and new combinations. Thinks divergently first, then converges on the most promising ideas.
+
+### `/thoughts`
+**Prompt:** `thoughts.md`
+
+Lightweight "what do you think?" check-in. The AI shares its perspective on the current approach without a full interview or brainstorm.
+
+### `/add-idea`
+**Prompt:** `add-idea.md`
+
+Captures a deferred idea to the `## Ideas` section in `worklog.md`. Infers the type (spec, task, or step) from context — asks only when ambiguous. Use when an out-of-scope idea surfaces mid-session so it's not lost.
 
 ### `/challenge`
 **Prompt:** `challenge.md`
@@ -163,17 +187,17 @@ Loads project context and confirms readiness. Always run at the beginning of a s
 ### `/next-step`
 **Prompt:** `next-step.md`
 
-Completes the current step and starts the next one. Use for manual step-by-step execution (when not using `/run-steps`).
+Completes the current step and starts the next one. Use for manual step-by-step execution (when not using `/run-task`).
 
-### `/review-plan`
-**Prompt:** `review-plan.md`
+### `/review-task-plan`
+**Prompt:** `review-task-plan.md`
 
-Validates a task plan for dependency issues, missing steps, or over-engineering.
+Validates the current task's plan for behavioral correctness, spec coverage, dependency order, and over-engineering.
 
 ### `/draft-issue`
 **Prompt:** `draft-issue.md`
 
-Extracts requirements and decisions from a conversation and drafts a GitHub issue. Saved to `.aicontext/data/issue-drafts/`.
+Drafts a GitHub issue from conversation context using the template at `.aicontext/templates/issue.template.md`. Can save locally, create on GitHub via `gh issue create`, or both — controlled by `issue.save_to_file` and `issue.create_in_github` in `config.yml`. When an issue is created on GitHub, the issue number is available for auto-filling `{issue_id}` in task naming.
 
 ### `/prepare-release`
 **Prompt:** `prepare-release.md`
@@ -201,4 +225,4 @@ Lists all available AIContext skills grouped by workflow stage (Getting Started,
 
 ### `step-loop.md`
 
-The step inner loop used by `/run-steps` and `/do-it`. Not a skill — it's a shared building block that defines the implement → review → test → commit → update brief → elevate to spec cycle.
+The step inner loop used by `/run-task` and `/do-it`. Not a skill — it's a shared building block that defines the implement → review → test → commit → update brief → sync spec cycle.

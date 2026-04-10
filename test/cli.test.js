@@ -21,12 +21,16 @@ const {
   copyFrameworkAgents,
   copyFrameworkSkills,
   copyFrameworkScripts,
+  installConfig,
+  resolveCommitAnswer,
+  setConfigValue,
   setAgentModel,
   removeDeprecatedPrompts,
   removeDeprecatedAgents,
   removeDeprecatedSkills,
   getExistingFiles,
   hasExistingPrompts,
+  hasExistingFrameworkFiles,
   readCache,
   writeCache,
   clearCache,
@@ -374,31 +378,37 @@ describe('version cache', () => {
     writeCache('2.0.0');
 
     const result = readCache();
-    assert.strictEqual(result, '2.0.0');
+    assert.strictEqual(result.latestVersion, '2.0.0');
+    assert.ok(result.timestamp);
+    assert.ok(result.lastChecked);
   });
 
-  it('should return null when cache is expired', () => {
-    // Write cache with old timestamp
+  it('should return full cache object even when expired', () => {
+    // Write cache with old timestamp — readCache returns data regardless of TTL
     const oldData = {
       latestVersion: '2.0.0',
       timestamp: Date.now() - CACHE_TTL - 1000, // Expired
+      lastChecked: '2026-04-01T00:00:00.000Z',
     };
     fs.writeFileSync(CACHE_FILE, JSON.stringify(oldData));
 
     const result = readCache();
-    assert.strictEqual(result, null);
+    assert.strictEqual(result.latestVersion, '2.0.0');
+    assert.strictEqual(result.lastChecked, '2026-04-01T00:00:00.000Z');
   });
 
-  it('should return version when cache is not expired', () => {
+  it('should return cache object when not expired', () => {
     // Write cache with recent timestamp
     const recentData = {
       latestVersion: '2.0.0',
       timestamp: Date.now() - CACHE_TTL + 60000, // 1 minute before expiry
+      lastChecked: '2026-04-05T00:00:00.000Z',
     };
     fs.writeFileSync(CACHE_FILE, JSON.stringify(recentData));
 
     const result = readCache();
-    assert.strictEqual(result, '2.0.0');
+    assert.strictEqual(result.latestVersion, '2.0.0');
+    assert.strictEqual(result.lastChecked, '2026-04-05T00:00:00.000Z');
   });
 
   it('should return null when cache file is corrupted', () => {
@@ -425,21 +435,22 @@ describe('version cache', () => {
     const cacheData = JSON.parse(fs.readFileSync(CACHE_FILE, 'utf8'));
     assert.strictEqual(typeof cacheData.latestVersion, 'string');
     assert.strictEqual(typeof cacheData.timestamp, 'number');
+    assert.strictEqual(typeof cacheData.lastChecked, 'string');
   });
 });
 
 describe('FRAMEWORK_PROMPTS', () => {
-  it('should contain exactly 32 framework prompt files', () => {
-    assert.strictEqual(FRAMEWORK_PROMPTS.length, 32);
+  it('should contain exactly 40 framework prompt files', () => {
+    assert.strictEqual(FRAMEWORK_PROMPTS.length, 40);
   });
 
   it('should contain the expected prompt files', () => {
     const expected = [
       'add-step.md', 'aic-help.md', 'aic-skills.md', 'align-context.md', 'challenge.md', 'check-task.md', 'close-step.md',
-      'commit.md', 'create-task.md', 'deep-review.md', 'deep-review-criteria.md', 'do-it.md', 'draft-issue.md', 'identify-task.md',
-      'draft-pr.md', 'finish-task.md', 'generate.md', 'gh-review-fix-loop.md', 'next-step.md', 'plan-tasks.md',
-      'gh-review-check.md', 'prepare-release.md', 'review.md', 'review-criteria.md', 'review-scope.md',
-      'review-plan.md', 'run-step.md', 'run-steps.md', 'start-feature.md', 'start.md', 'step-loop.md', 'test-writer.md',
+      'commit.md', 'create-task.md', 'deep-review.md', 'deep-review-criteria.md', 'do-it.md', 'draft-issue.md', 'ensure-config.md', 'identify-task.md',
+      'draft-pr.md', 'finish-task.md', 'generate.md', 'gh-fix-tests.md', 'gh-review-fix-loop.md', 'next-step.md', 'plan-tasks.md',
+      'gh-review-check.md', 'install-playwright-cli.md', 'prepare-release.md', 'review.md', 'review-criteria.md', 'detect-review-scope.md',
+      'auto-setup.md', 'brainstorm.md', 'check-update.md', 'interview.md', 'review-task-plan.md', 'run-step.md', 'run-task.md', 'start-feature.md', 'start.md', 'step-loop.md', 'test-writer.md', 'thoughts.md',
     ];
     assert.deepStrictEqual([...FRAMEWORK_PROMPTS].sort(), [...expected].sort());
   });
@@ -447,7 +458,7 @@ describe('FRAMEWORK_PROMPTS', () => {
 
 describe('DEPRECATED_PROMPTS', () => {
   it('should contain the old prompt file names', () => {
-    const expected = ['check_plan.md', 'check_task.md', 'after_step.md', 'plan.md', 'task.md', 'start-task.md', 'diff-review.md', 'branch-review.md', 'standards-check.md', 'pr-review-check.md', 'check-plan.md'];
+    const expected = ['check_plan.md', 'check_task.md', 'after_step.md', 'plan.md', 'task.md', 'start-task.md', 'diff-review.md', 'branch-review.md', 'standards-check.md', 'pr-review-check.md', 'check-plan.md', 'run-steps.md', 'review-plan.md', 'review-scope.md', 'update-check.md'];
     assert.deepStrictEqual([...DEPRECATED_PROMPTS].sort(), [...expected].sort());
   });
 });
@@ -761,15 +772,15 @@ describe('removeDeprecatedAgents', () => {
 });
 
 describe('FRAMEWORK_SKILLS', () => {
-  it('should contain exactly 25 skill names', () => {
-    assert.strictEqual(FRAMEWORK_SKILLS.length, 25);
+  it('should contain exactly 30 skill names', () => {
+    assert.strictEqual(FRAMEWORK_SKILLS.length, 30);
   });
 
   it('should contain the expected skills', () => {
     const expected = [
-      'add-step', 'create-task', 'start', 'start-feature', 'plan-tasks', 'check-task', 'review-plan', 'run-step', 'run-steps', 'finish-task',
-      'align-context', 'do-it', 'challenge', 'commit', 'review', 'deep-review', 'next-step', 'draft-pr', 'gh-review-check',
-      'draft-issue', 'prepare-release', 'gh-review-fix-loop', 'web-inspect', 'aic-help', 'aic-skills',
+      'add-step', 'add-idea', 'create-task', 'start', 'start-feature', 'plan-tasks', 'check-task', 'review-task-plan', 'run-step', 'run-task', 'finish-task',
+      'align-context', 'do-it', 'challenge', 'brainstorm', 'thoughts', 'interview', 'commit', 'review', 'deep-review', 'next-step', 'draft-pr', 'gh-review-check',
+      'draft-issue', 'prepare-release', 'gh-review-fix-loop', 'gh-fix-tests', 'web-inspect', 'aic-help', 'aic-skills',
     ];
     assert.deepStrictEqual([...FRAMEWORK_SKILLS].sort(), [...expected].sort());
   });
@@ -783,7 +794,7 @@ describe('FRAMEWORK_SKILLS', () => {
 
 describe('DEPRECATED_SKILLS', () => {
   it('should contain the old skill names', () => {
-    const expected = ['task', 'after-step', 'next', 'pr', 'start-task', 'diff-review', 'branch-review', 'standards-check', 'pr-review-check', 'check-plan'];
+    const expected = ['task', 'after-step', 'next', 'pr', 'start-task', 'diff-review', 'branch-review', 'standards-check', 'pr-review-check', 'check-plan', 'run-steps', 'review-plan'];
     assert.deepStrictEqual([...DEPRECATED_SKILLS].sort(), [...expected].sort());
   });
 });
@@ -1071,6 +1082,96 @@ describe('update with agent override protection', () => {
   });
 });
 
+describe('hasExistingFrameworkFiles', () => {
+  let tempDir;
+
+  beforeEach(async () => {
+    tempDir = createTempDir();
+    await init(tempDir, true);
+  });
+
+  afterEach(() => {
+    removeTempDir(tempDir);
+  });
+
+  it('should return true when framework agents exist', () => {
+    assert.strictEqual(hasExistingFrameworkFiles(tempDir), true);
+  });
+
+  it('should return false when no framework files exist', () => {
+    const emptyDir = createTempDir();
+    try {
+      assert.strictEqual(hasExistingFrameworkFiles(emptyDir), false);
+    } finally {
+      removeTempDir(emptyDir);
+    }
+  });
+
+  it('should return false after all framework agents and skills are removed', () => {
+    const agentsDir = path.join(tempDir, '.claude', 'agents');
+    const skillsDir = path.join(tempDir, '.claude', 'skills');
+    const codexDir = path.join(tempDir, '.codex', 'skills');
+    const promptsDir = path.join(tempDir, '.aicontext', 'prompts');
+
+    if (fs.existsSync(agentsDir)) fs.rmSync(agentsDir, { recursive: true });
+    if (fs.existsSync(skillsDir)) fs.rmSync(skillsDir, { recursive: true });
+    if (fs.existsSync(codexDir)) fs.rmSync(codexDir, { recursive: true });
+    if (fs.existsSync(promptsDir)) fs.rmSync(promptsDir, { recursive: true });
+
+    assert.strictEqual(hasExistingFrameworkFiles(tempDir), false);
+  });
+});
+
+describe('update bulk overwrite', () => {
+  let tempDir;
+
+  beforeEach(async () => {
+    tempDir = createTempDir();
+    await init(tempDir, true);
+    fs.writeFileSync(path.join(tempDir, '.aicontext', '.version'), '0.0.1');
+  });
+
+  afterEach(() => {
+    removeTempDir(tempDir);
+  });
+
+  it('bulk Y outcome: all agents and skills overwritten (via override flags)', async () => {
+    // Customize an agent and a skill to simulate existing files
+    fs.writeFileSync(path.join(tempDir, '.claude', 'agents', 'reviewer.md'), 'customized');
+    fs.writeFileSync(
+      path.join(tempDir, '.claude', 'skills', 'start', 'SKILL.md'),
+      'customized skill'
+    );
+
+    // Simulate bulk Y outcome: overrideAgents + overrideSkills both true
+    await update(tempDir, true, false, true, true);
+
+    const agentContent = fs.readFileSync(path.join(tempDir, '.claude', 'agents', 'reviewer.md'), 'utf8');
+    const skillContent = fs.readFileSync(path.join(tempDir, '.claude', 'skills', 'start', 'SKILL.md'), 'utf8');
+    assert.notStrictEqual(agentContent, 'customized');
+    assert.notStrictEqual(skillContent, 'customized skill');
+  });
+
+  it('no existing files: update proceeds without bulk question (skipConfirm=false safe)', async () => {
+    // Remove all framework files so hasExistingFrameworkFiles returns false
+    const agentsDir = path.join(tempDir, '.claude', 'agents');
+    const skillsDir = path.join(tempDir, '.claude', 'skills');
+    const codexDir = path.join(tempDir, '.codex', 'skills');
+    const promptsDir = path.join(tempDir, '.aicontext', 'prompts');
+    if (fs.existsSync(agentsDir)) fs.rmSync(agentsDir, { recursive: true });
+    if (fs.existsSync(skillsDir)) fs.rmSync(skillsDir, { recursive: true });
+    if (fs.existsSync(codexDir)) fs.rmSync(codexDir, { recursive: true });
+    if (fs.existsSync(promptsDir)) fs.rmSync(promptsDir, { recursive: true });
+
+    // skipConfirm=true since we can't mock stdin, but hasExistingFrameworkFiles=false
+    // means bulk question would be skipped regardless
+    await update(tempDir, true);
+
+    // Files should be reinstalled
+    assert.strictEqual(fs.existsSync(path.join(tempDir, '.claude', 'agents', 'reviewer.md')), true);
+  });
+});
+
 describe('copyFrameworkSkills', () => {
   let tempDir;
   let srcDir;
@@ -1279,7 +1380,7 @@ describe('clearCache', () => {
   });
 
   it('should delete the cache file when it exists', () => {
-    fs.writeFileSync(CACHE_FILE, JSON.stringify({ latestVersion: '9.9.9', timestamp: Date.now() }));
+    fs.writeFileSync(CACHE_FILE, JSON.stringify({ latestVersion: '9.9.9', timestamp: Date.now(), lastChecked: new Date().toISOString() }));
 
     clearCache();
 
@@ -1329,5 +1430,130 @@ describe('upgrade command (CLI integration)', () => {
     }
 
     assert.strictEqual(output.includes('Update available'), false);
+  });
+});
+
+describe('setConfigValue', () => {
+  it('should set a value in a YAML section', () => {
+    const content = 'commit:\n  mode: per-task\n  template: description\n';
+    const result = setConfigValue(content, 'commit', 'mode', 'per-step');
+    assert.ok(result.includes('mode: per-step'));
+    assert.ok(!result.includes('mode: per-task'));
+  });
+
+  it('should not modify other sections', () => {
+    const content = 'commit:\n  mode: per-task\ntask_naming:\n  source: git-branch\n';
+    const result = setConfigValue(content, 'commit', 'mode', 'manual');
+    assert.ok(result.includes('mode: manual'));
+    assert.ok(result.includes('source: git-branch'));
+  });
+
+  it('should uncomment a commented key', () => {
+    const content = 'update_check:\n  # frequency: weekly\n';
+    const result = setConfigValue(content, 'update_check', 'frequency', 'daily');
+    assert.ok(result.includes('frequency: daily'));
+    assert.ok(!result.includes('#'));
+  });
+
+  it('should return unchanged content if section not found', () => {
+    const content = 'commit:\n  mode: per-task\n';
+    const result = setConfigValue(content, 'nonexistent', 'mode', 'manual');
+    assert.strictEqual(result, content);
+  });
+});
+
+describe('installConfig', () => {
+  let tempDir;
+  let packageRoot;
+
+  beforeEach(() => {
+    tempDir = createTempDir();
+    packageRoot = createTempDir();
+    // Create template
+    const templateDir = path.join(packageRoot, '.aicontext', 'templates');
+    fs.mkdirSync(templateDir, { recursive: true });
+    fs.writeFileSync(
+      path.join(templateDir, 'config.template.yml'),
+      'after_step:\n  commit: ask\nafter_task:\n  commit: ask\n  push: ask\ncommit:\n  body: true\ntask_naming:\n  pattern: "{version}-{task-name}"\n'
+    );
+  });
+
+  afterEach(() => {
+    removeTempDir(tempDir);
+    removeTempDir(packageRoot);
+  });
+
+  it('should create config.yml from template when missing', async () => {
+    fs.mkdirSync(path.join(tempDir, '.aicontext'), { recursive: true });
+    await installConfig(packageRoot, tempDir, true);
+    const configPath = path.join(tempDir, '.aicontext', 'config.yml');
+    assert.ok(fs.existsSync(configPath));
+    const content = fs.readFileSync(configPath, 'utf8');
+    assert.ok(content.includes('after_step:'));
+    assert.ok(content.includes('after_task:'));
+  });
+
+  it('should not overwrite existing config.yml', async () => {
+    const aiDir = path.join(tempDir, '.aicontext');
+    fs.mkdirSync(aiDir, { recursive: true });
+    fs.writeFileSync(path.join(aiDir, 'config.yml'), 'after_step:\n  commit: true\n');
+    await installConfig(packageRoot, tempDir, true);
+    const content = fs.readFileSync(path.join(aiDir, 'config.yml'), 'utf8');
+    assert.ok(content.includes('commit: true'));
+  });
+
+  it('should add missing sections from template', async () => {
+    const aiDir = path.join(tempDir, '.aicontext');
+    fs.mkdirSync(aiDir, { recursive: true });
+    fs.writeFileSync(path.join(aiDir, 'config.yml'), 'after_step:\n  commit: true\n');
+    await installConfig(packageRoot, tempDir, true);
+    const content = fs.readFileSync(path.join(aiDir, 'config.yml'), 'utf8');
+    assert.ok(content.includes('commit: true'), 'should preserve existing after_step.commit');
+    assert.ok(content.includes('task_naming:'), 'should add missing task_naming section');
+    assert.ok(content.includes('after_task:'), 'should add missing after_task section');
+  });
+
+  it('should not duplicate existing sections', async () => {
+    const aiDir = path.join(tempDir, '.aicontext');
+    fs.mkdirSync(aiDir, { recursive: true });
+    fs.writeFileSync(
+      path.join(aiDir, 'config.yml'),
+      'after_step:\n  commit: false\ntask_naming:\n  pattern: custom\n'
+    );
+    await installConfig(packageRoot, tempDir, true);
+    const content = fs.readFileSync(path.join(aiDir, 'config.yml'), 'utf8');
+    const stepCount = (content.match(/^after_step:/gm) || []).length;
+    assert.strictEqual(stepCount, 1, 'should not duplicate after_step section');
+  });
+
+  it('should do nothing if template is missing', async () => {
+    const emptyRoot = createTempDir();
+    fs.mkdirSync(path.join(tempDir, '.aicontext'), { recursive: true });
+    await installConfig(emptyRoot, tempDir, true);
+    assert.ok(!fs.existsSync(path.join(tempDir, '.aicontext', 'config.yml')));
+    removeTempDir(emptyRoot);
+  });
+});
+
+describe('resolveCommitAnswer', () => {
+  it('maps "2" to "true" (yes)', () => {
+    assert.strictEqual(resolveCommitAnswer('2'), 'true');
+  });
+
+  it('maps "3" to "false" (no)', () => {
+    assert.strictEqual(resolveCommitAnswer('3'), 'false');
+  });
+
+  it('maps "1" (default) to null — keep template "ask"', () => {
+    assert.strictEqual(resolveCommitAnswer('1'), null);
+  });
+
+  it('maps empty string (user pressed enter) to null', () => {
+    assert.strictEqual(resolveCommitAnswer(''), null);
+  });
+
+  it('maps unknown inputs to null — keep template default', () => {
+    assert.strictEqual(resolveCommitAnswer('9'), null);
+    assert.strictEqual(resolveCommitAnswer('yes'), null);
   });
 });

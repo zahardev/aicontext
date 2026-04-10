@@ -9,11 +9,7 @@ Automate the PR review cycle: fetch comments, triage, fix, push, wait for re-rev
 
 ## Before Starting
 
-Read context so the reviewer's feedback can be understood in full:
-
-1. **Task file** — identify what was built and why
-2. **Spec** — if linked in the task file, read for requirements and decisions
-3. **Brief** — `.aicontext/data/brief/brief-{task-filename}` (if it exists) — accumulated technical knowledge and decisions
+Load the task file, spec (if linked), and brief (at `.aicontext/data/brief/brief-{task-filename}` if it exists). Skip any file already Read earlier in this conversation — rely on memory.
 
 Set `cycle = 1`, max cycles = 5.
 
@@ -29,22 +25,12 @@ node .aicontext/scripts/pr-reviews.js
 
 ### 2. Triage Each Comment
 
-For each comment, assess using the severity × effort table:
-
-| Severity | Effort | Action |
-|----------|--------|--------|
-| High | Any | Fix |
-| Medium | Low | Fix |
-| Medium | High | Fix |
-| Low | Low | Fix |
-| Low | High | Skip — note in brief |
-| False positive | — | Resolve |
-
-- **Fix** — real issue with a clear code change, or low-importance but easy to fix
+Triage using the Review Response Rules table in `process.md`. Actions:
+- **Fix** — real issue with a clear code change
 - **Resolve** — false positive, incorrect, irrelevant, or already addressed
 - **Skip** — needs user input or human judgment
 
-Fill the Reply column for every `resolve` and `fix` action — the reply is posted as a comment on the PR thread. Keep it concise: why it's a false positive, or what was fixed.
+Fill the Reply column for every `resolve` and `fix` — the reply is posted as a comment on the PR thread. Keep it concise.
 
 ### 3. Resolve
 
@@ -57,27 +43,23 @@ node .aicontext/scripts/pr-resolve.js <path-to-review-file>
 
 Implement fixes for all comments marked Fix.
 
-### 5. Run Tests
+### 5. Commit and Push
 
-Ask `test-runner` subagent to run the full test suite. If tests fail:
-- Fix the failures
-- Re-run until passing (or stop and ask the user if the cause isn't clear)
+**Skip this step if no code changed this cycle** (no Fix actions).
 
-### 6. Commit and Push
+Otherwise, commit all fixes by delegating to `commit.md`, then push the current branch to the remote.
 
-Commit all fixes. Use the commit template from the task file `## Commit Rules:` or `project.md` → `## Commit Rules` if configured, otherwise use a plain description.
-
-Push the current branch to the remote.
-
-### 7. Wait for Checks and New Review
+### 6. Wait for Checks and New Review
 
 Two-phase wait:
 
 **Phase 1 — wait for CI and review bots to finish:**
+
+If Step 5 pushed new commits, wait for CI:
 ```
 timeout 30m gh pr checks --watch || true
 ```
-Ignore the exit code — checks may fail (e.g., CI tests) but the review bot may still have finished.
+Ignore the exit code — checks may fail (e.g., CI tests) but the review bot may still have finished. If nothing was pushed this cycle, skip this wait and proceed directly to the paused-reviews check and Phase 2.
 
 **Paused reviews check** — after checks complete, check if the review bot paused:
 ```
@@ -87,6 +69,12 @@ If a paused comment is found, warn the user:
 > "CodeRabbit reviews are paused (too many commits). Comment `@coderabbitai resume` on the PR to re-enable, then re-run the loop."
 
 Stop the loop — do not continue cycling without active reviews.
+
+**Verify CI** — before moving to Phase 2, confirm all CI checks are green. Only needed if code changed this cycle (Step 5 pushed):
+- **Nothing was pushed this cycle** → skip this check, the last CI run still covers the code
+- **All CI checks passed** → continue to Phase 2
+- **Any CI check failed** → delegate to `/gh-fix-tests` (handles fetch + fix + push + retry with its own cycle cap). When it returns green, continue to Phase 2. If it escalates after 3 attempts, stop this loop and report to the user
+- **No CI configured** → run the full test suite locally. If tests fail, fix and re-run — or stop and ask the user if the cause isn't clear
 
 **Phase 2 — check for new review comments:**
 ```
@@ -105,7 +93,7 @@ gh api repos/{owner}/{repo}/pulls/{pr_number}/reviews --jq '[.[] | select(.state
 If any reviewers still show `CHANGES_REQUESTED`, warn the user:
 > "All threads are resolved but these reviewers still show 'Changes Requested': [list]. They may need to re-review or approve."
 
-Scan decisions made during this loop: did any reviewer feedback lead to an architectural decision, requirements change, or non-goal discovery? If yes, update the spec's Decisions section.
+Scan decisions made during this loop: did any reviewer feedback lead to a new architectural decision, requirement, or non-goal? If yes, update the spec. Supersessions of existing spec decisions → brief's Decision Overrides. See `process.md "Brief content boundary"`.
 
 ## Exit Conditions
 

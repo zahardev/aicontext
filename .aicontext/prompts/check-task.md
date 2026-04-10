@@ -8,40 +8,25 @@ Read and follow `identify-task.md` to find the active task.
 
 ## Read Context (in order)
 
-1. **Task file** — `.aicontext/tasks/{task-file}.md`
-   - Read the plan, progress (checked/unchecked items), and Completion Notes to identify the Spec link and task version
+*Skip any file already Read earlier in this conversation — rely on memory.*
 
-2. **Spec** — if the task file has a Spec link, read it
-   - Requirements, decisions, non-goals
-
-3. **Brief** — derive path from task filename: `.aicontext/data/brief/brief-{task-filename}` (e.g. task `1.6.0-dev-flow-v2.md` → `data/brief/brief-1.6.0-dev-flow-v2.md`)
-   - Accumulated codebase patterns, gotchas, decisions, file references from prior steps
-
-4. **Source files** — read files related to the task and the next pending step
+1. **Task file** — `.aicontext/tasks/{task-file}.md` (extract Spec link, task version, and plan progress)
+2. **Spec** — if linked
+3. **Brief** — `.aicontext/data/brief/brief-{task-filename}` (e.g. task `1.6.0-dev-flow-v2.md` → `data/brief/brief-1.6.0-dev-flow-v2.md`)
+4. **Source files** — those related to the task and the next pending step
 
 ## Surface
 
-- Unclear requirements or ambiguities
-- Conflicts between spec, brief, and current code
-- Current progress: what's done, what's next
-- Any open questions the user should answer before proceeding
+- **Progress** — what's done, what's next
+- **Ambiguities** — unclear requirements or underspecified areas
+- **Conflicts** — between spec, brief, task deliverables, and source code
+- **Spec changes since task started** — run `git log --since={created date} -- .aicontext/specs/spec-{name}.md` and compare the linked subsection (via `*Implemented by:*` footer) against task Deliverables. Legacy specs without footers → whole-spec scan.
+- **Coverage gaps** — spec requirements not covered by any plan step
+- **Unapplied overrides** — `Decision Overrides` entries in the brief not yet applied to the spec — offer to apply each supersession
+- **Open questions** — follow Question Pacing in `standards.md`
 
-## Staleness Checks
+Candidate topics — omit any with nothing to report. Surface findings naturally. If user action is needed (update task Deliverables, add a plan step, apply a supersession, spin off a new task for unrelated coverage gaps), ask inline.
 
-**Brief** — if checked steps exist (`- [x]`) but the brief has no entries (or sections are empty), the brief is stale. Note this explicitly and offer to update it by appending a catch-up entry to each relevant section before proceeding.
+## Handoff
 
-**Spec** — if the brief has Decisions entries that are not reflected in the spec, the spec is stale. Note this and offer to elevate those decisions to the spec's Decisions section.
-
-## Spec↔Task Drift
-
-If a spec exists, compare its requirements against the task's plan steps. For each requirement not covered by any step:
-
-1. Assess whether it's related to this task's objective or a different topic
-2. Present uncovered requirements grouped by relevance:
-   > "These spec requirements aren't covered by task steps:
-   > - **Related to this task**: [list]
-   > - **Different topic**: [list]
-   >
-   > Add steps for the related items? Create a separate task for the others?"
-
-The user confirms the grouping and decides what to do.
+After the report, append one line: `Resume with /run-step (one step) or /run-task (execute all remaining), or address the flagged items first.`

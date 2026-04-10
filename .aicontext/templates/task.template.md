@@ -7,14 +7,14 @@
 <!-- Optional: link to spec if this task is part of a larger feature -->
 [spec-{name}.md](../specs/spec-{name}.md)
 
-## Commit Rules:
-<!-- Optional: per-task override of project.md defaults -->
-<!-- commit_mode: manual | per-step | per-task -->
-<!-- commit_template: "description" | "description (#issue_id)" | "type: description" | custom -->
-<!-- finish_action: nothing | commit | commit+push | commit+push+pr -->
-
 ## Objective:
 [Clear, concise description of what this task aims to accomplish]
+
+## Deliverables:
+<!-- Definition of done for this work bundle — checkable at close time. See process.md "Task Deliverables vs Spec Requirements" for the four categories (spec delivery, process artifacts, constraints, drive-bys). -->
+- [ ] [Concrete deliverable 1]
+- [ ] [Concrete deliverable 2]
+- [x] [Concrete deliverable 3 — example of a delivered requirement]
 
 ## Plan:
 

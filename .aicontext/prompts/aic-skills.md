@@ -6,14 +6,14 @@ Read `docs/skills.md` and present a condensed reference table grouped by workflo
 
 For each group, display a table with columns: **Skill** | **Description** (one-liner — action verb + what it does).
 
-Groups (in this order), with mapping from `docs/skills.md` sections:
+Classify each skill in `docs/skills.md` into one of these groups by its purpose (in this order):
 
-1. **Getting Started** — `/start`, `/start-feature` (from Development Flow and Other Skills)
-2. **Development Flow** — remaining Development Flow skills (`/plan-tasks`, `/run-steps`, `/check-task`, `/finish-task`, `/do-it`, `/align-context`, `/next-step`, `/review-plan`, `/commit`, `/challenge`)
-3. **Review & Quality** — Review Skills (from Review Skills section)
-4. **PR Workflow** — PR Skills
-5. **Framework** — `/aic-help`, `/aic-skills`, `/prepare-release`, `/draft-issue` (from Other Skills and Framework)
+1. **Getting Started** — session start, feature kickoff
+2. **Development Flow** — the task lifecycle: plan, execute, close, mid-task helpers
+3. **Review & Quality** — code, plan, and architecture reviews
+4. **PR Workflow** — GitHub PR drafting and review-response automation
+5. **Framework** — help, skill listing, release prep, issue drafting, misc utilities
 
-Omit skills that don't appear in `docs/skills.md`. Omit shared prompts (they're building blocks, not invocable skills).
+Omit `## Shared Prompts` (they're building blocks, not invocable skills).
 
 End with: "For full descriptions, see `docs/skills.md`."
