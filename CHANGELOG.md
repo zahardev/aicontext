@@ -9,6 +9,7 @@
 - **`/brainstorm` skill** — generate missing angles, better implementations, and new combinations
 - **`/thoughts` skill** — lightweight "what do you think?" check-in mid-conversation
 - **`/add-idea` skill** — capture deferred ideas to a backlog mid-session so they're not lost. AI suggests it when out-of-scope ideas surface
+- **`/gh-fix-tests` skill** — automated CI fix: fetches failing checks from GitHub, diagnoses root causes, fixes, pushes, and retries up to 3 times until green
 - **Spec alignment checks** — plan and task-close verification that spec requirements are covered
 - **Co-Authored-By trailer config** — customizable format, or disable entirely
 - **Spec Driven Development** framing — docs and README position AIContext as an SDD framework

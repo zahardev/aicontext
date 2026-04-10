@@ -95,6 +95,7 @@ Learn more in the [development model guide](docs/development-model.md).
 - `/draft-issue` — draft a GitHub issue from conversation context, optionally create it on GitHub directly
 - `/draft-pr` — generate PR description from task context and git history
 - `/gh-review-fix-loop` — automate the review-fix-push cycle (works with CodeRabbit, human reviewers, etc.)
+- `/gh-fix-tests` — fix failing CI checks automatically: diagnose, fix, push, retry until green
 
 ### Thinking tools
 - `/interview` — structured discovery on any topic — the AI walks dimensions, recommends answers, and captures decisions
@@ -183,7 +184,7 @@ One config file controls how the AI works — no prompt engineering needed:
 
 | Version | Highlights |
 |---------|------------|
-| **1.7.0** | Adaptive workflow — the AI learns your preferences (reviews, tests, commits) and stops asking. GitHub issue creation from `/draft-issue`. Thinking tools (`/interview`, `/brainstorm`, `/thoughts`). Ideas backlog. Smarter interviews that recommend answers. |
+| **1.7.0** | Adaptive workflow — the AI learns your preferences and stops asking. GitHub issue creation. Thinking tools (`/interview`, `/brainstorm`, `/thoughts`). Automated CI fix (`/gh-fix-tests`). Ideas backlog. Smarter interviews that recommend answers. |
 | **1.6.0** | The big workflow release — three-layer context (spec/task/brief), structured planning, automated execution with review and test loops, PR automation, browser inspection with `/web-inspect`. |
 | **1.5.0** | Codex support, `/draft-issue`, tool-agnostic PR scripts. |
 | **1.4.0** | Slash command skills, PR workflow scripts, agent model upgrades to sonnet/opus. |

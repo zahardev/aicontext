@@ -150,6 +150,10 @@ For a fully automated approach, use `/gh-review-fix-loop` after creating a PR. I
 6. Commits, pushes, and waits for the next review pass
 7. Repeats until clean or max 5 cycles
 
+### Fixing Failing CI
+
+Use `/gh-fix-tests` when CI checks are failing on your PR. The AI fetches the failure logs, diagnoses root causes, fixes the code, pushes, and waits for CI to go green — retrying up to 3 times before escalating to you. Covers lint, type-check, build, and test failures.
+
 ## Thinking Tools
 
 ### Structured Interview
