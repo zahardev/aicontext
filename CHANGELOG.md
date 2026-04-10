@@ -3,51 +3,29 @@
 ## [1.7.0] - 2026-04-10
 
 ### Added
-- **Unified lifecycle config** in `config.yml` under `after_step` and `after_task` sections covering review, tests, commit, and push. Review/tests take scope values (`partial | full | false | ask`); commit/push take boolean values (`true | false | ask`). `ask` fires upfront at `/run-step` or `/run-task` entry with a two-stage prompt: Stage 1 picks the action for this run (with timing-specific recommendations — `No` for step, `Full`/`Yes` for task, `No` for push), Stage 2 asks whether to save the answer as the new default in `config.yml`. `run-task` batches every `ask` entry into a single upfront prompt so the run proceeds unattended. The `reviewer` subagent now receives an explicit corpus (working-tree diff for uncommitted steps, last-commit diff for committed steps, branch diff for task close) — step-loop.md and run-task.md compute the corpus automatically based on commit state. Deprecated `commit.mode` / `commit.finish_action` / `after_task.deep_review` / `after_task.full_tests` keys are silently migrated on first read via `ensure-config.md`. `after_task.commit` is skipped automatically when any step committed during the run (detected via `git log --since="{task created}"`); `after_task.push` fires independently so step-level commits still reach the remote.
-- **`.aicontext/config.yml`**: YAML config file replacing prose settings in `project.md` — commit rules, task naming, spec naming, update check frequency, Claude question style
-- **`config.local.yml`**: gitignored personal config overrides
-- **`ensure-config.md`**: reusable prompt for config loading — creates from template if missing, fills missing keys, migrates stale settings from `project.md`
-- **`config.template.yml`**: ships with defaults during `aicontext init`
-- **CLI interactive config setup**: `aicontext init` and `update` ask about task naming, commit mode, and update check frequency
-- **`commit.co_authored_trailer`**: three modes — custom string (overrides AI tool default), `false` (no trailer), `default` (AI tool's built-in format)
-- **`commit.finish_action: ask`**: interactive mode that asks what to do on each task completion
-- **`claude.question_style`** config: `interactive` (AskUserQuestion) or `numbered` (plain text) for Claude Code users
-- **Question UX rule** in `standards.md`: closed questions use clickable options in Claude Code, numbered options in other tools
-- **"Solution Before Organization" rule** in `standards.md`: confirm approach before asking about task scope/spec assignment
-- **"Checkbox Discipline" rule** in `process.md`: verify items fully match their description before checking off
-- **`installConfig` and `setConfigValue`** CLI functions with 9 tests
-- **Ideas backlog** in `worklog.md`: lightweight `## Ideas` section for capturing deferred ideas mid-session — format `- [type] description — optional context`, types: spec/task/step; included in `worklog.template.md`
-- **`/add-idea` skill**: capture an idea to the worklog without interrupting the session — infers type from context, asks only when ambiguous; supports Claude Code and Codex
-- **Ideas proactive rule** in `process.md`: AI suggests `/add-idea` when an out-of-scope idea surfaces mid-session
-- **`/interview` skill**: structured breadth-first interview that walks dimensions, batches independent questions, recommends answers, and captures decisions
-- **`/brainstorm` skill**: generate missing angles, better implementations, and new combinations
-- **`/thoughts` skill**: lightweight "what are your thoughts?" check-in for quick feedback mid-conversation
-- **Spec alignment checks**: `/review-task-plan` verifies plan steps cover spec requirements; `/finish-task` verifies delivery
-- **`/draft-issue` GitHub creation**: optionally create issues on GitHub via `gh issue create` — controlled by `issue.save_to_file` and `issue.create_in_github` config. Three-step progressive disclosure: ask about GitHub → offer to save decision → follow up about local files
-- **Issue template**: `.aicontext/templates/issue.template.md` — editable template with Title, Summary, Requirements sections. Anti-pattern guidance prevents implementation details in requirements
-- **`{issue_id}` in task naming**: `task_naming.pattern` supports `{issue_id}` placeholder. `/draft-issue` auto-fills the issue number for subsequent `/create-task` calls. CLI `init` simplified to use `{issue_id}` directly
-- **User-friendly ask-batching**: lifecycle prompts use descriptive labels ("Quick review — this step's changes", "Deep review — architecture + correctness") instead of config jargon ("Partial", "Full")
-- **Review playbook mapping**: `run-task.md` and `step-loop.md` explicitly map review scope to playbooks — `partial` → `review.md`, `full` → `deep-review.md`
+- **Adaptive workflow config** — the AI asks your preferences on first run (reviews, tests, commits, push) and remembers them. All settings live in `config.yml` with personal overrides in `config.local.yml` (gitignored). Interactive setup during `aicontext init`
+- **`/draft-issue` creates GitHub issues** — optionally create issues on GitHub directly, save locally, or both. Editable issue template. Auto-fills issue ID for subsequent task creation
+- **`/interview` skill** — structured breadth-first interview that recommends answers based on codebase exploration and captures decisions
+- **`/brainstorm` skill** — generate missing angles, better implementations, and new combinations
+- **`/thoughts` skill** — lightweight "what do you think?" check-in mid-conversation
+- **`/add-idea` skill** — capture deferred ideas to a backlog mid-session so they're not lost. AI suggests it when out-of-scope ideas surface
+- **Spec alignment checks** — plan and task-close verification that spec requirements are covered
+- **Co-Authored-By trailer config** — customizable format, or disable entirely
+- **Spec Driven Development** framing — docs and README position AIContext as an SDD framework
 
 ### Changed
-- **`commit.md` is now the single commit codepath** — `finish-task.md`, `step-loop.md`, `do-it.md`, `run-step.md`, `gh-review-fix-loop.md` all delegate to it
-- **All prompts read settings from `config.yml`** instead of parsing `project.md` prose
-- `finish-task.md` push logic works correctly with per-step commit mode (push happens at task completion even when no uncommitted changes remain)
-- Spec template updated with grouped `### Problem` / `### Solution` headings and versioned filename convention
-- Task planning rule clarified: steps describe what to build, not behavioral details (those belong in specs)
-- **`/start-feature` rewritten**: delegates interview to `/interview`, adds prior-context guard and scope question, mandatory spec+task creation
-- **`/run-steps` renamed to `/run-task`** — clearer name, avoids confusion with `/run-step`
-- **`/review-plan` renamed to `/review-task-plan`** — disambiguates from verb-verb reading ("review and plan")
-- **`review-scope.md` renamed to `detect-review-scope.md`** — verb-noun matches the file's procedural content (internal helper, not a skill)
-- **`update-check.md` renamed to `check-update.md`** — disambiguates from verb-verb reading ("update the check"); matches framework convention (`check-task`, `check-update`). Internal helper, not a skill.
+- **`/start-feature` interview improved** — batches independent questions, recommends answers, walks dimensions breadth-first
+- **`/run-steps` renamed to `/run-task`**
+- **`/review-plan` renamed to `/review-task-plan`**
+- **Quality check prompts use friendly labels** — "Quick review — this step's changes" instead of "Partial"
+- **Review scope maps to the right playbook** — quick review for step-level, deep review for task-level
+- Unified commit codepath — all prompts delegate to the same commit logic
+- Spec requirements now use checkboxes with traceability footers
 
 ### Removed
-- **`commit.mode` and `commit.finish_action` config keys** — replaced by `after_step` / `after_task` sections. Silent one-time migration on read.
-- **Quality Checks Timing Table** in `process.md` — replaced by a one-line pointer to `config.yml` `after_step` / `after_task`
-- **`## Commit Rules:` section** in `task.template.md` — per-task overrides removed; lifecycle config lives in `config.yml` only
-- Settings sections from `project.md` and `project.template.md` (moved to `config.yml`)
-- `commit+push+pr` finish action (was listed but unsupported since 1.6.0)
-- Specs and worklog from git tracking (gitignored — project-specific working files)
+- Old `commit.mode` / `commit.finish_action` config keys (silently migrated)
+- Per-task commit rule overrides (lifecycle config lives in `config.yml` only)
+- Specs and worklog from git tracking (project-specific working files, now gitignored)
 
 ## [1.6.0] - 2026-04-03
 
