@@ -13,7 +13,7 @@ after_task:
   review: full                # code review at task close (partial|full|false|ask)
   tests: full                 # tests at task close (partial|full|false|ask)
   commit: true                # commit at task close, skipped if any step committed during the run
-  push: ask                   # push to remote at task close
+  push: false                   # push to remote at task close
 
 commit:
   template: description       # description | "description (#issue_id)" | "type: description" | custom string
