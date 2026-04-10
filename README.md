@@ -52,7 +52,7 @@ Writing a `CLAUDE.md` or `.cursorrules` file gives your AI memory. AIContext giv
 
 **The AI drives the process** — after every action, the AI tells you what to do next. Finished a step? "Run `/next-step` to continue." Closed a task? "Spec has more pending tasks — start the next one?" You never have to guess the next command.
 
-**The AI adapts to your workflow** — on first run, it asks how you like to work: reviews after every step or only at the end? Commit per step or per task? Push automatically? It remembers your answers and never asks again. Zero config files to edit.
+**The AI adapts to your workflow** — on first run, it asks how you like to work: reviews after every step or only at the end? Commit per step or per task? Push automatically? It remembers your answers and never asks again.
 
 **The AI remembers across sessions** — specs, tasks, and briefs capture everything. Start a new session, run `/check-task`, and the AI picks up where it left off. No knowledge is lost.
 
