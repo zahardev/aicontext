@@ -22,7 +22,7 @@ Show the interview's `Out of scope` list (if any), then ask:
 > Interview scope review:
 > {Out of scope items, if any}
 >
-> Should anything move into scope, or is there something we didn't discuss that should be in scope?
+> Scope looks complete. Anything to add or change?
 > 1. **[Recommended]** No — proceed
 > 2. Yes — specify what
 
