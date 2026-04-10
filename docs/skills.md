@@ -17,10 +17,9 @@ Skills are invocable commands that automate common development tasks. Each skill
 
 Runs a structured discovery interview before starting a new feature. Explores the codebase first — only asks what it cannot determine itself.
 
-- Asks one question at a time — never a list
-- For each decision point, presents 2-3 options with pros/cons and a recommendation
-- Covers product dimensions (scope, requirements, edge cases) and engineering dimensions (design, integration, testing)
-- Asks about commit preferences for this task
+- Batches independent questions together, drills atomically only when answers depend on prior ones
+- Recommends answers based on codebase exploration — you confirm or correct
+- Walks dimensions breadth-first so nothing is missed
 - Proposes task split for large features with separable work streams
 - Always creates a spec + task file(s)
 
@@ -45,7 +44,7 @@ Executes all pending steps in the current task file automatically. One agent imp
 - Checks commit configuration from `config.yml`
 - For each step: implement → review → fix → test → commit → update brief → sync spec
 - Review-fix inner loop runs up to 5 times per step
-- After all steps: runs standards check and full test suite
+- After all steps: runs review and tests per `after_task` config
 - Stops on blockers, critical findings, or uncovered decisions
 
 ### `/check-task`
@@ -155,6 +154,26 @@ Fixes failing CI on the current PR. Fetches failures via `gh run view --log-fail
 
 ## Other Skills
 
+### `/interview`
+**Prompt:** `interview.md`
+
+Structured discovery on any topic — not tied to feature creation. Walks dimensions breadth-first, recommends answers based on codebase exploration, and produces a structured summary of decisions. Use for architecture discussions, debugging strategies, or any decision that needs thorough exploration.
+
+### `/brainstorm`
+**Prompt:** `brainstorm.md`
+
+Generates missing angles, better implementations, and new combinations. Thinks divergently first, then converges on the most promising ideas.
+
+### `/thoughts`
+**Prompt:** `thoughts.md`
+
+Lightweight "what do you think?" check-in. The AI shares its perspective on the current approach without a full interview or brainstorm.
+
+### `/add-idea`
+**Prompt:** `add-idea.md`
+
+Captures a deferred idea to the `## Ideas` section in `worklog.md`. Infers the type (spec, task, or step) from context — asks only when ambiguous. Use when an out-of-scope idea surfaces mid-session so it's not lost.
+
 ### `/challenge`
 **Prompt:** `challenge.md`
 
@@ -178,7 +197,7 @@ Validates the current task's plan for behavioral correctness, spec coverage, dep
 ### `/draft-issue`
 **Prompt:** `draft-issue.md`
 
-Extracts requirements and decisions from a conversation and drafts a GitHub issue. Saved to `.aicontext/data/issue-drafts/`.
+Drafts a GitHub issue from conversation context using the template at `.aicontext/templates/issue.template.md`. Can save locally, create on GitHub via `gh issue create`, or both — controlled by `issue.save_to_file` and `issue.create_in_github` in `config.yml`. When an issue is created on GitHub, the issue number is available for auto-filling `{issue_id}` in task naming.
 
 ### `/prepare-release`
 **Prompt:** `prepare-release.md`

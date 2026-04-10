@@ -1,6 +1,6 @@
 # Changelog
 
-## [1.7.0] - 2026-04-05 (in progress)
+## [1.7.0] - 2026-04-10
 
 ### Added
 - **Unified lifecycle config** in `config.yml` under `after_step` and `after_task` sections covering review, tests, commit, and push. Review/tests take scope values (`partial | full | false | ask`); commit/push take boolean values (`true | false | ask`). `ask` fires upfront at `/run-step` or `/run-task` entry with a two-stage prompt: Stage 1 picks the action for this run (with timing-specific recommendations — `No` for step, `Full`/`Yes` for task, `No` for push), Stage 2 asks whether to save the answer as the new default in `config.yml`. `run-task` batches every `ask` entry into a single upfront prompt so the run proceeds unattended. The `reviewer` subagent now receives an explicit corpus (working-tree diff for uncommitted steps, last-commit diff for committed steps, branch diff for task close) — step-loop.md and run-task.md compute the corpus automatically based on commit state. Deprecated `commit.mode` / `commit.finish_action` / `after_task.deep_review` / `after_task.full_tests` keys are silently migrated on first read via `ensure-config.md`. `after_task.commit` is skipped automatically when any step committed during the run (detected via `git log --since="{task created}"`); `after_task.push` fires independently so step-level commits still reach the remote.
@@ -23,6 +23,11 @@
 - **`/brainstorm` skill**: generate missing angles, better implementations, and new combinations
 - **`/thoughts` skill**: lightweight "what are your thoughts?" check-in for quick feedback mid-conversation
 - **Spec alignment checks**: `/review-task-plan` verifies plan steps cover spec requirements; `/finish-task` verifies delivery
+- **`/draft-issue` GitHub creation**: optionally create issues on GitHub via `gh issue create` — controlled by `issue.save_to_file` and `issue.create_in_github` config. Three-step progressive disclosure: ask about GitHub → offer to save decision → follow up about local files
+- **Issue template**: `.aicontext/templates/issue.template.md` — editable template with Title, Summary, Requirements sections. Anti-pattern guidance prevents implementation details in requirements
+- **`{issue_id}` in task naming**: `task_naming.pattern` supports `{issue_id}` placeholder. `/draft-issue` auto-fills the issue number for subsequent `/create-task` calls. CLI `init` simplified to use `{issue_id}` directly
+- **User-friendly ask-batching**: lifecycle prompts use descriptive labels ("Quick review — this step's changes", "Deep review — architecture + correctness") instead of config jargon ("Partial", "Full")
+- **Review playbook mapping**: `run-task.md` and `step-loop.md` explicitly map review scope to playbooks — `partial` → `review.md`, `full` → `deep-review.md`
 
 ### Changed
 - **`commit.md` is now the single commit codepath** — `finish-task.md`, `step-loop.md`, `do-it.md`, `run-step.md`, `gh-review-fix-loop.md` all delegate to it

@@ -1,6 +1,8 @@
 # Development Model
 
-AIContext organizes work in three layers that keep the AI aligned across sessions, features, and team members.
+AIContext follows [Spec Driven Development](https://martinfowler.com/articles/exploring-gen-ai/sdd-3-tools.html) — the spec precedes and outlives implementation. Requirements are written in domain language, not tied to code structure, and survive refactors. Tasks are ephemeral delivery vehicles; the spec is the durable contract.
+
+Work is organized in three layers that keep the AI aligned across sessions, features, and team members.
 
 ## The Three Layers
 
@@ -15,7 +17,7 @@ Spec (what & why)  →  Task (how & progress)  →  Brief (working knowledge)
 A spec defines *what* to build and *why*. It contains:
 - **Problem** — what is broken, painful, or missing
 - **Solution** — high-level approach
-- **Requirements** — what the system must do, detailed enough for task creation (plain list, no checkboxes)
+- **Requirements** — what the system must do, as checkbox items grouped by subsection with `*Implemented by:*` footers linking to tasks
 - **Decisions** — architectural choices with reasoning
 - **Non-goals** — what is explicitly out of scope
 - **Tasks** — links to task files that implement this spec
@@ -32,8 +34,8 @@ Specs contain no file paths or implementation details — they survive refactors
 A task defines *how* to build it and tracks *progress*. It contains:
 - **Spec link** — which spec this implements
 - **Objective** — what this task accomplishes
+- **Deliverables** — definition of done for this work bundle
 - **Plan** — step-by-step with checkboxes (`- [ ]` / `- [x]`)
-- **Commit Rules** — optional per-task override of project commit settings
 - **Completion Notes** — what was built, compromises, follow-ups
 
 The AI checks off steps as it goes. When all steps are done, `/finish-task` closes it out.
@@ -49,9 +51,6 @@ The brief is the AI's working memory. After each step, the AI appends what it le
 - **Codebase Patterns** — conventions and patterns discovered
 - **Gotchas** — non-obvious issues or constraints
 - **Decision Overrides** — spec decisions superseded mid-task (old + why)
-- **File References** — files created or modified
-- **Bugs & Issues** — errors encountered and solutions
-- **Testing** — test results and coverage
 
 Entries are concise (1-2 lines), prefixed with `[Step N]`, and never deleted — only appended. Later entries take precedence.
 
@@ -127,16 +126,9 @@ The worklog is AI-generated (not created by the CLI) and gitignored. `/finish-ta
 
 ## Quality Checks
 
-The quality checks table in `.aicontext/rules/process.md` defines what runs when:
+Quality checks are configured in `.aicontext/config.yml` under `after_step` and `after_task`. Review and tests take scope values (`partial` | `full` | `false` | `ask`); commit and push take boolean values (`true` | `false` | `ask`).
 
-| Check | After Step | After Task |
-|-------|------------|------------|
-| Code review | Yes | No |
-| Step-related tests | Yes | No |
-| Standards check | No | Yes |
-| Full test suite | No | Yes |
-
-Edit this table to customize your workflow. `/run-task` reads it at runtime.
+When set to `ask`, the AI prompts at the start of `/run-task` or `/run-step` with user-friendly options (e.g., "Quick review — this step's changes" or "Deep review — architecture + correctness") and offers to save your choice as the default.
 
 When findings are returned, the AI assesses each by severity and effort:
 
