@@ -28,6 +28,8 @@ For each `ask` field, fire a **two-stage** prompt:
 | `after_task.tests` | Run tests after task? | 1) Full test suite (recommended), 2) Step-related tests only, 3) No |
 | `after_task.commit` | Commit after task? | 1) Yes (recommended), 2) No |
 | `after_task.push` | Push to remote? | 1) No (recommended), 2) Yes |
+| `after_task.pr` | Draft pull request after task? | 1) No (default), 2) Yes |
+| `after_task.review_loop` | Run pull request review loop after task? | 1) No (default), 2) Yes |
 
 **Stage 2 — save as default:** After every stage-1 answer, always ask `Save as default? (y/N)` — default N. If y, write the answer back to `config.yml` so it won't ask again. If n, the answer applies only to this run.
 

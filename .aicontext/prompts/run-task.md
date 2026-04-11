@@ -13,7 +13,7 @@ Execute all pending steps in the current task file, accumulating context through
 
 Before Step 1, collect every `after_step.*` and `after_task.*` field in `config.yml` set to `ask`. Prompt in one numbered batch using the two-stage Ask UX in `step-loop.md`:
 
-- **Stage 1** — decision per field (`partial`/`full`/`no` for review/tests, `yes`/`no` for commit/push; timing recommendation first)
+- **Stage 1** — decision per field (`partial`/`full`/`no` for review/tests, `yes`/`no` for commit/push/pr/review_loop; timing recommendation first)
 - **Stage 2** — after each stage-1 answer, ask `Save as default in config.yml? (y/N)` (default N)
 
 Resolved values apply for the whole run. Save-as-default answers are written back to `config.yml` immediately. Skip the batch entirely if no `ask` values remain.
