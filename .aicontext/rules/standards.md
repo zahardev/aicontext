@@ -78,6 +78,7 @@ When asking closed questions (2-4 discrete options), check `claude.question_styl
 - **`numbered`**: present numbered options as plain text (1, 2, 3...) — user types the number
 - **Other tools (Cursor, Copilot, Codex):** always use numbered regardless of setting
 - **Open-ended questions:** always use plain text
+- **Option labels:** use the exact text from the prompt. Don't add `(Recommended)` or `(default)` unless the prompt specifies it
 
 ## Recommended Tools
 
