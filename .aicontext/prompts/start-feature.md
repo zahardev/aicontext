@@ -23,8 +23,8 @@ Show the interview's `Out of scope` list (if any), then ask:
 > {Out of scope items, if any}
 >
 > Scope looks complete. Anything to add or change?
-> 1. **[Recommended]** No — proceed
-> 2. Yes — specify what
+> 1. **[Recommended]** Looks good — proceed
+> 2. Add or change something
 
 If the user picks 2, follow up for details and reconcile the interview summary: move requested items from `Out of scope` to `Dimensions covered`, add any new in-scope items to `Dimensions covered` with a note if they need follow-up. If new items have significant unresolved dimensions, briefly return to the interview to pin them down.
 

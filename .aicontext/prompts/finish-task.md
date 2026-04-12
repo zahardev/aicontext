@@ -64,7 +64,9 @@ Determine whether to mark done now or defer:
 
 Always ask the user before marking done:
 
-> Mark task as done? (Y/n)
+> Mark task as done?
+> 1. **Yes** — mark done in worklog
+> 2. **Not yet** — leave open
 - **Review loop enabled but couldn't run** (no remote PR — e.g. `pr.create_in_github: false` or PR not yet created): ask the user:
   > "Task verified but no remote PR for review loop. Mark done now, or defer until after PR review?"
   > 1. Mark done now
