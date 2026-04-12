@@ -233,6 +233,18 @@ describe('init', () => {
     assert.strictEqual(fs.existsSync(path.join(tempDir, '.aicontext', 'tasks')), true);
   });
 
+  it('should create version cache in .aicontext/data/version.json', async () => {
+    await init(tempDir, true);
+
+    const cacheFile = path.join(tempDir, '.aicontext', 'data', 'version.json');
+    assert.strictEqual(fs.existsSync(cacheFile), true);
+    const data = JSON.parse(fs.readFileSync(cacheFile, 'utf8'));
+    assert.strictEqual(data.cliVersion, VERSION);
+    assert.strictEqual(data.currentVersion, VERSION);
+    assert.strictEqual(data.latestVersion, null);
+    assert.ok(data.lastChecked);
+  });
+
   it('should not reinitialize if already initialized', async () => {
     await init(tempDir, true);
 
@@ -343,6 +355,21 @@ describe('update', () => {
 
     // New prompts should be created by update
     assert.strictEqual(fs.existsSync(checkTaskPrompt), true);
+  });
+
+  it('should refresh version cache on update', async () => {
+    // Set older version to trigger actual update
+    fs.writeFileSync(path.join(tempDir, '.aicontext', '.version'), '0.0.1');
+
+    await update(tempDir, true);
+
+    const cacheFile = path.join(tempDir, '.aicontext', 'data', 'version.json');
+    assert.strictEqual(fs.existsSync(cacheFile), true);
+    const data = JSON.parse(fs.readFileSync(cacheFile, 'utf8'));
+    assert.strictEqual(data.cliVersion, VERSION);
+    assert.strictEqual(data.currentVersion, VERSION);
+    assert.strictEqual(data.latestVersion, null);
+    assert.ok(data.lastChecked);
   });
 
   it('should fail gracefully if not initialized', async () => {

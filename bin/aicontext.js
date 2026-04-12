@@ -128,9 +128,9 @@ function writeVersionCache(filePath, { cliVersion, currentVersion, latestVersion
     }
     const today = new Date().toISOString().slice(0, 10);
     fs.writeFileSync(filePath, JSON.stringify({
-      cliVersion: cliVersion || null,
-      currentVersion: currentVersion || null,
-      latestVersion: latestVersion || null,
+      cliVersion: cliVersion ?? null,
+      currentVersion: currentVersion ?? null,
+      latestVersion: latestVersion ?? null,
       lastChecked: today,
     }, null, 2) + '\n');
   } catch {
@@ -661,6 +661,13 @@ async function init(targetDir, skipConfirm = false, keepPrompts = false, overrid
   // Write version file
   fs.writeFileSync(path.join(target, '.aicontext', '.version'), VERSION);
 
+  // Seed version cache so /start doesn't need to fetch on first run
+  writeVersionCache(path.join(target, '.aicontext', 'data', 'version.json'), {
+    cliVersion: VERSION,
+    currentVersion: VERSION,
+    latestVersion: null,
+  });
+
   log('\nInstallation complete!', 'green');
   log('\nNext steps:', 'cyan');
   log('1. Open your AI assistant (Claude Code, Cursor, Codex, or GitHub Copilot)');
@@ -807,6 +814,13 @@ async function update(targetDir, skipConfirm = false, keepPrompts = false, overr
 
   // Update version
   fs.writeFileSync(versionFile, VERSION);
+
+  // Refresh version cache
+  writeVersionCache(path.join(target, '.aicontext', 'data', 'version.json'), {
+    cliVersion: VERSION,
+    currentVersion: VERSION,
+    latestVersion: null,
+  });
 
   log(`\nUpdated to v${VERSION}!`, 'green');
   log('\nNote: project.md, structure.md, and worklog.md (if present) were preserved.', 'dim');
