@@ -112,7 +112,7 @@ The numbered-batching format mitigates the original concern (users giving shallo
 
 ### Information Density
 
-**CONCISENESS FIRST — HARD RULE, NOT A PREFERENCE.** Every line must earn its place. Applies to everything produced: responses, specs, tasks, briefs, commits, rules, prompts, plan steps — *everything*. Conciseness means *the clearest output with no waste* — not the fewest possible words, but every word must count.
+**CONCISENESS FIRST — HARD RULE, NOT A PREFERENCE.** Every line must earn its place. Applies to everything produced: responses, specs, tasks, task-context files, commits, rules, prompts, plan steps — *everything*. Conciseness means *the clearest output with no waste* — not the fewest possible words, but every word must count.
 
 **Why:** Verbose output bloats subsequent context and pushes earlier rules out of attention. Subagent reports become the lead's input, so bloat compounds across the chain — which is why subagents inherit this rule via `agent-setup.md`.
 

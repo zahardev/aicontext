@@ -783,6 +783,27 @@ async function update(targetDir, skipConfirm = false, keepPrompts = false, overr
   removeDeprecatedAgents(target);
   removeDeprecatedSkills(target);
 
+  // Migrate brief → task-context (renamed in 1.8.0)
+  const oldBriefDir = path.join(target, '.aicontext', 'data', 'brief');
+  const newContextDir = path.join(target, '.aicontext', 'data', 'task-context');
+  if (fs.existsSync(oldBriefDir) && !fs.existsSync(newContextDir)) {
+    fs.renameSync(oldBriefDir, newContextDir);
+    // Rename brief-* files to context-* so prompts can find them
+    for (const file of fs.readdirSync(newContextDir)) {
+      if (file.startsWith('brief-')) {
+        fs.renameSync(
+          path.join(newContextDir, file),
+          path.join(newContextDir, file.replace(/^brief-/, 'context-'))
+        );
+      }
+    }
+    log('  Migrated data/brief/ → data/task-context/', 'dim');
+  }
+  const oldBriefTemplate = path.join(target, '.aicontext', 'templates', 'brief.template.md');
+  if (fs.existsSync(oldBriefTemplate)) {
+    fs.unlinkSync(oldBriefTemplate);
+  }
+
   log('Updating templates...', 'dim');
   copyRecursive(path.join(packageRoot, '.aicontext', 'templates'), path.join(target, '.aicontext', 'templates'));
 

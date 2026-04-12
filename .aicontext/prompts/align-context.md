@@ -6,7 +6,7 @@ Update all context files to reflect the current state of work. Fix what's stale,
 
 Read and follow `identify-task.md` to find the active task.
 
-Read the task file and brief (at `.aicontext/data/brief/brief-{task-filename}` if it exists). For the spec (if linked): if you already Read it earlier in this conversation, rely on that — don't re-Read. Otherwise Read it once (align-context needs a holistic view to catch cross-section conflicts).
+Read the task file and task-context (at `.aicontext/data/task-context/context-{task-filename}` if it exists). For the spec (if linked): if you already Read it earlier in this conversation, rely on that — don't re-Read. Otherwise Read it once (align-context needs a holistic view to catch cross-section conflicts).
 
 ## 2. Task File
 
@@ -15,13 +15,13 @@ Read the task file and brief (at `.aicontext/data/brief/brief-{task-filename}` i
 
 ## 3. Spec
 
-If a spec is linked, review it against session knowledge. For each candidate addition (decisions, requirements, non-goals): already present → skip; contradicts existing → revise the spec and record the supersession in the brief's Decision Overrides (see `process.md "Brief content boundary"`); genuinely new → append to the appropriate section. If an Edit fails because your memory is stale, Grep + Read just that section and retry.
+If a spec is linked, review it against session knowledge. For each candidate addition (decisions, requirements, non-goals): already present → skip; contradicts existing → revise the spec and record the supersession in the task-context's Decision Overrides (see `process.md "Task-context content boundary"`); genuinely new → append to the appropriate section. If an Edit fails because your memory is stale, Grep + Read just that section and retry.
 
 When adding a new requirement, check if a task step covers it — if not, add a step.
 
-## 4. Brief
+## 4. Task-Context
 
-Append session knowledge to the brief's sections. If no brief exists and work has been done, create one from `brief.template.md`.
+Append session knowledge to the task-context's sections. If no task-context exists and work has been done, create one from `task-context.template.md`.
 
 ## 5. Worklog
 
@@ -39,6 +39,6 @@ After all updates, provide a short summary:
 Aligned context:
 - Task: [what changed, or "up to date"]
 - Spec: [what changed, or "up to date"]
-- Brief: [what changed, or "up to date"]
+- Task-context: [what changed, or "up to date"]
 - Worklog: [what changed, or "up to date"]
 ```

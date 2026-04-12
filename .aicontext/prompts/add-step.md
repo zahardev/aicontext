@@ -27,7 +27,7 @@ Create a new step with the next step number. Add sub-items (`- [ ]`) capturing t
 
 ## 4. Update Spec
 
-New decisions, requirements, and non-goals → spec directly. Supersessions of existing spec decisions → revise the spec and record the override in the brief's Decision Overrides. See `process.md "Brief content boundary"`.
+New decisions, requirements, and non-goals → spec directly. Supersessions of existing spec decisions → revise the spec and record the override in the task-context's Decision Overrides. See `process.md "Task-context content boundary"`.
 
 When adding a new spec requirement, check if the step just created covers it — if not, add a sub-item.
 

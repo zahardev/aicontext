@@ -55,4 +55,4 @@ Pass the corpus explicitly to the reviewer subagent along with the resolved scop
 6. **Test** — if `after_step.tests` resolved to `normal`: call `test-runner` subagent for step-related tests. If `deep`: call `test-runner` for the full suite.
 7. **Fix tests** — if tests fail and the fix is clear, fix and re-run. Otherwise stop (see Stop Conditions in `run-task.md`).
 8. **Commit** — if `after_step.commit` resolved to Yes: delegate to `commit.md`
-9. **Close step** — follow `close-step.md` (updates task, brief, spec and outputs a summary with counts). Do not advance until the close-step summary is output.
+9. **Close step** — follow `close-step.md` (updates task, task-context, spec and outputs a summary with counts). Do not advance until the close-step summary is output.

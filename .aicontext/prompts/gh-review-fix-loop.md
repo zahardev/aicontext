@@ -9,7 +9,7 @@ Automate the PR review cycle: fetch comments, triage, fix, push, wait for re-rev
 
 ## Before Starting
 
-Load the task file, spec (if linked), and brief (at `.aicontext/data/brief/brief-{task-filename}` if it exists). Skip any file already Read earlier in this conversation — rely on memory.
+Load the task file, spec (if linked), and task-context (at `.aicontext/data/task-context/context-{task-filename}` if it exists). Skip any file already Read earlier in this conversation — rely on memory.
 
 Set `cycle = 1`, max cycles = 5.
 
@@ -93,7 +93,7 @@ gh api repos/{owner}/{repo}/pulls/{pr_number}/reviews --jq '[.[] | select(.state
 If any reviewers still show `CHANGES_REQUESTED`, warn the user:
 > "All threads are resolved but these reviewers still show 'Changes Requested': [list]. They may need to re-review or approve."
 
-Scan decisions made during this loop: did any reviewer feedback lead to a new architectural decision, requirement, or non-goal? If yes, update the spec. Supersessions of existing spec decisions → brief's Decision Overrides. See `process.md "Brief content boundary"`.
+Scan decisions made during this loop: did any reviewer feedback lead to a new architectural decision, requirement, or non-goal? If yes, update the spec. Supersessions of existing spec decisions → task-context's Decision Overrides. See `process.md "Task-context content boundary"`.
 
 ## Exit Conditions
 

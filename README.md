@@ -62,9 +62,9 @@ Writing a `CLAUDE.md` or `.cursorrules` file gives your AI memory. AIContext giv
 |-------|-----------------|---------|
 | **Spec** | What to build and why — requirements, decisions, non-goals | "Users can reset passwords via email. Not supporting SMS." |
 | **Task** | How to build it — step-by-step plan with checkboxes | "Step 1: Add reset endpoint. Step 2: Email template. Step 3: Token expiry." |
-| **Brief** | What the AI learned while building — patterns, gotchas, file references | "Auth middleware checks token in header, not cookie. See `src/auth.js:42`." |
+| **Task-Context** | What the AI learned while building — patterns, gotchas, file references | "Auth middleware checks token in header, not cookie. See `src/auth.js:42`." |
 
-Specs and tasks are committed to git. Briefs are gitignored — each developer accumulates their own working knowledge.
+Specs and tasks are committed to git. Task-context files are gitignored — each developer accumulates their own working knowledge.
 
 Learn more in the [development model guide](docs/development-model.md).
 
@@ -87,7 +87,7 @@ Learn more in the [development model guide](docs/development-model.md).
 - Specialized reviewer agent runs in parallel without consuming your main conversation (Claude Code)
 
 ### Session continuity
-- `/check-task` — read spec, brief, and task to resume exactly where you left off
+- `/check-task` — read spec, task-context, and task to resume exactly where you left off
 - `/finish-task` — close out a task: sync spec, write completion notes, handle git
 - `/align-context` — sync all context files with current state
 
@@ -185,7 +185,7 @@ One config file controls how the AI works — no prompt engineering needed:
 | Version | Highlights |
 |---------|------------|
 | **1.7.0** | Adaptive workflow — the AI learns your preferences and stops asking. GitHub issue creation. Thinking tools (`/interview`, `/brainstorm`, `/thoughts`). Automated CI fix (`/gh-fix-tests`). Ideas backlog. Smarter interviews that recommend answers. |
-| **1.6.0** | The big workflow release — three-layer context (spec/task/brief), structured planning, automated execution with review and test loops, PR automation, browser inspection with `/web-inspect`. |
+| **1.6.0** | The big workflow release — three-layer context (spec/task/task-context), structured planning, automated execution with review and test loops, PR automation, browser inspection with `/web-inspect`. |
 | **1.5.0** | Codex support, `/draft-issue`, tool-agnostic PR scripts. |
 | **1.4.0** | Slash command skills, PR workflow scripts, agent model upgrades to sonnet/opus. |
 | **1.3.0** | Claude Code subagents — reviewer, researcher, test-runner working in parallel. |

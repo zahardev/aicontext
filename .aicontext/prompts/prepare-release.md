@@ -20,7 +20,7 @@ Determine the version from `release.md` `version_detection`:
 Read what shipped, in order:
 1. **Tasks** — `.aicontext/tasks/` matching the version prefix
 2. **Specs** — any `.aicontext/specs/` linked from those tasks
-3. **Briefs** — `.aicontext/data/brief/` for those tasks (if present)
+3. **Task-context** — `.aicontext/data/task-context/` for those tasks (if present)
 4. **Git diff** — `git diff {base_branch}...HEAD`, using `project.base_branch` from `.aicontext/config.yml`
 5. **AI changelog** — if `ai_changelog` is set in `release.md`, read it. If any task for this version has no entry, list them and ask before generating
 

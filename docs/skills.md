@@ -39,10 +39,10 @@ Reads an existing spec and proposes a task breakdown. Use when a spec already ex
 
 Executes all pending steps in the current task file automatically. One agent implements all steps inline, accumulating context throughout.
 
-- Creates a brief file if one doesn't exist
-- Reads three-layer context (spec → brief → task)
+- Creates a task-context file if one doesn't exist
+- Reads three-layer context (spec → task-context → task)
 - Checks commit configuration from `config.yml`
-- For each step: implement → review → fix → test → commit → update brief → sync spec
+- For each step: implement → review → fix → test → commit → update task-context → sync spec
 - Review-fix inner loop runs up to 5 times per step
 - After all steps: runs review and tests per `after_task` config
 - Stops on blockers, critical findings, or uncovered decisions
@@ -52,10 +52,10 @@ Executes all pending steps in the current task file automatically. One agent imp
 
 Reads the three-layer context for the current task and surfaces resume state. Essential for starting a new session mid-task.
 
-- Reads: spec (requirements, decisions) → brief (patterns, gotchas) → task (plan, progress)
+- Reads: spec (requirements, decisions) → task-context (patterns, gotchas) → task (plan, progress)
 - Detects spec↔task drift (requirements not covered by steps)
-- Detects staleness (empty brief with completed steps, `Decision Overrides` not yet applied to the spec)
-- Backwards compatible with pre-1.6.0 tasks (no spec or brief)
+- Detects staleness (empty task-context with completed steps, `Decision Overrides` not yet applied to the spec)
+- Backwards compatible with pre-1.6.0 tasks (no spec or task-context)
 
 ### `/finish-task`
 **Prompt:** `finish-task.md`
@@ -63,7 +63,7 @@ Reads the three-layer context for the current task and surfaces resume state. Es
 Closes out a completed task.
 
 - Verifies all plan steps are checked
-- Applies any brief `Decision Overrides` to the spec and verifies new decisions/non-goals/requirements landed in the spec
+- Applies any task-context `Decision Overrides` to the spec and verifies new decisions/non-goals/requirements landed in the spec
 - Fills completion notes in the task file
 - Updates the worklog (checks off task, moves spec to Done if all tasks complete)
 - Handles git per `after_task.commit` and `after_task.push` in `config.yml`, delegates to `commit.md`; skips the commit when step-level commits already covered the work
@@ -91,7 +91,7 @@ Turns a conversation discussion into a task step and implements it immediately. 
 - Checks if a step for this work already exists
 - Creates a new step with sub-items based on what was discussed
 - Updates the spec if the discussion introduced new requirements, decisions, or non-goals
-- Appends discussion knowledge to the brief
+- Appends discussion knowledge to the task-context
 - Implements using the shared step inner loop
 
 ### `/align-context`
@@ -101,7 +101,7 @@ Updates all context files to reflect the current state of work. Use before endin
 
 - Checks off completed task steps
 - Adds missing decisions, requirements, and non-goals to the spec
-- Appends patterns, gotchas, and file references to the brief
+- Appends patterns, gotchas, and file references to the task-context
 - Updates the worklog with current status
 - Reports what changed
 
@@ -225,4 +225,4 @@ Lists all available AIContext skills grouped by workflow stage (Getting Started,
 
 ### `step-loop.md`
 
-The step inner loop used by `/run-task` and `/do-it`. Not a skill — it's a shared building block that defines the implement → review → test → commit → update brief → sync spec cycle.
+The step inner loop used by `/run-task` and `/do-it`. Not a skill — it's a shared building block that defines the implement → review → test → commit → update task-context → sync spec cycle.

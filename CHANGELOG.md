@@ -2,6 +2,10 @@
 
 ## [1.8.0] - 2026-04-12
 
+### Changed
+- **"Brief" renamed to "task-context"** — clearer name for the AI's working memory across sessions. Folder moved from `data/brief/` to `data/task-context/`, template renamed to `task-context.template.md`. `aicontext update` migrates existing projects automatically
+- Context loading in `check-task` flattened from numbered steps to a single gate — prevents AIs from skipping the task-context read
+
 ### Fixed
 - PR workflow scripts (`pr-reviews`, `pr-resolve`) renamed from `.js` to `.cjs` — fixes "require is not defined" errors in projects with `"type": "module"` in `package.json`
 - `aicontext update` now removes old `.js` script files automatically

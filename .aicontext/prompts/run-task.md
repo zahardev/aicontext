@@ -5,8 +5,8 @@ Execute all pending steps in the current task file, accumulating context through
 ## 1. Setup
 
 1. Follow `identify-task.md` to find the active task
-2. Read the task file, linked spec (if any), and brief at `.aicontext/data/brief/brief-{task-filename}`
-3. If no brief exists, create one from `.aicontext/templates/brief.template.md`
+2. Read the task file, linked spec (if any), and task-context at `.aicontext/data/task-context/context-{task-filename}`
+3. If no task-context exists, create one from `.aicontext/templates/task-context.template.md`
 4. Follow `ensure-config.md` to load project settings
 
 ## 2. Upfront ask-batching
