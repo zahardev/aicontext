@@ -91,8 +91,8 @@ function fetchLatestVersion() {
   });
 }
 
-function readCache(cachePath) {
-  const file = cachePath || CACHE_FILE;
+function readCache() {
+  const file = CACHE_FILE;
   try {
     if (fs.existsSync(file)) {
       return JSON.parse(fs.readFileSync(file, 'utf8'));
@@ -103,8 +103,8 @@ function readCache(cachePath) {
   return null;
 }
 
-function writeCache(latestVersion, cachePath) {
-  const file = cachePath || CACHE_FILE;
+function writeCache(latestVersion) {
+  const file = CACHE_FILE;
   try {
     const dir = path.dirname(file);
     if (!fs.existsSync(dir)) {
@@ -120,8 +120,26 @@ function writeCache(latestVersion, cachePath) {
   }
 }
 
-function clearCache(cachePath) {
-  const file = cachePath || CACHE_FILE;
+function writeVersionCache(filePath, { cliVersion, currentVersion, latestVersion }) {
+  try {
+    const dir = path.dirname(filePath);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    const today = new Date().toISOString().slice(0, 10);
+    fs.writeFileSync(filePath, JSON.stringify({
+      cliVersion: cliVersion || null,
+      currentVersion: currentVersion || null,
+      latestVersion: latestVersion || null,
+      lastChecked: today,
+    }, null, 2) + '\n');
+  } catch {
+    // Ignore cache write errors
+  }
+}
+
+function clearCache() {
+  const file = CACHE_FILE;
   try {
     fs.rmSync(file, { force: true });
   } catch {
@@ -129,8 +147,8 @@ function clearCache(cachePath) {
   }
 }
 
-async function checkForUpdates(cachePath) {
-  const cache = readCache(cachePath);
+async function checkForUpdates() {
+  const cache = readCache();
   let latestVersion = null;
 
   // Use cached version if still fresh
@@ -142,7 +160,7 @@ async function checkForUpdates(cachePath) {
     // Fetch from npm registry
     latestVersion = await fetchLatestVersion();
     if (latestVersion) {
-      writeCache(latestVersion, cachePath);
+      writeCache(latestVersion);
     }
   }
 
@@ -794,22 +812,37 @@ async function update(targetDir, skipConfirm = false, keepPrompts = false, overr
   log('\nNote: project.md, structure.md, and worklog.md (if present) were preserved.', 'dim');
 }
 
-function checkVersion(targetDir) {
+async function checkVersion(targetDir) {
   const target = path.resolve(targetDir || '.');
   const versionFile = path.join(target, '.aicontext', '.version');
 
   log(`\nAIContext CLI v${VERSION}`, 'cyan');
 
+  let currentVersion = null;
   if (fs.existsSync(versionFile)) {
-    const installedVersion = fs.readFileSync(versionFile, 'utf8').trim();
-    log(`Installed version: v${installedVersion}`);
+    currentVersion = fs.readFileSync(versionFile, 'utf8').trim();
+    log(`Installed version: v${currentVersion}`);
 
-    if (installedVersion !== VERSION) {
+    if (currentVersion !== VERSION) {
       log(`\nUpdate available! Run 'aicontext update' to upgrade.`, 'yellow');
     }
   } else {
     log('Not installed in current directory.');
     log(`Run 'aicontext init' to install.`, 'dim');
+  }
+
+  // Write version cache when explicit path provided and .aicontext/ exists
+  if (targetDir && fs.existsSync(path.join(target, '.aicontext'))) {
+    const tmpCache = readCache();
+    const latestVersion = (tmpCache?.latestVersion && tmpCache.timestamp && Date.now() - tmpCache.timestamp < CACHE_TTL)
+      ? tmpCache.latestVersion
+      : await fetchLatestVersion();
+    const cacheFile = path.join(target, '.aicontext', 'data', 'version.json');
+    writeVersionCache(cacheFile, {
+      cliVersion: VERSION,
+      currentVersion,
+      latestVersion,
+    });
   }
 }
 
@@ -958,6 +991,7 @@ module.exports = {
   hasExistingFrameworkFiles,
   readCache,
   writeCache,
+  writeVersionCache,
   clearCache,
   getInstalledVersion,
   init,
@@ -973,10 +1007,8 @@ if (require.main === module) {
   const hasKeepPromptsFlag = args.includes('--keep-prompts');
   const hasOverrideAgentsFlag = args.includes('--override-agents');
   const hasOverrideSkillsFlag = args.includes('--override-skills');
-  const cacheIdx = args.indexOf('--cache');
-  const cachePath = cacheIdx !== -1 && args[cacheIdx + 1] && !args[cacheIdx + 1].startsWith('-') ? args[cacheIdx + 1] : undefined;
-  const flagValues = ['--yes', '-y', '--keep-prompts', '--override-agents', '--override-skills', '--cache'];
-  const targetPath = args.find((arg, i) => !flagValues.includes(arg) && arg !== command && !(cacheIdx !== -1 && i === cacheIdx + 1));
+  const flagValues = ['--yes', '-y', '--keep-prompts', '--override-agents', '--override-skills'];
+  const targetPath = args.find((arg) => !flagValues.includes(arg) && arg !== command);
 
   async function main() {
     switch (command) {
@@ -992,7 +1024,7 @@ if (require.main === module) {
       case 'version':
       case '-v':
       case '--version':
-        checkVersion(targetPath);
+        await checkVersion(targetPath);
         break;
       case 'contribute':
         contribute();
@@ -1011,7 +1043,7 @@ if (require.main === module) {
   }
 
   main()
-    .then(() => command !== 'upgrade' ? checkForUpdates(cachePath) : undefined)
+    .then(() => command !== 'upgrade' ? checkForUpdates() : undefined)
     .catch((err) => {
       log(`Error: ${err.message}`, 'red');
       process.exit(1);

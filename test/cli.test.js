@@ -33,6 +33,7 @@ const {
   hasExistingFrameworkFiles,
   readCache,
   writeCache,
+  writeVersionCache,
   clearCache,
   init,
   update,
@@ -1403,67 +1404,103 @@ describe('clearCache', () => {
   });
 });
 
-describe('version cache with custom path', () => {
-  let customCachePath;
-  let customCacheDir;
+describe('writeVersionCache', () => {
+  let tempDir;
 
   beforeEach(() => {
-    customCacheDir = createTempDir();
-    customCachePath = path.join(customCacheDir, 'version.json');
+    tempDir = createTempDir();
   });
 
   afterEach(() => {
-    removeTempDir(customCacheDir);
+    removeTempDir(tempDir);
   });
 
-  it('should write and read cache at custom path', () => {
-    writeCache('2.0.0', customCachePath);
+  it('should write cache with correct schema', () => {
+    const filePath = path.join(tempDir, 'version.json');
+    writeVersionCache(filePath, { cliVersion: '1.7.0', currentVersion: '1.6.0', latestVersion: '1.8.0' });
 
-    const result = readCache(customCachePath);
-    assert.strictEqual(result.latestVersion, '2.0.0');
-    assert.ok(result.timestamp);
-    assert.ok(result.lastChecked);
+    const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+    assert.strictEqual(data.cliVersion, '1.7.0');
+    assert.strictEqual(data.currentVersion, '1.6.0');
+    assert.strictEqual(data.latestVersion, '1.8.0');
+    assert.match(data.lastChecked, /^\d{4}-\d{2}-\d{2}$/);
   });
 
-  it('should return null when custom cache path does not exist', () => {
-    const result = readCache(customCachePath);
-    assert.strictEqual(result, null);
+  it('should write null for missing versions', () => {
+    const filePath = path.join(tempDir, 'version.json');
+    writeVersionCache(filePath, { cliVersion: '1.7.0', currentVersion: null, latestVersion: null });
+
+    const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+    assert.strictEqual(data.cliVersion, '1.7.0');
+    assert.strictEqual(data.currentVersion, null);
+    assert.strictEqual(data.latestVersion, null);
   });
 
-  it('should create parent directories when writing to custom path', () => {
-    const nestedPath = path.join(customCacheDir, 'nested', 'dir', 'version.json');
-    writeCache('2.0.0', nestedPath);
+  it('should create parent directories', () => {
+    const filePath = path.join(tempDir, 'nested', 'dir', 'version.json');
+    writeVersionCache(filePath, { cliVersion: '1.7.0', currentVersion: '1.7.0', latestVersion: '1.7.0' });
 
-    const result = readCache(nestedPath);
-    assert.strictEqual(result.latestVersion, '2.0.0');
+    const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+    assert.strictEqual(data.cliVersion, '1.7.0');
+  });
+});
+
+describe('version command writes cache to target dir', () => {
+  let tempDir;
+  const cliPath = path.join(__dirname, '..', 'bin', 'aicontext.js');
+
+  beforeEach(() => {
+    tempDir = createTempDir();
   });
 
-  it('should clear cache at custom path', () => {
-    writeCache('2.0.0', customCachePath);
-    assert.strictEqual(fs.existsSync(customCachePath), true);
-
-    clearCache(customCachePath);
-    assert.strictEqual(fs.existsSync(customCachePath), false);
+  afterEach(() => {
+    removeTempDir(tempDir);
   });
 
-  it('should not affect default cache when using custom path', () => {
-    // Clean default cache first
+  it('should write version.json when explicit path has .aicontext/', () => {
+    fs.mkdirSync(path.join(tempDir, '.aicontext'), { recursive: true });
+
+    execSync(`node ${cliPath} version ${tempDir}`, { stdio: 'pipe' });
+
+    const cacheFile = path.join(tempDir, '.aicontext', 'data', 'version.json');
+    assert.strictEqual(fs.existsSync(cacheFile), true);
+
+    const data = JSON.parse(fs.readFileSync(cacheFile, 'utf8'));
+    assert.strictEqual(data.cliVersion, VERSION);
+    assert.strictEqual(data.currentVersion, null);
+    assert.strictEqual(typeof data.latestVersion, 'string');
+    assert.match(data.lastChecked, /^\d{4}-\d{2}-\d{2}$/);
+  });
+
+  it('should include currentVersion when .aicontext/.version exists', () => {
+    const aiDir = path.join(tempDir, '.aicontext');
+    fs.mkdirSync(aiDir, { recursive: true });
+    fs.writeFileSync(path.join(aiDir, '.version'), '1.5.0');
+
+    execSync(`node ${cliPath} version ${tempDir}`, { stdio: 'pipe' });
+
+    const data = JSON.parse(fs.readFileSync(path.join(aiDir, 'data', 'version.json'), 'utf8'));
+    assert.strictEqual(data.currentVersion, '1.5.0');
+    assert.strictEqual(data.cliVersion, VERSION);
+  });
+
+  it('should not write cache when no path argument', () => {
     if (fs.existsSync(CACHE_FILE)) fs.unlinkSync(CACHE_FILE);
 
-    writeCache('2.0.0', customCachePath);
+    execSync(`node ${cliPath} version`, { stdio: 'pipe' });
 
-    assert.strictEqual(fs.existsSync(CACHE_FILE), false);
-    assert.strictEqual(fs.existsSync(customCachePath), true);
+    // The /tmp cache is from checkForUpdates (background), not checkVersion
+    const tmpData = JSON.parse(fs.readFileSync(CACHE_FILE, 'utf8'));
+    assert.ok(tmpData.timestamp, 'background cache should have timestamp field');
+    assert.strictEqual(tmpData.cliVersion, undefined, 'background cache should not have cliVersion');
   });
 
-  it('should use --cache flag in CLI version command', () => {
-    const cliPath = path.join(__dirname, '..', 'bin', 'aicontext.js');
-    execSync(`node ${cliPath} version --cache ${customCachePath}`, { stdio: 'pipe' });
+  it('should not write cache when .aicontext/ does not exist at target', () => {
+    // tempDir has no .aicontext/
+    execSync(`node ${cliPath} version ${tempDir}`, { stdio: 'pipe' });
 
-    assert.strictEqual(fs.existsSync(customCachePath), true);
-    const cacheData = JSON.parse(fs.readFileSync(customCachePath, 'utf8'));
-    assert.strictEqual(typeof cacheData.latestVersion, 'string');
-    assert.strictEqual(typeof cacheData.timestamp, 'number');
+    const cacheFile = path.join(tempDir, '.aicontext', 'data', 'version.json');
+    assert.strictEqual(fs.existsSync(cacheFile), false);
   });
 });
 
