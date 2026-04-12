@@ -17,32 +17,40 @@ Read `update_check.frequency` from config.
   Write the chosen value to `update_check.frequency` in `config.yml`.
 - **If `never`**: stop here.
 
-## 2. Check if it's time
+## 2. Get current date
 
-Read `/tmp/aicontext-version-cache.json`. If missing or unreadable, go to step 3.
+Run `date` via Bash to get the current date.
 
-Compare `lastChecked` against the frequency threshold:
+## 3. Check if it's time
 
-| Frequency | Threshold |
-|-----------|-----------|
+Read `.aicontext/data/version.json`. If missing or unreadable, go to step 4.
+
+Compare `nextCheck` (YYYY-MM-DD) against today's date:
+
+- **Not due yet** → skip to step 5.
+- **Due (today ≥ `nextCheck`)** → proceed to step 4.
+
+## 4. Fetch latest version
+
+Run `aicontext version --cache /path/to/.aicontext/data/version.json` via Bash. The CLI checks npm and writes the cache file.
+
+After the CLI writes the cache, update `.aicontext/data/version.json` with:
+
+1. `lastChecked` — today (YYYY-MM-DD)
+2. `nextCheck` — today + frequency offset:
+
+| Frequency | Add to today |
+|-----------|-------------|
 | daily | 1 day |
 | weekly | 7 days |
 | biweekly | 14 days |
 | monthly | 30 days |
 
-- **Time to check** (lastChecked older than threshold) → proceed to step 3.
-- **Not time, cache has `latestVersion`** → compare against the installed CLI version from the cache. If an update exists, skip to step 4. Otherwise stop silently.
-- **Not time, no cached update** → stop silently.
+**Fallback — `aicontext` not in PATH:** WebFetch `https://registry.npmjs.org/@zahardev/aicontext/latest` for the `version` field. Write `.aicontext/data/version.json` with `latestVersion`, `lastChecked`, and `nextCheck`.
 
-## 3. Run the check
+## 5. Compare and offer upgrade
 
-Run `aicontext version` via Bash. The CLI checks npm, displays version info, and writes the cache file (including `lastChecked`). **Do not** read `.aicontext/.version`, query npm, or write the cache yourself — the CLI does all of this.
-
-Parse the output. If it contains "Update available", proceed to step 4. Otherwise stop silently.
-
-**Fallback — `aicontext` not in PATH:** read `.aicontext/.version` for the installed version, then WebFetch `https://registry.npmjs.org/@zahardev/aicontext/latest` for the `version` field. Compare. Write to `/tmp/aicontext-version-cache.json` as JSON with `latestVersion`, `timestamp` (Unix ms), and `lastChecked` (ISO). **This is the only path where the AI writes the cache.** If no update, stop silently.
-
-## 4. Offer upgrade
+Read `.aicontext/.version` for the installed version. If missing, stop silently. Compare against `latestVersion` from the cache. If not newer, stop silently.
 
 > "AIContext update available: v{current} → v{latest}. Would you like me to run the upgrade?"
 > 1. **Yes** — run `aicontext upgrade`

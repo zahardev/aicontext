@@ -1403,6 +1403,70 @@ describe('clearCache', () => {
   });
 });
 
+describe('version cache with custom path', () => {
+  let customCachePath;
+  let customCacheDir;
+
+  beforeEach(() => {
+    customCacheDir = createTempDir();
+    customCachePath = path.join(customCacheDir, 'version.json');
+  });
+
+  afterEach(() => {
+    removeTempDir(customCacheDir);
+  });
+
+  it('should write and read cache at custom path', () => {
+    writeCache('2.0.0', customCachePath);
+
+    const result = readCache(customCachePath);
+    assert.strictEqual(result.latestVersion, '2.0.0');
+    assert.ok(result.timestamp);
+    assert.ok(result.lastChecked);
+  });
+
+  it('should return null when custom cache path does not exist', () => {
+    const result = readCache(customCachePath);
+    assert.strictEqual(result, null);
+  });
+
+  it('should create parent directories when writing to custom path', () => {
+    const nestedPath = path.join(customCacheDir, 'nested', 'dir', 'version.json');
+    writeCache('2.0.0', nestedPath);
+
+    const result = readCache(nestedPath);
+    assert.strictEqual(result.latestVersion, '2.0.0');
+  });
+
+  it('should clear cache at custom path', () => {
+    writeCache('2.0.0', customCachePath);
+    assert.strictEqual(fs.existsSync(customCachePath), true);
+
+    clearCache(customCachePath);
+    assert.strictEqual(fs.existsSync(customCachePath), false);
+  });
+
+  it('should not affect default cache when using custom path', () => {
+    // Clean default cache first
+    if (fs.existsSync(CACHE_FILE)) fs.unlinkSync(CACHE_FILE);
+
+    writeCache('2.0.0', customCachePath);
+
+    assert.strictEqual(fs.existsSync(CACHE_FILE), false);
+    assert.strictEqual(fs.existsSync(customCachePath), true);
+  });
+
+  it('should use --cache flag in CLI version command', () => {
+    const cliPath = path.join(__dirname, '..', 'bin', 'aicontext.js');
+    execSync(`node ${cliPath} version --cache ${customCachePath}`, { stdio: 'pipe' });
+
+    assert.strictEqual(fs.existsSync(customCachePath), true);
+    const cacheData = JSON.parse(fs.readFileSync(customCachePath, 'utf8'));
+    assert.strictEqual(typeof cacheData.latestVersion, 'string');
+    assert.strictEqual(typeof cacheData.timestamp, 'number');
+  });
+});
+
 describe('upgrade command (CLI integration)', () => {
   beforeEach(() => {
     if (fs.existsSync(CACHE_FILE)) {

@@ -91,10 +91,11 @@ function fetchLatestVersion() {
   });
 }
 
-function readCache() {
+function readCache(cachePath) {
+  const file = cachePath || CACHE_FILE;
   try {
-    if (fs.existsSync(CACHE_FILE)) {
-      return JSON.parse(fs.readFileSync(CACHE_FILE, 'utf8'));
+    if (fs.existsSync(file)) {
+      return JSON.parse(fs.readFileSync(file, 'utf8'));
     }
   } catch {
     // Ignore cache errors
@@ -102,9 +103,14 @@ function readCache() {
   return null;
 }
 
-function writeCache(latestVersion) {
+function writeCache(latestVersion, cachePath) {
+  const file = cachePath || CACHE_FILE;
   try {
-    fs.writeFileSync(CACHE_FILE, JSON.stringify({
+    const dir = path.dirname(file);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    fs.writeFileSync(file, JSON.stringify({
       latestVersion,
       timestamp: Date.now(),
       lastChecked: new Date().toISOString(),
@@ -114,16 +120,17 @@ function writeCache(latestVersion) {
   }
 }
 
-function clearCache() {
+function clearCache(cachePath) {
+  const file = cachePath || CACHE_FILE;
   try {
-    fs.rmSync(CACHE_FILE, { force: true });
+    fs.rmSync(file, { force: true });
   } catch {
     // Ignore cache deletion errors
   }
 }
 
-async function checkForUpdates() {
-  const cache = readCache();
+async function checkForUpdates(cachePath) {
+  const cache = readCache(cachePath);
   let latestVersion = null;
 
   // Use cached version if still fresh
@@ -135,7 +142,7 @@ async function checkForUpdates() {
     // Fetch from npm registry
     latestVersion = await fetchLatestVersion();
     if (latestVersion) {
-      writeCache(latestVersion);
+      writeCache(latestVersion, cachePath);
     }
   }
 
@@ -966,7 +973,10 @@ if (require.main === module) {
   const hasKeepPromptsFlag = args.includes('--keep-prompts');
   const hasOverrideAgentsFlag = args.includes('--override-agents');
   const hasOverrideSkillsFlag = args.includes('--override-skills');
-  const targetPath = args.find((arg) => !['--yes', '-y', '--keep-prompts', '--override-agents', '--override-skills', command].includes(arg));
+  const cacheIdx = args.indexOf('--cache');
+  const cachePath = cacheIdx !== -1 && args[cacheIdx + 1] && !args[cacheIdx + 1].startsWith('-') ? args[cacheIdx + 1] : undefined;
+  const flagValues = ['--yes', '-y', '--keep-prompts', '--override-agents', '--override-skills', '--cache'];
+  const targetPath = args.find((arg, i) => !flagValues.includes(arg) && arg !== command && !(cacheIdx !== -1 && i === cacheIdx + 1));
 
   async function main() {
     switch (command) {
@@ -1001,7 +1011,7 @@ if (require.main === module) {
   }
 
   main()
-    .then(() => command !== 'upgrade' ? checkForUpdates() : undefined)
+    .then(() => command !== 'upgrade' ? checkForUpdates(cachePath) : undefined)
     .catch((err) => {
       log(`Error: ${err.message}`, 'red');
       process.exit(1);
