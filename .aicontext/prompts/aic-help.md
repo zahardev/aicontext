@@ -54,7 +54,7 @@ Describe the fix in conversation → `/do-it` — creates a task step and implem
 
 ## Tips
 
-- **Configure lifecycle once.** Set `after_step` and `after_task` in `.aicontext/config.yml` (review, tests, commit, push). Review/tests use `partial | full | false | ask`; commit/push use `true | false | ask`. `ask` prompts upfront at `/run-step` / `/run-task`, then runs unattended.
+- **Configure lifecycle once.** Set `after_step` and `after_task` in `.aicontext/config.yml` (review, tests, commit, push). Review/tests use `normal | deep | false | ask`; commit/push use `true | false | ask`. `ask` prompts upfront at `/run-step` / `/run-task`, then runs unattended.
 - **Don't restart sessions unnecessarily.** The agent accumulates context across steps — restarting loses that. Use `/check-task` when you must restart.
 
 ## Customization

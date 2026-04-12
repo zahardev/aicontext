@@ -158,7 +158,7 @@ Human verification belongs in task deliverables (as a checkbox gate the user tic
 
 ## Quality Checks
 
-Lifecycle actions (code review, tests, commit, push) are configured in `.aicontext/config.yml` under `after_step` and `after_task`. Review/tests take scope values (`partial | full | false | ask`); commit/push take boolean values (`true | false | ask`). `ask` prompts upfront at `/run-step` or `/run-task` entry. Edit the config to customize your workflow.
+Lifecycle actions (code review, tests, commit, push) are configured in `.aicontext/config.yml` under `after_step` and `after_task`. Review/tests take scope values (`normal | deep | false | ask`); commit/push take boolean values (`true | false | ask`). `ask` prompts upfront at `/run-step` or `/run-task` entry. Edit the config to customize your workflow.
 
 ### Review Response Rules
 

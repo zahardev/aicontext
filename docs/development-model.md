@@ -126,9 +126,9 @@ The worklog is AI-generated (not created by the CLI) and gitignored. `/finish-ta
 
 ## Quality Checks
 
-Quality checks are configured in `.aicontext/config.yml` under `after_step` and `after_task`. Review and tests take scope values (`partial` | `full` | `false` | `ask`); commit and push take boolean values (`true` | `false` | `ask`).
+Quality checks are configured in `.aicontext/config.yml` under `after_step` and `after_task`. Review and tests take scope values (`normal` | `deep` | `false` | `ask`); commit and push take boolean values (`true` | `false` | `ask`).
 
-When set to `ask`, the AI prompts at the start of `/run-task` or `/run-step` with user-friendly options (e.g., "Quick review — this step's changes" or "Deep review — architecture + correctness") and offers to save your choice as the default.
+When set to `ask`, the AI prompts at the start of `/run-task` or `/run-step` with user-friendly options (e.g., "Normal review — this step's changes" or "Deep review — architecture + correctness") and offers to save your choice as the default.
 
 When findings are returned, the AI assesses each by severity and effort:
 
@@ -144,7 +144,7 @@ When findings are returned, the AI assesses each by severity and effort:
 
 Lifecycle and commit settings live in `.aicontext/config.yml`. Personal overrides go in `config.local.yml` (gitignored).
 
-**Lifecycle actions** under `after_step` and `after_task` — same vocabulary at both timings. Review and tests take scope values (`partial` | `full` | `false` | `ask`); commit and push take boolean values (`true` | `false` | `ask`). `ask` fires upfront at `/run-step` or `/run-task` entry with a two-stage prompt (Stage 1: pick action with timing-specific recommendation; Stage 2: save as default?). Once answered, the run proceeds unattended.
+**Lifecycle actions** under `after_step` and `after_task` — same vocabulary at both timings. Review and tests take scope values (`normal` | `deep` | `false` | `ask`); commit and push take boolean values (`true` | `false` | `ask`). `ask` fires upfront at `/run-step` or `/run-task` entry with a two-stage prompt (Stage 1: pick action with timing-specific recommendation; Stage 2: save as default?). Once answered, the run proceeds unattended.
 
 - `after_step.review` / `tests` / `commit` — fire after each step
 - `after_task.review` / `tests` / `commit` / `push` — fire at task close

@@ -6,11 +6,12 @@
 
 # Lifecycle actions — what happens after each step and after task completion.
 #
-# Review / tests values: partial | full | false | ask
-#   - partial: scoped to this step's changes (review) or step-related tests
-#   - full:    whole-branch diff with deep-review pass (review) or full test suite
+# Review / tests values: normal | deep | false | ask
+#   - normal:  scoped to this step's changes (review) or step-related tests
+#   - deep:    whole-branch diff with deep-review pass (review) or full test suite
 #   - false:   skip
 #   - ask:     prompt upfront at /run-step or /run-task entry
+#   Legacy aliases: partial = normal, full = deep (accepted, silently migrated)
 #
 # Commit / push values: true | false | ask
 #
