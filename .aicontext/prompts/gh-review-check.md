@@ -4,7 +4,7 @@ Fetch and triage unresolved PR review comments on the current pull request.
 
 ## 1. Fetch
 
-Run `node .aicontext/scripts/pr-reviews.js`. It saves a structured file to `.aicontext/data/github-pr-reviews/pr-{number}-{iteration}.md` with a summary table and full comment details.
+Run `node .aicontext/scripts/pr-reviews.cjs`. It saves a structured file to `.aicontext/data/github-pr-reviews/pr-{number}-{iteration}.md` with a summary table and full comment details.
 
 If the command fails (no PR, `gh` CLI missing, etc.), tell the user and stop.
 
@@ -38,11 +38,11 @@ Update the Action and Reply columns in the file:
 
 If any `resolve` actions exist, ask:
 
-> Run `pr-resolve.js` now to dismiss the `resolve` threads on GitHub?
+> Run `pr-resolve.cjs` now to dismiss the `resolve` threads on GitHub?
 > 1. Yes — run it
 > 2. Not now — skip
 
-On yes, run `node .aicontext/scripts/pr-resolve.js <path-to-review-file>`.
+On yes, run `node .aicontext/scripts/pr-resolve.cjs <path-to-review-file>`.
 
 ---
 

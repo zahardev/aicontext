@@ -1308,22 +1308,33 @@ describe('copyFrameworkScripts', () => {
 
   it('should overwrite existing scripts', () => {
     fs.mkdirSync(path.join(destDir, '.aicontext', 'scripts'), { recursive: true });
-    fs.writeFileSync(path.join(destDir, '.aicontext', 'scripts', 'pr-reviews.js'), 'old content');
+    fs.writeFileSync(path.join(destDir, '.aicontext', 'scripts', 'pr-reviews.cjs'), 'old content');
 
     copyFrameworkScripts(srcDir, destDir);
 
     assert.strictEqual(
-      fs.readFileSync(path.join(destDir, '.aicontext', 'scripts', 'pr-reviews.js'), 'utf8'),
-      'content of pr-reviews.js'
+      fs.readFileSync(path.join(destDir, '.aicontext', 'scripts', 'pr-reviews.cjs'), 'utf8'),
+      'content of pr-reviews.cjs'
     );
   });
 
   it('should skip missing source scripts gracefully', () => {
-    fs.unlinkSync(path.join(srcDir, '.aicontext', 'scripts', 'pr-resolve.js'));
+    fs.unlinkSync(path.join(srcDir, '.aicontext', 'scripts', 'pr-resolve.cjs'));
 
     copyFrameworkScripts(srcDir, destDir);
 
-    assert.strictEqual(fs.existsSync(path.join(destDir, '.aicontext', 'scripts', 'pr-reviews.js')), true);
+    assert.strictEqual(fs.existsSync(path.join(destDir, '.aicontext', 'scripts', 'pr-reviews.cjs')), true);
+    assert.strictEqual(fs.existsSync(path.join(destDir, '.aicontext', 'scripts', 'pr-resolve.cjs')), false);
+  });
+
+  it('should remove deprecated scripts from destination', () => {
+    fs.mkdirSync(path.join(destDir, '.aicontext', 'scripts'), { recursive: true });
+    fs.writeFileSync(path.join(destDir, '.aicontext', 'scripts', 'pr-reviews.js'), 'old');
+    fs.writeFileSync(path.join(destDir, '.aicontext', 'scripts', 'pr-resolve.js'), 'old');
+
+    copyFrameworkScripts(srcDir, destDir);
+
+    assert.strictEqual(fs.existsSync(path.join(destDir, '.aicontext', 'scripts', 'pr-reviews.js')), false);
     assert.strictEqual(fs.existsSync(path.join(destDir, '.aicontext', 'scripts', 'pr-resolve.js')), false);
   });
 });

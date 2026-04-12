@@ -69,8 +69,8 @@ Located in `scripts/` — these are tool-agnostic Node.js scripts used by both C
 
 | Script | Used By | Purpose |
 |--------|---------|---------|
-| `pr-reviews.js` | `/gh-review-check` | Fetch unresolved PR review threads via GitHub GraphQL API |
-| `pr-resolve.js` | `/gh-review-check` | Resolve threads and post replies on GitHub |
+| `pr-reviews.cjs` | `/gh-review-check` | Fetch unresolved PR review threads via GitHub GraphQL API |
+| `pr-resolve.cjs` | `/gh-review-check` | Resolve threads and post replies on GitHub |
 
 **Requirement:** These scripts need the [GitHub CLI (`gh`)](https://cli.github.com/) installed and authenticated (`gh auth login`).
 

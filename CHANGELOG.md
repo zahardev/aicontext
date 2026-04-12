@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.8.0] - 2026-04-12
+
+### Fixed
+- PR workflow scripts (`pr-reviews`, `pr-resolve`) renamed from `.js` to `.cjs` — fixes "require is not defined" errors in projects with `"type": "module"` in `package.json`
+- `aicontext update` now removes old `.js` script files automatically
+
 ## [1.7.0] - 2026-04-10
 
 ### Added

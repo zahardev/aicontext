@@ -5,7 +5,7 @@ Automate the PR review cycle: fetch comments, triage, fix, push, wait for re-rev
 ## Prerequisites
 
 - A PR must already exist for the current branch
-- `.aicontext/scripts/pr-reviews.js` and `.aicontext/scripts/pr-resolve.js` must be available
+- `.aicontext/scripts/pr-reviews.cjs` and `.aicontext/scripts/pr-resolve.cjs` must be available
 
 ## Before Starting
 
@@ -20,7 +20,7 @@ Repeat until no fixable issues remain or `cycle > 5`:
 ### 1. Fetch Review Comments
 
 ```
-node .aicontext/scripts/pr-reviews.js
+node .aicontext/scripts/pr-reviews.cjs
 ```
 
 ### 2. Triage Each Comment
@@ -36,7 +36,7 @@ Fill the Reply column for every `resolve` and `fix` — the reply is posted as a
 
 Resolve all comments marked Resolve — the script processes the review file and posts Reply column text before resolving each thread:
 ```
-node .aicontext/scripts/pr-resolve.js <path-to-review-file>
+node .aicontext/scripts/pr-resolve.cjs <path-to-review-file>
 ```
 
 ### 4. Fix
@@ -78,7 +78,7 @@ Stop the loop — do not continue cycling without active reviews.
 
 **Phase 2 — check for new review comments:**
 ```
-node .aicontext/scripts/pr-reviews.js
+node .aicontext/scripts/pr-reviews.cjs
 ```
 
 - If new findings are saved: new review is ready — increment `cycle`, continue to next cycle

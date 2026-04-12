@@ -113,7 +113,7 @@ Use `/draft-pr` to generate a PR title and description from your task file and g
 
 After your PR receives review comments, use `/gh-review-check` to handle them efficiently:
 
-**1. Fetch** — the AI runs `pr-reviews.js` to fetch all unresolved review threads from GitHub and saves them to `.aicontext/data/code-reviews/`.
+**1. Fetch** — the AI runs `pr-reviews.cjs` to fetch all unresolved review threads from GitHub and saves them to `.aicontext/data/code-reviews/`.
 
 **2. Analyze** — the AI reads each comment, inspects the actual code, and classifies findings:
 - **Valid** — real issues worth fixing
@@ -132,7 +132,7 @@ After your PR receives review comments, use `/gh-review-check` to handle them ef
 - `resolve` — dismiss on GitHub (with optional reply)
 - `skip` — leave for human discussion (only for human reviewer comments)
 
-**4. Resolve** — the AI runs `pr-resolve.js` to bulk-resolve all threads marked `resolve` on GitHub, posting replies where provided.
+**4. Resolve** — the AI runs `pr-resolve.cjs` to bulk-resolve all threads marked `resolve` on GitHub, posting replies where provided.
 
 **5. Fix** — the AI fixes all items marked `fix`.
 

@@ -112,7 +112,7 @@ function parseResolveEntries(content) {
 
 function main() {
   if (process.argv.length < 3) {
-    console.error('Usage: node pr-resolve.js <review-file.md>');
+    console.error('Usage: node pr-resolve.cjs <review-file.md>');
     process.exit(1);
   }
 

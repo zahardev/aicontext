@@ -38,7 +38,8 @@ const FRAMEWORK_CODEX_SKILLS = [
   'draft-issue', 'prepare-release', 'gh-review-fix-loop', 'gh-fix-tests', 'web-inspect', 'aic-help', 'aic-skills',
 ];
 const DEPRECATED_SKILLS = ['task', 'after-step', 'next', 'pr', 'start-task', 'diff-review', 'branch-review', 'standards-check', 'pr-review-check', 'check-plan', 'run-steps', 'review-plan'];
-const FRAMEWORK_SCRIPTS = ['pr-reviews.js', 'pr-resolve.js'];
+const FRAMEWORK_SCRIPTS = ['pr-reviews.cjs', 'pr-resolve.cjs'];
+const DEPRECATED_SCRIPTS = ['pr-reviews.js', 'pr-resolve.js'];
 const CONFIG_FILE = 'config.yml';
 
 // Colors for terminal output
@@ -502,6 +503,14 @@ function copyFrameworkScripts(packageRoot, target) {
     if (!fs.existsSync(src)) continue;
     fs.copyFileSync(src, path.join(destDir, file));
   }
+
+  for (const file of DEPRECATED_SCRIPTS) {
+    const filePath = path.join(destDir, file);
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+      log(`  Removed deprecated: .aicontext/scripts/${file}`, 'dim');
+    }
+  }
 }
 
 async function copyFrameworkCodexSkills(packageRoot, target, overrideSkills = false, skipConfirm = false) {
@@ -923,6 +932,7 @@ module.exports = {
   FRAMEWORK_CODEX_SKILLS,
   DEPRECATED_SKILLS,
   FRAMEWORK_SCRIPTS,
+  DEPRECATED_SCRIPTS,
   copyRecursive,
   copyFrameworkPrompts,
   copyFrameworkAgents,
