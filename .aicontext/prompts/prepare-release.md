@@ -3,7 +3,7 @@
 ## 1. Ensure release config
 
 If `.aicontext/release.md` doesn't exist, run first-time setup:
-1. Scan for version files (`package.json`, `pyproject.toml`, `Cargo.toml`, `VERSION`), changelog, README version history, and git tags
+1. Scan for version files (`package.json`, `pyproject.toml`, `Cargo.toml`, `VERSION`), CHANGELOG and README (check project root only — not recursive), and git tags
 2. Ask only for what can't be inferred
 3. Generate `.aicontext/release.md` from `.aicontext/templates/release.template.md`, pre-filled with findings
 4. Show the file and wait for user confirmation before continuing
