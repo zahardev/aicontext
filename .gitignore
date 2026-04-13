@@ -25,12 +25,13 @@ test-project/
 .aicontext/worklog.md
 .aicontext/config.yml
 
-# Project tasks
+# Project specs and tasks
+.aicontext/specs/
 .aicontext/tasks/*
 !.aicontext/tasks/.gitkeep
 
-# Brief files (temporary, agent-to-agent knowledge transfer)
-.aicontext/data/brief/
+# Task-context files (working knowledge, persists across sessions)
+.aicontext/data/task-context/
 
 # Long-form notes (freeform investigations, exploratory writing — not part of the spec/task contract)
 .aicontext/data/notes/

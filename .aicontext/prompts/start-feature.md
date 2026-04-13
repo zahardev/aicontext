@@ -23,8 +23,8 @@ Show the interview's `Out of scope` list (if any), then ask:
 > {Out of scope items, if any}
 >
 > Scope looks complete. Anything to add or change?
-> 1. **[Recommended]** No — proceed
-> 2. Yes — specify what
+> 1. **[Recommended]** Looks good — proceed
+> 2. Add or change something
 
 If the user picks 2, follow up for details and reconcile the interview summary: move requested items from `Out of scope` to `Dimensions covered`, add any new in-scope items to `Dimensions covered` with a note if they need follow-up. If new items have significant unresolved dimensions, briefly return to the interview to pin them down.
 
@@ -46,15 +46,15 @@ If the feature is a single cohesive piece, create one task without asking.
 >
 > Every output below is a file on disk. Do not summarize, ask follow-ups, or propose changes. File creation only.
 
-## 5. Create Spec, Task, Brief, and Worklog Files
+## 5. Create Spec, Task, Task-Context, and Worklog Files
 
-Create all four — one spec, one or more tasks, one brief per task, and worklog entries.
+Create all four — one spec, one or more tasks, one task-context per task, and worklog entries.
 
 **Spec** — `.aicontext/specs/spec-{task-filename}.md` from `spec.template.md`. Copy the interview's structured summary **verbatim** into `## Decisions`, then derive `## Requirements` and `## Non-Goals` from it. No file paths or implementation details.
 
 **Task(s)** — `.aicontext/tasks/{task-filename}.md` from `task.template.md`. Append the task to each implementing spec subsection's `*Implemented by:*` footer and to the spec's `## Tasks` section.
 
-**Brief(s)** — `.aicontext/data/brief/brief-{task-filename}.md` from `brief.template.md`. If Step 1 exploration surfaced non-obvious codebase patterns, add them to `## Codebase Patterns` prefixed `[Step 0]`.
+**Task-context(s)** — `.aicontext/data/task-context/context-{task-filename}.md` from `task-context.template.md`. If Step 1 exploration surfaced non-obvious codebase patterns, add them to `## Codebase Patterns` prefixed `[Step 0]`.
 
 **Worklog** — append to `.aicontext/worklog.md` under `## In Progress`. If a `### [Spec Title](specs/{spec-filename}.md)` heading exists, append task lines under it; otherwise create one. One `- [ ] [{task-version}](tasks/{task-filename}.md) — {short description}` line per task.
 
@@ -63,7 +63,7 @@ Create all four — one spec, one or more tasks, one brief per task, and worklog
 **You MUST output this summary — it is the deliverable that proves files were created.** Do not skip it. Do not paraphrase it. The format is fixed so the gate check is trivial.
 
 ```
-Created: {N} spec, {N} task(s), {N} brief(s), {N} worklog entries
+Created: {N} spec, {N} task(s), {N} task-context(s), {N} worklog entries
 
 Spec:
 - .aicontext/specs/spec-{task-filename}.md
@@ -72,8 +72,8 @@ Task(s):
 - .aicontext/tasks/{task-filename}.md
 - ...
 
-Brief(s):
-- .aicontext/data/brief/brief-{task-filename}.md
+Task-context(s):
+- .aicontext/data/task-context/context-{task-filename}.md
 - ...
 
 Worklog: {N} entries appended under "{Spec Name}" in In Progress

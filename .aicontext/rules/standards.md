@@ -78,6 +78,7 @@ When asking closed questions (2-4 discrete options), check `claude.question_styl
 - **`numbered`**: present numbered options as plain text (1, 2, 3...) — user types the number
 - **Other tools (Cursor, Copilot, Codex):** always use numbered regardless of setting
 - **Open-ended questions:** always use plain text
+- **Option labels:** use the exact text from the prompt. Don't add `(Recommended)` or `(default)` unless the prompt specifies it
 
 ## Recommended Tools
 
@@ -111,7 +112,7 @@ The numbered-batching format mitigates the original concern (users giving shallo
 
 ### Information Density
 
-**CONCISENESS FIRST — HARD RULE, NOT A PREFERENCE.** Every line must earn its place. Applies to everything produced: responses, specs, tasks, briefs, commits, rules, prompts, plan steps — *everything*. Conciseness means *the clearest output with no waste* — not the fewest possible words, but every word must count.
+**CONCISENESS FIRST — HARD RULE, NOT A PREFERENCE.** Every line must earn its place. Applies to everything produced: responses, specs, tasks, task-context files, commits, rules, prompts, plan steps — *everything*. Conciseness means *the clearest output with no waste* — not the fewest possible words, but every word must count.
 
 **Why:** Verbose output bloats subsequent context and pushes earlier rules out of attention. Subagent reports become the lead's input, so bloat compounds across the chain — which is why subagents inherit this rule via `agent-setup.md`.
 

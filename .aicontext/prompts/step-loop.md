@@ -14,20 +14,22 @@ For each `ask` field, fire a **two-stage** prompt:
 
 **After each step:**
 
-| Config field | Question | Options |
-|---|---|---|
-| `after_step.review` | Code review after each step? | 1) No (recommended), 2) Quick review — this step's changes, 3) Deep review — architecture + correctness |
-| `after_step.tests` | Run tests after each step? | 1) No (recommended), 2) Step-related tests only, 3) Full test suite |
-| `after_step.commit` | Commit after each step? | 1) No (recommended), 2) Yes |
+| Config field | Question | Options | Config value |
+|---|---|---|---|
+| `after_step.review` | Code review after each step? | 1) No (recommended), 2) Normal review — this step's changes, 3) Deep review — architecture + correctness | `false` / `normal` / `deep` |
+| `after_step.tests` | Run tests after each step? | 1) No (recommended), 2) Step-related tests only, 3) Full test suite | `false` / `normal` / `deep` |
+| `after_step.commit` | Commit after each step? | 1) No (recommended), 2) Yes | `false` / `true` |
 
 **After task completion:**
 
-| Config field | Question | Options |
-|---|---|---|
-| `after_task.review` | Code review after task? | 1) Deep review (recommended) — architecture + correctness, 2) Quick review — bugs + security only, 3) No |
-| `after_task.tests` | Run tests after task? | 1) Full test suite (recommended), 2) Step-related tests only, 3) No |
-| `after_task.commit` | Commit after task? | 1) Yes (recommended), 2) No |
-| `after_task.push` | Push to remote? | 1) No (recommended), 2) Yes |
+| Config field | Question | Options | Config value |
+|---|---|---|---|
+| `after_task.review` | Code review after task? | 1) Deep review (recommended) — architecture + correctness, 2) Normal review — bugs + security only, 3) No | `deep` / `normal` / `false` |
+| `after_task.tests` | Run tests after task? | 1) Full test suite (recommended), 2) Task-related tests only, 3) No | `deep` / `normal` / `false` |
+| `after_task.commit` | Commit after task? | 1) Yes (recommended), 2) No | `true` / `false` |
+| `after_task.push` | Push to remote? | 1) No (recommended), 2) Yes | `false` / `true` |
+| `after_task.pr` | Draft pull request after task? | 1) No (default), 2) Yes | `false` / `true` |
+| `after_task.review_loop` | Run pull request review loop after task? | 1) No (default), 2) Yes | `false` / `true` |
 
 **Stage 2 — save as default:** After every stage-1 answer, always ask `Save as default? (y/N)` — default N. If y, write the answer back to `config.yml` so it won't ask again. If n, the answer applies only to this run.
 
@@ -41,16 +43,16 @@ The `reviewer` subagent needs to know *what changed* — the corpus — which de
 | `after_step` | Last commit is from this step | `HEAD^..HEAD` — just that commit |
 | `after_task` | Any | `{base-branch}...HEAD` + uncommitted working tree |
 
-Pass the corpus explicitly to the reviewer subagent along with the resolved scope (`partial` = scoped diff, `full` = whole-branch deep pass). When committing after each step without isolating work, the reviewer sees the cumulative working tree — this is intentional (review cumulative work), and the user is responsible for committing or stashing between steps if they want isolation.
+Pass the corpus explicitly to the reviewer subagent along with the resolved scope (`normal` = scoped diff, `deep` = whole-branch deep pass). When committing after each step without isolating work, the reviewer sees the cumulative working tree — this is intentional (review cumulative work), and the user is responsible for committing or stashing between steps if they want isolation.
 
 ## Loop
 
 1. **Implement** the step
-2. **Review** — if `after_step.review` resolved to `partial` or `full`: compute corpus (see above), call `reviewer` subagent (Claude Code; inline otherwise). Tell the reviewer which playbook to follow: `partial` → `review.md`, `full` → `deep-review.md`
+2. **Review** — if `after_step.review` resolved to `normal` or `deep`: compute corpus (see above). Call `reviewer` subagent (Claude Code) or follow the playbook inline (Cursor/Copilot). Pass the exact playbook path: `normal` → `.aicontext/prompts/review.md`, `deep` → `.aicontext/prompts/deep-review.md`
 3. **Assess** findings using the severity × effort table in `process.md`
 4. **Fix** actionable issues
 5. **Re-review** — repeat 2–4 up to 5 times total. If issues remain after 5 iterations, stop and tell the user: "I've done 5 review cycles — please check if there are remaining issues." The user decides to resolve manually or run another cycle.
-6. **Test** — if `after_step.tests` resolved to `partial`: call `test-runner` subagent for step-related tests. If `full`: call `test-runner` for the full suite.
+6. **Test** — if `after_step.tests` resolved to `normal`: call `test-runner` subagent for step-related tests. If `deep`: call `test-runner` for the full suite.
 7. **Fix tests** — if tests fail and the fix is clear, fix and re-run. Otherwise stop (see Stop Conditions in `run-task.md`).
 8. **Commit** — if `after_step.commit` resolved to Yes: delegate to `commit.md`
-9. **Close step** — follow `close-step.md` (updates task, brief, spec and outputs a summary with counts). Do not advance until the close-step summary is output.
+9. **Close step** — follow `close-step.md` (updates task, task-context, spec and outputs a summary with counts). Do not advance until the close-step summary is output.

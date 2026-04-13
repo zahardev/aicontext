@@ -23,11 +23,11 @@ Always walk the lists — never skip. If zero boxes were checked, report `no che
 
 See `process.md "Task Deliverables vs Spec Requirements"`.
 
-## 3. Update Brief
+## 3. Update Task-Context
 
-Append findings prefixed with `[Step N]` to the appropriate sections — see `brief.template.md` for the sections and `process.md "Brief content boundary"` for what belongs in the brief vs the spec.
+Append findings prefixed with `[Step N]` to the appropriate sections — see `task-context.template.md` for the sections and `process.md "Task-context content boundary"` for what belongs in the task-context vs the spec.
 
-If no brief exists, create one from `brief.template.md`.
+If no task-context exists, create one from `task-context.template.md`.
 
 Skip entries for obvious things already visible in the code. Each entry should be 1-2 lines of distilled knowledge.
 
@@ -35,7 +35,7 @@ Skip entries for obvious things already visible in the code. Each entry should b
 
 <!-- Distinct from Step 2: Step 2 *checks off* existing requirements (verification); this section *adds new* requirements/decisions/non-goals discovered during the step (creation). Two operations on the spec, two distinct triggers. -->
 
-New decisions, requirements, and non-goals → spec directly. Supersessions of existing spec decisions → revise the spec and record the override in the brief's `Decision Overrides`. See `process.md "Brief content boundary"`.
+New decisions, requirements, and non-goals → spec directly. Supersessions of existing spec decisions → revise the spec and record the override in the task-context's `Decision Overrides`. See `process.md "Task-context content boundary"`.
 
 When adding a new requirement, check if an existing task step covers it — if not, propose adding a step or creating a separate task.
 
@@ -47,11 +47,11 @@ You MUST output this summary. It is the deliverable that proves context was upda
 Step N closed:
 - Task: [items checked off]
 - Checked: +N deliverables / +M spec requirements  (or "no checks affected")
-- Brief: +[count] entries ([sections touched])
+- Task-context: +[count] entries ([sections touched])
 - Spec: [what changed, or "no changes"]
 ```
 
-If Brief shows +0 entries, explain why nothing was learned (this should be rare — most steps produce at least a file reference).
+If Task-context shows +0 entries, explain why nothing was learned (this should be rare — most steps produce at least a file reference).
 
 After the summary, append one handoff line based on the task state:
 - If unchecked plan steps remain → `Run /next-step to continue.`

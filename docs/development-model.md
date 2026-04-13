@@ -7,7 +7,7 @@ Work is organized in three layers that keep the AI aligned across sessions, feat
 ## The Three Layers
 
 ```
-Spec (what & why)  →  Task (how & progress)  →  Brief (working knowledge)
+Spec (what & why)  →  Task (how & progress)  →  Task-Context (working knowledge)
 ```
 
 ### Spec
@@ -43,18 +43,18 @@ The AI checks off steps as it goes. When all steps are done, `/finish-task` clos
 **Created by:** `/start-feature`, `/plan-tasks`
 **Updated by:** `/run-task`, `/do-it`, `/align-context`
 
-### Brief
+### Task-Context
 
-**File:** `.aicontext/data/brief/brief-{task-filename}`
+**File:** `.aicontext/data/task-context/context-{task-filename}`
 
-The brief is the AI's working memory. After each step, the AI appends what it learned:
+The task-context is the AI's working memory. After each step, the AI appends what it learned:
 - **Codebase Patterns** — conventions and patterns discovered
 - **Gotchas** — non-obvious issues or constraints
 - **Decision Overrides** — spec decisions superseded mid-task (old + why)
 
 Entries are concise (1-2 lines), prefixed with `[Step N]`, and never deleted — only appended. Later entries take precedence.
 
-The brief is gitignored but never auto-deleted. If you start a new session weeks later, `/check-task` reads the brief and the AI picks up where it left off.
+The task-context is gitignored but never auto-deleted. If you start a new session weeks later, `/check-task` reads the task-context and the AI picks up where it left off.
 
 **Created by:** `/run-task`, `/do-it`, `/align-context`
 **Updated by:** `/run-task` (after each step), `/do-it`, `/align-context`
@@ -68,11 +68,11 @@ The brief is gitignored but never auto-deleted. If you start a new session weeks
                         ↓
                   /run-task on Task 1
                         ↓
-              Brief accumulates knowledge
+              Task-context accumulates knowledge
                         ↓
                   /finish-task on Task 1
                         ↓
-                  /run-task on Task 2 (brief carries over or new brief created)
+                  /run-task on Task 2 (task-context carries over or new one created)
                         ↓
                   /finish-task on Task 2
                         ↓
@@ -84,10 +84,10 @@ The brief is gitignored but never auto-deleted. If you start a new session weeks
 ```
 New session → /start → /check-task
                            ↓
-                    Reads: Spec → Brief → Task
+                    Reads: Spec → Task-Context → Task
                            ↓
                     "You left off at Step 4. Steps 1-3 done.
-                     Brief has: [patterns, gotchas, decisions].
+                     Task-context has: [patterns, gotchas, decisions].
                      Spec has: [requirements not yet covered by steps]."
                            ↓
                     /run-task continues from Step 4
@@ -126,9 +126,9 @@ The worklog is AI-generated (not created by the CLI) and gitignored. `/finish-ta
 
 ## Quality Checks
 
-Quality checks are configured in `.aicontext/config.yml` under `after_step` and `after_task`. Review and tests take scope values (`partial` | `full` | `false` | `ask`); commit and push take boolean values (`true` | `false` | `ask`).
+Quality checks are configured in `.aicontext/config.yml` under `after_step` and `after_task`. Review and tests take scope values (`normal` | `deep` | `false` | `ask`); commit and push take boolean values (`true` | `false` | `ask`).
 
-When set to `ask`, the AI prompts at the start of `/run-task` or `/run-step` with user-friendly options (e.g., "Quick review — this step's changes" or "Deep review — architecture + correctness") and offers to save your choice as the default.
+When set to `ask`, the AI prompts at the start of `/run-task` or `/run-step` with user-friendly options (e.g., "Normal review — this step's changes" or "Deep review — architecture + correctness") and offers to save your choice as the default.
 
 When findings are returned, the AI assesses each by severity and effort:
 
@@ -137,14 +137,14 @@ When findings are returned, the AI assesses each by severity and effort:
 | High | Any | Fix |
 | Medium | Low/High | Fix |
 | Low | Low | Fix |
-| Low | High | Skip — note in brief |
+| Low | High | Skip — note in task-context |
 | False positive | — | Dismiss |
 
 ## Lifecycle and Commit Configuration
 
 Lifecycle and commit settings live in `.aicontext/config.yml`. Personal overrides go in `config.local.yml` (gitignored).
 
-**Lifecycle actions** under `after_step` and `after_task` — same vocabulary at both timings. Review and tests take scope values (`partial` | `full` | `false` | `ask`); commit and push take boolean values (`true` | `false` | `ask`). `ask` fires upfront at `/run-step` or `/run-task` entry with a two-stage prompt (Stage 1: pick action with timing-specific recommendation; Stage 2: save as default?). Once answered, the run proceeds unattended.
+**Lifecycle actions** under `after_step` and `after_task` — same vocabulary at both timings. Review and tests take scope values (`normal` | `deep` | `false` | `ask`); commit and push take boolean values (`true` | `false` | `ask`). `ask` fires upfront at `/run-step` or `/run-task` entry with a two-stage prompt (Stage 1: pick action with timing-specific recommendation; Stage 2: save as default?). Once answered, the run proceeds unattended.
 
 - `after_step.review` / `tests` / `commit` — fire after each step
 - `after_task.review` / `tests` / `commit` / `push` — fire at task close

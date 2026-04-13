@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/logo2.svg" alt="AIContext" width="500">
+  <img src="assets/logo3.svg" alt="AIContext" width="500">
 </p>
 
 <p align="center">
@@ -52,6 +52,8 @@ Writing a `CLAUDE.md` or `.cursorrules` file gives your AI memory. AIContext giv
 
 **The AI drives the process** — after every action, the AI tells you what to do next. Finished a step? "Run `/next-step` to continue." Closed a task? "Spec has more pending tasks — start the next one?" You never have to guess the next command.
 
+**The AI ships the code** — after finishing a task, the AI can commit, push, create a PR, and run the review-fix loop automatically. Configure once, and the full pipeline runs hands-free on every task.
+
 **The AI adapts to your workflow** — on first run, it asks how you like to work: reviews after every step or only at the end? Commit per step or per task? Push automatically? It remembers your answers and never asks again.
 
 **The AI remembers across sessions** — specs, tasks, and briefs capture everything. Start a new session, run `/check-task`, and the AI picks up where it left off. No knowledge is lost.
@@ -62,9 +64,9 @@ Writing a `CLAUDE.md` or `.cursorrules` file gives your AI memory. AIContext giv
 |-------|-----------------|---------|
 | **Spec** | What to build and why — requirements, decisions, non-goals | "Users can reset passwords via email. Not supporting SMS." |
 | **Task** | How to build it — step-by-step plan with checkboxes | "Step 1: Add reset endpoint. Step 2: Email template. Step 3: Token expiry." |
-| **Brief** | What the AI learned while building — patterns, gotchas, file references | "Auth middleware checks token in header, not cookie. See `src/auth.js:42`." |
+| **Task-Context** | What the AI learned while building — patterns, gotchas, file references | "Auth middleware checks token in header, not cookie. See `src/auth.js:42`." |
 
-Specs and tasks are committed to git. Briefs are gitignored — each developer accumulates their own working knowledge.
+Specs and tasks are committed to git. Task-context files are gitignored — each developer accumulates their own working knowledge.
 
 Learn more in the [development model guide](docs/development-model.md).
 
@@ -87,13 +89,14 @@ Learn more in the [development model guide](docs/development-model.md).
 - Specialized reviewer agent runs in parallel without consuming your main conversation (Claude Code)
 
 ### Session continuity
-- `/check-task` — read spec, brief, and task to resume exactly where you left off
+- `/check-task` — read spec, task-context, and task to resume exactly where you left off
 - `/finish-task` — close out a task: sync spec, write completion notes, handle git
 - `/align-context` — sync all context files with current state
 
 ### Issue & PR workflow
-- `/draft-issue` — draft a GitHub issue from conversation context, optionally create it on GitHub directly
+- `/draft-issue` — draft a GitHub issue from conversation, create it on GitHub, and auto-fill the issue ID in subsequent task filenames
 - `/draft-pr` — generate PR description from task context and git history
+- `/finish-task` can auto-create PRs and run the review-fix loop — configure `after_task.pr` and `after_task.review_loop` in `config.yml` for a fully automated code → commit → push → PR → review → fix pipeline
 - `/gh-review-fix-loop` — automate the review-fix-push cycle (works with CodeRabbit, human reviewers, etc.)
 - `/gh-fix-tests` — fix failing CI checks automatically: diagnose, fix, push, retry until green
 
@@ -101,6 +104,10 @@ Learn more in the [development model guide](docs/development-model.md).
 - `/interview` — structured discovery on any topic — the AI walks dimensions, recommends answers, and captures decisions
 - `/brainstorm` — generate missing angles, better implementations, and new combinations
 - `/thoughts` — quick "what do you think?" check-in for feedback mid-conversation
+
+### Project maintenance
+- `/prepare-release` — generate changelog, update version numbers, and prepare a release commit
+- `/tidy-aic` — archive completed tasks and specs, clean up session artifacts, keep the project directory lean
 
 ### Browser inspection
 - `/web-inspect` — open pages, check console errors, interact with elements, capture screenshots
@@ -184,8 +191,9 @@ One config file controls how the AI works — no prompt engineering needed:
 
 | Version | Highlights |
 |---------|------------|
+| **1.8.0** | PR workflow automation — config guards, review-fix loop, resumable close. Project tidying (`/tidy-aic`). TDD-aware planning. "Brief" → "task-context" rename. Local version cache. ESM compatibility fix. |
 | **1.7.0** | Adaptive workflow — the AI learns your preferences and stops asking. GitHub issue creation. Thinking tools (`/interview`, `/brainstorm`, `/thoughts`). Automated CI fix (`/gh-fix-tests`). Ideas backlog. Smarter interviews that recommend answers. |
-| **1.6.0** | The big workflow release — three-layer context (spec/task/brief), structured planning, automated execution with review and test loops, PR automation, browser inspection with `/web-inspect`. |
+| **1.6.0** | The big workflow release — three-layer context (spec/task/task-context), structured planning, automated execution with review and test loops, PR automation, browser inspection with `/web-inspect`. |
 | **1.5.0** | Codex support, `/draft-issue`, tool-agnostic PR scripts. |
 | **1.4.0** | Slash command skills, PR workflow scripts, agent model upgrades to sonnet/opus. |
 | **1.3.0** | Claude Code subagents — reviewer, researcher, test-runner working in parallel. |

@@ -17,9 +17,9 @@ const FRAMEWORK_PROMPTS = [
   'commit.md', 'create-task.md', 'deep-review.md', 'deep-review-criteria.md', 'do-it.md', 'draft-issue.md', 'ensure-config.md', 'identify-task.md',
   'draft-pr.md', 'finish-task.md', 'generate.md', 'gh-fix-tests.md', 'gh-review-fix-loop.md', 'next-step.md', 'plan-tasks.md',
   'gh-review-check.md', 'install-playwright-cli.md', 'prepare-release.md', 'review.md', 'review-criteria.md', 'detect-review-scope.md',
-  'auto-setup.md', 'brainstorm.md', 'check-update.md', 'interview.md', 'review-task-plan.md', 'run-step.md', 'run-task.md', 'start-feature.md', 'start.md', 'step-loop.md', 'test-writer.md', 'thoughts.md',
+  'brainstorm.md', 'check-update.md', 'interview.md', 'review-task-plan.md', 'run-step.md', 'run-task.md', 'start-feature.md', 'start.md', 'step-loop.md', 'test-writer.md', 'thoughts.md', 'tidy-aic.md',
 ];
-const DEPRECATED_PROMPTS = ['check_plan.md', 'check_task.md', 'after_step.md', 'plan.md', 'task.md', 'start-task.md', 'diff-review.md', 'branch-review.md', 'standards-check.md', 'pr-review-check.md', 'check-plan.md', 'run-steps.md', 'review-plan.md', 'review-scope.md', 'update-check.md'];
+const DEPRECATED_PROMPTS = ['check_plan.md', 'check_task.md', 'after_step.md', 'plan.md', 'task.md', 'start-task.md', 'diff-review.md', 'branch-review.md', 'standards-check.md', 'pr-review-check.md', 'check-plan.md', 'run-steps.md', 'review-plan.md', 'review-scope.md', 'update-check.md', 'auto-setup.md'];
 const FRAMEWORK_AGENTS = [
   'researcher.md',
   'reviewer.md',
@@ -30,15 +30,16 @@ const DEPRECATED_AGENTS = ['pr-review-summarizer.md', 'deep-reviewer.md', 'stand
 const FRAMEWORK_SKILLS = [
   'add-step', 'add-idea', 'create-task', 'start', 'start-feature', 'plan-tasks', 'check-task', 'review-task-plan', 'run-step', 'run-task', 'finish-task',
   'align-context', 'do-it', 'challenge', 'brainstorm', 'thoughts', 'interview', 'commit', 'review', 'deep-review', 'next-step', 'draft-pr', 'gh-review-check',
-  'draft-issue', 'prepare-release', 'gh-review-fix-loop', 'gh-fix-tests', 'web-inspect', 'aic-help', 'aic-skills',
+  'draft-issue', 'prepare-release', 'gh-review-fix-loop', 'gh-fix-tests', 'web-inspect', 'aic-help', 'aic-skills', 'tidy-aic',
 ];
 const FRAMEWORK_CODEX_SKILLS = [
   'add-step', 'add-idea', 'create-task', 'start', 'start-feature', 'plan-tasks', 'check-task', 'review-task-plan', 'run-step', 'run-task', 'finish-task',
   'align-context', 'do-it', 'challenge', 'brainstorm', 'thoughts', 'interview', 'commit', 'review', 'deep-review', 'next-step', 'draft-pr', 'gh-review-check',
-  'draft-issue', 'prepare-release', 'gh-review-fix-loop', 'gh-fix-tests', 'web-inspect', 'aic-help', 'aic-skills',
+  'draft-issue', 'prepare-release', 'gh-review-fix-loop', 'gh-fix-tests', 'web-inspect', 'aic-help', 'aic-skills', 'tidy-aic',
 ];
 const DEPRECATED_SKILLS = ['task', 'after-step', 'next', 'pr', 'start-task', 'diff-review', 'branch-review', 'standards-check', 'pr-review-check', 'check-plan', 'run-steps', 'review-plan'];
-const FRAMEWORK_SCRIPTS = ['pr-reviews.js', 'pr-resolve.js'];
+const FRAMEWORK_SCRIPTS = ['pr-reviews.cjs', 'pr-resolve.cjs'];
+const DEPRECATED_SCRIPTS = ['pr-reviews.js', 'pr-resolve.js'];
 const CONFIG_FILE = 'config.yml';
 
 // Colors for terminal output
@@ -91,9 +92,10 @@ function fetchLatestVersion() {
 }
 
 function readCache() {
+  const file = CACHE_FILE;
   try {
-    if (fs.existsSync(CACHE_FILE)) {
-      return JSON.parse(fs.readFileSync(CACHE_FILE, 'utf8'));
+    if (fs.existsSync(file)) {
+      return JSON.parse(fs.readFileSync(file, 'utf8'));
     }
   } catch {
     // Ignore cache errors
@@ -102,8 +104,13 @@ function readCache() {
 }
 
 function writeCache(latestVersion) {
+  const file = CACHE_FILE;
   try {
-    fs.writeFileSync(CACHE_FILE, JSON.stringify({
+    const dir = path.dirname(file);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    fs.writeFileSync(file, JSON.stringify({
       latestVersion,
       timestamp: Date.now(),
       lastChecked: new Date().toISOString(),
@@ -113,9 +120,28 @@ function writeCache(latestVersion) {
   }
 }
 
-function clearCache() {
+function writeVersionCache(filePath, { cliVersion, currentVersion, latestVersion }) {
   try {
-    fs.rmSync(CACHE_FILE, { force: true });
+    const dir = path.dirname(filePath);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    const today = new Date().toISOString().slice(0, 10);
+    fs.writeFileSync(filePath, JSON.stringify({
+      cliVersion: cliVersion ?? null,
+      currentVersion: currentVersion ?? null,
+      latestVersion: latestVersion ?? null,
+      lastChecked: today,
+    }, null, 2) + '\n');
+  } catch {
+    // Ignore cache write errors
+  }
+}
+
+function clearCache() {
+  const file = CACHE_FILE;
+  try {
+    fs.rmSync(file, { force: true });
   } catch {
     // Ignore cache deletion errors
   }
@@ -502,6 +528,14 @@ function copyFrameworkScripts(packageRoot, target) {
     if (!fs.existsSync(src)) continue;
     fs.copyFileSync(src, path.join(destDir, file));
   }
+
+  for (const file of DEPRECATED_SCRIPTS) {
+    const filePath = path.join(destDir, file);
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+      log(`  Removed deprecated: .aicontext/scripts/${file}`, 'dim');
+    }
+  }
 }
 
 async function copyFrameworkCodexSkills(packageRoot, target, overrideSkills = false, skipConfirm = false) {
@@ -627,6 +661,13 @@ async function init(targetDir, skipConfirm = false, keepPrompts = false, overrid
   // Write version file
   fs.writeFileSync(path.join(target, '.aicontext', '.version'), VERSION);
 
+  // Seed version cache so /start doesn't need to fetch on first run
+  writeVersionCache(path.join(target, '.aicontext', 'data', 'version.json'), {
+    cliVersion: VERSION,
+    currentVersion: VERSION,
+    latestVersion: null,
+  });
+
   log('\nInstallation complete!', 'green');
   log('\nNext steps:', 'cyan');
   log('1. Open your AI assistant (Claude Code, Cursor, Codex, or GitHub Copilot)');
@@ -742,6 +783,27 @@ async function update(targetDir, skipConfirm = false, keepPrompts = false, overr
   removeDeprecatedAgents(target);
   removeDeprecatedSkills(target);
 
+  // Migrate brief → task-context (renamed in 1.8.0)
+  const oldBriefDir = path.join(target, '.aicontext', 'data', 'brief');
+  const newContextDir = path.join(target, '.aicontext', 'data', 'task-context');
+  if (fs.existsSync(oldBriefDir) && !fs.existsSync(newContextDir)) {
+    fs.renameSync(oldBriefDir, newContextDir);
+    // Rename brief-* files to context-* so prompts can find them
+    for (const file of fs.readdirSync(newContextDir)) {
+      if (file.startsWith('brief-')) {
+        fs.renameSync(
+          path.join(newContextDir, file),
+          path.join(newContextDir, file.replace(/^brief-/, 'context-'))
+        );
+      }
+    }
+    log('  Migrated data/brief/ → data/task-context/', 'dim');
+  }
+  const oldBriefTemplate = path.join(target, '.aicontext', 'templates', 'brief.template.md');
+  if (fs.existsSync(oldBriefTemplate)) {
+    fs.unlinkSync(oldBriefTemplate);
+  }
+
   log('Updating templates...', 'dim');
   copyRecursive(path.join(packageRoot, '.aicontext', 'templates'), path.join(target, '.aicontext', 'templates'));
 
@@ -774,26 +836,48 @@ async function update(targetDir, skipConfirm = false, keepPrompts = false, overr
   // Update version
   fs.writeFileSync(versionFile, VERSION);
 
+  // Refresh version cache
+  writeVersionCache(path.join(target, '.aicontext', 'data', 'version.json'), {
+    cliVersion: VERSION,
+    currentVersion: VERSION,
+    latestVersion: null,
+  });
+
   log(`\nUpdated to v${VERSION}!`, 'green');
   log('\nNote: project.md, structure.md, and worklog.md (if present) were preserved.', 'dim');
 }
 
-function checkVersion(targetDir) {
+async function checkVersion(targetDir) {
   const target = path.resolve(targetDir || '.');
   const versionFile = path.join(target, '.aicontext', '.version');
 
   log(`\nAIContext CLI v${VERSION}`, 'cyan');
 
+  let currentVersion = null;
   if (fs.existsSync(versionFile)) {
-    const installedVersion = fs.readFileSync(versionFile, 'utf8').trim();
-    log(`Installed version: v${installedVersion}`);
+    currentVersion = fs.readFileSync(versionFile, 'utf8').trim();
+    log(`Installed version: v${currentVersion}`);
 
-    if (installedVersion !== VERSION) {
+    if (currentVersion !== VERSION) {
       log(`\nUpdate available! Run 'aicontext update' to upgrade.`, 'yellow');
     }
   } else {
     log('Not installed in current directory.');
     log(`Run 'aicontext init' to install.`, 'dim');
+  }
+
+  // Write version cache when explicit path provided and .aicontext/ exists
+  if (targetDir && fs.existsSync(path.join(target, '.aicontext'))) {
+    const tmpCache = readCache();
+    const latestVersion = (tmpCache?.latestVersion && tmpCache.timestamp && Date.now() - tmpCache.timestamp < CACHE_TTL)
+      ? tmpCache.latestVersion
+      : await fetchLatestVersion();
+    const cacheFile = path.join(target, '.aicontext', 'data', 'version.json');
+    writeVersionCache(cacheFile, {
+      cliVersion: VERSION,
+      currentVersion,
+      latestVersion,
+    });
   }
 }
 
@@ -923,6 +1007,7 @@ module.exports = {
   FRAMEWORK_CODEX_SKILLS,
   DEPRECATED_SKILLS,
   FRAMEWORK_SCRIPTS,
+  DEPRECATED_SCRIPTS,
   copyRecursive,
   copyFrameworkPrompts,
   copyFrameworkAgents,
@@ -941,6 +1026,7 @@ module.exports = {
   hasExistingFrameworkFiles,
   readCache,
   writeCache,
+  writeVersionCache,
   clearCache,
   getInstalledVersion,
   init,
@@ -956,7 +1042,8 @@ if (require.main === module) {
   const hasKeepPromptsFlag = args.includes('--keep-prompts');
   const hasOverrideAgentsFlag = args.includes('--override-agents');
   const hasOverrideSkillsFlag = args.includes('--override-skills');
-  const targetPath = args.find((arg) => !['--yes', '-y', '--keep-prompts', '--override-agents', '--override-skills', command].includes(arg));
+  const flagValues = ['--yes', '-y', '--keep-prompts', '--override-agents', '--override-skills'];
+  const targetPath = args.find((arg) => !flagValues.includes(arg) && arg !== command);
 
   async function main() {
     switch (command) {
@@ -972,7 +1059,7 @@ if (require.main === module) {
       case 'version':
       case '-v':
       case '--version':
-        checkVersion(targetPath);
+        await checkVersion(targetPath);
         break;
       case 'contribute':
         contribute();

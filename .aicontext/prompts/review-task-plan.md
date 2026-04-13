@@ -8,6 +8,7 @@ Validate the current task's plan. Follow `identify-task.md` to find it, then rea
 2. **Spec coverage** — every spec requirement addressed by a plan step; no plan steps outside spec scope unless the task explicitly extends it. Flag uncovered and out-of-scope items separately.
 3. **Dependency order** — no step depends on a later step (per `process.md` "Task Planning Guidelines").
 4. **Over-engineering** — unnecessary complexity or abstractions.
+5. **TDD structure** — if the project has tests (glob for test files), flag testable steps that don't follow test-first structure. See `process.md` "TDD-Aware Planning".
 
 ## Output
 

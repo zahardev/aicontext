@@ -1,6 +1,6 @@
 # Process Rules
 
-*Workflow, lifecycle, and task/spec/brief mechanics. For coding standards, AI behavior, safety, and output quality bars, see [standards.md](standards.md).*
+*Workflow, lifecycle, and task/spec/task-context mechanics. For coding standards, AI behavior, safety, and output quality bars, see [standards.md](standards.md).*
 
 ## Task Lifecycle
 
@@ -27,7 +27,7 @@ Do not paste the plan into chat for approval — creating the task file IS the p
 
 ## Spec Lifecycle
 
-Specs are the current contract — not a changelog. Delete requirements and decisions when they no longer apply or are no longer being defended. Brief and git history preserve the rationale; spec stays clean.
+Specs are the current contract — not a changelog. Delete requirements and decisions when they no longer apply or are no longer being defended. Task-context and git history preserve the rationale; spec stays clean.
 
 ## Task Deliverables vs Spec Requirements
 
@@ -39,7 +39,7 @@ Specs are the current contract — not a changelog. Delete requirements and deci
 Task deliverables are the **definition of done for this work bundle** — not a translation of spec requirements. Four categories:
 
 - **Scoped spec delivery** — slices of spec requirements this bundle satisfies
-- **Process artifacts** — outputs the bundle must produce ("audit captured in brief")
+- **Process artifacts** — outputs the bundle must produce ("audit captured in task-context")
 - **Constraints** — guardrails for this bundle ("no behavior regression", "backwards compatible")
 - **Drive-by fixes** — small unrelated fixes bundled in
 
@@ -74,13 +74,9 @@ Large tool output lives in conversation history forever — every subsequent tur
 - For repository-wide searches, prefer `Grep` with `head_limit` over piping `find` output.
 - When forced to run a long command inline (e.g. for debugging), summarize the takeaway in your reply rather than letting the raw output stand.
 
-### Brief content boundary
+### Task-context content boundary
 
-Briefs MUST NOT restate spec content. The spec is the single source of truth for what the system currently does and why; briefs hold *in-flight working knowledge that doesn't fit the spec contract* — codebase patterns discovered during exploration, gotchas, file references, debug notes. Before writing to a brief, ask: *would this belong in the spec instead?* If yes, write it to the spec and link from the brief — never both. See Spec Lifecycle above for what happens when a decision is superseded.
-
-### Long-form notes location
-
-Freeform investigations and long-form notes live in `.aicontext/data/notes/{YYYY-MM-DD}-{topic}.md` — never inside briefs or task files. Briefs and task files reference notes with a one-line link. Why: briefs and task files are read on every related step; long notes inflate every read.
+Task-context files MUST NOT restate spec content. The spec is the single source of truth for what the system currently does and why; task-context holds *in-flight working knowledge that doesn't fit the spec contract* — codebase patterns discovered during exploration, gotchas, file references, debug notes. Before writing to a task-context, ask: *would this belong in the spec instead?* If yes, write it to the spec and link from the task-context — never both. See Spec Lifecycle above for what happens when a decision is superseded.
 
 ## Worklog
 
@@ -121,6 +117,16 @@ Update `worklog.md` — check off the task under its spec, or add to Standalone 
 
 ## Task Planning Guidelines
 
+### TDD-Aware Planning
+
+Before writing plan steps, check if the project has tests (glob for test files). If tests exist:
+
+1. **Assess each step** — is it testable? (Config changes, template edits, docs are not. Behavior-adding steps usually are.)
+2. **Testable steps follow test-first** — the step includes writing the test before the implementation, not as a separate step after.
+3. **Prefer unit tests per step, integration and E2E tests as final verification** when both patterns exist in the project.
+
+If the project has no tests, skip TDD and implement directly.
+
 ### Plans Must Describe WHAT, Not HOW
 
 Task steps describe what to build or change — behavior descriptions belong in the spec, implementation details are discovered during implementation.
@@ -138,11 +144,11 @@ Task steps describe what to build or change — behavior descriptions belong in 
 - Order steps by dependency — a step cannot depend on a later step
 - When executing steps manually (not via `/run-task`), stop after each step and wait for permission
 
-### Never include spec or brief updates as plan steps
+### Never include spec or task-context updates as plan steps
 
-Spec sync, brief updates, requirement checkboxes, worklog updates, and spec completion are handled automatically by `close-step.md` and `finish-task.md`. Listing them as explicit plan steps is redundant and pollutes the plan.
+Spec sync, task-context updates, requirement checkboxes, worklog updates, and spec completion are handled automatically by `close-step.md` and `finish-task.md`. Listing them as explicit plan steps is redundant and pollutes the plan.
 
-**Bad:** "Update spec with new decision", "Append findings to brief", "Check off completed requirements in spec"
+**Bad:** "Update spec with new decision", "Append findings to task-context", "Check off completed requirements in spec"
 **Good:** omit them — they happen automatically at step/task close.
 
 ### Never include manual human steps in plans
@@ -158,7 +164,7 @@ Human verification belongs in task deliverables (as a checkbox gate the user tic
 
 ## Quality Checks
 
-Lifecycle actions (code review, tests, commit, push) are configured in `.aicontext/config.yml` under `after_step` and `after_task`. Review/tests take scope values (`partial | full | false | ask`); commit/push take boolean values (`true | false | ask`). `ask` prompts upfront at `/run-step` or `/run-task` entry. Edit the config to customize your workflow.
+Lifecycle actions (code review, tests, commit, push) are configured in `.aicontext/config.yml` under `after_step` and `after_task`. Review/tests take scope values (`normal | deep | false | ask`); commit/push take boolean values (`true | false | ask`). `ask` prompts upfront at `/run-step` or `/run-task` entry. Edit the config to customize your workflow.
 
 ### Review Response Rules
 
@@ -170,7 +176,7 @@ When a quality check returns findings, use this table to decide what to fix:
 | Medium | Low | Fix |
 | Medium | High | Fix |
 | Low | Low | Fix |
-| Low | High | Skip — note in brief |
+| Low | High | Skip — note in task-context |
 | False positive | — | Resolve / dismiss |
 
 ## Checkbox Discipline

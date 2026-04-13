@@ -6,11 +6,12 @@
 
 # Lifecycle actions — what happens after each step and after task completion.
 #
-# Review / tests values: partial | full | false | ask
-#   - partial: scoped to this step's changes (review) or step-related tests
-#   - full:    whole-branch diff with deep-review pass (review) or full test suite
+# Review / tests values: normal | deep | false | ask
+#   - normal:  scoped to this step's changes (review) or step-related tests
+#   - deep:    whole-branch diff with deep-review pass (review) or full test suite
 #   - false:   skip
 #   - ask:     prompt upfront at /run-step or /run-task entry
+#   Legacy aliases: partial = normal, full = deep (accepted, silently migrated)
 #
 # Commit / push values: true | false | ask
 #
@@ -33,6 +34,8 @@ after_task:
   tests: ask                  # tests at task close via `test-runner` subagent
   commit: ask                 # commit at task close (skipped if any step committed during the run)
   push: ask                   # push to remote at task close
+  pr: ask                     # trigger draft-pr at task close (true|false|ask). If push hasn't happened, asks first.
+  review_loop: ask            # run gh-review-fix-loop after PR exists (true|false|ask). Skipped if no remote PR; defers task close.
 
 commit:
   template: description       # description | "description (#issue_id)" | "type: description" | custom string
@@ -63,6 +66,10 @@ update_check:
 claude:
   question_style: interactive   # interactive (AskUserQuestion) | numbered (plain text with 1, 2, 3...)
   # Only applies to Claude Code. Other tools always use numbered.
+
+pr:
+  save_to_file: true            # save draft to .aicontext/data/pr-drafts/ (true|false)
+  create_in_github: ask         # create PR via gh CLI (true|false|ask)
 
 issue:
   save_to_file: true            # save draft to .aicontext/data/issue-drafts/ (true|false)

@@ -31,11 +31,20 @@ If both `commit.mode` and `commit.finish_action` are present, apply `commit.mode
 
 | Old key | New key |
 |---|---|
-| `after_step.review: true` | `after_step.review: partial` |
-| `after_step.tests: true` | `after_step.tests: partial` |
-| `after_task.deep_review: true` | `after_task.review: full` |
+| `after_step.review: true` | `after_step.review: normal` |
+| `after_step.tests: true` | `after_step.tests: normal` |
+| `after_task.deep_review: true` | `after_task.review: deep` |
 | `after_task.deep_review: false` | `after_task.review: false` |
-| `after_task.full_tests: true` | `after_task.tests: full` |
+| `after_task.full_tests: true` | `after_task.tests: deep` |
 | `after_task.full_tests: false` | `after_task.tests: false` |
 
-After mapping, remove `after_task.deep_review` and `after_task.full_tests` from config. The boolean `true` forms above migrate to `partial`/`full` based on timing — `after_step.*` defaults to `partial`, `after_task.*` defaults to `full`.
+After mapping, remove `after_task.deep_review` and `after_task.full_tests` from config. The boolean `true` forms above migrate to `normal`/`deep` based on timing — `after_step.*` defaults to `normal`, `after_task.*` defaults to `deep`.
+
+### Review/tests vocabulary (renamed in 1.8.0)
+
+| Old value | New value |
+|---|---|
+| `partial` | `normal` |
+| `full` | `deep` |
+
+Apply to `after_step.review`, `after_step.tests`, `after_task.review`, and `after_task.tests`. Rewrite the value in config and update the inline comment if present.

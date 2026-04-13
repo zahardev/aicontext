@@ -23,7 +23,7 @@ The core development workflow — from idea to working code.
 3. Fixes issues found in review
 4. Runs tests (if configured)
 5. Commits (if configured)
-6. Updates the brief with patterns, gotchas, and any mid-step `Decision Overrides`
+6. Updates the task-context with patterns, gotchas, and any mid-step `Decision Overrides`
 7. Writes new decisions, requirements, and non-goals directly to the spec
 
 You watch and intervene only when needed. The AI stops when it hits a blocker, a critical review finding, or a decision not covered in planning.
@@ -67,10 +67,10 @@ When starting a new session on an existing task:
 
 **2. `/check-task`** — the AI reads all three layers:
 - **Spec** — requirements, decisions, non-goals
-- **Brief** — patterns, gotchas, and supersession log of any spec decisions overturned mid-task
+- **Task-context** — patterns, gotchas, and supersession log of any spec decisions overturned mid-task
 - **Task** — plan steps, what's checked off, what's next
 
-It surfaces where you left off, detects any drift between spec requirements and task steps, and checks for staleness (e.g., brief is empty despite completed steps, or brief `Decision Overrides` haven't been applied to the spec).
+It surfaces where you left off, detects any drift between spec requirements and task steps, and checks for staleness (e.g., task-context is empty despite completed steps, or task-context `Decision Overrides` haven't been applied to the spec).
 
 **3. Continue** — ask the AI to continue from where it left off, or use `/run-task` to execute remaining steps automatically.
 
@@ -78,10 +78,10 @@ It surfaces where you left off, detects any drift between spec requirements and 
 
 After a conversation where decisions were made, or before ending a session:
 
-**`/align-context`** — updates all context files (task, spec, brief, worklog) to reflect the current state:
+**`/align-context`** — updates all context files (task, spec, task-context, worklog) to reflect the current state:
 - Checks off completed task steps
 - Adds missing decisions, requirements, and non-goals to the spec
-- Appends patterns, gotchas, and file references to the brief
+- Appends patterns, gotchas, and file references to the task-context
 - Updates the worklog with current task status
 
 Fixes everything silently, then reports what changed.
@@ -113,7 +113,7 @@ Use `/draft-pr` to generate a PR title and description from your task file and g
 
 After your PR receives review comments, use `/gh-review-check` to handle them efficiently:
 
-**1. Fetch** — the AI runs `pr-reviews.js` to fetch all unresolved review threads from GitHub and saves them to `.aicontext/data/code-reviews/`.
+**1. Fetch** — the AI runs `pr-reviews.cjs` to fetch all unresolved review threads from GitHub and saves them to `.aicontext/data/code-reviews/`.
 
 **2. Analyze** — the AI reads each comment, inspects the actual code, and classifies findings:
 - **Valid** — real issues worth fixing
@@ -132,7 +132,7 @@ After your PR receives review comments, use `/gh-review-check` to handle them ef
 - `resolve` — dismiss on GitHub (with optional reply)
 - `skip` — leave for human discussion (only for human reviewer comments)
 
-**4. Resolve** — the AI runs `pr-resolve.js` to bulk-resolve all threads marked `resolve` on GitHub, posting replies where provided.
+**4. Resolve** — the AI runs `pr-resolve.cjs` to bulk-resolve all threads marked `resolve` on GitHub, posting replies where provided.
 
 **5. Fix** — the AI fixes all items marked `fix`.
 

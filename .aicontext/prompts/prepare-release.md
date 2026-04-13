@@ -3,7 +3,7 @@
 ## 1. Ensure release config
 
 If `.aicontext/release.md` doesn't exist, run first-time setup:
-1. Scan for version files (`package.json`, `pyproject.toml`, `Cargo.toml`, `VERSION`), changelog, README version history, and git tags
+1. Scan for version files (`package.json`, `pyproject.toml`, `Cargo.toml`, `VERSION`), CHANGELOG and README (check project root only — not recursive), and git tags
 2. Ask only for what can't be inferred
 3. Generate `.aicontext/release.md` from `.aicontext/templates/release.template.md`, pre-filled with findings
 4. Show the file and wait for user confirmation before continuing
@@ -20,7 +20,7 @@ Determine the version from `release.md` `version_detection`:
 Read what shipped, in order:
 1. **Tasks** — `.aicontext/tasks/` matching the version prefix
 2. **Specs** — any `.aicontext/specs/` linked from those tasks
-3. **Briefs** — `.aicontext/data/brief/` for those tasks (if present)
+3. **Task-context** — `.aicontext/data/task-context/` for those tasks (if present)
 4. **Git diff** — `git diff {base_branch}...HEAD`, using `project.base_branch` from `.aicontext/config.yml`
 5. **AI changelog** — if `ai_changelog` is set in `release.md`, read it. If any task for this version has no entry, list them and ask before generating
 

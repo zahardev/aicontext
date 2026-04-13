@@ -33,6 +33,7 @@ const {
   hasExistingFrameworkFiles,
   readCache,
   writeCache,
+  writeVersionCache,
   clearCache,
   init,
   update,
@@ -232,6 +233,18 @@ describe('init', () => {
     assert.strictEqual(fs.existsSync(path.join(tempDir, '.aicontext', 'tasks')), true);
   });
 
+  it('should create version cache in .aicontext/data/version.json', async () => {
+    await init(tempDir, true);
+
+    const cacheFile = path.join(tempDir, '.aicontext', 'data', 'version.json');
+    assert.strictEqual(fs.existsSync(cacheFile), true);
+    const data = JSON.parse(fs.readFileSync(cacheFile, 'utf8'));
+    assert.strictEqual(data.cliVersion, VERSION);
+    assert.strictEqual(data.currentVersion, VERSION);
+    assert.strictEqual(data.latestVersion, null);
+    assert.ok(data.lastChecked);
+  });
+
   it('should not reinitialize if already initialized', async () => {
     await init(tempDir, true);
 
@@ -344,6 +357,21 @@ describe('update', () => {
     assert.strictEqual(fs.existsSync(checkTaskPrompt), true);
   });
 
+  it('should refresh version cache on update', async () => {
+    // Set older version to trigger actual update
+    fs.writeFileSync(path.join(tempDir, '.aicontext', '.version'), '0.0.1');
+
+    await update(tempDir, true);
+
+    const cacheFile = path.join(tempDir, '.aicontext', 'data', 'version.json');
+    assert.strictEqual(fs.existsSync(cacheFile), true);
+    const data = JSON.parse(fs.readFileSync(cacheFile, 'utf8'));
+    assert.strictEqual(data.cliVersion, VERSION);
+    assert.strictEqual(data.currentVersion, VERSION);
+    assert.strictEqual(data.latestVersion, null);
+    assert.ok(data.lastChecked);
+  });
+
   it('should fail gracefully if not initialized', async () => {
     const uninitializedDir = createTempDir();
 
@@ -450,7 +478,7 @@ describe('FRAMEWORK_PROMPTS', () => {
       'commit.md', 'create-task.md', 'deep-review.md', 'deep-review-criteria.md', 'do-it.md', 'draft-issue.md', 'ensure-config.md', 'identify-task.md',
       'draft-pr.md', 'finish-task.md', 'generate.md', 'gh-fix-tests.md', 'gh-review-fix-loop.md', 'next-step.md', 'plan-tasks.md',
       'gh-review-check.md', 'install-playwright-cli.md', 'prepare-release.md', 'review.md', 'review-criteria.md', 'detect-review-scope.md',
-      'auto-setup.md', 'brainstorm.md', 'check-update.md', 'interview.md', 'review-task-plan.md', 'run-step.md', 'run-task.md', 'start-feature.md', 'start.md', 'step-loop.md', 'test-writer.md', 'thoughts.md',
+      'brainstorm.md', 'check-update.md', 'interview.md', 'review-task-plan.md', 'run-step.md', 'run-task.md', 'start-feature.md', 'start.md', 'step-loop.md', 'test-writer.md', 'thoughts.md', 'tidy-aic.md',
     ];
     assert.deepStrictEqual([...FRAMEWORK_PROMPTS].sort(), [...expected].sort());
   });
@@ -458,7 +486,7 @@ describe('FRAMEWORK_PROMPTS', () => {
 
 describe('DEPRECATED_PROMPTS', () => {
   it('should contain the old prompt file names', () => {
-    const expected = ['check_plan.md', 'check_task.md', 'after_step.md', 'plan.md', 'task.md', 'start-task.md', 'diff-review.md', 'branch-review.md', 'standards-check.md', 'pr-review-check.md', 'check-plan.md', 'run-steps.md', 'review-plan.md', 'review-scope.md', 'update-check.md'];
+    const expected = ['check_plan.md', 'check_task.md', 'after_step.md', 'plan.md', 'task.md', 'start-task.md', 'diff-review.md', 'branch-review.md', 'standards-check.md', 'pr-review-check.md', 'check-plan.md', 'run-steps.md', 'review-plan.md', 'review-scope.md', 'update-check.md', 'auto-setup.md'];
     assert.deepStrictEqual([...DEPRECATED_PROMPTS].sort(), [...expected].sort());
   });
 });
@@ -772,15 +800,15 @@ describe('removeDeprecatedAgents', () => {
 });
 
 describe('FRAMEWORK_SKILLS', () => {
-  it('should contain exactly 30 skill names', () => {
-    assert.strictEqual(FRAMEWORK_SKILLS.length, 30);
+  it('should contain exactly 31 skill names', () => {
+    assert.strictEqual(FRAMEWORK_SKILLS.length, 31);
   });
 
   it('should contain the expected skills', () => {
     const expected = [
       'add-step', 'add-idea', 'create-task', 'start', 'start-feature', 'plan-tasks', 'check-task', 'review-task-plan', 'run-step', 'run-task', 'finish-task',
       'align-context', 'do-it', 'challenge', 'brainstorm', 'thoughts', 'interview', 'commit', 'review', 'deep-review', 'next-step', 'draft-pr', 'gh-review-check',
-      'draft-issue', 'prepare-release', 'gh-review-fix-loop', 'gh-fix-tests', 'web-inspect', 'aic-help', 'aic-skills',
+      'draft-issue', 'prepare-release', 'gh-review-fix-loop', 'gh-fix-tests', 'web-inspect', 'aic-help', 'aic-skills', 'tidy-aic',
     ];
     assert.deepStrictEqual([...FRAMEWORK_SKILLS].sort(), [...expected].sort());
   });
@@ -1308,22 +1336,33 @@ describe('copyFrameworkScripts', () => {
 
   it('should overwrite existing scripts', () => {
     fs.mkdirSync(path.join(destDir, '.aicontext', 'scripts'), { recursive: true });
-    fs.writeFileSync(path.join(destDir, '.aicontext', 'scripts', 'pr-reviews.js'), 'old content');
+    fs.writeFileSync(path.join(destDir, '.aicontext', 'scripts', 'pr-reviews.cjs'), 'old content');
 
     copyFrameworkScripts(srcDir, destDir);
 
     assert.strictEqual(
-      fs.readFileSync(path.join(destDir, '.aicontext', 'scripts', 'pr-reviews.js'), 'utf8'),
-      'content of pr-reviews.js'
+      fs.readFileSync(path.join(destDir, '.aicontext', 'scripts', 'pr-reviews.cjs'), 'utf8'),
+      'content of pr-reviews.cjs'
     );
   });
 
   it('should skip missing source scripts gracefully', () => {
-    fs.unlinkSync(path.join(srcDir, '.aicontext', 'scripts', 'pr-resolve.js'));
+    fs.unlinkSync(path.join(srcDir, '.aicontext', 'scripts', 'pr-resolve.cjs'));
 
     copyFrameworkScripts(srcDir, destDir);
 
-    assert.strictEqual(fs.existsSync(path.join(destDir, '.aicontext', 'scripts', 'pr-reviews.js')), true);
+    assert.strictEqual(fs.existsSync(path.join(destDir, '.aicontext', 'scripts', 'pr-reviews.cjs')), true);
+    assert.strictEqual(fs.existsSync(path.join(destDir, '.aicontext', 'scripts', 'pr-resolve.cjs')), false);
+  });
+
+  it('should remove deprecated scripts from destination', () => {
+    fs.mkdirSync(path.join(destDir, '.aicontext', 'scripts'), { recursive: true });
+    fs.writeFileSync(path.join(destDir, '.aicontext', 'scripts', 'pr-reviews.js'), 'old');
+    fs.writeFileSync(path.join(destDir, '.aicontext', 'scripts', 'pr-resolve.js'), 'old');
+
+    copyFrameworkScripts(srcDir, destDir);
+
+    assert.strictEqual(fs.existsSync(path.join(destDir, '.aicontext', 'scripts', 'pr-reviews.js')), false);
     assert.strictEqual(fs.existsSync(path.join(destDir, '.aicontext', 'scripts', 'pr-resolve.js')), false);
   });
 });
@@ -1389,6 +1428,106 @@ describe('clearCache', () => {
 
   it('should not throw when cache file does not exist', () => {
     assert.doesNotThrow(() => clearCache());
+  });
+});
+
+describe('writeVersionCache', () => {
+  let tempDir;
+
+  beforeEach(() => {
+    tempDir = createTempDir();
+  });
+
+  afterEach(() => {
+    removeTempDir(tempDir);
+  });
+
+  it('should write cache with correct schema', () => {
+    const filePath = path.join(tempDir, 'version.json');
+    writeVersionCache(filePath, { cliVersion: '1.7.0', currentVersion: '1.6.0', latestVersion: '1.8.0' });
+
+    const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+    assert.strictEqual(data.cliVersion, '1.7.0');
+    assert.strictEqual(data.currentVersion, '1.6.0');
+    assert.strictEqual(data.latestVersion, '1.8.0');
+    assert.match(data.lastChecked, /^\d{4}-\d{2}-\d{2}$/);
+  });
+
+  it('should write null for missing versions', () => {
+    const filePath = path.join(tempDir, 'version.json');
+    writeVersionCache(filePath, { cliVersion: '1.7.0', currentVersion: null, latestVersion: null });
+
+    const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+    assert.strictEqual(data.cliVersion, '1.7.0');
+    assert.strictEqual(data.currentVersion, null);
+    assert.strictEqual(data.latestVersion, null);
+  });
+
+  it('should create parent directories', () => {
+    const filePath = path.join(tempDir, 'nested', 'dir', 'version.json');
+    writeVersionCache(filePath, { cliVersion: '1.7.0', currentVersion: '1.7.0', latestVersion: '1.7.0' });
+
+    const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+    assert.strictEqual(data.cliVersion, '1.7.0');
+  });
+});
+
+describe('version command writes cache to target dir', () => {
+  let tempDir;
+  const cliPath = path.join(__dirname, '..', 'bin', 'aicontext.js');
+
+  beforeEach(() => {
+    tempDir = createTempDir();
+  });
+
+  afterEach(() => {
+    removeTempDir(tempDir);
+  });
+
+  it('should write version.json when explicit path has .aicontext/', () => {
+    fs.mkdirSync(path.join(tempDir, '.aicontext'), { recursive: true });
+
+    execSync(`node ${cliPath} version ${tempDir}`, { stdio: 'pipe' });
+
+    const cacheFile = path.join(tempDir, '.aicontext', 'data', 'version.json');
+    assert.strictEqual(fs.existsSync(cacheFile), true);
+
+    const data = JSON.parse(fs.readFileSync(cacheFile, 'utf8'));
+    assert.strictEqual(data.cliVersion, VERSION);
+    assert.strictEqual(data.currentVersion, null);
+    assert.strictEqual(typeof data.latestVersion, 'string');
+    assert.match(data.lastChecked, /^\d{4}-\d{2}-\d{2}$/);
+  });
+
+  it('should include currentVersion when .aicontext/.version exists', () => {
+    const aiDir = path.join(tempDir, '.aicontext');
+    fs.mkdirSync(aiDir, { recursive: true });
+    fs.writeFileSync(path.join(aiDir, '.version'), '1.5.0');
+
+    execSync(`node ${cliPath} version ${tempDir}`, { stdio: 'pipe' });
+
+    const data = JSON.parse(fs.readFileSync(path.join(aiDir, 'data', 'version.json'), 'utf8'));
+    assert.strictEqual(data.currentVersion, '1.5.0');
+    assert.strictEqual(data.cliVersion, VERSION);
+  });
+
+  it('should not write cache when no path argument', () => {
+    if (fs.existsSync(CACHE_FILE)) fs.unlinkSync(CACHE_FILE);
+
+    execSync(`node ${cliPath} version`, { stdio: 'pipe' });
+
+    // The /tmp cache is from checkForUpdates (background), not checkVersion
+    const tmpData = JSON.parse(fs.readFileSync(CACHE_FILE, 'utf8'));
+    assert.ok(tmpData.timestamp, 'background cache should have timestamp field');
+    assert.strictEqual(tmpData.cliVersion, undefined, 'background cache should not have cliVersion');
+  });
+
+  it('should not write cache when .aicontext/ does not exist at target', () => {
+    // tempDir has no .aicontext/
+    execSync(`node ${cliPath} version ${tempDir}`, { stdio: 'pipe' });
+
+    const cacheFile = path.join(tempDir, '.aicontext', 'data', 'version.json');
+    assert.strictEqual(fs.existsSync(cacheFile), false);
   });
 });
 

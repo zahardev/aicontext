@@ -28,10 +28,10 @@ AI assistants forget everything between sessions. AIContext fixes this with four
 |---------|------|-------|
 | **Spec** | Requirements, decisions, non-goals — the "what" and "why" | `.aicontext/specs/` |
 | **Task** | Plan steps, progress, completion notes — the "how" | `.aicontext/tasks/` |
-| **Brief** | Accumulated technical knowledge across steps — session handoff | `.aicontext/data/brief/` |
+| **Task-Context** | Accumulated technical knowledge across steps — session handoff | `.aicontext/data/task-context/` |
 | **Worklog** | Spec and task status tracking | `.aicontext/worklog.md` |
 
-**Specs** and **Tasks** are committed to the repo — they're your project's decision history. **Briefs** are gitignored working memory for the AI, not for you — remove them once the feature is done.
+**Specs** and **Tasks** are committed to the repo — they're your project's decision history. **Task-context** files are gitignored working memory for the AI, not for you — remove them once the feature is done.
 
 ## More Workflows
 
@@ -54,7 +54,7 @@ Describe the fix in conversation → `/do-it` — creates a task step and implem
 
 ## Tips
 
-- **Configure lifecycle once.** Set `after_step` and `after_task` in `.aicontext/config.yml` (review, tests, commit, push). Review/tests use `partial | full | false | ask`; commit/push use `true | false | ask`. `ask` prompts upfront at `/run-step` / `/run-task`, then runs unattended.
+- **Configure lifecycle once.** Set `after_step` and `after_task` in `.aicontext/config.yml` (review, tests, commit, push). Review/tests use `normal | deep | false | ask`; commit/push use `true | false | ask`. `ask` prompts upfront at `/run-step` / `/run-task`, then runs unattended.
 - **Don't restart sessions unnecessarily.** The agent accumulates context across steps — restarting loses that. Use `/check-task` when you must restart.
 
 ## Customization
@@ -73,6 +73,6 @@ Describe the fix in conversation → `/do-it` — creates a task step and implem
 
 - `docs/skills.md` — full skill reference with descriptions
 - `docs/workflow.md` — detailed workflow guide
-- `docs/development-model.md` — how the spec/task/brief model works
+- `docs/development-model.md` — how the spec/task/task-context model works
 
 ---

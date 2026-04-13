@@ -7,6 +7,9 @@
 <!-- Optional: link to spec if this task is part of a larger feature -->
 [spec-{name}.md](../specs/spec-{name}.md)
 
+## Task Context:
+[context-{task-filename}.md](../data/task-context/context-{task-filename}.md)
+
 ## Objective:
 [Clear, concise description of what this task aims to accomplish]
 
