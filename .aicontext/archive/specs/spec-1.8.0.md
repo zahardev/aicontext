@@ -20,6 +20,15 @@ VSCode extension batches file reads in parallel. `start.md` delegated to `auto-s
 ### Version check is slow and fragile
 The `/start` update check reads `/tmp/aicontext-version-cache.json` (requires permission prompt), runs `aicontext version` CLI (spawns a process), and falls back to WebFetch — up to 5 tool calls and ~15 seconds. The `/tmp` path is shared across projects and requires explicit filesystem permission.
 
+### Unclear "brief" concept name hurts AI adoption
+"Brief" requires explanation — AIs and new users don't intuitively understand it means "working knowledge accumulated during a task." The term sounds like a summary you can skip. Result: AIs routinely skip reading and writing briefs, losing decision overrides and gotchas between sessions.
+
+### TDD plans batch all tests at the end
+AIs create plans that batch all implementation first, then add tests as a final step. This leads to tests that follow the implementation rather than defining expected behavior — defeating the purpose of TDD. The TDD rules exist in process.md but the planning guidelines don't reference them.
+
+### Project clutter from completed tasks
+Completed task files, task-context files, worklog entries, and draft files accumulate in `.aicontext/` over time. A project with 35 completed tasks has a cluttered `tasks/` folder where no file is active — AI wastes context scanning dead files, and humans can't find current work at a glance.
+
 ## Solution
 
 ### Version check is slow and fragile
@@ -39,6 +48,15 @@ Spell out the exact playbook file path in both `step-loop.md` and `run-task.md` 
 
 ### start.md skips project generation in VSCode
 Inline `auto-setup.md` into `start.md` with an explicit sequential gate. Deprecate and remove `auto-setup.md`.
+
+### Unclear "brief" concept name
+Replace "brief" with "task-context" across all framework files. "Task-context" is self-describing, aligns with the project name (AIContext), and sounds like prerequisite knowledge rather than an optional summary. Combine separate numbered read steps into a single "Read Context" step with a bullet list.
+
+### TDD plans batch all tests at the end
+Add a test discovery step to the planning flow: check if tests exist in the project, assess which plan steps are testable, and structure testable steps as test-first. Add a TDD check to review-task-plan as a safety net.
+
+### Project clutter from completed tasks
+A `/tidy-aic` skill that archives completed tasks and specs, deletes session artifacts, and moves done worklog entries to an archive file. One command, one confirmation, clean project state.
 
 ## Requirements
 
@@ -124,6 +142,37 @@ Inline `auto-setup.md` into `start.md` with an explicit sequential gate. Depreca
 
 *Implemented by: [1.8.0-explicit-review-playbook](../tasks/1.8.0-explicit-review-playbook.md)*
 
+### Brief → task-context rename
+- [x] Template renamed: `brief.template.md` → `task-context.template.md` with updated header/comments
+- [x] Folder renamed: `data/brief/` → `data/task-context/`
+- [x] File naming pattern: `context-{task-filename}.md`
+- [x] `.gitignore` entry updated (path + description)
+- [x] All concept references in rules, prompts, skills, and agents use "task-context"
+- [x] `docs/` files updated
+- [x] Prompts that load task-context as a separate numbered step use a combined single-step pattern
+- [x] `aicontext update` renames `data/brief/` → `data/task-context/` in existing projects (folder only, not files inside)
+
+*Implemented by: [1.8.0-brief-to-task-context](../tasks/1.8.0-brief-to-task-context.md)*
+
+### TDD-aware planning
+- [x] process.md planning guidelines include a TDD-aware planning rule: discover tests, assess testability per step, structure testable steps as test-first
+- [x] Rule recommends unit tests per step and integration tests as final verification when both patterns exist
+- [x] create-task, plan-tasks, and start-feature reference the new planning rule when generating plan steps
+- [x] review-task-plan flags plans where testable steps don't follow test-first structure
+
+*Implemented by: [1.8.0-tdd-planning-enforcement](../tasks/1.8.0-tdd-planning-enforcement.md)*
+
+### Project tidying (`/tidy-aic`)
+- [x] `.aicontext/archive/` with `tasks/`, `specs/`, and `worklog.md` — not gitignored by default
+- [x] Move task files marked `[x]` in worklog to `archive/tasks/`
+- [x] Delete session artifacts in `data/` subdirectories (task-context, code-reviews, pr-drafts, etc.)
+- [x] Move specs where all linked tasks are archived to `archive/specs/`
+- [x] Move completed worklog entries to `archive/worklog.md`, preserve In Progress and Ideas
+- [x] Summary totals + single confirmation before executing
+- [x] After `/finish-task`, suggest `/tidy-aic` when >10 task files exist
+
+*Implemented by: [1.8.0-tidy-aic](../tasks/1.8.0-tidy-aic.md)*
+
 ## Decisions
 
 ### Local version cache
@@ -143,29 +192,53 @@ Inline `auto-setup.md` into `start.md` with an explicit sequential gate. Depreca
 - [tests] → Leave test files as `.js` — this project has no `"type": "module"`
 - [changelog] → Add entry under current version
 
-### PR workflow decisions
+### PR workflow
 - Mirror the `issue` config pattern — `save_to_file` + `create_in_github`, same two-stage ask UX, no CLI flag overrides
 - Reuse `gh-review-fix-loop.md` as-is with hardcoded 5 max cycles
 - Push dependency for PR creation — ask user rather than silently forcing or skipping
 - Resumable finish-task over separate close command — detection via completion notes + checked steps
 - Automation chains must be complete — review_loop without remote PR degrades gracefully (skip + ask)
 
+### Brief → task-context rename
+- Concept name "task-context" — specific, self-describing, aligns with project name. "Context" alone too overloaded in AI tooling.
+- File naming `context-{task-filename}.md` — folder path already provides "task-" prefix
+- Existing brief files left as-is — gitignored historical artifacts, renaming adds churn with no benefit
+- CLI migration folder only — `aicontext update` renames `data/brief/` → `data/task-context/` but not files inside
+
+### TDD planning
+- Rule in process.md, not duplicated in prompts — single source of truth
+- Plan-level only, not step-loop — if the plan says test-first, execution follows naturally
+- Unit/integration split is a recommendation, not a mandate
+- No config — conditional on tests existing in the project
+
+### Project tidying
+- Single `.aicontext/archive/` folder mirroring source structure — future-proof for new artifact types
+- Archive not gitignored — users control via their own `.gitignore`
+- Task-context deleted, not archived — stale working notes with zero post-completion value
+- No age threshold — all done items eligible; >10 file count gate prevents premature tidying
+- Worklog `[x]` entries as completion source, not task file internals
+
 ## Non-Goals
 
 - Renaming test files to `.cjs`
-- Renaming the config JSON file
 - Converting scripts to ESM
 - CLI flag overrides for `/draft-pr`
 - Configurable max cycles for review loop
 - Auto-merge after review loop passes
-- Changes to `gh-review-fix-loop.md` internals
+- Renaming files inside `data/brief/` (existing or in other projects)
+- Changing step-loop.md for TDD enforcement
+- Config toggles for what to archive
+- Automatic/scheduled tidy runs
 
 ## Tasks
 
-- [1.8.0-local-version-cache](../tasks/1.8.0-local-version-cache.md) — Local version cache: CLI writes + prompt rewrite + init/update seeding (complete)
-- [1.8.0-cjs-script-rename](../tasks/1.8.0-cjs-script-rename.md) — Rename PR scripts to .cjs, update all references, add update cleanup (complete)
-- [1.8.0-pr-workflow-integration](../tasks/1.8.0-pr-workflow-integration.md) — PR config, draft-pr rewrite, finish-task gates, resumable close (complete)
-- [1.8.0-start-parallel-read-fix](../tasks/1.8.0-start-parallel-read-fix.md) — Fix start.md parallel read skipping project generation (complete)
-- [1.8.0-explicit-review-playbook](../tasks/1.8.0-explicit-review-playbook.md) — Explicit review playbook paths in step-loop and run-task (complete)
-- [1.8.0-fix-negative-happy-path](../tasks/1.8.0-fix-negative-happy-path.md) — Fix "No" as happy-path label in start-feature and finish-task (complete)
-- [1.8.0-issue-id-flow](../tasks/1.8.0-issue-id-flow.md) — Three-option issue ID menu in create-task
+- ✓ [1.8.0-local-version-cache](../tasks/1.8.0-local-version-cache.md) — Local version cache: CLI writes + prompt rewrite + init/update seeding
+- ✓ [1.8.0-cjs-script-rename](../tasks/1.8.0-cjs-script-rename.md) — Rename PR scripts to .cjs, update all references, add update cleanup
+- ✓ [1.8.0-pr-workflow-integration](../tasks/1.8.0-pr-workflow-integration.md) — PR config, draft-pr rewrite, finish-task gates, resumable close
+- ✓ [1.8.0-start-parallel-read-fix](../tasks/1.8.0-start-parallel-read-fix.md) — Fix start.md parallel read skipping project generation
+- ✓ [1.8.0-explicit-review-playbook](../tasks/1.8.0-explicit-review-playbook.md) — Explicit review playbook paths in step-loop and run-task
+- ✓ [1.8.0-fix-negative-happy-path](../tasks/1.8.0-fix-negative-happy-path.md) — Fix "No" as happy-path label in start-feature and finish-task
+- ✓ [1.8.0-issue-id-flow](../tasks/1.8.0-issue-id-flow.md) — Three-option issue ID menu in create-task
+- ✓ [1.8.0-brief-to-task-context](../tasks/1.8.0-brief-to-task-context.md) — Rename brief → task-context across framework
+- ✓ [1.8.0-tdd-planning-enforcement](../tasks/1.8.0-tdd-planning-enforcement.md) — Add TDD-aware planning rule and prompt references
+- ✓ [1.8.0-tidy-aic](../tasks/1.8.0-tidy-aic.md) — /tidy-aic skill, prompt, and finish-task integration

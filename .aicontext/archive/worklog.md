@@ -2,13 +2,9 @@
 
 ## Done
 
-### [TDD Planning Enforcement](specs/spec-1.8.0-tdd-planning-enforcement.md) — April 13, 2026
+### [1.8.0](specs/spec-1.8.0.md) — April 13, 2026
 - [x] [1.8.0-tdd-planning-enforcement](tasks/1.8.0-tdd-planning-enforcement.md) — Add TDD-aware planning rule and prompt references
-
-### [Rename Brief to Task-Context](specs/spec-1.8.0-brief-to-task-context.md) — April 12, 2026
 - [x] [1.8.0-brief-to-task-context](tasks/1.8.0-brief-to-task-context.md) — Rename brief → task-context across framework
-
-### [1.8.0](specs/spec-1.8.0.md) — April 12, 2026
 - [x] [1.8.0-local-version-cache](tasks/1.8.0-local-version-cache.md) — Local version cache: CLI writes + prompt rewrite + init/update seeding
 - [x] [1.8.0-cjs-script-rename](tasks/1.8.0-cjs-script-rename.md) — Rename PR scripts to .cjs for ESM compatibility
 - [x] [1.8.0-explicit-review-playbook](tasks/1.8.0-explicit-review-playbook.md) — Explicit review playbook paths in step-loop and run-task
@@ -16,6 +12,7 @@
 - [x] [1.8.0-pr-workflow-integration](tasks/1.8.0-pr-workflow-integration.md) — PR config, draft-pr rewrite, finish-task gates, resumable close
 - [x] [1.8.0-start-parallel-read-fix](tasks/1.8.0-start-parallel-read-fix.md) — Fix start.md parallel read skipping project generation
 - [x] [1.8.0-issue-id-flow](tasks/1.8.0-issue-id-flow.md) — Three-option issue ID menu in create-task
+- [x] [1.8.0-tidy-aic](tasks/1.8.0-tidy-aic.md) — /tidy-aic skill, prompt, and finish-task integration
 
 ### [Draft Issue Improvements](specs/spec-1.7.0-draft-issue-improvements.md) — April 10, 2026
 - [x] [1.7.0-draft-issue-improvements](tasks/1.7.0-draft-issue-improvements.md) — Config, template extraction, GitHub creation, quality fixes
