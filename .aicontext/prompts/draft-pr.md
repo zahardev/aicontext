@@ -38,7 +38,7 @@ If `false`: skip file creation.
 
 ### GitHub PR
 
-If `pr.create_in_github` is `true`: write the body to a temp file, run `gh pr create --title "{title}" --body-file {tmp_file}`, show the URL, then delete the temp file.
+If `pr.create_in_github` is `true`: write the body to a temp file, run `gh pr create --base "{base_branch}" --title "{title}" --body-file {tmp_file}`, show the URL if successful, and always delete the temp file afterward.
 
 If `ask`: prompt the user:
 
@@ -47,7 +47,7 @@ If `ask`: prompt the user:
 > 2. No
 
 If yes:
-1. Create the PR via `gh pr create` and show the URL
+1. Create the PR via `gh pr create --base "{base_branch}"` and show the URL
 2. Ask: "Save this as default? (y/N)" — if y, set `pr.create_in_github: true` in `config.yml`
 3. If saved as true, follow up: "Still want to save draft files locally? (Y/n)" — if n, set `pr.save_to_file: false` in `config.yml`
 

@@ -6,7 +6,7 @@ Close out the current task: verify completion, sync spec, write completion notes
 
 Read and follow `identify-task.md` to find the active task.
 
-Load the task file, spec (if linked), and task-context (at `.aicontext/data/task-context/context-{task-filename}` if it exists). Skip any file already Read earlier in this conversation — rely on memory.
+Load the task file, spec (if linked), and task-context (at `.aicontext/data/task-context/context-{task-filename}.md` if it exists). Skip any file already Read earlier in this conversation — rely on memory.
 
 ## 2. Verify Completion
 

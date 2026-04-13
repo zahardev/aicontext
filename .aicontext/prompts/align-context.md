@@ -6,7 +6,7 @@ Update all context files to reflect the current state of work. Fix what's stale,
 
 Read and follow `identify-task.md` to find the active task.
 
-Read the task file and task-context (at `.aicontext/data/task-context/context-{task-filename}` if it exists). For the spec (if linked): if you already Read it earlier in this conversation, rely on that — don't re-Read. Otherwise Read it once (align-context needs a holistic view to catch cross-section conflicts).
+Read the task file and task-context (at `.aicontext/data/task-context/context-{task-filename}.md` if it exists). For the spec (if linked): if you already Read it earlier in this conversation, rely on that — don't re-Read. Otherwise Read it once (align-context needs a holistic view to catch cross-section conflicts).
 
 ## 2. Task File
 

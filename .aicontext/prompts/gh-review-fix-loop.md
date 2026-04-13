@@ -9,7 +9,7 @@ Automate the PR review cycle: fetch comments, triage, fix, push, wait for re-rev
 
 ## Before Starting
 
-Load the task file, spec (if linked), and task-context (at `.aicontext/data/task-context/context-{task-filename}` if it exists). Skip any file already Read earlier in this conversation — rely on memory.
+Load the task file, spec (if linked), and task-context (at `.aicontext/data/task-context/context-{task-filename}.md` if it exists). Skip any file already Read earlier in this conversation — rely on memory.
 
 Set `cycle = 1`, max cycles = 5.
 

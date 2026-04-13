@@ -12,7 +12,7 @@ Load all layers — skip any file already Read earlier in this conversation:
 
 - **Task file** — `.aicontext/tasks/{task-file}.md` (extract Spec link, task version, and plan progress)
 - **Spec** — if linked
-- **Task-context** — `.aicontext/data/task-context/context-{task-filename}` (e.g. task `1.6.0-dev-flow-v2.md` → `data/task-context/context-1.6.0-dev-flow-v2.md`)
+- **Task-context** — `.aicontext/data/task-context/context-{task-filename}.md` (e.g. task `1.6.0-dev-flow-v2.md` → `data/task-context/context-1.6.0-dev-flow-v2.md`)
 - **Source files** — those related to the task and the next pending step
 
 All reads feed the Surface step — do not skip any.

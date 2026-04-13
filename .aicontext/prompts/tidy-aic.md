@@ -45,8 +45,9 @@ If the user picks No, stop.
 3. Move spec files to `archive/specs/`
 4. Delete session artifacts (keep task-context files for active tasks)
 5. Move completed worklog entries to `archive/worklog.md`:
-   - Append full `## Done` section content (spec headings + task entries) to `archive/worklog.md`, creating the file if needed
-   - Append checked `## Standalone Tasks` entries to a `## Standalone Tasks` section in `archive/worklog.md`
+   - Ensure `archive/worklog.md` exists and contains `## Done` and `## Standalone Tasks` headings (create with both headings if missing)
+   - Append moved spec headings + task entries under the archive file's `## Done` section
+   - Append checked standalone task entries under the archive file's `## Standalone Tasks` section
    - Remove the moved content from `worklog.md` (keep the `## Done` and `## Standalone Tasks` headings, just empty them)
 6. Report what was done
 

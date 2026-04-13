@@ -4,7 +4,7 @@ Execute a single step from the current task plan.
 
 ## 1. Identify the Task
 
-Follow `identify-task.md` to find the active task. Then read the task file, spec (if linked), and task-context (if it exists at `.aicontext/data/task-context/context-{task-filename}`).
+Follow `identify-task.md` to find the active task. Then read the task file, spec (if linked), and task-context (if it exists at `.aicontext/data/task-context/context-{task-filename}.md`).
 
 ## 2. Find the Step
 
