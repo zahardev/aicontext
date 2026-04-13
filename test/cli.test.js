@@ -469,7 +469,7 @@ describe('version cache', () => {
 
 describe('FRAMEWORK_PROMPTS', () => {
   it('should contain exactly 40 framework prompt files', () => {
-    assert.strictEqual(FRAMEWORK_PROMPTS.length, 39);
+    assert.strictEqual(FRAMEWORK_PROMPTS.length, 40);
   });
 
   it('should contain the expected prompt files', () => {
@@ -478,7 +478,7 @@ describe('FRAMEWORK_PROMPTS', () => {
       'commit.md', 'create-task.md', 'deep-review.md', 'deep-review-criteria.md', 'do-it.md', 'draft-issue.md', 'ensure-config.md', 'identify-task.md',
       'draft-pr.md', 'finish-task.md', 'generate.md', 'gh-fix-tests.md', 'gh-review-fix-loop.md', 'next-step.md', 'plan-tasks.md',
       'gh-review-check.md', 'install-playwright-cli.md', 'prepare-release.md', 'review.md', 'review-criteria.md', 'detect-review-scope.md',
-      'brainstorm.md', 'check-update.md', 'interview.md', 'review-task-plan.md', 'run-step.md', 'run-task.md', 'start-feature.md', 'start.md', 'step-loop.md', 'test-writer.md', 'thoughts.md',
+      'brainstorm.md', 'check-update.md', 'interview.md', 'review-task-plan.md', 'run-step.md', 'run-task.md', 'start-feature.md', 'start.md', 'step-loop.md', 'test-writer.md', 'thoughts.md', 'tidy-aic.md',
     ];
     assert.deepStrictEqual([...FRAMEWORK_PROMPTS].sort(), [...expected].sort());
   });
@@ -800,15 +800,15 @@ describe('removeDeprecatedAgents', () => {
 });
 
 describe('FRAMEWORK_SKILLS', () => {
-  it('should contain exactly 30 skill names', () => {
-    assert.strictEqual(FRAMEWORK_SKILLS.length, 30);
+  it('should contain exactly 31 skill names', () => {
+    assert.strictEqual(FRAMEWORK_SKILLS.length, 31);
   });
 
   it('should contain the expected skills', () => {
     const expected = [
       'add-step', 'add-idea', 'create-task', 'start', 'start-feature', 'plan-tasks', 'check-task', 'review-task-plan', 'run-step', 'run-task', 'finish-task',
       'align-context', 'do-it', 'challenge', 'brainstorm', 'thoughts', 'interview', 'commit', 'review', 'deep-review', 'next-step', 'draft-pr', 'gh-review-check',
-      'draft-issue', 'prepare-release', 'gh-review-fix-loop', 'gh-fix-tests', 'web-inspect', 'aic-help', 'aic-skills',
+      'draft-issue', 'prepare-release', 'gh-review-fix-loop', 'gh-fix-tests', 'web-inspect', 'aic-help', 'aic-skills', 'tidy-aic',
     ];
     assert.deepStrictEqual([...FRAMEWORK_SKILLS].sort(), [...expected].sort());
   });

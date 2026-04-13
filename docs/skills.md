@@ -209,6 +209,11 @@ Prepares a version release. On first run, discovers project patterns and creates
 
 Browser-based investigation using playwright-cli. Opens pages in headed mode, inspects elements via snapshots, checks console errors, captures screenshots. Suggests installation if playwright-cli is not available.
 
+### `/tidy-aic`
+**Prompt:** `tidy-aic.md`
+
+Archives completed tasks and specs, deletes session artifacts (task-context, code reviews, drafts, research), and moves done worklog entries to `archive/worklog.md`. Shows a summary and asks for confirmation before executing. Suggested automatically after `/finish-task` when >10 task files exist.
+
 ## Framework Skills
 
 ### `/aic-help`

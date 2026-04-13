@@ -112,3 +112,7 @@ After the summary, append one handoff line based on worklog state:
 - If deferred → `Run /finish-task again after PR review to mark done.`
 - If the just-finished task's spec has other unchecked tasks in the worklog → `Spec '{Spec Name}' has more pending tasks. Next: '{next-task-name}'. Would you like to start it now?`
 - Otherwise (spec complete, or no spec) → `Start the next feature with /start-feature.`
+
+## 9. Tidy suggestion
+
+After the handoff line, count task files in `.aicontext/tasks/` (Glob `*.md`). If >10, append: `Project has N task files. Run /tidy-aic to archive completed ones.`
