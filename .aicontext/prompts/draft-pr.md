@@ -32,7 +32,7 @@ Follow `ensure-config.md` to read `pr.save_to_file` and `pr.create_in_github` fr
 
 ### Local file
 
-If `pr.save_to_file` is `true`: save the draft to `.aicontext/data/pr-drafts/` using the branch name as the filename (e.g. `feature-auth.md`). Tell the user the filename — do not output the PR body in chat unless asked.
+If `pr.save_to_file` is `true`: sanitize the branch name into a safe filename (replace `/` and other path-unsafe chars with `-`, e.g. `feature/auth` → `feature-auth.md`), then save to `.aicontext/data/pr-drafts/`. Tell the user the filename — do not output the PR body in chat unless asked.
 
 If `false`: skip file creation.
 
