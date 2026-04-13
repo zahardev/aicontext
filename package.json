@@ -1,6 +1,6 @@
 {
   "name": "@zahardev/aicontext",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "description": "Give your AI coding assistants persistent memory about your project. Works with any language (PHP, Python, JS, Rust, Go) and framework (Laravel, Django, Next.js, WordPress). Supports Claude Code, Codex, Cursor, and GitHub Copilot.",
   "keywords": [
     "ai",

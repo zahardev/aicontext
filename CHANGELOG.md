@@ -1,14 +1,28 @@
 # Changelog
 
-## [1.8.0] - 2026-04-12
+## [1.8.0] - 2026-04-13
+
+### Added
+- **`/tidy-aic` skill** — archives completed tasks and specs, deletes session artifacts, moves done worklog entries to `archive/`. Suggested automatically after `/finish-task` when the project accumulates completed tasks
+- **PR workflow gates** — `after_task.pr` and `after_task.review_loop` in config control whether `/finish-task` creates a PR and runs the review-fix loop. Deferred close lets you mark tasks done after external review
+- **PR config** — `pr.save_to_file` and `pr.create_in_github` settings prevent accidental GitHub PR creation
+- **TDD-aware planning** — AI checks for existing tests before writing plans, structures testable steps as test-first
+- **Issue ID flow** — `/create-task` offers to create a GitHub issue inline and auto-fills the issue number in the task filename
+- **Resumable `/finish-task`** — if task close is deferred (waiting for PR review), running `/finish-task` again detects the verified state and marks done
 
 ### Changed
 - **"Brief" renamed to "task-context"** — clearer name for the AI's working memory across sessions. Folder moved from `data/brief/` to `data/task-context/`, template renamed to `task-context.template.md`. `aicontext update` migrates existing projects automatically
-- Context loading in `check-task` flattened from numbered steps to a single gate — prevents AIs from skipping the task-context read
+- **Version check uses local cache** — reads `.aicontext/data/version.json` instead of `/tmp/` shared cache. Faster, no extra permission prompts. CLI seeds the cache during `init` and `update`
+- **Review playbook paths are explicit** — review prompts specify exact file paths, preventing wrong criteria from being used
+- **Review vocabulary renamed** — config uses `normal`/`deep` instead of `partial`/`full`. Old values auto-migrated
+- Specs and worklog are no longer gitignored in the distributed `.gitignore` — teams can track them in git
 
 ### Fixed
 - PR workflow scripts (`pr-reviews`, `pr-resolve`) renamed from `.js` to `.cjs` — fixes "require is not defined" errors in projects with `"type": "module"` in `package.json`
 - `aicontext update` now removes old `.js` script files automatically
+- `/start` no longer skips project generation in VSCode when file reads run in parallel
+- "No" was incorrectly used as the happy-path label in `/start-feature` and `/finish-task` confirmation prompts
+- `/prepare-release` changelog and README detection scoped to project root — prevents vendor/node_modules files from drowning out results
 
 ## [1.7.0] - 2026-04-10
 
