@@ -117,6 +117,16 @@ Update `worklog.md` — check off the task under its spec, or add to Standalone 
 
 ## Task Planning Guidelines
 
+### TDD-Aware Planning
+
+Before writing plan steps, check if the project has tests (glob for test files). If tests exist:
+
+1. **Assess each step** — is it testable? (Config changes, template edits, docs are not. Behavior-adding steps usually are.)
+2. **Testable steps follow test-first** — the step includes writing the test before the implementation, not as a separate step after.
+3. **Prefer unit tests per step, integration and E2E tests as final verification** when both patterns exist in the project.
+
+If the project has no tests, skip TDD and implement directly.
+
 ### Plans Must Describe WHAT, Not HOW
 
 Task steps describe what to build or change — behavior descriptions belong in the spec, implementation details are discovered during implementation.

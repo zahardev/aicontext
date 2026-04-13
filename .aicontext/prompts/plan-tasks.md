@@ -32,4 +32,4 @@ If existing tasks already cover some requirements, note which are already covere
 
 ## 4. Create Tasks
 
-After user confirms, create each task from `.aicontext/templates/task.template.md`. Derive plan steps from the spec requirements assigned to that task. Append each task to the spec's `## Tasks` section, and to the `*Implemented by:*` footer of any spec subsection(s) the task implements.
+After user confirms, create each task from `.aicontext/templates/task.template.md`. Derive plan steps from the spec requirements assigned to that task, following planning guidelines in `process.md`. Append each task to the spec's `## Tasks` section, and to the `*Implemented by:*` footer of any spec subsection(s) the task implements.
