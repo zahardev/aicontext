@@ -468,8 +468,8 @@ describe('version cache', () => {
 });
 
 describe('FRAMEWORK_PROMPTS', () => {
-  it('should contain exactly 40 framework prompt files', () => {
-    assert.strictEqual(FRAMEWORK_PROMPTS.length, 40);
+  it('should contain exactly 41 framework prompt files', () => {
+    assert.strictEqual(FRAMEWORK_PROMPTS.length, 41);
   });
 
   it('should contain the expected prompt files', () => {
@@ -477,7 +477,7 @@ describe('FRAMEWORK_PROMPTS', () => {
       'add-step.md', 'aic-help.md', 'aic-skills.md', 'align-context.md', 'challenge.md', 'check-task.md', 'close-step.md',
       'commit.md', 'create-task.md', 'deep-review.md', 'deep-review-criteria.md', 'do-it.md', 'draft-issue.md', 'ensure-config.md', 'identify-task.md',
       'draft-pr.md', 'finish-task.md', 'generate.md', 'gh-fix-tests.md', 'gh-review-fix-loop.md', 'next-step.md', 'plan-tasks.md',
-      'gh-review-check.md', 'install-playwright-cli.md', 'prepare-release.md', 'review.md', 'review-criteria.md', 'detect-review-scope.md',
+      'gh-review-check.md', 'install-playwright-cli.md', 'prepare-release.md', 'resolve-task-naming.md', 'review.md', 'review-criteria.md', 'detect-review-scope.md',
       'brainstorm.md', 'check-update.md', 'interview.md', 'review-task-plan.md', 'run-step.md', 'run-task.md', 'start-feature.md', 'start.md', 'step-loop.md', 'test-writer.md', 'thoughts.md', 'tidy-aic.md',
     ];
     assert.deepStrictEqual([...FRAMEWORK_PROMPTS].sort(), [...expected].sort());
@@ -1613,7 +1613,7 @@ describe('installConfig', () => {
     fs.mkdirSync(templateDir, { recursive: true });
     fs.writeFileSync(
       path.join(templateDir, 'config.template.yml'),
-      'after_step:\n  commit: ask\nafter_task:\n  commit: ask\n  push: ask\ncommit:\n  body: true\ntask_naming:\n  pattern: "{version}-{task-name}"\n'
+      'after_step:\n  commit: ask\nafter_task:\n  commit: ask\n  push: ask\ncommit:\n  body: true\ntask_naming:\n  pattern: "{version}-{task_name}"\n'
     );
   });
 

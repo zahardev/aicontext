@@ -48,3 +48,7 @@ After mapping, remove `after_task.deep_review` and `after_task.full_tests` from 
 | `full` | `deep` |
 
 Apply to `after_step.review`, `after_step.tests`, `after_task.review`, and `after_task.tests`. Rewrite the value in config and update the inline comment if present.
+
+### Task naming token (renamed in 1.9.0)
+
+If `task_naming.pattern` contains `{task-name}`, rewrite to `{task_name}` — the token was normalized to snake_case to match `{issue_id}` / `{version}` / `{date}`.

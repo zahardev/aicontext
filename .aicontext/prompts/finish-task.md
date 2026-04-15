@@ -98,7 +98,7 @@ When finish-task is invoked on a task that was previously deferred (completion n
 **You MUST output this summary — it proves the task closed cleanly.**
 
 ```
-Task {task-name} closed:
+Task {task_name} closed:
 - Plan steps: N/N complete
 - Task deliverables: N/N delivered (X deferred, Y revised)
 - Spec requirements: N/M delivered (X deferred, Y revised)

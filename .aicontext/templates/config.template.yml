@@ -49,10 +49,16 @@ project:
   base_branch: main             # used by /prepare-release, /draft-pr, /review branch
 
 task_naming:
-  pattern: "{version}-{task-name}"    # placeholders: {version}, {issue_id}, {task-name}
+  pattern: ask                # ask | literal template (tokens: {version}, {issue_id}, {date}, {task_name})
+    # ask: prompt with a 5-option menu (4 preset templates + custom) at each task creation.
+    #   Save-as-default writes the chosen template back here verbatim.
+    # Preset templates the menu offers:
+    #   "{version}-{task_name}"              e.g. 1.9.0-auth-refactor
+    #   "{version}-{issue_id}-{task_name}"   e.g. 1.9.0-42-auth-refactor
+    #   "{issue_id}-{task_name}"             e.g. 42-auth-refactor
+    #   "{date}-{task_name}"                 e.g. 2026-04-14-auth-refactor
   source: git-branch          # git-branch: extract from branch name | package-json: read version field | manual: ask user each time
   branch_pattern: "version/{version}"  # regex-like pattern for extracting version from branch name (only when source is git-branch)
-  # Example with issue ID: pattern: "{version}-{issue_id}-{task-name}"
 
 spec_naming:
   derive_from_task: true      # true: auto-generate as spec-{task prefix}-{name}.md

@@ -50,7 +50,9 @@ If the feature is a single cohesive piece, create one task without asking.
 
 Create all four — one spec, one or more tasks, one task-context per task, and worklog entries.
 
-**Spec** — `.aicontext/specs/spec-{task-filename}.md` from `spec.template.md`. Copy the interview's structured summary **verbatim** into `## Decisions`, then derive `## Requirements` and `## Non-Goals` from it. No file paths or implementation details.
+For each task being created, follow `resolve-task-naming.md` with `pattern` from config and the task's name slug to get its `{task-filename}`. The spec filename is derived from the first task's filename when multiple tasks are created.
+
+**Spec** — `.aicontext/specs/spec-{first-task-filename}.md` from `spec.template.md`. Copy the interview's structured summary **verbatim** into `## Decisions`, then derive `## Requirements` and `## Non-Goals` from it. No file paths or implementation details.
 
 **Task(s)** — `.aicontext/tasks/{task-filename}.md` from `task.template.md`. Append the task to each implementing spec subsection's `*Implemented by:*` footer and to the spec's `## Tasks` section.
 

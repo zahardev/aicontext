@@ -17,7 +17,7 @@ const FRAMEWORK_PROMPTS = [
   'commit.md', 'create-task.md', 'deep-review.md', 'deep-review-criteria.md', 'do-it.md', 'draft-issue.md', 'ensure-config.md', 'identify-task.md',
   'draft-pr.md', 'finish-task.md', 'generate.md', 'gh-fix-tests.md', 'gh-review-fix-loop.md', 'next-step.md', 'plan-tasks.md',
   'gh-review-check.md', 'install-playwright-cli.md', 'prepare-release.md', 'review.md', 'review-criteria.md', 'detect-review-scope.md',
-  'brainstorm.md', 'check-update.md', 'interview.md', 'review-task-plan.md', 'run-step.md', 'run-task.md', 'start-feature.md', 'start.md', 'step-loop.md', 'test-writer.md', 'thoughts.md', 'tidy-aic.md',
+  'brainstorm.md', 'check-update.md', 'interview.md', 'resolve-task-naming.md', 'review-task-plan.md', 'run-step.md', 'run-task.md', 'start-feature.md', 'start.md', 'step-loop.md', 'test-writer.md', 'thoughts.md', 'tidy-aic.md',
 ];
 const DEPRECATED_PROMPTS = ['check_plan.md', 'check_task.md', 'after_step.md', 'plan.md', 'task.md', 'start-task.md', 'diff-review.md', 'branch-review.md', 'standards-check.md', 'pr-review-check.md', 'check-plan.md', 'run-steps.md', 'review-plan.md', 'review-scope.md', 'update-check.md', 'auto-setup.md'];
 const FRAMEWORK_AGENTS = [
@@ -453,16 +453,6 @@ async function installConfig(packageRoot, target, skipConfirm = false) {
     if (!skipConfirm) {
       log('\nConfiguring project settings:', 'cyan');
       let content = fs.readFileSync(configDest, 'utf8');
-
-      // Task naming
-      const namingAnswer = await prompt('  Task naming pattern — 1) version-based (default), 2) with issue ID, 3) date-based: ');
-      if (namingAnswer === '2') {
-        content = setConfigValue(content, 'task_naming', 'pattern', '"{version}-{issue_id}-{task-name}"');
-      } else if (namingAnswer === '3') {
-        content = setConfigValue(content, 'task_naming', 'pattern', '"{date}-{task-name}"');
-        content = setConfigValue(content, 'task_naming', 'source', 'manual');
-      }
-      // Default (1 or empty) keeps the template values
 
       // Base branch — auto-detect, offer choices
       let detectedBranch = 'main';

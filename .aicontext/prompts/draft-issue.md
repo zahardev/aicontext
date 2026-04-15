@@ -45,4 +45,4 @@ If `false`: skip GitHub creation.
 
 ### After GitHub creation
 
-When an issue is created, note the issue number (e.g. `#42`) in your reply. Downstream prompts like `create-task.md` check the conversation for this number to auto-fill `{issue_id}` in `task_naming.pattern`.
+When an issue is created, note the issue number (e.g. `#42`) in your reply. `resolve-task-naming.md` checks the conversation for this number to auto-fill `{issue_id}` in `task_naming.pattern`.

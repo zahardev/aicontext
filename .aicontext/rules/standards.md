@@ -136,7 +136,7 @@ After a workflow prompt finishes (file creation, step close, task finish, review
 
 **Examples:**
 - After `/close-step` with unchecked steps remaining: `Run /next-step to continue.`
-- After `/finish-task` with pending tasks in the same spec: `Spec '{Spec Name}' has more pending tasks. Next: '{task-name}'. Would you like to start it now?`
+- After `/finish-task` with pending tasks in the same spec: `Spec '{Spec Name}' has more pending tasks. Next: '{task_name}'. Would you like to start it now?`
 - After a mid-task discussion surfaces new work: `/add-step to add it to the plan, or /do-it to add the step and execute immediately.`
 
 **Why:** workflow continuity. The AI holds the map; the user should never have to guess the next command. Next-action pointers are not tangents under Information Density — they are actionable and belong in the reply.

@@ -5,13 +5,7 @@ Crystallize the current discussion into a task file. Use when the discussion is 
 ## 1. Gather Context
 
 - Follow `ensure-config.md` to read project settings
-- Determine the task prefix using `task_naming.source` from the config (e.g., extract version from branch if `git-branch`, ask user if `manual`)
-- If the prefix is unclear, ask the user
-- If `task_naming.pattern` contains `{issue_id}`: check the current conversation for a GitHub issue number created via `/draft-issue`. If found, use it. Otherwise, ask:
-  > "Do you have a GitHub issue ID for this task?"
-  > 1. **Yes** — enter the issue number
-  > 2. **No — create one** — run `/draft-issue` first, then continue task creation with the new issue number
-  > 3. **No — skip** — create task without an issue (drop `{issue_id}` and its separator from the filename)
+- Derive a short task-name slug (lowercase-hyphenated) from the discussion — this is the `{task_name}` input for the resolver
 
 ## 2. Spec Handling
 
@@ -32,7 +26,7 @@ Ask the user:
 
 ## 3. Create Task File
 
-Create a task file in `.aicontext/tasks/` using the naming convention from the config and the template at `.aicontext/templates/task.template.md`:
+Follow `resolve-task-naming.md` with `pattern` from config and the task-name slug from step 1 to get the filename. Create the task file at `.aicontext/tasks/{filename}.md` from `.aicontext/templates/task.template.md`:
 
 - **Objective**: derive from the discussion — what this task aims to accomplish
 - **Spec link**: from step 2 (remove section if no spec)
