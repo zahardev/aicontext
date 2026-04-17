@@ -8,6 +8,8 @@ Read and follow `identify-task.md` to find the active task.
 
 Load the task file, spec (if linked), and task-context (at `.aicontext/data/task-context/context-{task-filename}.md` if it exists). Skip any file already Read earlier in this conversation — rely on memory.
 
+Follow `ensure-config.md`.
+
 ## 2. Verify Completion
 
 - Confirm all plan steps are checked. If any remain, ask: "Mark done anyway, or complete first?"
@@ -34,11 +36,7 @@ In the task file, fill in `## Completion Notes:` with:
 - Follow-up tasks that emerged
 - Key learnings
 
-## 5. Handle Git
-
-Follow `ensure-config.md` to read project settings. Read `after_task.commit`, `after_task.push`, `after_task.pr`, and `after_task.review_loop`.
-
-If invoked from `/run-task`, these are already resolved (ask-batching happened upfront). If invoked standalone and any value is `ask`, prompt the user inline before proceeding — use the same questions and options from `step-loop.md`'s "After task completion" table.
+## 5. Git
 
 ### Commit
 

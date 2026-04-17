@@ -25,7 +25,7 @@ node .aicontext/scripts/pr-reviews.cjs
 
 ### 2. Triage Each Comment
 
-Triage using the Review Response Rules table in `process.md`. Actions:
+Actions:
 - **Fix** — real issue with a clear code change
 - **Resolve** — false positive, incorrect, irrelevant, or already addressed
 - **Skip** — needs user input or human judgment

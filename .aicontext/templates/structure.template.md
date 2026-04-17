@@ -66,14 +66,18 @@ npm run db:seed        # Seed database
 
 ## Testing
 
-| Type | Location | Command |
-|------|----------|---------|
+| Type | Full | Affected |
+|------|------|----------|
 {{TEST_STRUCTURE}}
 
-<!-- Examples:
-| Unit | src/**/*.test.ts | npm test |
-| Integration | tests/integration/ | npm run test:integration |
-| E2E | tests/e2e/ | npm run test:e2e |
+<!-- Full:     command to run the entire type (required).
+     Affected: command for changed-files-only runs (optional). `{files}` = changed file paths.
+               If empty, falls back to appending test-looking files to the Full command.
+
+     | unit        | node --test test/*.test.js | node --test {files}            |
+     | unit        | jest                       | jest --findRelatedTests {files} |
+     | integration | pytest tests/integration/  |                                 |
+     | e2e         | playwright test            |                                 |
 -->
 
 ## Key Directories

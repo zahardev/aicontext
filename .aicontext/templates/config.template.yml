@@ -6,12 +6,37 @@
 
 # Lifecycle actions — what happens after each step and after task completion.
 #
-# Review / tests values: normal | deep | false | ask
-#   - normal:  scoped to this step's changes (review) or step-related tests
-#   - deep:    whole-branch diff with deep-review pass (review) or full test suite
+# Review values: normal | deep | false | ask
+#   - normal:  scoped to this step's changes
+#   - deep:    whole-branch diff with deep-review pass
 #   - false:   skip
 #   - ask:     prompt upfront at /run-step or /run-task entry
 #   Legacy aliases: partial = normal, full = deep (accepted, silently migrated)
+#
+# Tests values: type-aware. Type names come from structure.md's `## Testing` table.
+#   Grammar:
+#     <type>                      one type, default scope (affected at step, full at task)
+#                                   e.g. `unit` at step → unit-affected; at task → unit-full
+#     <type>-full                 one type, full scope (e.g. `unit-full`)
+#     <type>-affected             one type, affected scope (e.g. `unit-affected`)
+#     <type>|<type>               pipe-list; `-scope` binds per-segment, left-to-right
+#                                   e.g. `unit|integration-affected` = unit (default) + integration-affected
+#     all                         every type in the table, full scope (alias for `all-full`)
+#     all-full                    every type, full scope (explicit form)
+#     all-affected                every type, affected scope
+#     false                       skip
+#     ask                         prompt upfront at /run-step or /run-task entry
+#     <any other string>          literal shell command (escape hatch)
+#   Unknown type names error — the resolver lists the defined types and stops.
+#   Legacy aliases: normal/partial → <primary-type>-affected; deep/full → all (silently migrated)
+#
+# Affected-scope `{files}` token:
+#   The `Affected` column in structure.md's type table may contain `{files}`. The test-runner
+#   substitutes it with the changed-files list from the scoped corpus (working tree at step
+#   close, branch diff at task close) — raw paths, no src→test mapping. User commands decide
+#   how to consume them (e.g. `jest --findRelatedTests {files}` expects sources; `node --test
+#   {files}` expects test files). If Affected is empty, the runner falls back to appending
+#   test-looking changed files to the Full command.
 #
 # Commit / push values: true | false | ask
 #

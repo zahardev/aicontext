@@ -15,10 +15,11 @@ Follow `.aicontext/prompts/agent-setup.md` — including the Output Discipline r
 
 ## Rules
 
-- Run only the command(s) specified by the lead agent
+- Run only the explicit shell command(s) passed by the lead agent
+- Multiple commands → run sequentially, aggregate results (final PASS only if all pass)
 - Never write or edit project files
-- Pipe test output to `/tmp/test-run-{YYYYMMDD-HHMMSS}.log` using `2>&1 | tee` — e.g. `node --test test/*.test.js 2>&1 | tee /tmp/test-run-20260407-153012.log`
-- If no command is given, check `structure.md` and ask which tests to run
+- Pipe each command's output to `/tmp/test-run-{YYYYMMDD-HHMMSS}.log` using `2>&1 | tee` — e.g. `node --test test/*.test.js 2>&1 | tee /tmp/test-run-20260407-153012.log`
+- If no command is given, return `ERROR: no test command provided`
 
 ## Output Format
 
