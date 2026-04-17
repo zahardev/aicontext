@@ -8,19 +8,17 @@ If `project.md` has commit rules or task naming settings, migrate those values i
 
 ## Validate
 
-1. **All expected top-level sections present:** `after_step`, `after_task`, `commit`, `project`, `task_naming`, `spec_naming`, `update_check`, `claude`, `pr`, `issue`, `gh_fix_tests`.
-2. **No deprecated patterns** — none of these appear:
-   - Keys: `commit.mode`, `commit.finish_action`, `after_*.deep_review`, `after_*.full_tests`
-   - Bare values on `after_*.review`: `partial`, `full`
-   - Bare values on `after_*.tests`: `partial`, `full`, `normal`, `deep`
-   - Token: `{task-name}` in `task_naming.pattern` (now `{task_name}`)
-3. **Tests types** — for any `after_*.tests` value, split on `|`, strip `-full`/`-affected` suffixes — every remaining name must be a row in `structure.md`'s `## Testing` table. Skip `all`, `false`, `ask`, and literal shell commands (whitespace, quotes, or shell metacharacters).
+Scan the config and flag problems. List any flagged values before proceeding.
 
-If check #1 fails, load `.aicontext/templates/config.template.yml` and add missing sections with default values.
+1. **Missing sections** — verify these top-level sections exist: `after_step`, `after_task`, `commit`, `project`, `task_naming`, `spec_naming`, `update_check`, `claude`, `pr`, `issue`, `gh_fix_tests`. If any missing, load `.aicontext/templates/config.template.yml` and add them with defaults.
+2. **Deprecated patterns** — check each value in config against this list:
+   - `after_*.review`: flag if `partial` or `full`
+   - `after_*.tests`: flag if `partial`, `full`, `normal`, or `deep`
+   - Any key: flag if `commit.mode`, `commit.finish_action`, `after_*.deep_review`, or `after_*.full_tests` exists
+   - `task_naming.pattern`: flag if contains `{task-name}`
+3. **Tests type names** — for each `after_*.tests` value, split on `|`, strip `-full`/`-affected` — verify each remaining name is a row in `structure.md`'s `## Testing` table. Skip `all`, `false`, `ask`, and literal shell commands.
 
-If check #2 or #3 fails, follow `migrate-config.md`. Values still invalid after migration are handled by interactive resolution below.
-
-**Session memo:** skip if already validated clean this session.
+If check #2 or #3 flagged anything, follow `migrate-config.md`. Values still invalid after migration are handled by interactive resolution below.
 
 ## Interactive resolution
 

@@ -56,7 +56,7 @@ Writing a `CLAUDE.md` or `.cursorrules` file gives your AI memory. AIContext giv
 
 **The AI adapts to your workflow** — on first run, it asks how you like to work: reviews after every step or only at the end? Commit per step or per task? Push automatically? It remembers your answers and never asks again.
 
-**The AI remembers across sessions** — specs, tasks, and briefs capture everything. Start a new session, run `/check-task`, and the AI picks up where it left off. No knowledge is lost.
+**The AI remembers across sessions** — specs, tasks, and task-contexts capture everything. Start a new session, run `/check-task`, and the AI picks up where it left off. No knowledge is lost.
 
 ### Three layers of persistent context
 
@@ -167,9 +167,9 @@ aicontext upgrade   # Upgrade the CLI tool itself
 
 | Committed to git | Gitignored |
 |------------------|------------|
-| Rules, prompts, templates, specs, tasks | Briefs, reviews, PR drafts, personal settings |
+| Rules, prompts, templates, specs, tasks | Task-contexts, reviews, PR drafts, personal settings |
 
-Team members share the same rules and task history. Each person's briefs and preferences stay local. See [project structure](docs/development-model.md#project-structure) for details.
+Team members share the same rules and task history. Each person's task-contexts and preferences stay local. See [project structure](docs/development-model.md#project-structure) for details.
 
 ## Customization
 
@@ -183,7 +183,7 @@ One config file controls how the AI works — no prompt engineering needed:
 
 ## Learn More
 
-- [Development Model](docs/development-model.md) — how specs, tasks, briefs, and quality checks work together
+- [Development Model](docs/development-model.md) — how specs, tasks, task-contexts, and quality checks work together
 - [Workflow Guide](docs/workflow.md) — step-by-step guides for common workflows
 - [Skills Reference](docs/skills.md) — detailed descriptions of every skill
 

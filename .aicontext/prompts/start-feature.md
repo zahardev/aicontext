@@ -56,7 +56,7 @@ For each task being created, follow `resolve-task-naming.md` with `pattern` from
 
 **Task(s)** — `.aicontext/tasks/{task-filename}.md` from `task.template.md`. Append the task to each implementing spec subsection's `*Implemented by:*` footer and to the spec's `## Tasks` section.
 
-**Task-context(s)** — `.aicontext/data/task-context/context-{task-filename}.md` from `task-context.template.md`. If Step 1 exploration surfaced non-obvious codebase patterns, add them to `## Codebase Patterns` prefixed `[Step 0]`.
+**Task-context(s)** — `.aicontext/data/task-context/context-{task-filename}.md` from `task-context.template.md`. If Step 1 exploration surfaced non-obvious codebase patterns, add them to `## Codebase Patterns` prefixed `[Step 0]` with concrete `file:line` anchors (e.g. `[Step 0] config.yml:12 — task_naming validated by ensure-config before use`).
 
 **Worklog** — append to `.aicontext/worklog.md` under `## In Progress`. If a `### [Spec Title](specs/{spec-filename}.md)` heading exists, append task lines under it; otherwise create one. One `- [ ] [{task-version}](tasks/{task-filename}.md) — {short description}` line per task.
 
