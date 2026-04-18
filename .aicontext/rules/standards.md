@@ -83,6 +83,7 @@ When asking closed questions (2-4 discrete options), check `claude.question_styl
 ## Recommended Tools
 
 - **Web UI investigation**: When the user asks about visual issues, layout problems, or needs browser-based debugging, suggest `/web-inspect` (or `use web-inspect`) if `playwright-cli` is not already in use. It provides headed browser automation for inspecting pages, checking console errors, and capturing screenshots.
+- **Skill precedence**: When a task matches a registered skill, invoke the skill — do not bypass it with direct tool calls based on trained knowledge. Skills encode project-specific behavior that general knowledge doesn't capture.
 
 ## AI Response & Behavior Rules
 

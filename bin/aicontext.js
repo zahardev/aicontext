@@ -326,6 +326,82 @@ function setAgentModel(target, model) {
   }
 }
 
+function selfHealMissingFiles(packageRoot, target, presentAssistants) {
+  let healed = 0;
+
+  // Prompts (shared)
+  const promptSrcDir = path.join(packageRoot, '.aicontext', 'prompts');
+  const promptDestDir = path.join(target, '.aicontext', 'prompts');
+  for (const file of FRAMEWORK_PROMPTS) {
+    const src = path.join(promptSrcDir, file);
+    const dest = path.join(promptDestDir, file);
+    if (fs.existsSync(src) && !fs.existsSync(dest)) {
+      fs.copyFileSync(src, dest);
+      log(`  Restored: prompts/${file}`, 'yellow');
+      healed++;
+    }
+  }
+
+  // Scripts (shared)
+  const scriptSrcDir = path.join(packageRoot, '.aicontext', 'scripts');
+  const scriptDestDir = path.join(target, '.aicontext', 'scripts');
+  for (const file of FRAMEWORK_SCRIPTS) {
+    const src = path.join(scriptSrcDir, file);
+    const dest = path.join(scriptDestDir, file);
+    if (fs.existsSync(src) && !fs.existsSync(dest)) {
+      fs.mkdirSync(scriptDestDir, { recursive: true });
+      fs.copyFileSync(src, dest);
+      log(`  Restored: scripts/${file}`, 'yellow');
+      healed++;
+    }
+  }
+
+  // Per-assistant files
+  for (const name of presentAssistants) {
+    if (name === 'claude') {
+      const agentSrcDir = path.join(packageRoot, '.claude', 'agents');
+      const agentDestDir = path.join(target, '.claude', 'agents');
+      for (const file of FRAMEWORK_AGENTS) {
+        const src = path.join(agentSrcDir, file);
+        const dest = path.join(agentDestDir, file);
+        if (fs.existsSync(src) && !fs.existsSync(dest)) {
+          fs.mkdirSync(agentDestDir, { recursive: true });
+          fs.copyFileSync(src, dest);
+          log(`  Restored: agents/${file}`, 'yellow');
+          healed++;
+        }
+      }
+      const skillSrcDir = path.join(packageRoot, '.claude', 'skills');
+      const skillDestDir = path.join(target, '.claude', 'skills');
+      for (const skill of FRAMEWORK_SKILLS) {
+        const src = path.join(skillSrcDir, skill, 'SKILL.md');
+        const dest = path.join(skillDestDir, skill, 'SKILL.md');
+        if (fs.existsSync(src) && !fs.existsSync(dest)) {
+          fs.mkdirSync(path.join(skillDestDir, skill), { recursive: true });
+          fs.copyFileSync(src, dest);
+          log(`  Restored: skills/${skill}/SKILL.md`, 'yellow');
+          healed++;
+        }
+      }
+    } else if (name === 'codex') {
+      const codexSrcDir = path.join(packageRoot, '.codex', 'skills');
+      const codexDestDir = path.join(target, '.codex', 'skills');
+      for (const skill of FRAMEWORK_CODEX_SKILLS) {
+        const src = path.join(codexSrcDir, skill, 'SKILL.md');
+        const dest = path.join(codexDestDir, skill, 'SKILL.md');
+        if (fs.existsSync(src) && !fs.existsSync(dest)) {
+          fs.mkdirSync(path.join(codexDestDir, skill), { recursive: true });
+          fs.copyFileSync(src, dest);
+          log(`  Restored: .codex/skills/${skill}/SKILL.md`, 'yellow');
+          healed++;
+        }
+      }
+    }
+  }
+
+  return healed;
+}
+
 function copyFrameworkPrompts(packageRoot, target, skipExisting = false) {
   const srcDir = path.join(packageRoot, '.aicontext', 'prompts');
   const destDir = path.join(target, '.aicontext', 'prompts');
@@ -740,7 +816,11 @@ async function init(targetDir, skipConfirm = false, keepPrompts = false, overrid
   log('');
 }
 
-async function update(targetDir, skipConfirm = false, keepPrompts = false, overrideAgents = false, overrideSkills = false) {
+async function update(targetDir, skipConfirm = false, keepPrompts = false, overrideAgents = false, overrideSkills = false, force = false) {
+  if (force) {
+    overrideAgents = true;
+    overrideSkills = true;
+  }
   const target = path.resolve(targetDir || '.');
   const packageRoot = getPackageRoot();
   const versionFile = path.join(target, '.aicontext', '.version');
@@ -771,11 +851,19 @@ async function update(targetDir, skipConfirm = false, keepPrompts = false, overr
   if (currentVersion === VERSION) {
     const shouldReCopy = (overrideAgents || overrideSkills) && presentAssistants.length > 0;
     if (!shouldReCopy) {
-      log(`Already up to date (v${VERSION}).`, 'green');
+      const healed = selfHealMissingFiles(packageRoot, target, presentAssistants);
+      if (healed > 0) {
+        log(`\nAlready up to date (v${VERSION}). Restored ${healed} missing file(s).`, 'yellow');
+      } else {
+        log(`Already up to date (v${VERSION}).`, 'green');
+      }
       logMissingAssistantsHint(missingAssistants);
       return;
     }
     log(`Already up to date (v${VERSION}), re-copying...`, 'yellow');
+    if (force) {
+      copyFrameworkPrompts(packageRoot, target);
+    }
     const installOpts = { overrideAgents, overrideSkills, skipConfirm };
     for (const name of presentAssistants) {
       await ASSISTANTS[name].install(packageRoot, target, installOpts);
@@ -785,7 +873,7 @@ async function update(targetDir, skipConfirm = false, keepPrompts = false, overr
   }
 
   // Determine whether to overwrite existing prompts (new prompts are always added)
-  let overwritePrompts = !keepPrompts;
+  let overwritePrompts = force || !keepPrompts;
 
   // Ask a single bulk question when in fully interactive mode with no pre-set override flags
   let bulkOverride = false;
@@ -801,7 +889,7 @@ async function update(targetDir, skipConfirm = false, keepPrompts = false, overr
   }
 
   // If bulk question wasn't used, fall back to the per-prompts question
-  if (!bulkOverride && !keepPrompts && hasExistingPrompts(target) && !skipConfirm) {
+  if (!bulkOverride && !force && !keepPrompts && hasExistingPrompts(target) && !skipConfirm) {
     overwritePrompts = await promptYesNo(
       'Would you like to update the existing aicontext prompts? We recommend yes — ensures you have the latest features. (Y/n): '
     );
@@ -1159,6 +1247,7 @@ Options:
   --keep-prompts             Keep existing prompt files (don't overwrite)
   --override-agents          Override existing agent files without prompting
   --override-skills          Override existing skill files without prompting
+  --force                    Reset all framework files to defaults (prompts + agents + skills)
 
 Examples:
   npx aicontext init                  # Install to current directory
@@ -1184,6 +1273,7 @@ module.exports = {
   DEPRECATED_SKILLS,
   FRAMEWORK_SCRIPTS,
   DEPRECATED_SCRIPTS,
+  selfHealMissingFiles,
   copyRecursive,
   copyFrameworkPrompts,
   copyFrameworkAgents,
@@ -1223,7 +1313,8 @@ if (require.main === module) {
   const hasKeepPromptsFlag = args.includes('--keep-prompts');
   const hasOverrideAgentsFlag = args.includes('--override-agents');
   const hasOverrideSkillsFlag = args.includes('--override-skills');
-  const flagValues = ['--yes', '-y', '--keep-prompts', '--override-agents', '--override-skills'];
+  const hasForceFlag = args.includes('--force');
+  const flagValues = ['--yes', '-y', '--keep-prompts', '--override-agents', '--override-skills', '--force'];
   const targetPath = args.find((arg) => !flagValues.includes(arg) && arg !== command);
 
   async function main() {
@@ -1232,7 +1323,7 @@ if (require.main === module) {
         await init(targetPath, hasYesFlag, hasKeepPromptsFlag, hasOverrideAgentsFlag, hasOverrideSkillsFlag);
         break;
       case 'update':
-        await update(targetPath, hasYesFlag, hasKeepPromptsFlag, hasOverrideAgentsFlag, hasOverrideSkillsFlag);
+        await update(targetPath, hasYesFlag, hasKeepPromptsFlag, hasOverrideAgentsFlag, hasOverrideSkillsFlag, hasForceFlag);
         break;
       case 'add-assistant': {
         const nonFlagArgs = args.filter((arg) => !flagValues.includes(arg) && arg !== command);

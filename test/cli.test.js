@@ -16,6 +16,7 @@ const {
   FRAMEWORK_SKILLS,
   DEPRECATED_SKILLS,
   FRAMEWORK_SCRIPTS,
+  selfHealMissingFiles,
   copyRecursive,
   copyFrameworkPrompts,
   copyFrameworkAgents,
@@ -1107,6 +1108,152 @@ describe('update with agent override protection', () => {
     // Agent should be overridden despite version being current
     const content = fs.readFileSync(path.join(tempDir, '.claude', 'agents', 'reviewer.md'), 'utf8');
     assert.notStrictEqual(content, 'customized reviewer');
+  });
+});
+
+describe('selfHealMissingFiles', () => {
+  let tempDir;
+  let packageRoot;
+
+  beforeEach(async () => {
+    tempDir = createTempDir();
+    packageRoot = path.resolve(__dirname, '..');
+    await init(tempDir, true);
+  });
+
+  afterEach(() => {
+    removeTempDir(tempDir);
+  });
+
+  it('should restore a missing prompt', () => {
+    const promptPath = path.join(tempDir, '.aicontext', 'prompts', 'start.md');
+    fs.unlinkSync(promptPath);
+
+    const healed = selfHealMissingFiles(packageRoot, tempDir, ['claude']);
+    assert.ok(healed >= 1);
+    assert.strictEqual(fs.existsSync(promptPath), true);
+  });
+
+  it('should restore a missing agent', () => {
+    const agentPath = path.join(tempDir, '.claude', 'agents', 'reviewer.md');
+    fs.unlinkSync(agentPath);
+
+    const healed = selfHealMissingFiles(packageRoot, tempDir, ['claude']);
+    assert.ok(healed >= 1);
+    assert.strictEqual(fs.existsSync(agentPath), true);
+  });
+
+  it('should restore a missing skill', () => {
+    const skillPath = path.join(tempDir, '.claude', 'skills', 'web-inspect', 'SKILL.md');
+    fs.rmSync(path.join(tempDir, '.claude', 'skills', 'web-inspect'), { recursive: true });
+
+    const healed = selfHealMissingFiles(packageRoot, tempDir, ['claude']);
+    assert.ok(healed >= 1);
+    assert.strictEqual(fs.existsSync(skillPath), true);
+  });
+
+  it('should not overwrite existing files', () => {
+    const promptPath = path.join(tempDir, '.aicontext', 'prompts', 'start.md');
+    fs.writeFileSync(promptPath, 'user modified');
+
+    selfHealMissingFiles(packageRoot, tempDir, ['claude']);
+    assert.strictEqual(fs.readFileSync(promptPath, 'utf8'), 'user modified');
+  });
+
+  it('should return 0 when nothing is missing', () => {
+    const healed = selfHealMissingFiles(packageRoot, tempDir, ['claude']);
+    assert.strictEqual(healed, 0);
+  });
+});
+
+describe('update with --force', () => {
+  let tempDir;
+
+  beforeEach(async () => {
+    tempDir = createTempDir();
+    await init(tempDir, true);
+  });
+
+  afterEach(() => {
+    removeTempDir(tempDir);
+  });
+
+  it('should overwrite agents when force is true', async () => {
+    fs.writeFileSync(path.join(tempDir, '.claude', 'agents', 'reviewer.md'), 'customized');
+
+    await update(tempDir, true, false, false, false, true);
+
+    const content = fs.readFileSync(path.join(tempDir, '.claude', 'agents', 'reviewer.md'), 'utf8');
+    assert.notStrictEqual(content, 'customized');
+  });
+
+  it('should overwrite skills when force is true', async () => {
+    fs.writeFileSync(path.join(tempDir, '.claude', 'skills', 'start', 'SKILL.md'), 'customized');
+
+    await update(tempDir, true, false, false, false, true);
+
+    const content = fs.readFileSync(path.join(tempDir, '.claude', 'skills', 'start', 'SKILL.md'), 'utf8');
+    assert.notStrictEqual(content, 'customized');
+  });
+
+  it('should overwrite prompts when force is true', async () => {
+    fs.writeFileSync(path.join(tempDir, '.aicontext', 'prompts', 'start.md'), 'customized');
+
+    await update(tempDir, true, false, false, false, true);
+
+    const content = fs.readFileSync(path.join(tempDir, '.aicontext', 'prompts', 'start.md'), 'utf8');
+    assert.notStrictEqual(content, 'customized');
+  });
+});
+
+describe('update self-heals at same version', () => {
+  let tempDir;
+
+  beforeEach(async () => {
+    tempDir = createTempDir();
+    await init(tempDir, true);
+  });
+
+  afterEach(() => {
+    removeTempDir(tempDir);
+  });
+
+  it('should restore missing skill during same-version update', async () => {
+    const skillDir = path.join(tempDir, '.claude', 'skills', 'web-inspect');
+    fs.rmSync(skillDir, { recursive: true });
+
+    await update(tempDir, true);
+
+    assert.strictEqual(fs.existsSync(path.join(skillDir, 'SKILL.md')), true);
+  });
+
+  it('should restore missing agent during same-version update', async () => {
+    const agentPath = path.join(tempDir, '.claude', 'agents', 'reviewer.md');
+    fs.unlinkSync(agentPath);
+
+    await update(tempDir, true);
+
+    assert.strictEqual(fs.existsSync(agentPath), true);
+  });
+
+  it('should restore missing prompt during same-version update', async () => {
+    const promptPath = path.join(tempDir, '.aicontext', 'prompts', 'start.md');
+    fs.unlinkSync(promptPath);
+
+    await update(tempDir, true);
+
+    assert.strictEqual(fs.existsSync(promptPath), true);
+  });
+
+  it('should not overwrite existing files during same-version update', async () => {
+    fs.writeFileSync(path.join(tempDir, '.claude', 'agents', 'reviewer.md'), 'user content');
+
+    await update(tempDir, true);
+
+    assert.strictEqual(
+      fs.readFileSync(path.join(tempDir, '.claude', 'agents', 'reviewer.md'), 'utf8'),
+      'user content'
+    );
   });
 });
 
