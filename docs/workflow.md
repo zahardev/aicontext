@@ -65,7 +65,7 @@ When starting a new session on an existing task:
 
 **1. `/start`** — load project context.
 
-**2. `/check-task`** — the AI reads all three layers:
+**2. `/resume-task`** — the AI reads all three layers:
 - **Spec** — requirements, decisions, non-goals
 - **Task-context** — patterns, gotchas, and supersession log of any spec decisions overturned mid-task
 - **Task** — plan steps, what's checked off, what's next

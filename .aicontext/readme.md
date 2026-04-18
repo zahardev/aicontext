@@ -101,7 +101,7 @@ Subdirectories are created automatically by skills and scripts when needed.
 2. When the idea is ready to act on, use `/start-feature` (spec), `/create-task` (task), or `/add-step` (step) to formalize it, then remove the line from Ideas
 
 ### Working on a Task
-1. Paste `prompts/task.md` content (or use `/check-task` in Claude Code)
+1. Paste `prompts/task.md` content (or use `/resume-task` in Claude Code)
 2. Create/update task file in `tasks/` using `templates/task.template.md`
 3. Follow TDD process from `rules/process.md`
 4. After each step, use `prompts/after_step.md` (or `/next-step`) to reflect and continue
@@ -109,7 +109,7 @@ Subdirectories are created automatically by skills and scripts when needed.
 
 ### Reviewing Work
 1. Paste `prompts/review.md` (or use `/review`) for code review
-2. Paste `prompts/review-task-plan.md` (or use `/review-task-plan`) to validate plans
+2. Paste `prompts/review-task.md` (or use `/review-task`) to validate plans
 
 ### Pull Request Workflow (Claude Code / Codex)
 1. Use `/draft-pr` to draft a pull request from the task file and git changes
@@ -138,8 +138,8 @@ Skills automate common workflows. Both Claude Code (`.claude/skills/`) and Codex
 | Skill | Equivalent Prompt | Description |
 |-------|-------------------|-------------|
 | `start` | `prompts/start.md` | Confirm project readiness |
-| `check-task` | `prompts/task.md` | Analyze task before implementation |
-| `review-task-plan` | `prompts/review-task-plan.md` | Validate task plan for issues |
+| `resume-task` | `prompts/task.md` | Analyze task before implementation |
+| `review-task` | `prompts/review-task.md` | Validate task plan for issues |
 | `review` | `prompts/review.md` | Review code (scope: diff, branch, commit, path) |
 | `deep-review` | `prompts/deep-review.md` | Comprehensive architecture + correctness review |
 | `next-step` | — | Complete step, reflect, start next |

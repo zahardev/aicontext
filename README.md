@@ -56,7 +56,7 @@ Writing a `CLAUDE.md` or `.cursorrules` file gives your AI memory. AIContext giv
 
 **The AI adapts to your workflow** — on first run, it asks how you like to work: reviews after every step or only at the end? Commit per step or per task? Push automatically? It remembers your answers and never asks again.
 
-**The AI remembers across sessions** — specs, tasks, and task-contexts capture everything. Start a new session, run `/check-task`, and the AI picks up where it left off. No knowledge is lost.
+**The AI remembers across sessions** — specs, tasks, and task-contexts capture everything. Start a new session, run `/resume-task`, and the AI picks up where it left off. No knowledge is lost.
 
 ### Three layers of persistent context
 
@@ -89,7 +89,7 @@ Learn more in the [development model guide](docs/development-model.md).
 - Specialized reviewer agent runs in parallel without consuming your main conversation (Claude Code)
 
 ### Session continuity
-- `/check-task` — read spec, task-context, and task to resume exactly where you left off
+- `/resume-task` — read spec, task-context, and task to resume exactly where you left off
 - `/finish-task` — close out a task: sync spec, write completion notes, handle git
 - `/align-context` — sync all context files with current state
 

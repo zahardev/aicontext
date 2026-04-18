@@ -54,7 +54,7 @@ The task-context is the AI's working memory. After each step, the AI appends wha
 
 Entries are concise (1-2 lines), prefixed with `[Step N]`, and never deleted — only appended. Later entries take precedence.
 
-The task-context is gitignored but never auto-deleted. If you start a new session weeks later, `/check-task` reads the task-context and the AI picks up where it left off.
+The task-context is gitignored but never auto-deleted. If you start a new session weeks later, `/resume-task` reads the task-context and the AI picks up where it left off.
 
 **Created by:** `/run-task`, `/do-it`, `/align-context`
 **Updated by:** `/run-task` (after each step), `/do-it`, `/align-context`
@@ -82,7 +82,7 @@ The task-context is gitignored but never auto-deleted. If you start a new sessio
 ### Session Restart
 
 ```
-New session → /start → /check-task
+New session → /start → /resume-task
                            ↓
                     Reads: Spec → Task-Context → Task
                            ↓
@@ -97,7 +97,7 @@ New session → /start → /check-task
 
 Whenever the AI adds a requirement to the spec — during `/run-task`, `/do-it`, or `/align-context` — it immediately checks if the requirement is covered by a task step. If not, it proposes adding a step or creating a separate task.
 
-`/check-task` also runs a full drift scan as a safety net for changes made in prior sessions.
+`/resume-task` also runs a full drift scan as a safety net for changes made in prior sessions.
 
 ## Worklog
 

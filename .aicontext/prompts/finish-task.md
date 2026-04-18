@@ -10,7 +10,11 @@ Load the task file, spec (if linked), and task-context (at `.aicontext/data/task
 
 Follow `ensure-config.md`.
 
-## 2. Verify Completion
+## 2. Align Context
+
+Follow `align-context.md` sections 2–4 (task file, spec, task-context). Skip section 5 (worklog — handled in step 5 with an ask gate).
+
+## 3. Verify Completion
 
 - Confirm all plan steps are checked. If any remain, ask: "Mark done anyway, or complete first?"
 - **Task deliverables (hard block):** walk `## Deliverables:` (legacy: `## Requirements:`). Resolve every unchecked bullet via **Deliver** / **Defer** / **Revise** before proceeding. (Legacy: no section → skip + note.)
@@ -18,16 +22,7 @@ Follow `ensure-config.md`.
 
 See `process.md "Task Deliverables vs Spec Requirements"`.
 
-## 3. Sync Spec (does the spec need new content?)
-
-Step 2 verified existing spec requirements; this step *adds* new content the task-context surfaced during execution.
-
-Cross-reference the spec and task-context (both loaded in Step 1):
-- Are all task-context `Decision Overrides` entries applied to the spec? Each represents a spec revision — verify the spec reflects it.
-- Are there new non-goals to document?
-- Did the work surface *new* requirements for a future task to deliver?
-
-Update the spec if anything is missing. Mark the task complete in the spec's `## Tasks` section (`✓` or `(complete)` next to the task link).
+Mark the task complete in the spec's `## Tasks` section (`✓` or `(complete)` next to the task link).
 
 ## 4. Fill Completion Notes
 
@@ -36,7 +31,33 @@ In the task file, fill in `## Completion Notes:` with:
 - Follow-up tasks that emerged
 - Key learnings
 
-## 5. Git
+## 5. Update Worklog (conditional)
+
+Determine whether to mark done now or defer:
+
+Always ask the user before marking done:
+
+> Mark task as done?
+> 1. **Yes** — mark done in worklog
+> 2. **Not yet** — leave open
+- **Review loop enabled but no remote PR** (e.g. `pr.create_in_github: false` or PR not yet created): ask the user:
+  > "Task verified but no remote PR for review loop. Mark done now, or defer until after PR review?"
+  > 1. Mark done now
+  > 2. Defer — I'll run /finish-task again after PR review
+
+  If **defer**: skip worklog update, skip the completion summary's worklog line, and append to the summary: `"Task verified. Run /finish-task again after PR review to mark done."`
+
+### Marking done
+
+If `.aicontext/worklog.md` doesn't exist, create it from `.aicontext/templates/worklog.template.md`.
+
+Update `.aicontext/worklog.md`:
+- If the task's spec isn't listed yet, add it under the appropriate section (In Progress / Done)
+- Check off the task under its spec (`- [ ]` → `- [x]`)
+- If all tasks under a spec are checked, move the spec from "In Progress" to "Done" with the current date
+- If the task has no spec, add it under "Standalone Tasks" as checked with the current date
+
+## 6. Git
 
 ### Commit
 
@@ -54,41 +75,15 @@ If push is confirmed, delegate to `draft-pr.md`. The `pr.save_to_file` and `pr.c
 
 ### Review loop
 
-If `after_task.review_loop` resolved to Yes: check if a remote PR exists for the current branch (`gh pr view --json number 2>/dev/null`). If a PR exists, delegate to `gh-review-fix-loop.md`. If no remote PR exists (e.g. user creates PRs manually, or `pr.create_in_github: false`), skip — this is handled in Step 6 (deferred close). The user will create the PR manually, run the review loop or handle reviews themselves, then run `/finish-task` again to mark done.
-
-## 6. Update Worklog (conditional)
-
-Determine whether to mark done now or defer:
-
-Always ask the user before marking done:
-
-> Mark task as done?
-> 1. **Yes** — mark done in worklog
-> 2. **Not yet** — leave open
-- **Review loop enabled but couldn't run** (no remote PR — e.g. `pr.create_in_github: false` or PR not yet created): ask the user:
-  > "Task verified but no remote PR for review loop. Mark done now, or defer until after PR review?"
-  > 1. Mark done now
-  > 2. Defer — I'll run /finish-task again after PR review
-
-  If **defer**: skip worklog update, skip the completion summary's worklog line, and append to the summary: `"Task verified. Run /finish-task again after PR review to mark done."`
-
-### Marking done
-
-If `.aicontext/worklog.md` doesn't exist, create it from `.aicontext/templates/worklog.template.md`.
-
-Update `.aicontext/worklog.md`:
-- If the task's spec isn't listed yet, add it under the appropriate section (In Progress / Done)
-- Check off the task under its spec (`- [ ]` → `- [x]`)
-- If all tasks under a spec are checked, move the spec from "In Progress" to "Done" with the current date
-- If the task has no spec, add it under "Standalone Tasks" as checked with the current date
+If `after_task.review_loop` resolved to Yes: check if a remote PR exists for the current branch (`gh pr view --json number 2>/dev/null`). If a PR exists, delegate to `gh-review-fix-loop.md`. If no remote PR exists (e.g. user creates PRs manually, or `pr.create_in_github: false`), skip — this is handled in Step 5 (deferred close). The user will create the PR manually, run the review loop or handle reviews themselves, then run `/finish-task` again to mark done.
 
 ## 7. Resumed Run Detection
 
 When finish-task is invoked on a task that was previously deferred (completion notes are non-empty and all plan steps are checked), this is a resumed run:
 
 - Skip steps 1–4 (already done on first run)
-- Run step 5 (git gates — there may be new commits from review fixes)
-- Run step 6 — mark done silently (no ask, the user's `/finish-task` invocation is the signal)
+- Run step 5 (worklog — mark done silently, the user's `/finish-task` invocation is the signal)
+- Run step 6 (git — there may be new commits from review fixes)
 - Output the completion summary
 
 ## 8. Output Completion Summary
@@ -101,10 +96,10 @@ Task {task_name} closed:
 - Task deliverables: N/N delivered (X deferred, Y revised)
 - Spec requirements: N/M delivered (X deferred, Y revised)
 - Worklog: updated (or "deferred")
-- Git: {commit / push / PR / review loop results, or "skipped — step-level commits covered the task"}
+- Git: {commit / push / PR / review loop results, or "skipped — no uncommitted changes"}
 ```
 
-Step 2 resolves every warning before reaching this summary. Deferred/revised counts record the user's resolution choices — auditable. Reaching Step 8 with unresolved warnings is an error: return to Step 2.
+Step 3 resolves every warning before reaching this summary. Deferred/revised counts record the user's resolution choices — auditable. Reaching Step 8 with unresolved warnings is an error: return to Step 3.
 
 After the summary, append one handoff line based on worklog state:
 - If deferred → `Run /finish-task again after PR review to mark done.`

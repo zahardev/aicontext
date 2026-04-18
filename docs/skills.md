@@ -47,8 +47,8 @@ Executes all pending steps in the current task file automatically. One agent imp
 - After all steps: runs review and tests per `after_task` config
 - Stops on blockers, critical findings, or uncovered decisions
 
-### `/check-task`
-**Prompt:** `check-task.md`
+### `/resume-task`
+**Prompt:** `resume-task.md`
 
 Reads the three-layer context for the current task and surfaces resume state. Essential for starting a new session mid-task.
 
@@ -189,10 +189,10 @@ Loads project context and confirms readiness. Always run at the beginning of a s
 
 Completes the current step and starts the next one. Use for manual step-by-step execution (when not using `/run-task`).
 
-### `/review-task-plan`
-**Prompt:** `review-task-plan.md`
+### `/review-task`
+**Prompt:** `review-task.md`
 
-Validates the current task's plan for behavioral correctness, spec coverage, dependency order, and over-engineering.
+Validates the current task holistically — plan quality, spec coverage, deliverable alignment, and context consistency.
 
 ### `/draft-issue`
 **Prompt:** `draft-issue.md`

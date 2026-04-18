@@ -36,7 +36,7 @@ AI assistants forget everything between sessions. AIContext fixes this with four
 ## More Workflows
 
 **Resume mid-task (new session):**
-`/start` → `/check-task` → `/run-task` → `/finish-task`
+`/start` → `/resume-task` → `/run-task` → `/finish-task`
 
 **Quick fix (no spec needed):**
 Describe the fix in conversation → `/do-it` — creates a task step and implements it.
@@ -54,7 +54,7 @@ Describe the fix in conversation → `/do-it` — creates a task step and implem
 
 ## Tips
 
-- **Don't restart sessions unnecessarily.** The agent accumulates context across steps — restarting loses that. Use `/check-task` when you must restart.
+- **Don't restart sessions unnecessarily.** The agent accumulates context across steps — restarting loses that. Use `/resume-task` when you must restart.
 
 ## Customization
 
