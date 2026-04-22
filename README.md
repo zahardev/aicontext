@@ -24,7 +24,7 @@ cd /path/to/your-project
 aicontext init
 ```
 
-Then start a session: type `/start` (Claude Code) or `use start` (Codex, Cursor, Copilot). The AI will analyze your codebase and generate project context automatically.
+**Every session must begin with `/start`** (Claude Code) or `use start` (Codex, Cursor, Copilot). This loads your project context, rules, and workflow — without it, none of the other commands will work correctly. On first run, the AI will analyze your codebase and generate project context automatically.
 
 Run `/aic-help` (or `use aic-help`) for a guided tour of available workflows and best practices.
 
