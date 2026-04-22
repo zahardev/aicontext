@@ -194,6 +194,7 @@ One config file controls how the AI works — no prompt engineering needed:
 
 | Version | Highlights |
 |---------|------------|
+| **1.9.0** | Documentation generation (`/generate-docs`). Type-aware test config with per-type scoping. Self-healing updates and `--force` flag. Choose which AI tools to install. Clearer skill names (`/resume-task`, `/review-task`). |
 | **1.8.0** | PR workflow automation — config guards, review-fix loop, resumable close. Project tidying (`/tidy-aic`). TDD-aware planning. "Brief" → "task-context" rename. Local version cache. ESM compatibility fix. |
 | **1.7.0** | Adaptive workflow — the AI learns your preferences and stops asking. GitHub issue creation. Thinking tools (`/interview`, `/brainstorm`, `/thoughts`). Automated CI fix (`/gh-fix-tests`). Ideas backlog. Smarter interviews that recommend answers. |
 | **1.6.0** | The big workflow release — three-layer context (spec/task/task-context), structured planning, automated execution with review and test loops, PR automation, browser inspection with `/web-inspect`. |

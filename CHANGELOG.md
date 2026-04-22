@@ -1,5 +1,29 @@
 # Changelog
 
+## [1.9.0] - 2026-04-22
+
+### Added
+- **`/generate-docs` skill** — generate project documentation (reference, guide, or both) from code and AIContext artifacts. Runs via dedicated `docs-generator` subagent with parallel execution
+- **Type-aware test config** — `after_step.tests` and `after_task.tests` support per-type scoping (e.g., `unit-affected|e2e-full`). New `## Testing` type table in `structure.md` maps test types to commands. Discovery flow proposes the table on first run
+- **Task naming presets** — `task_naming.pattern: ask` shows a menu of preset templates on task creation with save-as-default. New `{date}` token. `git-branch` source auto-extracts version from branch name using configurable `branch_pattern`
+- **Self-heal for missing files** — `aicontext update` detects and restores deleted framework files (prompts, agents, skills, scripts, CLAUDE.md) without requiring a version bump
+- **`--force` flag** — `aicontext update --force` overwrites all framework files, useful after manual edits or corruption
+- **`aicontext add-assistant`** — new subcommand to add a single assistant folder (e.g., `aicontext add-assistant cursor`)
+- **Assistant multi-select** — `aicontext init` lets you choose which AI tool integrations to install
+- **`/start` shows AIContext version** — session readiness output includes the framework version when `.aicontext/.version` exists
+
+### Changed
+- **Centralized config resolution** — `ensure-config.md` is now the single gateway for all config reads, with automatic validation, migration of deprecated values, and interactive resolution of `ask` fields
+- **Skill renamed: `/check-task` → `/resume-task`** — clearer intent for session continuation
+- **Skill renamed: `/review-task-plan` → `/review-task`** — shorter, validates plan quality and spec coverage
+- **`/finish-task` reordered** — worklog update now happens before git operations so the commit includes the updated worklog
+- **Logo updated** — new tagline "Power AI to build features, not just write code"
+
+### Fixed
+- Update flow detects conflicting local installs and warns before upgrade
+- Self-heal restores prompts directory and `.claude/CLAUDE.md` when missing
+
+
 ## [1.8.0] - 2026-04-13
 
 ### Added
