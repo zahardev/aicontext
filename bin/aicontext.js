@@ -333,6 +333,7 @@ function selfHealMissingFiles(packageRoot, target, presentAssistants) {
   // Prompts (shared)
   const promptSrcDir = path.join(packageRoot, '.aicontext', 'prompts');
   const promptDestDir = path.join(target, '.aicontext', 'prompts');
+  fs.mkdirSync(promptDestDir, { recursive: true });
   for (const file of FRAMEWORK_PROMPTS) {
     const src = path.join(promptSrcDir, file);
     const dest = path.join(promptDestDir, file);
@@ -360,6 +361,15 @@ function selfHealMissingFiles(packageRoot, target, presentAssistants) {
   // Per-assistant files
   for (const name of presentAssistants) {
     if (name === 'claude') {
+      const claudeSrc = path.join(packageRoot, '.claude', 'CLAUDE.md');
+      const claudeDest = path.join(target, '.claude', 'CLAUDE.md');
+      if (fs.existsSync(claudeSrc) && !fs.existsSync(claudeDest)) {
+        fs.mkdirSync(path.dirname(claudeDest), { recursive: true });
+        fs.copyFileSync(claudeSrc, claudeDest);
+        log(`  Restored: .claude/CLAUDE.md`, 'yellow');
+        healed++;
+      }
+
       const agentSrcDir = path.join(packageRoot, '.claude', 'agents');
       const agentDestDir = path.join(target, '.claude', 'agents');
       for (const file of FRAMEWORK_AGENTS) {
