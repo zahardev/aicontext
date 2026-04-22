@@ -106,5 +106,8 @@ issue:
   save_to_file: true            # save draft to .aicontext/data/issue-drafts/ (true|false)
   create_in_github: ask         # create issue via gh CLI (true|false|ask)
 
+docs:
+  output_path: .aicontext/docs/   # where /generate-docs writes output (default: .aicontext/docs/)
+
 gh_fix_tests:
   push: true                    # true: /gh-fix-tests commits and pushes | false: commits only, caller pushes

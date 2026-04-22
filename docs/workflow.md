@@ -180,6 +180,12 @@ Depending on your `config.yml` settings (`issue.save_to_file` and `issue.create_
 
 Use `/deep-review all` to scan your entire codebase for systemic issues — duplication across 3+ files, complex functions, tight coupling, missing test coverage, inconsistent patterns, and architectural concerns. The AI presents findings as refactoring actions sorted by leverage, then offers to create GitHub issue drafts for the ones you want to address.
 
+### Generating Documentation
+
+Use `/generate-docs` to produce project documentation from code and existing artifacts. The AI asks which type to generate — reference (internal technical), guide (user-facing), or both — then scans the project for documentation sources and writes the output.
+
+Output goes to `docs.output_path` in `config.yml` (default: `.aicontext/docs/`). On first run, you're asked to choose the path. Re-running regenerates the document; use git to compare changes.
+
 ### Preparing a Release
 
 Use `/prepare-release` to prepare a version release. On first run, it discovers your project's version files, changelog, and release patterns, then creates a `.aicontext/release.md` config. Subsequent runs follow the config to update version numbers, write changelog entries, and prepare the release.

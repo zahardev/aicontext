@@ -152,6 +152,20 @@ Automates the full PR review cycle: fetch comments → triage → resolve false 
 
 Fixes failing CI on the current PR. Fetches failures via `gh run view --log-failed`, diagnoses root cause, fixes, pushes, and waits for CI green. Covers lint, type, build, and tests. Retries up to 3 times. Config: `gh_fix_tests.push` (default `true`).
 
+## Documentation Skills
+
+### `/generate-docs`
+**Prompt:** `generate-docs.md`
+
+Generates project documentation from code and existing artifacts. Asks which type to generate, then produces the document(s).
+
+- **Reference** (`reference.md`) — internal technical docs: architecture, configuration, decisions, features
+- **Guide** (`guide.md`) — user-facing usage docs: getting started, features, how-to
+- **Both** — generates both in parallel (Claude Code) or sequentially (other tools)
+- Discovers documentation sources in the project automatically — works with or without AIContext artifacts
+- Output path configured via `docs.output_path` in `config.yml` (default: `.aicontext/docs/`)
+- Full regenerate on re-run; adds `<!-- TODO -->` placeholders for gaps that need manual input
+
 ## Other Skills
 
 ### `/interview`

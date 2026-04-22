@@ -105,6 +105,9 @@ Learn more in the [development model guide](docs/development-model.md).
 - `/brainstorm` — generate missing angles, better implementations, and new combinations
 - `/thoughts` — quick "what do you think?" check-in for feedback mid-conversation
 
+### Documentation generation
+- `/generate-docs` — generate project documentation from code and existing artifacts (reference, guide, or both)
+
 ### Project maintenance
 - `/prepare-release` — generate changelog, update version numbers, and prepare a release commit
 - `/tidy-aic` — archive completed tasks and specs, clean up session artifacts, keep the project directory lean
