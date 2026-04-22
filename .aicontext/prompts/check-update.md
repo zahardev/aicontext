@@ -49,9 +49,8 @@ If the CLI is not available, stop silently — update checks require `aicontext`
 
 Read `cliVersion`, `currentVersion`, and `latestVersion` from the cache. Compare and offer the appropriate action:
 
-- **CLI outdated** (`cliVersion` < `latestVersion`): `aicontext upgrade`
+- **CLI outdated** (`cliVersion` < `latestVersion`): `aicontext upgrade`, then `aicontext update`
 - **Project outdated** (`currentVersion` < `cliVersion`): `aicontext update`
-- **Both outdated**: `aicontext upgrade`, then `aicontext update`
 - **Neither outdated** or versions missing: stop silently.
 
 > "AIContext update available: {description of what's outdated}. Would you like me to run the upgrade?"

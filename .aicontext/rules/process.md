@@ -53,7 +53,7 @@ Only the first category overlaps with the spec; the other three belong nowhere e
 
 **Checkbox timing:** `close-step` checks off only what a step delivered 100% unambiguously. `finish-task` walks task deliverables (unchecked = hard block) then spec requirements in linked subsections (unchecked = warning). Warnings resolve via one contract: **deliver** / **defer** / **revise**. Task deliverables are the gate; spec checkboxes are the consequence.
 
-**Spec drift:** `/check-task` runs `git log` (file-level) and AI semantic comparison (coverage) — both when possible. Git catches edits, semantic catches mismatches a git-untouched spec can still have.
+**Spec drift:** `/resume-task` runs `git log` (file-level) and AI semantic comparison (coverage) — both when possible. Git catches edits, semantic catches mismatches a git-untouched spec can still have.
 
 ## Context Discipline
 
@@ -164,20 +164,8 @@ Human verification belongs in task deliverables (as a checkbox gate the user tic
 
 ## Quality Checks
 
-Lifecycle actions (code review, tests, commit, push) are configured in `.aicontext/config.yml` under `after_step` and `after_task`. Review/tests take scope values (`normal | deep | false | ask`); commit/push take boolean values (`true | false | ask`). `ask` prompts upfront at `/run-step` or `/run-task` entry. Edit the config to customize your workflow.
+Lifecycle actions (review, tests, commit, push) are configured in `config.yml` under `after_step` and `after_task`. `ensure-config.md` handles validation, migration, and interactive resolution of these values.
 
-### Review Response Rules
-
-When a quality check returns findings, use this table to decide what to fix:
-
-| Severity | Effort | Action |
-|----------|--------|--------|
-| High | Any | Fix |
-| Medium | Low | Fix |
-| Medium | High | Fix |
-| Low | Low | Fix |
-| Low | High | Skip — note in task-context |
-| False positive | — | Resolve / dismiss |
 
 ## Checkbox Discipline
 

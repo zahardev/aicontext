@@ -47,8 +47,8 @@ Executes all pending steps in the current task file automatically. One agent imp
 - After all steps: runs review and tests per `after_task` config
 - Stops on blockers, critical findings, or uncovered decisions
 
-### `/check-task`
-**Prompt:** `check-task.md`
+### `/resume-task`
+**Prompt:** `resume-task.md`
 
 Reads the three-layer context for the current task and surfaces resume state. Essential for starting a new session mid-task.
 
@@ -152,6 +152,20 @@ Automates the full PR review cycle: fetch comments → triage → resolve false 
 
 Fixes failing CI on the current PR. Fetches failures via `gh run view --log-failed`, diagnoses root cause, fixes, pushes, and waits for CI green. Covers lint, type, build, and tests. Retries up to 3 times. Config: `gh_fix_tests.push` (default `true`).
 
+## Documentation Skills
+
+### `/generate-docs`
+**Prompt:** `generate-docs.md`
+
+Generates project documentation from code and existing artifacts. Asks which type to generate, then produces the document(s).
+
+- **Reference** (`reference.md`) — internal technical docs: architecture, configuration, decisions, features
+- **Guide** (`guide.md`) — user-facing usage docs: getting started, features, how-to
+- **Both** — generates both in parallel (Claude Code) or sequentially (other tools)
+- Discovers documentation sources in the project automatically — works with or without AIContext artifacts
+- Output path configured via `docs.output_path` in `config.yml` (default: `.aicontext/docs/`)
+- Full regenerate on re-run; adds `<!-- TODO -->` placeholders for gaps that need manual input
+
 ## Other Skills
 
 ### `/interview`
@@ -189,10 +203,10 @@ Loads project context and confirms readiness. Always run at the beginning of a s
 
 Completes the current step and starts the next one. Use for manual step-by-step execution (when not using `/run-task`).
 
-### `/review-task-plan`
-**Prompt:** `review-task-plan.md`
+### `/review-task`
+**Prompt:** `review-task.md`
 
-Validates the current task's plan for behavioral correctness, spec coverage, dependency order, and over-engineering.
+Validates the current task holistically — plan quality, spec coverage, deliverable alignment, and context consistency.
 
 ### `/draft-issue`
 **Prompt:** `draft-issue.md`

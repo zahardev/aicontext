@@ -16,6 +16,7 @@ const {
   FRAMEWORK_SKILLS,
   DEPRECATED_SKILLS,
   FRAMEWORK_SCRIPTS,
+  selfHealMissingFiles,
   copyRecursive,
   copyFrameworkPrompts,
   copyFrameworkAgents,
@@ -341,8 +342,8 @@ describe('update', () => {
     fs.writeFileSync(path.join(tempDir, '.aicontext', 'prompts', 'task.md'), 'old content');
 
     // Remove a new prompt to verify it gets recreated by update
-    const checkTaskPrompt = path.join(tempDir, '.aicontext', 'prompts', 'check-task.md');
-    if (fs.existsSync(checkTaskPrompt)) fs.unlinkSync(checkTaskPrompt);
+    const resumeTaskPrompt = path.join(tempDir, '.aicontext', 'prompts', 'resume-task.md');
+    if (fs.existsSync(resumeTaskPrompt)) fs.unlinkSync(resumeTaskPrompt);
 
     await update(tempDir, true);
 
@@ -354,7 +355,7 @@ describe('update', () => {
     assert.strictEqual(fs.existsSync(path.join(tempDir, '.aicontext', 'prompts', 'task.md')), false);
 
     // New prompts should be created by update
-    assert.strictEqual(fs.existsSync(checkTaskPrompt), true);
+    assert.strictEqual(fs.existsSync(resumeTaskPrompt), true);
   });
 
   it('should refresh version cache on update', async () => {
@@ -468,17 +469,17 @@ describe('version cache', () => {
 });
 
 describe('FRAMEWORK_PROMPTS', () => {
-  it('should contain exactly 40 framework prompt files', () => {
-    assert.strictEqual(FRAMEWORK_PROMPTS.length, 40);
+  it('should contain exactly 48 framework prompt files', () => {
+    assert.strictEqual(FRAMEWORK_PROMPTS.length, 48);
   });
 
   it('should contain the expected prompt files', () => {
     const expected = [
-      'add-step.md', 'aic-help.md', 'aic-skills.md', 'align-context.md', 'challenge.md', 'check-task.md', 'close-step.md',
+      'add-step.md', 'aic-help.md', 'aic-skills.md', 'align-context.md', 'challenge.md', 'close-step.md',
       'commit.md', 'create-task.md', 'deep-review.md', 'deep-review-criteria.md', 'do-it.md', 'draft-issue.md', 'ensure-config.md', 'identify-task.md',
-      'draft-pr.md', 'finish-task.md', 'generate.md', 'gh-fix-tests.md', 'gh-review-fix-loop.md', 'next-step.md', 'plan-tasks.md',
-      'gh-review-check.md', 'install-playwright-cli.md', 'prepare-release.md', 'review.md', 'review-criteria.md', 'detect-review-scope.md',
-      'brainstorm.md', 'check-update.md', 'interview.md', 'review-task-plan.md', 'run-step.md', 'run-task.md', 'start-feature.md', 'start.md', 'step-loop.md', 'test-writer.md', 'thoughts.md', 'tidy-aic.md',
+      'draft-pr.md', 'finish-task.md', 'generate.md', 'generate-docs.md', 'generate-guide.md', 'generate-reference.md', 'gh-fix-tests.md', 'gh-review-fix-loop.md', 'next-step.md', 'plan-tasks.md',
+      'gh-review-check.md', 'install-playwright-cli.md', 'prepare-release.md', 'resolve-task-naming.md', 'resolve-test-types.md', 'resolve-tests.md', 'review.md', 'review-criteria.md', 'detect-review-scope.md',
+      'brainstorm.md', 'check-update.md', 'interview.md', 'migrate-config.md', 'resolve-asks.md', 'resume-task.md', 'review-task.md', 'run-step.md', 'run-task.md', 'start-feature.md', 'start.md', 'step-loop.md', 'test-writer.md', 'thoughts.md', 'tidy-aic.md',
     ];
     assert.deepStrictEqual([...FRAMEWORK_PROMPTS].sort(), [...expected].sort());
   });
@@ -486,7 +487,7 @@ describe('FRAMEWORK_PROMPTS', () => {
 
 describe('DEPRECATED_PROMPTS', () => {
   it('should contain the old prompt file names', () => {
-    const expected = ['check_plan.md', 'check_task.md', 'after_step.md', 'plan.md', 'task.md', 'start-task.md', 'diff-review.md', 'branch-review.md', 'standards-check.md', 'pr-review-check.md', 'check-plan.md', 'run-steps.md', 'review-plan.md', 'review-scope.md', 'update-check.md', 'auto-setup.md'];
+    const expected = ['check_plan.md', 'check_task.md', 'check-task.md', 'review-task-plan.md', 'after_step.md', 'plan.md', 'task.md', 'start-task.md', 'diff-review.md', 'branch-review.md', 'standards-check.md', 'pr-review-check.md', 'check-plan.md', 'run-steps.md', 'review-plan.md', 'review-scope.md', 'update-check.md', 'auto-setup.md', 'resolve-task-lifecycle-asks.md'];
     assert.deepStrictEqual([...DEPRECATED_PROMPTS].sort(), [...expected].sort());
   });
 });
@@ -737,12 +738,13 @@ describe('update with keepPrompts', () => {
 });
 
 describe('FRAMEWORK_AGENTS', () => {
-  it('should contain exactly 4 agent files', () => {
-    assert.strictEqual(FRAMEWORK_AGENTS.length, 4);
+  it('should contain exactly 5 agent files', () => {
+    assert.strictEqual(FRAMEWORK_AGENTS.length, 5);
   });
 
   it('should contain the expected agent files', () => {
     const expected = [
+      'docs-generator.md',
       'researcher.md',
       'reviewer.md',
       'test-runner.md',
@@ -800,15 +802,15 @@ describe('removeDeprecatedAgents', () => {
 });
 
 describe('FRAMEWORK_SKILLS', () => {
-  it('should contain exactly 31 skill names', () => {
-    assert.strictEqual(FRAMEWORK_SKILLS.length, 31);
+  it('should contain exactly 32 skill names', () => {
+    assert.strictEqual(FRAMEWORK_SKILLS.length, 32);
   });
 
   it('should contain the expected skills', () => {
     const expected = [
-      'add-step', 'add-idea', 'create-task', 'start', 'start-feature', 'plan-tasks', 'check-task', 'review-task-plan', 'run-step', 'run-task', 'finish-task',
+      'add-step', 'add-idea', 'create-task', 'start', 'start-feature', 'plan-tasks', 'resume-task', 'review-task', 'run-step', 'run-task', 'finish-task',
       'align-context', 'do-it', 'challenge', 'brainstorm', 'thoughts', 'interview', 'commit', 'review', 'deep-review', 'next-step', 'draft-pr', 'gh-review-check',
-      'draft-issue', 'prepare-release', 'gh-review-fix-loop', 'gh-fix-tests', 'web-inspect', 'aic-help', 'aic-skills', 'tidy-aic',
+      'draft-issue', 'generate-docs', 'prepare-release', 'gh-review-fix-loop', 'gh-fix-tests', 'web-inspect', 'aic-help', 'aic-skills', 'tidy-aic',
     ];
     assert.deepStrictEqual([...FRAMEWORK_SKILLS].sort(), [...expected].sort());
   });
@@ -822,7 +824,7 @@ describe('FRAMEWORK_SKILLS', () => {
 
 describe('DEPRECATED_SKILLS', () => {
   it('should contain the old skill names', () => {
-    const expected = ['task', 'after-step', 'next', 'pr', 'start-task', 'diff-review', 'branch-review', 'standards-check', 'pr-review-check', 'check-plan', 'run-steps', 'review-plan'];
+    const expected = ['task', 'after-step', 'next', 'pr', 'start-task', 'diff-review', 'branch-review', 'standards-check', 'pr-review-check', 'check-plan', 'check-task', 'review-task-plan', 'run-steps', 'review-plan'];
     assert.deepStrictEqual([...DEPRECATED_SKILLS].sort(), [...expected].sort());
   });
 });
@@ -1110,6 +1112,152 @@ describe('update with agent override protection', () => {
   });
 });
 
+describe('selfHealMissingFiles', () => {
+  let tempDir;
+  let packageRoot;
+
+  beforeEach(async () => {
+    tempDir = createTempDir();
+    packageRoot = path.resolve(__dirname, '..');
+    await init(tempDir, true);
+  });
+
+  afterEach(() => {
+    removeTempDir(tempDir);
+  });
+
+  it('should restore a missing prompt', () => {
+    const promptPath = path.join(tempDir, '.aicontext', 'prompts', 'start.md');
+    fs.unlinkSync(promptPath);
+
+    const healed = selfHealMissingFiles(packageRoot, tempDir, ['claude']);
+    assert.ok(healed >= 1);
+    assert.strictEqual(fs.existsSync(promptPath), true);
+  });
+
+  it('should restore a missing agent', () => {
+    const agentPath = path.join(tempDir, '.claude', 'agents', 'reviewer.md');
+    fs.unlinkSync(agentPath);
+
+    const healed = selfHealMissingFiles(packageRoot, tempDir, ['claude']);
+    assert.ok(healed >= 1);
+    assert.strictEqual(fs.existsSync(agentPath), true);
+  });
+
+  it('should restore a missing skill', () => {
+    const skillPath = path.join(tempDir, '.claude', 'skills', 'web-inspect', 'SKILL.md');
+    fs.rmSync(path.join(tempDir, '.claude', 'skills', 'web-inspect'), { recursive: true });
+
+    const healed = selfHealMissingFiles(packageRoot, tempDir, ['claude']);
+    assert.ok(healed >= 1);
+    assert.strictEqual(fs.existsSync(skillPath), true);
+  });
+
+  it('should not overwrite existing files', () => {
+    const promptPath = path.join(tempDir, '.aicontext', 'prompts', 'start.md');
+    fs.writeFileSync(promptPath, 'user modified');
+
+    selfHealMissingFiles(packageRoot, tempDir, ['claude']);
+    assert.strictEqual(fs.readFileSync(promptPath, 'utf8'), 'user modified');
+  });
+
+  it('should return 0 when nothing is missing', () => {
+    const healed = selfHealMissingFiles(packageRoot, tempDir, ['claude']);
+    assert.strictEqual(healed, 0);
+  });
+});
+
+describe('update with --force', () => {
+  let tempDir;
+
+  beforeEach(async () => {
+    tempDir = createTempDir();
+    await init(tempDir, true);
+  });
+
+  afterEach(() => {
+    removeTempDir(tempDir);
+  });
+
+  it('should overwrite agents when force is true', async () => {
+    fs.writeFileSync(path.join(tempDir, '.claude', 'agents', 'reviewer.md'), 'customized');
+
+    await update(tempDir, true, false, false, false, true);
+
+    const content = fs.readFileSync(path.join(tempDir, '.claude', 'agents', 'reviewer.md'), 'utf8');
+    assert.notStrictEqual(content, 'customized');
+  });
+
+  it('should overwrite skills when force is true', async () => {
+    fs.writeFileSync(path.join(tempDir, '.claude', 'skills', 'start', 'SKILL.md'), 'customized');
+
+    await update(tempDir, true, false, false, false, true);
+
+    const content = fs.readFileSync(path.join(tempDir, '.claude', 'skills', 'start', 'SKILL.md'), 'utf8');
+    assert.notStrictEqual(content, 'customized');
+  });
+
+  it('should overwrite prompts when force is true', async () => {
+    fs.writeFileSync(path.join(tempDir, '.aicontext', 'prompts', 'start.md'), 'customized');
+
+    await update(tempDir, true, false, false, false, true);
+
+    const content = fs.readFileSync(path.join(tempDir, '.aicontext', 'prompts', 'start.md'), 'utf8');
+    assert.notStrictEqual(content, 'customized');
+  });
+});
+
+describe('update self-heals at same version', () => {
+  let tempDir;
+
+  beforeEach(async () => {
+    tempDir = createTempDir();
+    await init(tempDir, true);
+  });
+
+  afterEach(() => {
+    removeTempDir(tempDir);
+  });
+
+  it('should restore missing skill during same-version update', async () => {
+    const skillDir = path.join(tempDir, '.claude', 'skills', 'web-inspect');
+    fs.rmSync(skillDir, { recursive: true });
+
+    await update(tempDir, true);
+
+    assert.strictEqual(fs.existsSync(path.join(skillDir, 'SKILL.md')), true);
+  });
+
+  it('should restore missing agent during same-version update', async () => {
+    const agentPath = path.join(tempDir, '.claude', 'agents', 'reviewer.md');
+    fs.unlinkSync(agentPath);
+
+    await update(tempDir, true);
+
+    assert.strictEqual(fs.existsSync(agentPath), true);
+  });
+
+  it('should restore missing prompt during same-version update', async () => {
+    const promptPath = path.join(tempDir, '.aicontext', 'prompts', 'start.md');
+    fs.unlinkSync(promptPath);
+
+    await update(tempDir, true);
+
+    assert.strictEqual(fs.existsSync(promptPath), true);
+  });
+
+  it('should not overwrite existing files during same-version update', async () => {
+    fs.writeFileSync(path.join(tempDir, '.claude', 'agents', 'reviewer.md'), 'user content');
+
+    await update(tempDir, true);
+
+    assert.strictEqual(
+      fs.readFileSync(path.join(tempDir, '.claude', 'agents', 'reviewer.md'), 'utf8'),
+      'user content'
+    );
+  });
+});
+
 describe('hasExistingFrameworkFiles', () => {
   let tempDir;
 
@@ -1246,7 +1394,7 @@ describe('copyFrameworkSkills', () => {
     );
     // Other skills should be copied
     assert.strictEqual(
-      fs.existsSync(path.join(destDir, '.claude', 'skills', 'check-task', 'SKILL.md')),
+      fs.existsSync(path.join(destDir, '.claude', 'skills', 'resume-task', 'SKILL.md')),
       true
     );
   });
@@ -1292,7 +1440,7 @@ describe('copyFrameworkSkills', () => {
     await copyFrameworkSkills(srcDir, destDir);
 
     assert.strictEqual(fs.existsSync(path.join(destDir, '.claude', 'skills', 'start')), false);
-    assert.strictEqual(fs.existsSync(path.join(destDir, '.claude', 'skills', 'check-task', 'SKILL.md')), true);
+    assert.strictEqual(fs.existsSync(path.join(destDir, '.claude', 'skills', 'resume-task', 'SKILL.md')), true);
   });
 });
 
@@ -1613,7 +1761,7 @@ describe('installConfig', () => {
     fs.mkdirSync(templateDir, { recursive: true });
     fs.writeFileSync(
       path.join(templateDir, 'config.template.yml'),
-      'after_step:\n  commit: ask\nafter_task:\n  commit: ask\n  push: ask\ncommit:\n  body: true\ntask_naming:\n  pattern: "{version}-{task-name}"\n'
+      'after_step:\n  commit: ask\nafter_task:\n  commit: ask\n  push: ask\ncommit:\n  body: true\ntask_naming:\n  pattern: "{version}-{task_name}"\n'
     );
   });
 

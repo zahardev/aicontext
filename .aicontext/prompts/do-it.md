@@ -2,6 +2,8 @@
 
 Turn what was just discussed into a task step and implement it.
 
+Follow `ensure-config.md`.
+
 ## 1. Add Step
 
 Follow `add-step.md` through its Update Spec phase (sections 1-4). Skip its Confirm step — implementation follows below.

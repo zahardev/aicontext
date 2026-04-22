@@ -6,12 +6,37 @@
 
 # Lifecycle actions — what happens after each step and after task completion.
 #
-# Review / tests values: normal | deep | false | ask
-#   - normal:  scoped to this step's changes (review) or step-related tests
-#   - deep:    whole-branch diff with deep-review pass (review) or full test suite
+# Review values: normal | deep | false | ask
+#   - normal:  scoped to this step's changes
+#   - deep:    whole-branch diff with deep-review pass
 #   - false:   skip
 #   - ask:     prompt upfront at /run-step or /run-task entry
 #   Legacy aliases: partial = normal, full = deep (accepted, silently migrated)
+#
+# Tests values: type-aware. Type names come from structure.md's `## Testing` table.
+#   Grammar:
+#     <type>                      one type, default scope (affected at step, full at task)
+#                                   e.g. `unit` at step → unit-affected; at task → unit-full
+#     <type>-full                 one type, full scope (e.g. `unit-full`)
+#     <type>-affected             one type, affected scope (e.g. `unit-affected`)
+#     <type>|<type>               pipe-list; `-scope` binds per-segment, left-to-right
+#                                   e.g. `unit|integration-affected` = unit (default) + integration-affected
+#     all                         every type in the table, full scope (alias for `all-full`)
+#     all-full                    every type, full scope (explicit form)
+#     all-affected                every type, affected scope
+#     false                       skip
+#     ask                         prompt upfront at /run-step or /run-task entry
+#     <any other string>          literal shell command (escape hatch)
+#   Unknown type names error — the resolver lists the defined types and stops.
+#   Legacy aliases: normal/partial → <primary-type>-affected; deep/full → all (silently migrated)
+#
+# Affected-scope `{files}` token:
+#   The `Affected` column in structure.md's type table may contain `{files}`. The test-runner
+#   substitutes it with the changed-files list from the scoped corpus (working tree at step
+#   close, branch diff at task close) — raw paths, no src→test mapping. User commands decide
+#   how to consume them (e.g. `jest --findRelatedTests {files}` expects sources; `node --test
+#   {files}` expects test files). If Affected is empty, the runner falls back to appending
+#   test-looking changed files to the Full command.
 #
 # Commit / push values: true | false | ask
 #
@@ -49,10 +74,16 @@ project:
   base_branch: main             # used by /prepare-release, /draft-pr, /review branch
 
 task_naming:
-  pattern: "{version}-{task-name}"    # placeholders: {version}, {issue_id}, {task-name}
+  pattern: ask                # ask | literal template (tokens: {version}, {issue_id}, {date}, {task_name})
+    # ask: prompt with a 5-option menu (4 preset templates + custom) at each task creation.
+    #   Save-as-default writes the chosen template back here verbatim.
+    # Preset templates the menu offers:
+    #   "{version}-{task_name}"              e.g. 1.9.0-auth-refactor
+    #   "{version}-{issue_id}-{task_name}"   e.g. 1.9.0-42-auth-refactor
+    #   "{issue_id}-{task_name}"             e.g. 42-auth-refactor
+    #   "{date}-{task_name}"                 e.g. 2026-04-14-auth-refactor
   source: git-branch          # git-branch: extract from branch name | package-json: read version field | manual: ask user each time
   branch_pattern: "version/{version}"  # regex-like pattern for extracting version from branch name (only when source is git-branch)
-  # Example with issue ID: pattern: "{version}-{issue_id}-{task-name}"
 
 spec_naming:
   derive_from_task: true      # true: auto-generate as spec-{task prefix}-{name}.md
@@ -74,6 +105,9 @@ pr:
 issue:
   save_to_file: true            # save draft to .aicontext/data/issue-drafts/ (true|false)
   create_in_github: ask         # create issue via gh CLI (true|false|ask)
+
+docs:
+  output_path: .aicontext/docs/   # where /generate-docs writes output (default: .aicontext/docs/)
 
 gh_fix_tests:
   push: true                    # true: /gh-fix-tests commits and pushes | false: commits only, caller pushes

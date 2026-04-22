@@ -1,4 +1,4 @@
-# Check Task
+# Resume Task
 
 Read the three-layer context for the current task, then surface ambiguities and resume state.
 

@@ -25,7 +25,7 @@
 - [ ] [Requirement 2]
 - [x] [Requirement 3 — example of a delivered requirement]
 
-*Implemented by: [{version}-{task-name}](../tasks/{version}-{task-name}.md), [{version}-{other-task-name}](../tasks/{version}-{other-task-name}.md)*
+*Implemented by: [{version}-{task_name}](../tasks/{version}-{task_name}.md), [{version}-{other_task_name}](../tasks/{version}-{other_task_name}.md)*
 
 ## Decisions
 
@@ -47,4 +47,4 @@
 
 ## Tasks
 
-- [{version}-{task-name}.md](../tasks/{version}-{task-name}.md) — [Short description]
+- [{version}-{task_name}.md](../tasks/{version}-{task_name}.md) — [Short description]

@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/logo3.svg" alt="AIContext" width="500">
+  <img src="assets/logo4.svg" alt="AIContext" width="500">
 </p>
 
 <p align="center">
@@ -24,7 +24,7 @@ cd /path/to/your-project
 aicontext init
 ```
 
-Then start a session: type `/start` (Claude Code) or `use start` (Codex, Cursor, Copilot). The AI will analyze your codebase and generate project context automatically.
+**Every session must begin with `/start`** (Claude Code) or `use start` (Codex, Cursor, Copilot). This loads your project context, rules, and workflow — without it, none of the other commands will work correctly. On first run, the AI will analyze your codebase and generate project context automatically.
 
 Run `/aic-help` (or `use aic-help`) for a guided tour of available workflows and best practices.
 
@@ -56,7 +56,7 @@ Writing a `CLAUDE.md` or `.cursorrules` file gives your AI memory. AIContext giv
 
 **The AI adapts to your workflow** — on first run, it asks how you like to work: reviews after every step or only at the end? Commit per step or per task? Push automatically? It remembers your answers and never asks again.
 
-**The AI remembers across sessions** — specs, tasks, and briefs capture everything. Start a new session, run `/check-task`, and the AI picks up where it left off. No knowledge is lost.
+**The AI remembers across sessions** — specs, tasks, and task-contexts capture everything. Start a new session, run `/resume-task`, and the AI picks up where it left off. No knowledge is lost.
 
 ### Three layers of persistent context
 
@@ -89,7 +89,7 @@ Learn more in the [development model guide](docs/development-model.md).
 - Specialized reviewer agent runs in parallel without consuming your main conversation (Claude Code)
 
 ### Session continuity
-- `/check-task` — read spec, task-context, and task to resume exactly where you left off
+- `/resume-task` — read spec, task-context, and task to resume exactly where you left off
 - `/finish-task` — close out a task: sync spec, write completion notes, handle git
 - `/align-context` — sync all context files with current state
 
@@ -104,6 +104,9 @@ Learn more in the [development model guide](docs/development-model.md).
 - `/interview` — structured discovery on any topic — the AI walks dimensions, recommends answers, and captures decisions
 - `/brainstorm` — generate missing angles, better implementations, and new combinations
 - `/thoughts` — quick "what do you think?" check-in for feedback mid-conversation
+
+### Documentation generation
+- `/generate-docs` — generate project documentation from code and existing artifacts (reference, guide, or both)
 
 ### Project maintenance
 - `/prepare-release` — generate changelog, update version numbers, and prepare a release commit
@@ -167,9 +170,9 @@ aicontext upgrade   # Upgrade the CLI tool itself
 
 | Committed to git | Gitignored |
 |------------------|------------|
-| Rules, prompts, templates, specs, tasks | Briefs, reviews, PR drafts, personal settings |
+| Rules, prompts, templates, specs, tasks | Task-contexts, reviews, PR drafts, personal settings |
 
-Team members share the same rules and task history. Each person's briefs and preferences stay local. See [project structure](docs/development-model.md#project-structure) for details.
+Team members share the same rules and task history. Each person's task-contexts and preferences stay local. See [project structure](docs/development-model.md#project-structure) for details.
 
 ## Customization
 
@@ -183,7 +186,7 @@ One config file controls how the AI works — no prompt engineering needed:
 
 ## Learn More
 
-- [Development Model](docs/development-model.md) — how specs, tasks, briefs, and quality checks work together
+- [Development Model](docs/development-model.md) — how specs, tasks, task-contexts, and quality checks work together
 - [Workflow Guide](docs/workflow.md) — step-by-step guides for common workflows
 - [Skills Reference](docs/skills.md) — detailed descriptions of every skill
 
@@ -191,6 +194,7 @@ One config file controls how the AI works — no prompt engineering needed:
 
 | Version | Highlights |
 |---------|------------|
+| **1.9.0** | Documentation generation (`/generate-docs`). Type-aware test config with per-type scoping. Self-healing updates and `--force` flag. Choose which AI tools to install. Clearer skill names (`/resume-task`, `/review-task`). |
 | **1.8.0** | PR workflow automation — config guards, review-fix loop, resumable close. Project tidying (`/tidy-aic`). TDD-aware planning. "Brief" → "task-context" rename. Local version cache. ESM compatibility fix. |
 | **1.7.0** | Adaptive workflow — the AI learns your preferences and stops asking. GitHub issue creation. Thinking tools (`/interview`, `/brainstorm`, `/thoughts`). Automated CI fix (`/gh-fix-tests`). Ideas backlog. Smarter interviews that recommend answers. |
 | **1.6.0** | The big workflow release — three-layer context (spec/task/task-context), structured planning, automated execution with review and test loops, PR automation, browser inspection with `/web-inspect`. |

@@ -83,6 +83,7 @@ When asking closed questions (2-4 discrete options), check `claude.question_styl
 ## Recommended Tools
 
 - **Web UI investigation**: When the user asks about visual issues, layout problems, or needs browser-based debugging, suggest `/web-inspect` (or `use web-inspect`) if `playwright-cli` is not already in use. It provides headed browser automation for inspecting pages, checking console errors, and capturing screenshots.
+- **Skill precedence**: When a task matches a registered skill, invoke the skill — do not bypass it with direct tool calls based on trained knowledge. Skills encode project-specific behavior that general knowledge doesn't capture.
 
 ## AI Response & Behavior Rules
 
@@ -100,7 +101,7 @@ The numbered-batching format mitigates the original concern (users giving shallo
 - **Batch (default for independent questions):** Parallel dimensions whose answers don't depend on each other — root scoping ("scope? priority? constraints? success criteria?"), independent clarifications, parallel config choices. Number them (Q5, Q6, Q7) per `### Question Numbering` so the user can answer in one message.
 - **Atomic (when answers are dependent):** Each answer reshapes the next — drilling into a specific decision, follow-ups that depend on prior answers, ambiguity that blocks further questions. The test: would Q2 make sense without Q1's answer?
 - **Interviews (`interview`, `start-feature`):** Always breadth-first first — fire all root scoping questions in one numbered batch, collect answers, *then* drill atomically into whichever dimensions need depth. This prevents "drift to implementation after 2 answers" where the remaining root questions get skipped.
-- **Interview persistence:** An interview ends when no ambiguities remain or the user explicitly closes — not when they answer the first batch. If an answer opens new branches, keep questioning. Applies to `check-task`, `start-feature`, `interview`, `add-step`, `do-it`, and mid-task discussions.
+- **Interview persistence:** An interview ends when no ambiguities remain or the user explicitly closes — not when they answer the first batch. If an answer opens new branches, keep questioning. Applies to `resume-task`, `start-feature`, `interview`, `add-step`, `do-it`, and mid-task discussions.
 - **Self-raised concerns are questions.** When raising concerns about your own proposal: (1) hold all downstream output — no plans, edits, or "applying now" — until each concern has a user answer; (2) end each concern with a numbered question on its own line (`**Qn. …**`), never buried in trailing prose; (3) a labeled recommendation inside the exposition ("My pick: X because Y") is information, not a resolution — proceeding without an answer is the failure mode.
 - **Closed questions:** 2-4 discrete options follow `claude.question_style` in `config.yml` — see the `## Question UX` section above.
 - **Question numbering:** number sequentially across the entire conversation (never restart at 1); one question per number, keep the same number when answering to maintain the thread.
@@ -136,7 +137,7 @@ After a workflow prompt finishes (file creation, step close, task finish, review
 
 **Examples:**
 - After `/close-step` with unchecked steps remaining: `Run /next-step to continue.`
-- After `/finish-task` with pending tasks in the same spec: `Spec '{Spec Name}' has more pending tasks. Next: '{task-name}'. Would you like to start it now?`
+- After `/finish-task` with pending tasks in the same spec: `Spec '{Spec Name}' has more pending tasks. Next: '{task_name}'. Would you like to start it now?`
 - After a mid-task discussion surfaces new work: `/add-step to add it to the plan, or /do-it to add the step and execute immediately.`
 
 **Why:** workflow continuity. The AI holds the map; the user should never have to guess the next command. Next-action pointers are not tangents under Information Density — they are actionable and belong in the reply.

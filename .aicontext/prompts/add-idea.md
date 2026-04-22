@@ -29,7 +29,7 @@ Format: `- [type] description — context note`. Omit `[type]` or `— context n
 
 If `.aicontext/worklog.md` doesn't exist, create it from `.aicontext/templates/worklog.template.md`.
 
-Find the `## Ideas` section and append the line. *Legacy fallback:* if the section is absent (pre-1.7.0 worklog), insert the `## Ideas` block from `worklog.template.md` before `## Standalone Tasks`, or at file end.
+Find the `## Ideas` section and append the line. *Legacy fallback:* if the section is absent, insert the `## Ideas` block from `worklog.template.md` before `## Standalone Tasks`, or at file end.
 
 ## 5. Confirm
 

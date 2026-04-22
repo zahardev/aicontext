@@ -2,49 +2,30 @@
 
 Read project settings from `.aicontext/config.yml` (and `config.local.yml` if it exists — local overrides shared).
 
-If `config.yml` doesn't exist:
-1. Create it from `.aicontext/templates/config.template.yml` with defaults
-2. If `project.md` has existing commit rules or task naming settings, migrate those values into the new `config.yml` and remove the stale sections from `project.md`
-3. Tell the user: "Created config.yml with defaults. Edit `.aicontext/config.yml` to customize."
+If `config.yml` doesn't exist, create it from `.aicontext/templates/config.template.yml` with defaults.
 
-If `config.yml` exists but is missing sections or keys present in the template, add the missing entries with their default values.
+If `project.md` has commit rules or task naming settings, migrate those values into `config.yml` and remove the stale sections from `project.md`.
 
-## Deprecated keys
+## Validate
 
-Sweep these on every read. If any are present in `config.yml`, map to the new structure, remove the old keys, and note the one-time migration in your reply.
+Scan the config and flag problems. List any flagged values before proceeding.
 
-### Commit keys (removed in 1.7.0)
+1. **Missing sections** — verify these top-level sections exist: `after_step`, `after_task`, `commit`, `project`, `task_naming`, `spec_naming`, `update_check`, `claude`, `pr`, `issue`, `docs`, `gh_fix_tests`. If any missing, load `.aicontext/templates/config.template.yml` and add them with defaults.
+2. **Deprecated patterns** — check each value in config against this list:
+   - `after_*.review`: flag if `partial` or `full`
+   - `after_*.tests`: flag if `partial`, `full`, `normal`, or `deep`
+   - Any key: flag if `commit.mode`, `commit.finish_action`, `after_*.deep_review`, or `after_*.full_tests` exists
+   - `task_naming.pattern`: flag if contains `{task-name}`
+3. **Tests type names** — for each `after_*.tests` value, split on `|`, strip `-full`/`-affected` — verify each remaining name is a row in `structure.md`'s `## Testing` table. Skip `all`, `false`, `ask`, and literal shell commands.
 
-| Old key | New keys |
-|---|---|
-| `commit.mode: per-step` | `after_step.commit: true`, `after_task.commit: false` |
-| `commit.mode: per-task` | `after_step.commit: false`, `after_task.commit: true` |
-| `commit.mode: manual` | `after_step.commit: false`, `after_task.commit: false` |
-| `commit.finish_action: nothing` | `after_task.commit: false` |
-| `commit.finish_action: ask` | `after_task.commit: ask` |
-| `commit.finish_action: commit` | `after_task.commit: true` |
-| `commit.finish_action: commit+push` | `after_task.commit: true`, `after_task.push: true` |
+If check #2 or #3 flagged anything, follow `migrate-config.md`. Values still invalid after migration are handled by interactive resolution below.
 
-If both `commit.mode` and `commit.finish_action` are present, apply `commit.mode` first, then let `commit.finish_action` override `after_task.commit` / `after_task.push`. Strip both old keys once mapped.
+## Interactive resolution
 
-### Review/tests scope keys (unified in 1.7.0)
+Collect all `after_step.*` and `after_task.*` fields whose value is `ask` or still invalid after checks #2/#3 and migration above.
 
-| Old key | New key |
-|---|---|
-| `after_step.review: true` | `after_step.review: normal` |
-| `after_step.tests: true` | `after_step.tests: normal` |
-| `after_task.deep_review: true` | `after_task.review: deep` |
-| `after_task.deep_review: false` | `after_task.review: false` |
-| `after_task.full_tests: true` | `after_task.tests: deep` |
-| `after_task.full_tests: false` | `after_task.tests: false` |
+If any fields need input, follow `resolve-asks.md` with the collected field list. Intro line before the batch: *"A few workflow preferences to set:"*
 
-After mapping, remove `after_task.deep_review` and `after_task.full_tests` from config. The boolean `true` forms above migrate to `normal`/`deep` based on timing — `after_step.*` defaults to `normal`, `after_task.*` defaults to `deep`.
+**Session memo:** if a field was already resolved earlier in this session, reuse the prior answer without re-prompting.
 
-### Review/tests vocabulary (renamed in 1.8.0)
-
-| Old value | New value |
-|---|---|
-| `partial` | `normal` |
-| `full` | `deep` |
-
-Apply to `after_step.review`, `after_step.tests`, `after_task.review`, and `after_task.tests`. Rewrite the value in config and update the inline comment if present.
+Return the resolved config.

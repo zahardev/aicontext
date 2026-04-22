@@ -6,6 +6,8 @@ Execute a single step from the current task plan.
 
 Follow `identify-task.md` to find the active task. Then read the task file, spec (if linked), and task-context (if it exists at `.aicontext/data/task-context/context-{task-filename}.md`).
 
+Follow `ensure-config.md`.
+
 ## 2. Find the Step
 
 - If an argument is provided (e.g. `/run-step 3`), use that step number
@@ -14,4 +16,4 @@ Follow `identify-task.md` to find the active task. Then read the task file, spec
 
 ## 3. Execute
 
-Follow `.aicontext/prompts/step-loop.md`. It batches `after_step.*` `ask` entries upfront, then runs review, tests, commit, and step close per the resolved config.
+Follow `.aicontext/prompts/step-loop.md`. It runs review, tests, commit, and step close per the resolved config.

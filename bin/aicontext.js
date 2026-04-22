@@ -13,14 +13,15 @@ const NPM_PACKAGE = '@zahardev/aicontext';
 const CACHE_FILE = path.join(os.tmpdir(), 'aicontext-version-cache.json');
 const CACHE_TTL = 60 * 60 * 1000; // 1 hour in milliseconds
 const FRAMEWORK_PROMPTS = [
-  'add-step.md', 'aic-help.md', 'aic-skills.md', 'align-context.md', 'challenge.md', 'check-task.md', 'close-step.md',
+  'add-step.md', 'aic-help.md', 'aic-skills.md', 'align-context.md', 'challenge.md', 'close-step.md',
   'commit.md', 'create-task.md', 'deep-review.md', 'deep-review-criteria.md', 'do-it.md', 'draft-issue.md', 'ensure-config.md', 'identify-task.md',
   'draft-pr.md', 'finish-task.md', 'generate.md', 'gh-fix-tests.md', 'gh-review-fix-loop.md', 'next-step.md', 'plan-tasks.md',
   'gh-review-check.md', 'install-playwright-cli.md', 'prepare-release.md', 'review.md', 'review-criteria.md', 'detect-review-scope.md',
-  'brainstorm.md', 'check-update.md', 'interview.md', 'review-task-plan.md', 'run-step.md', 'run-task.md', 'start-feature.md', 'start.md', 'step-loop.md', 'test-writer.md', 'thoughts.md', 'tidy-aic.md',
+  'brainstorm.md', 'check-update.md', 'generate-docs.md', 'generate-guide.md', 'generate-reference.md', 'interview.md', 'migrate-config.md', 'resolve-asks.md', 'resolve-task-naming.md', 'resolve-test-types.md', 'resolve-tests.md', 'resume-task.md', 'review-task.md', 'run-step.md', 'run-task.md', 'start-feature.md', 'start.md', 'step-loop.md', 'test-writer.md', 'thoughts.md', 'tidy-aic.md',
 ];
-const DEPRECATED_PROMPTS = ['check_plan.md', 'check_task.md', 'after_step.md', 'plan.md', 'task.md', 'start-task.md', 'diff-review.md', 'branch-review.md', 'standards-check.md', 'pr-review-check.md', 'check-plan.md', 'run-steps.md', 'review-plan.md', 'review-scope.md', 'update-check.md', 'auto-setup.md'];
+const DEPRECATED_PROMPTS = ['check_plan.md', 'check_task.md', 'check-task.md', 'review-task-plan.md', 'after_step.md', 'plan.md', 'task.md', 'start-task.md', 'diff-review.md', 'branch-review.md', 'standards-check.md', 'pr-review-check.md', 'check-plan.md', 'run-steps.md', 'review-plan.md', 'review-scope.md', 'update-check.md', 'auto-setup.md', 'resolve-task-lifecycle-asks.md'];
 const FRAMEWORK_AGENTS = [
+  'docs-generator.md',
   'researcher.md',
   'reviewer.md',
   'test-runner.md',
@@ -28,19 +29,57 @@ const FRAMEWORK_AGENTS = [
 ];
 const DEPRECATED_AGENTS = ['pr-review-summarizer.md', 'deep-reviewer.md', 'standards-checker.md'];
 const FRAMEWORK_SKILLS = [
-  'add-step', 'add-idea', 'create-task', 'start', 'start-feature', 'plan-tasks', 'check-task', 'review-task-plan', 'run-step', 'run-task', 'finish-task',
+  'add-step', 'add-idea', 'create-task', 'start', 'start-feature', 'plan-tasks', 'resume-task', 'review-task', 'run-step', 'run-task', 'finish-task',
   'align-context', 'do-it', 'challenge', 'brainstorm', 'thoughts', 'interview', 'commit', 'review', 'deep-review', 'next-step', 'draft-pr', 'gh-review-check',
-  'draft-issue', 'prepare-release', 'gh-review-fix-loop', 'gh-fix-tests', 'web-inspect', 'aic-help', 'aic-skills', 'tidy-aic',
+  'draft-issue', 'generate-docs', 'prepare-release', 'gh-review-fix-loop', 'gh-fix-tests', 'web-inspect', 'aic-help', 'aic-skills', 'tidy-aic',
 ];
 const FRAMEWORK_CODEX_SKILLS = [
-  'add-step', 'add-idea', 'create-task', 'start', 'start-feature', 'plan-tasks', 'check-task', 'review-task-plan', 'run-step', 'run-task', 'finish-task',
+  'add-step', 'add-idea', 'create-task', 'start', 'start-feature', 'plan-tasks', 'resume-task', 'review-task', 'run-step', 'run-task', 'finish-task',
   'align-context', 'do-it', 'challenge', 'brainstorm', 'thoughts', 'interview', 'commit', 'review', 'deep-review', 'next-step', 'draft-pr', 'gh-review-check',
-  'draft-issue', 'prepare-release', 'gh-review-fix-loop', 'gh-fix-tests', 'web-inspect', 'aic-help', 'aic-skills', 'tidy-aic',
+  'draft-issue', 'generate-docs', 'prepare-release', 'gh-review-fix-loop', 'gh-fix-tests', 'web-inspect', 'aic-help', 'aic-skills', 'tidy-aic',
 ];
-const DEPRECATED_SKILLS = ['task', 'after-step', 'next', 'pr', 'start-task', 'diff-review', 'branch-review', 'standards-check', 'pr-review-check', 'check-plan', 'run-steps', 'review-plan'];
+const DEPRECATED_SKILLS = ['task', 'after-step', 'next', 'pr', 'start-task', 'diff-review', 'branch-review', 'standards-check', 'pr-review-check', 'check-plan', 'check-task', 'review-task-plan', 'run-steps', 'review-plan'];
 const FRAMEWORK_SCRIPTS = ['pr-reviews.cjs', 'pr-resolve.cjs'];
 const DEPRECATED_SCRIPTS = ['pr-reviews.js', 'pr-resolve.js'];
 const CONFIG_FILE = 'config.yml';
+
+const ASSISTANTS = {
+  claude: {
+    label: 'Claude Code',
+    folder: '.claude/',
+    detect: (target) => fs.existsSync(path.join(target, '.claude')),
+    install: async (packageRoot, target, opts) => {
+      copyRecursive(path.join(packageRoot, '.claude', 'CLAUDE.md'), path.join(target, '.claude', 'CLAUDE.md'));
+      await copyFrameworkAgents(packageRoot, target, opts.overrideAgents, opts.skipConfirm);
+      await copyFrameworkSkills(packageRoot, target, opts.overrideSkills, opts.skipConfirm);
+    },
+  },
+  cursor: {
+    label: 'Cursor',
+    folder: '.cursor/',
+    detect: (target) => fs.existsSync(path.join(target, '.cursor')),
+    install: (packageRoot, target) => {
+      copyRecursive(path.join(packageRoot, '.cursor'), path.join(target, '.cursor'));
+    },
+  },
+  codex: {
+    label: 'Codex',
+    folder: '.codex/',
+    detect: (target) => fs.existsSync(path.join(target, '.codex')),
+    install: async (packageRoot, target, opts) => {
+      await copyFrameworkCodexSkills(packageRoot, target, opts.overrideSkills, opts.skipConfirm);
+    },
+  },
+  copilot: {
+    label: 'GitHub Copilot',
+    folder: '.github/copilot-instructions.md',
+    detect: (target) => fs.existsSync(path.join(target, '.github', 'copilot-instructions.md')),
+    install: (packageRoot, target) => {
+      copyRecursive(path.join(packageRoot, '.github', 'copilot-instructions.md'), path.join(target, '.github', 'copilot-instructions.md'));
+    },
+  },
+};
+const ASSISTANT_NAMES = Object.keys(ASSISTANTS);
 
 // Colors for terminal output
 const colors = {
@@ -288,6 +327,92 @@ function setAgentModel(target, model) {
   }
 }
 
+function selfHealMissingFiles(packageRoot, target, presentAssistants) {
+  let healed = 0;
+
+  // Prompts (shared)
+  const promptSrcDir = path.join(packageRoot, '.aicontext', 'prompts');
+  const promptDestDir = path.join(target, '.aicontext', 'prompts');
+  fs.mkdirSync(promptDestDir, { recursive: true });
+  for (const file of FRAMEWORK_PROMPTS) {
+    const src = path.join(promptSrcDir, file);
+    const dest = path.join(promptDestDir, file);
+    if (fs.existsSync(src) && !fs.existsSync(dest)) {
+      fs.copyFileSync(src, dest);
+      log(`  Restored: prompts/${file}`, 'yellow');
+      healed++;
+    }
+  }
+
+  // Scripts (shared)
+  const scriptSrcDir = path.join(packageRoot, '.aicontext', 'scripts');
+  const scriptDestDir = path.join(target, '.aicontext', 'scripts');
+  for (const file of FRAMEWORK_SCRIPTS) {
+    const src = path.join(scriptSrcDir, file);
+    const dest = path.join(scriptDestDir, file);
+    if (fs.existsSync(src) && !fs.existsSync(dest)) {
+      fs.mkdirSync(scriptDestDir, { recursive: true });
+      fs.copyFileSync(src, dest);
+      log(`  Restored: scripts/${file}`, 'yellow');
+      healed++;
+    }
+  }
+
+  // Per-assistant files
+  for (const name of presentAssistants) {
+    if (name === 'claude') {
+      const claudeSrc = path.join(packageRoot, '.claude', 'CLAUDE.md');
+      const claudeDest = path.join(target, '.claude', 'CLAUDE.md');
+      if (fs.existsSync(claudeSrc) && !fs.existsSync(claudeDest)) {
+        fs.mkdirSync(path.dirname(claudeDest), { recursive: true });
+        fs.copyFileSync(claudeSrc, claudeDest);
+        log(`  Restored: .claude/CLAUDE.md`, 'yellow');
+        healed++;
+      }
+
+      const agentSrcDir = path.join(packageRoot, '.claude', 'agents');
+      const agentDestDir = path.join(target, '.claude', 'agents');
+      for (const file of FRAMEWORK_AGENTS) {
+        const src = path.join(agentSrcDir, file);
+        const dest = path.join(agentDestDir, file);
+        if (fs.existsSync(src) && !fs.existsSync(dest)) {
+          fs.mkdirSync(agentDestDir, { recursive: true });
+          fs.copyFileSync(src, dest);
+          log(`  Restored: agents/${file}`, 'yellow');
+          healed++;
+        }
+      }
+      const skillSrcDir = path.join(packageRoot, '.claude', 'skills');
+      const skillDestDir = path.join(target, '.claude', 'skills');
+      for (const skill of FRAMEWORK_SKILLS) {
+        const src = path.join(skillSrcDir, skill, 'SKILL.md');
+        const dest = path.join(skillDestDir, skill, 'SKILL.md');
+        if (fs.existsSync(src) && !fs.existsSync(dest)) {
+          fs.mkdirSync(path.join(skillDestDir, skill), { recursive: true });
+          fs.copyFileSync(src, dest);
+          log(`  Restored: skills/${skill}/SKILL.md`, 'yellow');
+          healed++;
+        }
+      }
+    } else if (name === 'codex') {
+      const codexSrcDir = path.join(packageRoot, '.codex', 'skills');
+      const codexDestDir = path.join(target, '.codex', 'skills');
+      for (const skill of FRAMEWORK_CODEX_SKILLS) {
+        const src = path.join(codexSrcDir, skill, 'SKILL.md');
+        const dest = path.join(codexDestDir, skill, 'SKILL.md');
+        if (fs.existsSync(src) && !fs.existsSync(dest)) {
+          fs.mkdirSync(path.join(codexDestDir, skill), { recursive: true });
+          fs.copyFileSync(src, dest);
+          log(`  Restored: .codex/skills/${skill}/SKILL.md`, 'yellow');
+          healed++;
+        }
+      }
+    }
+  }
+
+  return healed;
+}
+
 function copyFrameworkPrompts(packageRoot, target, skipExisting = false) {
   const srcDir = path.join(packageRoot, '.aicontext', 'prompts');
   const destDir = path.join(target, '.aicontext', 'prompts');
@@ -415,16 +540,6 @@ async function installConfig(packageRoot, target, skipConfirm = false) {
     if (!skipConfirm) {
       log('\nConfiguring project settings:', 'cyan');
       let content = fs.readFileSync(configDest, 'utf8');
-
-      // Task naming
-      const namingAnswer = await prompt('  Task naming pattern — 1) version-based (default), 2) with issue ID, 3) date-based: ');
-      if (namingAnswer === '2') {
-        content = setConfigValue(content, 'task_naming', 'pattern', '"{version}-{issue_id}-{task-name}"');
-      } else if (namingAnswer === '3') {
-        content = setConfigValue(content, 'task_naming', 'pattern', '"{date}-{task-name}"');
-        content = setConfigValue(content, 'task_naming', 'source', 'manual');
-      }
-      // Default (1 or empty) keeps the template values
 
       // Base branch — auto-detect, offer choices
       let detectedBranch = 'main';
@@ -584,6 +699,25 @@ async function promptYesNo(question, defaultYes = true) {
   }
 }
 
+async function promptMultiSelect(prefix, options) {
+  log(prefix);
+  options.forEach((opt, i) => log(`  ${i + 1}. ${opt.label}`, 'dim'));
+  log('');
+  log(`  Press Enter to install all ${options.length}`, 'dim');
+  log(`  Or type numbers for a subset (e.g. "1,3")`, 'dim');
+  while (true) {
+    const answer = (await prompt('\n> ')).trim();
+    if (answer === '') return options.map((o) => o.key);
+    const parts = answer.split(',').map((s) => s.trim()).filter(Boolean);
+    const indices = parts.map((p) => parseInt(p, 10) - 1);
+    const allValid = indices.every((i) => Number.isInteger(i) && i >= 0 && i < options.length);
+    if (allValid && indices.length > 0) {
+      return [...new Set(indices)].map((i) => options[i].key);
+    }
+    log(`Please enter numbers between 1 and ${options.length}, separated by commas.`, 'yellow');
+  }
+}
+
 async function init(targetDir, skipConfirm = false, keepPrompts = false, overrideAgents = false, overrideSkills = false) {
   const target = path.resolve(targetDir || '.');
   const packageRoot = getPackageRoot();
@@ -598,10 +732,25 @@ async function init(targetDir, skipConfirm = false, keepPrompts = false, overrid
     return;
   }
 
-  // Check for existing files
-  const existing = getExistingFiles(target);
+  // Ask which AI assistants to install (default: all) — before the overwrite warning so
+  // the warning only flags folders the user actually chose to install.
+  let chosenAssistants = ASSISTANT_NAMES;
+  if (!skipConfirm) {
+    chosenAssistants = await promptMultiSelect(
+      '\nWhich AI coding assistants to install? (default: all)',
+      ASSISTANT_NAMES.map((name) => ({ key: name, label: `${ASSISTANTS[name].label} (${ASSISTANTS[name].folder})` }))
+    );
+  }
+
+  // Check for existing paths that the chosen install will overwrite
+  const existing = [];
+  if (fs.existsSync(path.join(target, '.aicontext'))) existing.push('.aicontext');
+  for (const name of chosenAssistants) {
+    const p = ASSISTANTS[name].folder.replace(/\/$/, '');
+    if (fs.existsSync(path.join(target, p))) existing.push(p);
+  }
   if (existing.length > 0 && !skipConfirm) {
-    log('The following paths already exist and will be overwritten:', 'yellow');
+    log('\nThe following paths already exist and will be overwritten:', 'yellow');
     for (const p of existing) {
       log(`  - ${p}`, 'yellow');
     }
@@ -638,25 +787,22 @@ async function init(targetDir, skipConfirm = false, keepPrompts = false, overrid
   log('Creating config...', 'dim');
   await installConfig(packageRoot, target, skipConfirm);
 
-  // Copy tool-specific files
-  log('Copying tool entry points...', 'dim');
-  copyRecursive(path.join(packageRoot, '.claude', 'CLAUDE.md'), path.join(target, '.claude', 'CLAUDE.md'));
-  await copyFrameworkAgents(packageRoot, target, overrideAgents, skipConfirm);
-  if (!skipConfirm) {
-    const useHaiku = await promptYesNo(
-      '\nAgent model: agents default to sonnet for reliable results. Downgrade to haiku? (y/N): ',
-      false
-    );
-    if (useHaiku) {
-      setAgentModel(target, 'haiku');
-      log('  Agents set to haiku. Upgrade individual agents in .claude/agents/*.md anytime.', 'yellow');
+  log('\nCopying assistant entry points...', 'dim');
+  copyFrameworkScripts(packageRoot, target);
+  const installOpts = { overrideAgents, overrideSkills, skipConfirm };
+  for (const name of chosenAssistants) {
+    await ASSISTANTS[name].install(packageRoot, target, installOpts);
+    if (name === 'claude' && !skipConfirm) {
+      const useHaiku = await promptYesNo(
+        '\nAgent model: agents default to sonnet for reliable results. Downgrade to haiku? (y/N): ',
+        false
+      );
+      if (useHaiku) {
+        setAgentModel(target, 'haiku');
+        log('  Agents set to haiku. Upgrade individual agents in .claude/agents/*.md anytime.', 'yellow');
+      }
     }
   }
-  await copyFrameworkSkills(packageRoot, target, overrideSkills, skipConfirm);
-  copyFrameworkScripts(packageRoot, target);
-  await copyFrameworkCodexSkills(packageRoot, target, overrideSkills, skipConfirm);
-  copyRecursive(path.join(packageRoot, '.cursor'), path.join(target, '.cursor'));
-  copyRecursive(path.join(packageRoot, '.github', 'copilot-instructions.md'), path.join(target, '.github', 'copilot-instructions.md'));
 
   // Write version file
   fs.writeFileSync(path.join(target, '.aicontext', '.version'), VERSION);
@@ -673,14 +819,19 @@ async function init(targetDir, skipConfirm = false, keepPrompts = false, overrid
   log('1. Open your AI assistant (Claude Code, Cursor, Codex, or GitHub Copilot)');
   log('2. Type /start (Claude Code) or paste .aicontext/prompts/start.md (Cursor/Copilot)');
   log('3. On first run, the AI will analyze your codebase and generate project context');
-  log('\nNot using all AI tools? You can safely delete:', 'dim');
-  log('  - .cursor/                         (if not using Cursor)', 'dim');
-  log('  - .codex/                          (if not using Codex)', 'dim');
-  log('  - .github/copilot-instructions.md  (if not using Copilot)', 'dim');
-  log('  - .claude/                         (if not using Claude Code)\n', 'dim');
+  const skipped = ASSISTANT_NAMES.filter((name) => !chosenAssistants.includes(name));
+  if (skipped.length > 0) {
+    log(`\nSkipped: ${skipped.map((n) => ASSISTANTS[n].label).join(', ')}.`, 'dim');
+    log(`Add later with \`aicontext add-assistant <name>\` or re-run \`aicontext init\` to install all.`, 'dim');
+  }
+  log('');
 }
 
-async function update(targetDir, skipConfirm = false, keepPrompts = false, overrideAgents = false, overrideSkills = false) {
+async function update(targetDir, skipConfirm = false, keepPrompts = false, overrideAgents = false, overrideSkills = false, force = false) {
+  if (force) {
+    overrideAgents = true;
+    overrideSkills = true;
+  }
   const target = path.resolve(targetDir || '.');
   const packageRoot = getPackageRoot();
   const versionFile = path.join(target, '.aicontext', '.version');
@@ -705,23 +856,35 @@ async function update(targetDir, skipConfirm = false, keepPrompts = false, overr
 
   const currentVersion = fs.readFileSync(versionFile, 'utf8').trim();
 
+  const presentAssistants = ASSISTANT_NAMES.filter((name) => ASSISTANTS[name].detect(target));
+  const missingAssistants = ASSISTANT_NAMES.filter((name) => !ASSISTANTS[name].detect(target));
+
   if (currentVersion === VERSION) {
-    if (!overrideAgents && !overrideSkills) {
-      log(`Already up to date (v${VERSION}).`, 'green');
+    const shouldReCopy = (overrideAgents || overrideSkills) && presentAssistants.length > 0;
+    if (!shouldReCopy) {
+      const healed = selfHealMissingFiles(packageRoot, target, presentAssistants);
+      if (healed > 0) {
+        log(`\nAlready up to date (v${VERSION}). Restored ${healed} missing file(s).`, 'yellow');
+      } else {
+        log(`Already up to date (v${VERSION}).`, 'green');
+      }
+      logMissingAssistantsHint(missingAssistants);
       return;
     }
     log(`Already up to date (v${VERSION}), re-copying...`, 'yellow');
-    copyRecursive(path.join(packageRoot, '.claude', 'CLAUDE.md'), path.join(target, '.claude', 'CLAUDE.md'));
-    if (overrideAgents) await copyFrameworkAgents(packageRoot, target, overrideAgents, skipConfirm);
-    if (overrideSkills) {
-      await copyFrameworkSkills(packageRoot, target, overrideSkills, skipConfirm);
-      await copyFrameworkCodexSkills(packageRoot, target, overrideSkills, skipConfirm);
+    if (force) {
+      copyFrameworkPrompts(packageRoot, target);
     }
+    const installOpts = { overrideAgents, overrideSkills, skipConfirm };
+    for (const name of presentAssistants) {
+      await ASSISTANTS[name].install(packageRoot, target, installOpts);
+    }
+    logMissingAssistantsHint(missingAssistants);
     return;
   }
 
   // Determine whether to overwrite existing prompts (new prompts are always added)
-  let overwritePrompts = !keepPrompts;
+  let overwritePrompts = force || !keepPrompts;
 
   // Ask a single bulk question when in fully interactive mode with no pre-set override flags
   let bulkOverride = false;
@@ -737,7 +900,7 @@ async function update(targetDir, skipConfirm = false, keepPrompts = false, overr
   }
 
   // If bulk question wasn't used, fall back to the per-prompts question
-  if (!bulkOverride && !keepPrompts && hasExistingPrompts(target) && !skipConfirm) {
+  if (!bulkOverride && !force && !keepPrompts && hasExistingPrompts(target) && !skipConfirm) {
     overwritePrompts = await promptYesNo(
       'Would you like to update the existing aicontext prompts? We recommend yes — ensures you have the latest features. (Y/n): '
     );
@@ -748,13 +911,21 @@ async function update(targetDir, skipConfirm = false, keepPrompts = false, overr
   log('  - .aicontext/rules/', 'yellow');
   log(`  - .aicontext/prompts/ (${overwritePrompts ? 'all framework prompts' : 'new prompts only'})`, 'yellow');
   log('  - .aicontext/templates/', 'yellow');
-  log('  - .claude/CLAUDE.md', 'yellow');
-  log(`  - .claude/agents/ (${overrideAgents ? 'all existing will be overridden' : 'new agents only, existing will be prompted'})`, 'yellow');
-  log(`  - .claude/skills/ (${overrideSkills ? 'all existing will be overridden' : 'new skills only, existing will be prompted'})`, 'yellow');
   log('  - .aicontext/scripts/', 'yellow');
-  log(`  - .codex/skills/ (${overrideSkills ? 'all existing will be overridden' : 'new skills only, existing will be prompted'})`, 'yellow');
-  log('  - .cursor/', 'yellow');
-  log('  - .github/copilot-instructions.md', 'yellow');
+  if (presentAssistants.includes('claude')) {
+    log('  - .claude/CLAUDE.md', 'yellow');
+    log(`  - .claude/agents/ (${overrideAgents ? 'all existing will be overridden' : 'new agents only, existing will be prompted'})`, 'yellow');
+    log(`  - .claude/skills/ (${overrideSkills ? 'all existing will be overridden' : 'new skills only, existing will be prompted'})`, 'yellow');
+  }
+  if (presentAssistants.includes('codex')) {
+    log(`  - .codex/skills/ (${overrideSkills ? 'all existing will be overridden' : 'new skills only, existing will be prompted'})`, 'yellow');
+  }
+  if (presentAssistants.includes('cursor')) {
+    log('  - .cursor/', 'yellow');
+  }
+  if (presentAssistants.includes('copilot')) {
+    log('  - .github/copilot-instructions.md', 'yellow');
+  }
   log('\nPreserved (not modified):', 'green');
   log('  - .aicontext/project.md', 'green');
   log('  - .aicontext/structure.md', 'green');
@@ -824,14 +995,16 @@ async function update(targetDir, skipConfirm = false, keepPrompts = false, overr
     }
   }
 
-  log('Updating tool entry points...', 'dim');
-  copyRecursive(path.join(packageRoot, '.claude', 'CLAUDE.md'), path.join(target, '.claude', 'CLAUDE.md'));
-  await copyFrameworkAgents(packageRoot, target, overrideAgents, skipConfirm);
-  await copyFrameworkSkills(packageRoot, target, overrideSkills, skipConfirm);
+  log('Updating scripts...', 'dim');
   copyFrameworkScripts(packageRoot, target);
-  await copyFrameworkCodexSkills(packageRoot, target, overrideSkills, skipConfirm);
-  copyRecursive(path.join(packageRoot, '.cursor'), path.join(target, '.cursor'));
-  copyRecursive(path.join(packageRoot, '.github', 'copilot-instructions.md'), path.join(target, '.github', 'copilot-instructions.md'));
+
+  if (presentAssistants.length > 0) {
+    log('Updating assistant entry points...', 'dim');
+    const installOpts = { overrideAgents, overrideSkills, skipConfirm };
+    for (const name of presentAssistants) {
+      await ASSISTANTS[name].install(packageRoot, target, installOpts);
+    }
+  }
 
   // Update version
   fs.writeFileSync(versionFile, VERSION);
@@ -845,6 +1018,52 @@ async function update(targetDir, skipConfirm = false, keepPrompts = false, overr
 
   log(`\nUpdated to v${VERSION}!`, 'green');
   log('\nNote: project.md, structure.md, and worklog.md (if present) were preserved.', 'dim');
+  logMissingAssistantsHint(missingAssistants);
+}
+
+function logMissingAssistantsHint(missingAssistants) {
+  if (!missingAssistants || missingAssistants.length === 0) return;
+  const labels = missingAssistants.map((name) => `${name} (${ASSISTANTS[name].label})`).join(', ');
+  log(`\nOther AI assistants available: ${labels}.`, 'dim');
+  log(`Add one with \`aicontext add-assistant <name>\`, or re-run \`aicontext init\` to restore all.`, 'dim');
+}
+
+async function addAssistant(name, targetDir, skipConfirm = false) {
+  const target = path.resolve(targetDir || '.');
+
+  if (!name) {
+    log(`Missing assistant name. Usage: aicontext add-assistant <name>`, 'red');
+    log(`Valid names: ${ASSISTANT_NAMES.join(', ')}`, 'dim');
+    return;
+  }
+  if (!ASSISTANTS[name]) {
+    log(`Unknown assistant: ${name}`, 'red');
+    log(`Valid names: ${ASSISTANT_NAMES.join(', ')}`, 'dim');
+    return;
+  }
+
+  if (!fs.existsSync(path.join(target, '.aicontext', '.version'))) {
+    log(`Not initialized. Run \`aicontext init\` first.`, 'red');
+    return;
+  }
+
+  const assistant = ASSISTANTS[name];
+  if (assistant.detect(target)) {
+    log(`${assistant.label} (${assistant.folder}) is already installed.`, 'yellow');
+    log(`Run \`aicontext update\` to refresh it.`, 'dim');
+    return;
+  }
+
+  log(`\nAdding ${assistant.label} to ${target}...`, 'cyan');
+  const packageRoot = getPackageRoot();
+  try {
+    await assistant.install(packageRoot, target, { overrideAgents: false, overrideSkills: false, skipConfirm });
+  } catch (err) {
+    log(`\nInstall failed: ${err.message}`, 'red');
+    log(`${assistant.folder} may be in a partial state. Remove it and retry, or run \`aicontext update\`.`, 'dim');
+    throw err;
+  }
+  log(`\n${assistant.label} installed at ${assistant.folder}.`, 'green');
 }
 
 async function checkVersion(targetDir) {
@@ -928,17 +1147,72 @@ function upgrade(targetVersion) {
   logUpgradeResult(getInstalledVersion());
 }
 
+function findAllInstalls(binName = 'aicontext') {
+  const dirs = (process.env.PATH || '').split(path.delimiter);
+  const exts = process.platform === 'win32' ? ['', '.cmd', '.exe', '.ps1'] : [''];
+  const seenShims = new Set();
+  const seenReals = new Set();
+  const found = [];
+  for (const dir of dirs) {
+    if (!dir) continue;
+    for (const ext of exts) {
+      const shim = path.join(dir, binName + ext);
+      if (seenShims.has(shim)) continue;
+      seenShims.add(shim);
+      try {
+        if (!fs.existsSync(shim)) continue;
+        const real = fs.realpathSync(shim);
+        if (seenReals.has(real)) continue;
+        seenReals.add(real);
+        found.push({ shim, real });
+      } catch { /* unreadable entry */ }
+    }
+  }
+  return found;
+}
+
+function managerUninstallHint(realPath) {
+  const home = os.homedir();
+  if (realPath.startsWith(path.join(home, '.volta') + path.sep)) return `volta uninstall ${NPM_PACKAGE}`;
+  if (realPath.startsWith(path.join(home, '.yarn') + path.sep)) return `yarn global remove ${NPM_PACKAGE}`;
+  if (realPath.startsWith(path.join(home, '.bun') + path.sep)) return `bun remove -g ${NPM_PACKAGE}`;
+  return null;
+}
+
+function logShadowingWarning(installs) {
+  log(`\nMultiple aicontext installs detected in $PATH:`, 'yellow');
+  installs.forEach((install, idx) => {
+    const marker = idx === 0 ? '  (shell resolves here)' : '';
+    log(`  ${install.shim} -> ${install.real}${marker}`, 'dim');
+  });
+  const hints = installs.map((i) => managerUninstallHint(i.real)).filter(Boolean);
+  if (hints.length > 0) {
+    log(`\nRemove the shadowing install with:`, 'dim');
+    hints.forEach((h) => log(`  ${h}`, 'dim'));
+  }
+  log(`\nIf the new version still isn't picked up, run \`hash -r\` or reopen your terminal.`, 'dim');
+}
+
 function logUpgradeResult(newVersion) {
+  const installs = findAllInstalls();
+  const hasShadowing = installs.length > 1;
+
   if (newVersion && newVersion !== VERSION) {
     log(`\nUpgraded to v${newVersion}!`, 'green');
+    if (hasShadowing) logShadowingWarning(installs);
   } else if (newVersion && newVersion === VERSION) {
     log(`\nVersion unchanged (v${VERSION}). The upgrade may not have taken effect.`, 'yellow');
-    log('Troubleshooting:', 'dim');
-    log(`  which aicontext        # Check which binary is in your PATH`, 'dim');
-    log(`  npm root -g            # Check where npm installs globally`, 'dim');
-    log(`  npm install -g ${NPM_PACKAGE}@latest  # Try explicit install`, 'dim');
+    if (hasShadowing) {
+      logShadowingWarning(installs);
+    } else {
+      log('Troubleshooting:', 'dim');
+      log(`  which aicontext        # Check which binary is in your PATH`, 'dim');
+      log(`  npm root -g            # Check where npm installs globally`, 'dim');
+      log(`  npm install -g ${NPM_PACKAGE}@latest  # Try explicit install`, 'dim');
+    }
   } else {
     log(`\nUpgrade complete!`, 'green');
+    if (hasShadowing) logShadowingWarning(installs);
   }
 }
 
@@ -971,18 +1245,20 @@ AIContext v${VERSION}
 Universal AI context management framework
 
 Usage:
-  aicontext init [path]      Install AIContext to a project
-  aicontext update [path]    Update framework files (preserves your config)
-  aicontext upgrade [ver]    Upgrade the CLI tool itself (default: latest)
-  aicontext version [path]   Show installed version
-  aicontext contribute       Open GitHub to contribute examples or improvements
-  aicontext help             Show this help message
+  aicontext init [path]            Install AIContext to a project
+  aicontext update [path]          Update framework files (preserves your config)
+  aicontext add-assistant <name>   Add an AI assistant (${ASSISTANT_NAMES.join(', ')})
+  aicontext upgrade [ver]          Upgrade the CLI tool itself (default: latest)
+  aicontext version [path]         Show installed version
+  aicontext contribute             Open GitHub to contribute examples or improvements
+  aicontext help                   Show this help message
 
 Options:
   -y, --yes                  Skip confirmation prompts
   --keep-prompts             Keep existing prompt files (don't overwrite)
   --override-agents          Override existing agent files without prompting
   --override-skills          Override existing skill files without prompting
+  --force                    Reset all framework files to defaults (prompts + agents + skills)
 
 Examples:
   npx aicontext init                  # Install to current directory
@@ -1008,6 +1284,7 @@ module.exports = {
   DEPRECATED_SKILLS,
   FRAMEWORK_SCRIPTS,
   DEPRECATED_SCRIPTS,
+  selfHealMissingFiles,
   copyRecursive,
   copyFrameworkPrompts,
   copyFrameworkAgents,
@@ -1029,8 +1306,13 @@ module.exports = {
   writeVersionCache,
   clearCache,
   getInstalledVersion,
+  findAllInstalls,
+  managerUninstallHint,
+  ASSISTANTS,
+  ASSISTANT_NAMES,
   init,
   update,
+  addAssistant,
   checkVersion,
 };
 
@@ -1042,7 +1324,8 @@ if (require.main === module) {
   const hasKeepPromptsFlag = args.includes('--keep-prompts');
   const hasOverrideAgentsFlag = args.includes('--override-agents');
   const hasOverrideSkillsFlag = args.includes('--override-skills');
-  const flagValues = ['--yes', '-y', '--keep-prompts', '--override-agents', '--override-skills'];
+  const hasForceFlag = args.includes('--force');
+  const flagValues = ['--yes', '-y', '--keep-prompts', '--override-agents', '--override-skills', '--force'];
   const targetPath = args.find((arg) => !flagValues.includes(arg) && arg !== command);
 
   async function main() {
@@ -1051,8 +1334,13 @@ if (require.main === module) {
         await init(targetPath, hasYesFlag, hasKeepPromptsFlag, hasOverrideAgentsFlag, hasOverrideSkillsFlag);
         break;
       case 'update':
-        await update(targetPath, hasYesFlag, hasKeepPromptsFlag, hasOverrideAgentsFlag, hasOverrideSkillsFlag);
+        await update(targetPath, hasYesFlag, hasKeepPromptsFlag, hasOverrideAgentsFlag, hasOverrideSkillsFlag, hasForceFlag);
         break;
+      case 'add-assistant': {
+        const nonFlagArgs = args.filter((arg) => !flagValues.includes(arg) && arg !== command);
+        await addAssistant(nonFlagArgs[0], nonFlagArgs[1], hasYesFlag);
+        break;
+      }
       case 'upgrade':
         upgrade(targetPath);
         break;
