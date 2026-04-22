@@ -18,7 +18,7 @@ For each pending step (unchecked `- [ ]` in the task file), follow `.aicontext/p
 Run after-task actions based on resolved `after_task.*` values:
 
 1. **Review** — if `after_task.review` resolved to `normal` or `deep`: compute corpus (`{base-branch}...HEAD` + uncommitted working tree). Call `reviewer` subagent (Claude Code) or follow the playbook inline (Cursor/Copilot). Pass the exact playbook path: `normal` → `.aicontext/prompts/review.md`, `deep` → `.aicontext/prompts/deep-review.md`
-2. **Tests** — if `after_task.tests` resolved to anything other than `false`: call `resolve-tests.md` with the resolved value and `task` context to get the command(s). Pass them to `test-runner` subagent (Claude Code) or run inline (Cursor/Copilot/Codex). If the resolver returns `ERROR`: surface to the user, do not run tests.
+2. **Tests** — if `after_task.tests` resolved to anything other than `false`: call `resolve-tests.md` with the resolved value and `task` context. If `ERROR`: surface to the user, do not run tests. If `SKIP`: report skip and continue. If `COMMANDS`: pass them to `test-runner` subagent (Claude Code) or run inline (Cursor/Copilot/Codex).
 3. Fix any issues found
 4. `All steps complete. Run /finish-task to close the task.`
 

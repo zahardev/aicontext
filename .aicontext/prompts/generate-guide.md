@@ -6,14 +6,14 @@ Generate user-facing usage documentation for the project. This prompt is called 
 
 **Discover first** — scan the project for existing documentation sources and artifacts. Use whatever exists — AIContext is not required.
 
-Then read in this order (later overrides earlier for conflicts):
+Then read in this order. Code always wins on conflicts; docs provide context only.
 
 1. **Code** (primary source of truth):
    - Public API, CLI commands, UI entry points
    - Config files users interact with
    - Input validation and error messages (reveal expected usage)
    - README, CHANGELOG, existing user-facing docs
-2. **Existing documentation** (context for intent):
+2. **Existing documentation** (context for intent, not authority):
    - README, CONTRIBUTING, existing docs/ files
    - AIContext artifacts if present (project.md, specs, structure.md)
    - OpenAPI/Swagger specs or other structured docs

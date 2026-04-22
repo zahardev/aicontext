@@ -469,15 +469,15 @@ describe('version cache', () => {
 });
 
 describe('FRAMEWORK_PROMPTS', () => {
-  it('should contain exactly 45 framework prompt files', () => {
-    assert.strictEqual(FRAMEWORK_PROMPTS.length, 45);
+  it('should contain exactly 48 framework prompt files', () => {
+    assert.strictEqual(FRAMEWORK_PROMPTS.length, 48);
   });
 
   it('should contain the expected prompt files', () => {
     const expected = [
       'add-step.md', 'aic-help.md', 'aic-skills.md', 'align-context.md', 'challenge.md', 'close-step.md',
       'commit.md', 'create-task.md', 'deep-review.md', 'deep-review-criteria.md', 'do-it.md', 'draft-issue.md', 'ensure-config.md', 'identify-task.md',
-      'draft-pr.md', 'finish-task.md', 'generate.md', 'gh-fix-tests.md', 'gh-review-fix-loop.md', 'next-step.md', 'plan-tasks.md',
+      'draft-pr.md', 'finish-task.md', 'generate.md', 'generate-docs.md', 'generate-guide.md', 'generate-reference.md', 'gh-fix-tests.md', 'gh-review-fix-loop.md', 'next-step.md', 'plan-tasks.md',
       'gh-review-check.md', 'install-playwright-cli.md', 'prepare-release.md', 'resolve-task-naming.md', 'resolve-test-types.md', 'resolve-tests.md', 'review.md', 'review-criteria.md', 'detect-review-scope.md',
       'brainstorm.md', 'check-update.md', 'interview.md', 'migrate-config.md', 'resolve-asks.md', 'resume-task.md', 'review-task.md', 'run-step.md', 'run-task.md', 'start-feature.md', 'start.md', 'step-loop.md', 'test-writer.md', 'thoughts.md', 'tidy-aic.md',
     ];
@@ -738,12 +738,13 @@ describe('update with keepPrompts', () => {
 });
 
 describe('FRAMEWORK_AGENTS', () => {
-  it('should contain exactly 4 agent files', () => {
-    assert.strictEqual(FRAMEWORK_AGENTS.length, 4);
+  it('should contain exactly 5 agent files', () => {
+    assert.strictEqual(FRAMEWORK_AGENTS.length, 5);
   });
 
   it('should contain the expected agent files', () => {
     const expected = [
+      'docs-generator.md',
       'researcher.md',
       'reviewer.md',
       'test-runner.md',
@@ -801,15 +802,15 @@ describe('removeDeprecatedAgents', () => {
 });
 
 describe('FRAMEWORK_SKILLS', () => {
-  it('should contain exactly 31 skill names', () => {
-    assert.strictEqual(FRAMEWORK_SKILLS.length, 31);
+  it('should contain exactly 32 skill names', () => {
+    assert.strictEqual(FRAMEWORK_SKILLS.length, 32);
   });
 
   it('should contain the expected skills', () => {
     const expected = [
       'add-step', 'add-idea', 'create-task', 'start', 'start-feature', 'plan-tasks', 'resume-task', 'review-task', 'run-step', 'run-task', 'finish-task',
       'align-context', 'do-it', 'challenge', 'brainstorm', 'thoughts', 'interview', 'commit', 'review', 'deep-review', 'next-step', 'draft-pr', 'gh-review-check',
-      'draft-issue', 'prepare-release', 'gh-review-fix-loop', 'gh-fix-tests', 'web-inspect', 'aic-help', 'aic-skills', 'tidy-aic',
+      'draft-issue', 'generate-docs', 'prepare-release', 'gh-review-fix-loop', 'gh-fix-tests', 'web-inspect', 'aic-help', 'aic-skills', 'tidy-aic',
     ];
     assert.deepStrictEqual([...FRAMEWORK_SKILLS].sort(), [...expected].sort());
   });

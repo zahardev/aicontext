@@ -11,7 +11,7 @@ For step 3, spawn `docs-generator` subagent(s) instead of following prompts inli
 - **Guide**: spawn `docs-generator` with type `guide`
 - **Both**: spawn two `docs-generator` agents in parallel (one per type)
 
-Agent prompt: `Generate {type} documentation. Write to: {output_path}/{filename}. Project root: {project_root}. Return only the file path and section list when done.`
+Agent prompt: `Generate {type} documentation. Write to: {output_path}/{filename}. Project root: {project_root}.`
 
 Where `{filename}` is `reference.md` or `guide.md`.
 
