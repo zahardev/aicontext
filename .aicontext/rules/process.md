@@ -174,10 +174,8 @@ Before checking off any item (`- [ ]` → `- [x]`), re-read its description and 
 ## Version Management
 
 ### Code Versioning
-Each new task means a new version. Increment version yourself if not specified:
-- Feature: update second number (1.2.0 → 1.3.0)
-- Bug/minor improvement: update third number (1.2.0 → 1.2.1)
+Version tracks the release, not the task — multiple tasks can share a version. Use the version from `resolve-task-naming.md` (branch name or package.json) as-is. Never auto-increment.
 
 ### Version Update Timing
-- **NEVER** update the script version during implementation steps
-- **ONLY** update the version as the final step before marking the entire version as complete
+- **NEVER** update the version during implementation steps
+- **ONLY** update the version as part of a release preparation step (e.g., `/prepare-release`)

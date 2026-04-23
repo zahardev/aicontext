@@ -38,6 +38,8 @@ If the template contains `{version}`:
 - Otherwise infer: `package-json` if `package.json` has a `version` field, else `git-branch` (extract via `task_naming.branch_pattern`).
 - If extraction fails, ask the user.
 
+Use the extracted version verbatim — never auto-increment. Multiple tasks can share a version.
+
 ## 4. Substitute Tokens
 
 Replace in the template:
