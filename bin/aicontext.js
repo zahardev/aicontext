@@ -43,11 +43,19 @@ const FRAMEWORK_SCRIPTS = ['pr-reviews.cjs', 'pr-resolve.cjs'];
 const DEPRECATED_SCRIPTS = ['pr-reviews.js', 'pr-resolve.js'];
 const CONFIG_FILE = 'config.yml';
 
+function isDirectory(p) {
+  try {
+    return fs.statSync(p).isDirectory();
+  } catch {
+    return false;
+  }
+}
+
 const ASSISTANTS = {
   claude: {
     label: 'Claude Code',
     folder: '.claude/',
-    detect: (target) => fs.existsSync(path.join(target, '.claude')),
+    detect: (target) => isDirectory(path.join(target, '.claude')),
     install: async (packageRoot, target, opts) => {
       copyRecursive(path.join(packageRoot, '.claude', 'CLAUDE.md'), path.join(target, '.claude', 'CLAUDE.md'));
       await copyFrameworkAgents(packageRoot, target, opts.overrideAgents, opts.skipConfirm);
@@ -57,7 +65,7 @@ const ASSISTANTS = {
   cursor: {
     label: 'Cursor',
     folder: '.cursor/',
-    detect: (target) => fs.existsSync(path.join(target, '.cursor')),
+    detect: (target) => isDirectory(path.join(target, '.cursor')),
     install: (packageRoot, target) => {
       copyRecursive(path.join(packageRoot, '.cursor'), path.join(target, '.cursor'));
     },
@@ -65,7 +73,7 @@ const ASSISTANTS = {
   codex: {
     label: 'Codex',
     folder: '.codex/',
-    detect: (target) => fs.existsSync(path.join(target, '.codex')),
+    detect: (target) => isDirectory(path.join(target, '.codex')),
     install: async (packageRoot, target, opts) => {
       await copyFrameworkCodexSkills(packageRoot, target, opts.overrideSkills, opts.skipConfirm);
     },
