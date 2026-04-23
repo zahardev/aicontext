@@ -33,9 +33,9 @@ Read the implicated source files to understand context before fixing.
 
 Implement fixes for each failing check. Prefer root-cause fixes over symptom suppression (no disabling lint rules to make them pass unless the rule is genuinely wrong for the case).
 
-## 4. Local Verify (optional)
+## 4. Local Verify
 
-For test failures, run the relevant test(s) locally to confirm the fix before pushing. For lint/type/build failures, CI is the source of truth — skip local verification and rely on the next CI run.
+For test failures, run the failing test(s) locally via `test-runner` subagent before pushing — do NOT skip this. For lint/type/build failures, CI is the source of truth — skip local verification.
 
 ## 5. Commit and Push
 
