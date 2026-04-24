@@ -898,7 +898,7 @@ async function update(targetDir, skipConfirm = false, keepPrompts = false, overr
   let bulkOverride = false;
   if (!skipConfirm && !overrideAgents && !overrideSkills && !keepPrompts && hasExistingFrameworkFiles(target)) {
     bulkOverride = await promptYesNo(
-      'Override all existing framework files? Y = update everything at once, N = choose file by file. (Y/n): '
+      'Override all existing framework files? Your project files (tasks, specs, config, project.md) are never touched. Y = update everything at once, N = choose file by file. (Y/n): '
     );
     if (bulkOverride) {
       overwritePrompts = true;
