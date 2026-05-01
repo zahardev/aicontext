@@ -65,7 +65,7 @@ If `after_task.commit` resolved to Yes **and** `git status` shows uncommitted ch
 
 ### Push
 
-If `after_task.push` resolved to Yes: run `git push -u origin {current-branch}`. Fires independently of the commit gate.
+If `after_task.push` resolved to Yes: run `git status` to verify the current branch and tracking state, then `git push -u origin {current-branch}`. Fires independently of the commit gate.
 
 ### PR
 
