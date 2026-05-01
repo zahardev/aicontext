@@ -100,68 +100,6 @@ Update `worklog.md` — check off the task under its spec, or add to Standalone 
 
 **Promoting ideas:** When an idea matures, use `/start-feature` (spec), `/create-task` (task), or `/add-step` (step) to formalize it, then remove the line from the Ideas section. Remove abandoned ideas too.
 
-## Test-Driven Development
-
-### Workflow
-1. Write failing test
-2. Implement the feature
-3. Verify test passes
-4. Move to next step
-
-### Rules
-- Update existing tests instead of creating duplicates when possible
-- Test the specific step being implemented, not all functionality at once
-- **Quality over quantity:** essential, meaningful tests only
-- **Test behavior, not implementation:** what the feature does, not how
-- **Multi-step features:** interleave — test + implement Feature A, then test + implement Feature B. Don't write all tests upfront.
-
-## Task Planning Guidelines
-
-### TDD-Aware Planning
-
-Before writing plan steps, check if the project has tests (glob for test files). If tests exist:
-
-1. **Assess each step** — is it testable? (Config changes, template edits, docs are not. Behavior-adding steps usually are.)
-2. **Testable steps follow test-first** — the step includes writing the test before the implementation, not as a separate step after.
-3. **Prefer unit tests per step, integration and E2E tests as final verification** when both patterns exist in the project.
-
-If the project has no tests, skip TDD and implement directly.
-
-### Plans Must Describe WHAT, Not HOW
-
-Task steps describe what to build or change — behavior descriptions belong in the spec, implementation details are discovered during implementation.
-
-**Good:**
-- "Add user authentication endpoint"
-- "Add update check step to start.md"
-
-**Bad:**
-- "Create UserController with login() method using Library X"
-- "If update available: show notification, then ask 'Would you like to upgrade?' (Yes / Not now)"
-
-### Checkbox Format
-- Use `- [ ]` for unchecked items; never `- [x]` in initial plans
-- Order steps by dependency — a step cannot depend on a later step
-- When executing steps manually (not via `/run-task`), stop after each step and wait for permission
-
-### Never include spec or task-context updates as plan steps
-
-Spec sync, task-context updates, requirement checkboxes, worklog updates, and spec completion are handled automatically by `close-step.md` and `finish-task.md`. Listing them as explicit plan steps is redundant and pollutes the plan.
-
-**Bad:** "Update spec with new decision", "Append findings to task-context", "Check off completed requirements in spec"
-**Good:** omit them — they happen automatically at step/task close.
-
-### Never include manual human steps in plans
-
-Plans are for the agent. If the agent cannot execute a step, it is not a plan step. This includes: manual verification, manual testing, manual QA, user approvals, "check in browser", "verify UX", "ask product team", etc.
-
-Automated test runs via the `test-runner` subagent are agent actions and happen during the step inner loop (see `step-loop.md`), not as separate plan steps — this rule is about *manual* testing only.
-
-Human verification belongs in task deliverables (as a checkbox gate the user ticks) or as an interactive question at step/task close, never as a plan step.
-
-**Bad:** "Manually test the login flow", "User verifies the UI looks right", "Get approval from stakeholder"
-**Good:** put the verification in task deliverables, or have the AI ask the user interactively at close time.
-
 ## Quality Checks
 
 Lifecycle actions (review, tests, commit, push) are configured in `config.yml` under `after_step` and `after_task`. `ensure-config.md` handles validation, migration, and interactive resolution of these values.

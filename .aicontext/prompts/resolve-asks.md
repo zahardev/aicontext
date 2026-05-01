@@ -2,7 +2,7 @@
 
 Prompt the user for each field in the passed list, run the preflight if needed, and return resolved values.
 
-**Called with:** `fields` — list of `after_step.*` / `after_task.*` config fields that need user input. Caller has already collected them.
+**Called with:** `fields` — list of config fields that need user input (`after_step.*`, `after_task.*`, or root-level like `tdd`). Caller has already collected them.
 
 ## 1. Preflight — type-table discovery
 
@@ -11,6 +11,12 @@ If any `tests` field is in the list AND `structure.md` has no `## Testing` type 
 ## 2. Stage 1 — decision per field
 
 Present options using user-friendly labels, not config field names. Ask per `## Question UX` in `standards.md` — number across the entire batch. Only prompt for fields in the passed list.
+
+**Root-level:**
+
+| Config field | Question | Options | Config value |
+|---|---|---|---|
+| `tdd` | Use test-driven development? Write tests before implementation for testable plan steps. | 1) Yes (recommended), 2) No | `true` / `false` |
 
 **After each step:**
 

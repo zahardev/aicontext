@@ -23,7 +23,7 @@ See `process.md "Task Deliverables vs Spec Requirements"`.
 
 If a step for this work already exists, point to it instead of creating a duplicate.
 
-Create a new step with the next step number. Add sub-items (`- [ ]`) capturing the deliverables. Follow the Task Planning Guidelines in `process.md` (WHAT not HOW, broad/actionable granularity, logical ordering).
+Create a new step with the next step number. Add sub-items (`- [ ]`) capturing the deliverables. Follow `plan-steps.md`.
 
 ## 4. Update Spec
 

@@ -49,7 +49,7 @@ Located in `rules/`:
 
 | File | Purpose |
 |------|---------|
-| `process.md` | Task management, TDD process, planning |
+| `process.md` | Task management, lifecycle rules |
 | `standards.md` | Coding standards, safety rules, AI behavior |
 
 ## Prompts
@@ -103,7 +103,7 @@ Subdirectories are created automatically by skills and scripts when needed.
 ### Working on a Task
 1. Paste `prompts/task.md` content (or use `/resume-task` in Claude Code)
 2. Create/update task file in `tasks/` using `templates/task.template.md`
-3. Follow TDD process from `rules/process.md`
+3. Follow plan construction rules from `prompts/plan-steps.md` (TDD is config-driven via `tdd` in `config.yml`)
 4. After each step, use `prompts/after_step.md` (or `/next-step`) to reflect and continue
 5. Update `worklog.md` when complete
 

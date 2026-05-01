@@ -31,7 +31,7 @@ Follow `resolve-task-naming.md` with `pattern` from config and the task-name slu
 - **Objective**: derive from the discussion — what this task aims to accomplish
 - **Spec link**: from step 2 (remove section if no spec)
 - **Deliverables**: definition of done for this work bundle — see `process.md "Task Deliverables vs Spec Requirements"`
-- **Plan steps**: derive from the discussion, following planning guidelines in `process.md`
+- **Plan steps**: derive from the discussion, following `plan-steps.md`
 
 ## 4. Update Worklog
 
