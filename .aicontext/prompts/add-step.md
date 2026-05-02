@@ -33,4 +33,4 @@ When adding a new spec requirement, check if the step just created covers it —
 
 ## 5. Confirm
 
-Show the step that was added. Do not implement — use `/run-step` or `/do-it` for that.
+Show the step that was added. Do not implement — suggest `/run-step` to execute it.
