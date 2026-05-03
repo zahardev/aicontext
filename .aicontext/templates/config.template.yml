@@ -62,6 +62,11 @@ after_task:
   pr: ask                     # trigger draft-pr at task close (true|false|ask). If push hasn't happened, asks first.
   review_loop: ask            # run gh-review-fix-loop after PR exists (true|false|ask). Skipped if no remote PR; defers task close.
 
+tdd: ask                        # true | false | ask
+  # true:   testable plan steps follow test-first (write test → implement → verify)
+  # false:  skip TDD — plan steps are implementation only
+  # ask:    prompt on first encounter, offer to save as default
+
 commit:
   template: description       # description | "description (#issue_id)" | "type: description" | custom string
   body: true                  # true: subject + body + trailer | false: subject line only

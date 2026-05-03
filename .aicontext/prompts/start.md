@@ -11,7 +11,7 @@ Read `.aicontext/project.md`.
 
 Read these files (later files override earlier ones). Do not batch these with the step 1 read — step 1 must resolve first.
 
-1. `.aicontext/rules/process.md` — task management, TDD process
+1. `.aicontext/rules/process.md` — task management, lifecycle rules
 2. `.aicontext/rules/standards.md` — coding standards, safety rules, AI behavior
 3. `.aicontext/structure.md` — commands, folder structure, environment
 4. `.aicontext/local.md` — personal/local settings (if it exists, gitignored)

@@ -60,7 +60,7 @@ Describe the fix in conversation → `/do-it` — creates a task step and implem
 
 | What | Where |
 |------|-------|
-| Process rules (TDD, quality checks) | `.aicontext/rules/process.md` |
+| Process rules (lifecycle, quality checks) | `.aicontext/rules/process.md` |
 | Coding standards | `.aicontext/rules/standards.md` |
 | Project overview | `.aicontext/project.md` |
 | Commit rules, task naming, config | `.aicontext/config.yml` |

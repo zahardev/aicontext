@@ -28,15 +28,19 @@ If the template contains `{issue_id}` and the caller didn't pass one:
 2. Otherwise, ask:
    > Do you have a GitHub issue ID for this task?
    > 1. **Yes** — enter the issue number
-   > 2. **No — create one** — run `/draft-issue` first, then continue with the new issue number
-   > 3. **No — skip** — drop `{issue_id}` and its adjacent separator from the template
+   > 2. **Create one** — run `/draft-issue` first, then continue with the new issue number
+   > 3. **Skip** — drop `{issue_id}` and its adjacent separator from the template
 
 ## 3. Resolve `{version}` source
 
 If the template contains `{version}`:
-- If `task_naming.source` is set, use it.
-- Otherwise infer: `package-json` if `package.json` has a `version` field, else `git-branch` (extract via `task_naming.branch_pattern`).
+- If `task_naming.source` is `git-branch` (or inferred as such): run `git status` to get the current branch name, then extract the version via `task_naming.branch_pattern`.
+- If `task_naming.source` is `package-json`: read the `version` field from `package.json`.
+- If `task_naming.source` is `manual`: ask the user for the version string.
+- If `task_naming.source` is not set: infer — `package-json` if `package.json` has a `version` field, else `git-branch` (run `git status`, extract `{version}` via `task_naming.branch_pattern`).
 - If extraction fails, ask the user.
+
+Use the extracted version verbatim — never auto-increment. Multiple tasks can share a version.
 
 ## 4. Substitute Tokens
 

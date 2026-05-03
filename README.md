@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/logo4.svg" alt="AIContext" width="500">
+  <img src="assets/logo5.svg" alt="AIContext" width="500">
 </p>
 
 <p align="center">
@@ -194,6 +194,7 @@ One config file controls how the AI works — no prompt engineering needed:
 
 | Version | Highlights |
 |---------|------------|
+| **1.10.0** | Configurable TDD (`tdd: true/false/ask`). Dedicated `plan-steps.md` for plan-creation-time rules. Branch verification before remote ops. Correct git range operators in PR drafts. |
 | **1.9.0** | Documentation generation (`/generate-docs`). Type-aware test config with per-type scoping. Self-healing updates and `--force` flag. Choose which AI tools to install. Clearer skill names (`/resume-task`, `/review-task`). |
 | **1.8.0** | PR workflow automation — config guards, review-fix loop, resumable close. Project tidying (`/tidy-aic`). TDD-aware planning. "Brief" → "task-context" rename. Local version cache. ESM compatibility fix. |
 | **1.7.0** | Adaptive workflow — the AI learns your preferences and stops asking. GitHub issue creation. Thinking tools (`/interview`, `/brainstorm`, `/thoughts`). Automated CI fix (`/gh-fix-tests`). Ideas backlog. Smarter interviews that recommend answers. |
