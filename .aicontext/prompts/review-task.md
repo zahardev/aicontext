@@ -8,7 +8,7 @@ Validate the current task holistically. Follow `identify-task.md` to find it, th
 1. **Behavioral correctness** — trace the feature's runtime behavior end-to-end (triggers, decisions, side effects) and verify the plan builds that behavior. Verify by behavior, not by matching spec wording to plan wording.
 2. **Dependency order** — no step depends on a later step (per `plan-steps.md`).
 3. **Over-engineering** — unnecessary complexity or abstractions.
-4. **TDD structure** — read `tdd` from config. If `true`: flag testable steps that don't follow test-first structure per `plan-steps.md`. If `false`: skip this check.
+4. **TDD structure** — read `tdd` from config. If `true`: apply test-first checks per `plan-steps.md` (including its "skip when project has no tests" rule). If `false`: skip this check.
 
 ### Spec alignment
 5. **Spec coverage** — every spec requirement in the linked subsection (via `*Implemented by:*` footer) is addressed by a plan step. Flag uncovered requirements.

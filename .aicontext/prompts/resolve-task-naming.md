@@ -37,7 +37,7 @@ If the template contains `{version}`:
 - If `task_naming.source` is `git-branch` (or inferred as such): run `git status` to get the current branch name, then extract the version via `task_naming.branch_pattern`.
 - If `task_naming.source` is `package-json`: read the `version` field from `package.json`.
 - If `task_naming.source` is `manual`: ask the user for the version string.
-- If `task_naming.source` is not set: infer — `package-json` if `package.json` has a `version` field, else `git-branch` (run `git status`, extract branch name via `task_naming.branch_pattern`).
+- If `task_naming.source` is not set: infer — `package-json` if `package.json` has a `version` field, else `git-branch` (run `git status`, extract `{version}` via `task_naming.branch_pattern`).
 - If extraction fails, ask the user.
 
 Use the extracted version verbatim — never auto-increment. Multiple tasks can share a version.
