@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.10.0] - 2026-05-02
+
+### Added
+- **Configurable TDD** — new `tdd: true | false | ask` config field controls whether plans use test-driven development. When enabled, agents assess testability per step and structure testable steps as test-first
+- **`plan-steps.md` prompt** — dedicated plan construction rules loaded at plan-creation time (not session start), reducing session-start context by ~62 lines
+
+### Fixed
+- **Branch verification before remote operations** — prompts that push or create PRs now verify the current branch via `git status` instead of relying on session-start context
+- **Correct git range in PR drafts** — `git log` uses double-dot (`..`) for commit list; triple-dot kept only for `git diff` (merge-base semantics)
+- Misleading next-action suggestion after `/add-step` — now only suggests `/run-step` (not `/do-it` which is redundant when step exists)
+
 ## [1.9.0] - 2026-04-22
 
 ### Added
