@@ -100,7 +100,7 @@ update_check:
   # After user answers, the value is written here.
 
 claude:
-  question_style: interactive   # interactive (AskUserQuestion) | numbered (plain text with 1, 2, 3...)
+  question_style: numbered      # numbered (plain text with 1, 2, 3...) | interactive (AskUserQuestion)
   # Only applies to Claude Code. Other tools always use numbered.
 
 pr:

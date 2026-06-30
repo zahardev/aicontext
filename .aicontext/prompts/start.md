@@ -15,6 +15,7 @@ Read these files (later files override earlier ones). Do not batch these with th
 2. `.aicontext/rules/standards.md` — coding standards, safety rules, AI behavior
 3. `.aicontext/structure.md` — commands, folder structure, environment
 4. `.aicontext/local.md` — personal/local settings (if it exists, gitignored)
+5. `.aicontext/config.yml` — project settings (and `config.local.yml` if present)
 
 ## 3. Confirm readiness
 

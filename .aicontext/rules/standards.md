@@ -73,9 +73,9 @@ All commits go through `commit.md` — the single commit codepath. Read `.aicont
 
 ## Question UX
 
-When asking closed questions (2-4 discrete options), check `claude.question_style` in `.aicontext/config.yml`:
-- **`interactive`** (default): use `AskUserQuestion` tool for clickable options (Claude Code only)
-- **`numbered`**: present numbered options as plain text (1, 2, 3...) — user types the number
+Before asking closed questions (2-4 discrete options), check `claude.question_style` in `.aicontext/config.yml` (loaded into context at session start by `/start`):
+- **`interactive`**: use `AskUserQuestion` tool for clickable options (Claude Code only)
+- **`numbered`** (default): present numbered options as plain text (1, 2, 3...) — user types the number
 - **Other tools (Cursor, Copilot, Codex):** always use numbered regardless of setting
 - **Open-ended questions:** always use plain text
 - **Option labels:** use the exact text from the prompt. Don't add `(Recommended)` or `(default)` unless the prompt specifies it
