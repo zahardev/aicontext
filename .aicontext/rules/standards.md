@@ -35,14 +35,14 @@
 - **But**: Prefer duplication over the wrong abstraction - don't force unrelated code to share logic
 
 ### KISS (Keep It Stupid Simple)
-- Choose the simplest solution that solves the problem
-- Avoid clever code - prefer readable and obvious implementations
+- Prefer readable and obvious implementations
 - One function = one responsibility
 - Flat is better than nested (avoid deep callback/condition nesting)
 - Use early returns to handle edge cases first and reduce nesting
 - If a solution needs extensive comments to explain, simplify the code instead
+- Before writing complex logic, plan the method structure — what methods are needed and what each one does
 
-**Red flags for complexity:** functions >40 lines, >3 nesting levels, >3 parameters, generic solutions for specific problems.
+**Red flags for complexity:** functions >40 lines, >3 nesting levels, >3 parameters. When you hit a red flag, extract methods until the remaining code reads linearly.
 
 ### Code Documentation
 - Use descriptive, action-oriented descriptions
