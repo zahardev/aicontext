@@ -17,6 +17,7 @@ const {
   ASSISTANTS,
   copyFlatPointers,
   addAssistant,
+  isGeneratedPointer,
   DEPRECATED_SKILLS,
   FRAMEWORK_SCRIPTS,
   selfHealMissingFiles,
@@ -1956,16 +1957,44 @@ describe('opencode and pi entry points', () => {
     const userFile = path.join(tempDir, '.opencode', 'command', 'task.md');
     fs.writeFileSync(userFile, 'my own task command');
     const stalePointer = path.join(tempDir, '.pi', 'prompts', 'task.md');
-    fs.writeFileSync(stalePointer, 'Read and follow `.aicontext/prompts/task.md`');
+    fs.writeFileSync(stalePointer, '---\ndescription: Old task skill\n---\n\nRead and follow `.aicontext/prompts/task.md`\n\n$ARGUMENTS\n');
     // Cites a framework prompt, but not its own — a user file, not a stale pointer
     const citingFile = path.join(tempDir, '.opencode', 'command', 'next.md');
     fs.writeFileSync(citingFile, 'My notes on `.aicontext/prompts/run-task.md`');
+    // Frontmatter and the right pointer line, but extra prose — the user's own file
+    const pointerLikeFile = path.join(tempDir, '.pi', 'prompts', 'start-task.md');
+    fs.writeFileSync(
+      pointerLikeFile,
+      '---\ndescription: mine\n---\n\nRead and follow `.aicontext/prompts/start-task.md`\n\nThen deploy to staging.\n'
+    );
 
     removeDeprecatedSkills(tempDir);
 
     assert.strictEqual(fs.readFileSync(userFile, 'utf8'), 'my own task command');
     assert.strictEqual(fs.readFileSync(citingFile, 'utf8'), 'My notes on `.aicontext/prompts/run-task.md`');
+    assert.strictEqual(fs.existsSync(pointerLikeFile), true, 'file with extra prose was deleted');
     assert.strictEqual(fs.existsSync(stalePointer), false);
+  });
+
+  it('should recognize only generated pointer files', () => {
+    const generated = '---\ndescription: Anything at all\n---\n\nRead and follow `.aicontext/prompts/task.md`\n\n$ARGUMENTS\n';
+    assert.strictEqual(isGeneratedPointer(generated, 'task'), true);
+    // Pre-$ARGUMENTS pointers must still be recognized
+    assert.strictEqual(
+      isGeneratedPointer('---\ndescription: x\n---\n\nRead and follow `.aicontext/prompts/task.md`\n', 'task'),
+      true
+    );
+    assert.strictEqual(isGeneratedPointer('My own task command', 'task'), false);
+    // Right shape, wrong skill
+    assert.strictEqual(
+      isGeneratedPointer('---\ndescription: x\n---\n\nRead and follow `.aicontext/prompts/other.md`\n', 'task'),
+      false
+    );
+    // Extra frontmatter keys mean the user edited it
+    assert.strictEqual(
+      isGeneratedPointer('---\ndescription: x\nagent: build\n---\n\nRead and follow `.aicontext/prompts/task.md`\n', 'task'),
+      false
+    );
   });
 
   it('should pass arguments through on both harnesses', () => {
