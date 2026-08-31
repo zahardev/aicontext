@@ -14,6 +14,9 @@ const {
   FRAMEWORK_AGENTS,
   DEPRECATED_AGENTS,
   FRAMEWORK_SKILLS,
+  ASSISTANTS,
+  copyFlatPointers,
+  addAssistant,
   DEPRECATED_SKILLS,
   FRAMEWORK_SCRIPTS,
   selfHealMissingFiles,
@@ -39,6 +42,8 @@ const {
   init,
   update,
 } = require('../bin/aicontext.js');
+
+const packageRoot = path.join(__dirname, '..');
 
 const originalLog = console.log;
 before(() => { console.log = process.env.DEBUG ? originalLog : () => {}; });
@@ -1287,11 +1292,15 @@ describe('hasExistingFrameworkFiles', () => {
     const agentsDir = path.join(tempDir, '.claude', 'agents');
     const skillsDir = path.join(tempDir, '.claude', 'skills');
     const codexDir = path.join(tempDir, '.codex', 'skills');
+    const opencodeDir = path.join(tempDir, '.opencode', 'command');
+    const piDir = path.join(tempDir, '.pi', 'prompts');
     const promptsDir = path.join(tempDir, '.aicontext', 'prompts');
 
     if (fs.existsSync(agentsDir)) fs.rmSync(agentsDir, { recursive: true });
     if (fs.existsSync(skillsDir)) fs.rmSync(skillsDir, { recursive: true });
     if (fs.existsSync(codexDir)) fs.rmSync(codexDir, { recursive: true });
+    if (fs.existsSync(opencodeDir)) fs.rmSync(opencodeDir, { recursive: true });
+    if (fs.existsSync(piDir)) fs.rmSync(piDir, { recursive: true });
     if (fs.existsSync(promptsDir)) fs.rmSync(promptsDir, { recursive: true });
 
     assert.strictEqual(hasExistingFrameworkFiles(tempDir), false);
@@ -1842,5 +1851,145 @@ describe('resolveCommitAnswer', () => {
   it('maps unknown inputs to null — keep template default', () => {
     assert.strictEqual(resolveCommitAnswer('9'), null);
     assert.strictEqual(resolveCommitAnswer('yes'), null);
+  });
+});
+
+describe('opencode and pi entry points', () => {
+  let tempDir;
+
+  beforeEach(async () => {
+    tempDir = createTempDir();
+    await init(tempDir, true);
+  });
+
+  afterEach(() => {
+    removeTempDir(tempDir);
+  });
+
+  it('should install a pointer file per skill for both harnesses', () => {
+    for (const skill of FRAMEWORK_SKILLS) {
+      assert.strictEqual(
+        fs.existsSync(path.join(tempDir, '.opencode', 'command', `${skill}.md`)),
+        true,
+        `.opencode/command/${skill}.md missing`
+      );
+      assert.strictEqual(
+        fs.existsSync(path.join(tempDir, '.pi', 'prompts', `${skill}.md`)),
+        true,
+        `.pi/prompts/${skill}.md missing`
+      );
+    }
+  });
+
+  it('should detect both harnesses via the assistant registry', () => {
+    assert.strictEqual(ASSISTANTS.opencode.detect(tempDir), true);
+    assert.strictEqual(ASSISTANTS.pi.detect(tempDir), true);
+
+    const emptyDir = createTempDir();
+    try {
+      assert.strictEqual(ASSISTANTS.opencode.detect(emptyDir), false);
+      assert.strictEqual(ASSISTANTS.pi.detect(emptyDir), false);
+    } finally {
+      removeTempDir(emptyDir);
+    }
+  });
+
+  it('should list both folders in getExistingFiles', () => {
+    const existing = getExistingFiles(tempDir);
+    assert.ok(existing.includes('.opencode'), '.opencode not reported');
+    assert.ok(existing.includes('.pi'), '.pi not reported');
+  });
+
+  it('should restore deleted pointer files on update', async () => {
+    fs.rmSync(path.join(tempDir, '.opencode', 'command', 'start.md'));
+    fs.rmSync(path.join(tempDir, '.pi', 'prompts', 'start.md'));
+
+    await update(tempDir, true);
+
+    assert.strictEqual(fs.existsSync(path.join(tempDir, '.opencode', 'command', 'start.md')), true);
+    assert.strictEqual(fs.existsSync(path.join(tempDir, '.pi', 'prompts', 'start.md')), true);
+  });
+
+  it('should preserve customized pointer files on update', async () => {
+    const custom = path.join(tempDir, '.opencode', 'command', 'start.md');
+    fs.writeFileSync(custom, 'user content');
+
+    // Force the full copy path rather than the self-heal shortcut
+    fs.writeFileSync(path.join(tempDir, '.aicontext', '.version'), '0.0.1');
+    await update(tempDir, true);
+
+    assert.strictEqual(fs.readFileSync(custom, 'utf8'), 'user content');
+  });
+
+  it('should override customized pointer files when overrideSkills is set', async () => {
+    const custom = path.join(tempDir, '.pi', 'prompts', 'start.md');
+    fs.writeFileSync(custom, 'user content');
+
+    await copyFlatPointers('pi', packageRoot, tempDir, true, true);
+
+    const shipped = fs.readFileSync(path.join(packageRoot, '.pi', 'prompts', 'start.md'), 'utf8');
+    assert.strictEqual(fs.readFileSync(custom, 'utf8'), shipped);
+  });
+
+  it('should keep every skill pointer in sync with FRAMEWORK_SKILLS', async () => {
+    const fresh = createTempDir();
+    try {
+      await copyFlatPointers('opencode', packageRoot, fresh, false, true);
+      const written = fs.readdirSync(path.join(fresh, '.opencode', 'command')).sort();
+      assert.deepStrictEqual(written, FRAMEWORK_SKILLS.map((s) => `${s}.md`).sort());
+    } finally {
+      removeTempDir(fresh);
+    }
+  });
+
+  it('should install a missing harness via add-assistant', async () => {
+    fs.rmSync(path.join(tempDir, '.pi'), { recursive: true });
+    assert.strictEqual(ASSISTANTS.pi.detect(tempDir), false);
+
+    await addAssistant('pi', tempDir, true);
+
+    assert.strictEqual(ASSISTANTS.pi.detect(tempDir), true);
+    assert.strictEqual(fs.existsSync(path.join(tempDir, '.pi', 'prompts', 'start.md')), true);
+  });
+
+  it('should not remove a user-authored file that shares a deprecated skill name', () => {
+    const userFile = path.join(tempDir, '.opencode', 'command', 'task.md');
+    fs.writeFileSync(userFile, 'my own task command');
+    const stalePointer = path.join(tempDir, '.pi', 'prompts', 'task.md');
+    fs.writeFileSync(stalePointer, 'Read and follow `.aicontext/prompts/task.md`');
+    // Cites a framework prompt, but not its own — a user file, not a stale pointer
+    const citingFile = path.join(tempDir, '.opencode', 'command', 'next.md');
+    fs.writeFileSync(citingFile, 'My notes on `.aicontext/prompts/run-task.md`');
+
+    removeDeprecatedSkills(tempDir);
+
+    assert.strictEqual(fs.readFileSync(userFile, 'utf8'), 'my own task command');
+    assert.strictEqual(fs.readFileSync(citingFile, 'utf8'), 'My notes on `.aicontext/prompts/run-task.md`');
+    assert.strictEqual(fs.existsSync(stalePointer), false);
+  });
+
+  it('should pass arguments through on both harnesses', () => {
+    for (const p of [
+      path.join(tempDir, '.opencode', 'command'),
+      path.join(tempDir, '.pi', 'prompts'),
+    ]) {
+      for (const skill of FRAMEWORK_SKILLS) {
+        const content = fs.readFileSync(path.join(p, `${skill}.md`), 'utf8');
+        assert.ok(content.includes('$ARGUMENTS'), `${p}/${skill}.md has no $ARGUMENTS placeholder`);
+      }
+    }
+  });
+
+  it('should report framework files present when only pointer files remain', () => {
+    for (const dir of [
+      path.join(tempDir, '.claude', 'agents'),
+      path.join(tempDir, '.claude', 'skills'),
+      path.join(tempDir, '.codex', 'skills'),
+      path.join(tempDir, '.aicontext', 'prompts'),
+    ]) {
+      if (fs.existsSync(dir)) fs.rmSync(dir, { recursive: true });
+    }
+
+    assert.strictEqual(hasExistingFrameworkFiles(tempDir), true);
   });
 });

@@ -38,6 +38,12 @@ const FRAMEWORK_CODEX_SKILLS = [
   'align-context', 'do-it', 'challenge', 'brainstorm', 'thoughts', 'interview', 'commit', 'review', 'deep-review', 'next-step', 'draft-pr', 'gh-review-check',
   'draft-issue', 'generate-docs', 'prepare-release', 'gh-review-fix-loop', 'gh-fix-tests', 'web-inspect', 'aic-help', 'aic-skills', 'tidy-aic',
 ];
+// Harnesses whose skills are flat `<name>.md` pointer files rather than `<name>/SKILL.md` directories.
+// Both ship the same skill set as `.claude`, so they reuse FRAMEWORK_SKILLS.
+const FLAT_POINTER_HARNESSES = {
+  opencode: { dir: ['.opencode', 'command'] },
+  pi: { dir: ['.pi', 'prompts'] },
+};
 const DEPRECATED_SKILLS = ['task', 'after-step', 'next', 'pr', 'start-task', 'diff-review', 'branch-review', 'standards-check', 'pr-review-check', 'check-plan', 'check-task', 'review-task-plan', 'run-steps', 'review-plan'];
 const FRAMEWORK_SCRIPTS = ['pr-reviews.cjs', 'pr-resolve.cjs'];
 const DEPRECATED_SCRIPTS = ['pr-reviews.js', 'pr-resolve.js'];
@@ -76,6 +82,22 @@ const ASSISTANTS = {
     detect: (target) => isDirectory(path.join(target, '.codex')),
     install: async (packageRoot, target, opts) => {
       await copyFrameworkCodexSkills(packageRoot, target, opts.overrideSkills, opts.skipConfirm);
+    },
+  },
+  opencode: {
+    label: 'opencode',
+    folder: '.opencode/',
+    detect: (target) => isDirectory(path.join(target, '.opencode')),
+    install: async (packageRoot, target, opts) => {
+      await copyFlatPointers('opencode', packageRoot, target, opts.overrideSkills, opts.skipConfirm);
+    },
+  },
+  pi: {
+    label: 'Pi',
+    folder: '.pi/',
+    detect: (target) => isDirectory(path.join(target, '.pi')),
+    install: async (packageRoot, target, opts) => {
+      await copyFlatPointers('pi', packageRoot, target, opts.overrideSkills, opts.skipConfirm);
     },
   },
   copilot: {
@@ -242,6 +264,8 @@ function getExistingFiles(target) {
     '.claude',
     '.codex',
     '.cursor',
+    '.opencode',
+    '.pi',
     '.github/copilot-instructions.md',
   ];
 
@@ -285,7 +309,10 @@ function hasExistingFrameworkFiles(target) {
   const hasAgent = FRAMEWORK_AGENTS.some((f) => fs.existsSync(path.join(agentsDir, f)));
   const hasSkill = FRAMEWORK_SKILLS.some((s) => fs.existsSync(path.join(skillsDir, s, 'SKILL.md')));
   const hasCodexSkill = FRAMEWORK_CODEX_SKILLS.some((s) => fs.existsSync(path.join(codexSkillsDir, s, 'SKILL.md')));
-  return hasAgent || hasSkill || hasCodexSkill || hasExistingPrompts(target);
+  const hasFlatPointer = Object.values(FLAT_POINTER_HARNESSES).some(({ dir }) =>
+    FRAMEWORK_SKILLS.some((s) => fs.existsSync(path.join(target, ...dir, `${s}.md`)))
+  );
+  return hasAgent || hasSkill || hasCodexSkill || hasFlatPointer || hasExistingPrompts(target);
 }
 
 function removeDeprecatedPrompts(target) {
@@ -310,6 +337,18 @@ function removeDeprecatedAgents(target) {
 }
 
 function removeDeprecatedSkills(target) {
+  // opencode and pi share their command folder with the user's own files, so a name match
+  // is not enough — only remove pointers that still reference a framework prompt.
+  for (const { dir } of Object.values(FLAT_POINTER_HARNESSES)) {
+    for (const skill of DEPRECATED_SKILLS) {
+      const filePath = path.join(target, ...dir, `${skill}.md`);
+      if (!fs.existsSync(filePath)) continue;
+      if (!fs.readFileSync(filePath, 'utf8').includes(`.aicontext/prompts/${skill}.md`)) continue;
+      fs.unlinkSync(filePath);
+      log(`  Removed deprecated: ${path.relative(target, filePath)}`, 'dim');
+    }
+  }
+
   for (const dir of [path.join(target, '.claude', 'skills'), path.join(target, '.codex', 'skills')]) {
     for (const skill of DEPRECATED_SKILLS) {
       const skillPath = path.join(dir, skill);
@@ -415,6 +454,18 @@ function selfHealMissingFiles(packageRoot, target, presentAssistants) {
           healed++;
         }
       }
+    } else if (FLAT_POINTER_HARNESSES[name]) {
+      const { dir } = FLAT_POINTER_HARNESSES[name];
+      for (const skill of FRAMEWORK_SKILLS) {
+        const src = path.join(packageRoot, ...dir, `${skill}.md`);
+        const dest = path.join(target, ...dir, `${skill}.md`);
+        if (fs.existsSync(src) && !fs.existsSync(dest)) {
+          fs.mkdirSync(path.dirname(dest), { recursive: true });
+          fs.copyFileSync(src, dest);
+          log(`  Restored: ${dir.join('/')}/${skill}.md`, 'yellow');
+          healed++;
+        }
+      }
     }
   }
 
@@ -467,6 +518,29 @@ async function copyFrameworkAgents(packageRoot, target, overrideAgents = false, 
   }
 }
 
+// Copies one skill file, applying the shared override/skip/prompt policy for files the user may have edited.
+async function copySkillFile(src, dest, display, overrideSkills, skipConfirm) {
+  fs.mkdirSync(path.dirname(dest), { recursive: true });
+
+  if (!fs.existsSync(dest)) {
+    fs.copyFileSync(src, dest);
+    log(`  Copied: ${display}`, 'dim');
+    return;
+  }
+
+  if (overrideSkills) {
+    fs.copyFileSync(src, dest);
+    log(`  Overridden: ${display}`, 'yellow');
+  } else if (skipConfirm) {
+    log(`  Skipped: ${display} (already exists)`, 'dim');
+  } else if (await promptYesNo(`  ${display} already exists. Override? (y/N): `, false)) {
+    fs.copyFileSync(src, dest);
+    log(`  Overridden: ${display}`, 'yellow');
+  } else {
+    log(`  Skipped: ${display}`, 'dim');
+  }
+}
+
 async function copyFrameworkSkills(packageRoot, target, overrideSkills = false, skipConfirm = false) {
   const srcDir = path.join(packageRoot, '.claude', 'skills');
   const destDir = path.join(target, '.claude', 'skills');
@@ -476,30 +550,8 @@ async function copyFrameworkSkills(packageRoot, target, overrideSkills = false, 
     const src = path.join(srcDir, skill, 'SKILL.md');
     if (!fs.existsSync(src)) continue;
 
-    const destSkillDir = path.join(destDir, skill);
-    const dest = path.join(destSkillDir, 'SKILL.md');
-
-    if (fs.existsSync(dest)) {
-      if (overrideSkills) {
-        fs.mkdirSync(destSkillDir, { recursive: true });
-        fs.copyFileSync(src, dest);
-        log(`  Overridden: skills/${skill}/SKILL.md`, 'yellow');
-      } else if (skipConfirm) {
-        log(`  Skipped: skills/${skill}/SKILL.md (already exists)`, 'dim');
-      } else {
-        const shouldOverride = await promptYesNo(`  skills/${skill}/SKILL.md already exists. Override? (y/N): `, false);
-        if (shouldOverride) {
-          fs.copyFileSync(src, dest);
-          log(`  Overridden: skills/${skill}/SKILL.md`, 'yellow');
-        } else {
-          log(`  Skipped: skills/${skill}/SKILL.md`, 'dim');
-        }
-      }
-    } else {
-      fs.mkdirSync(destSkillDir, { recursive: true });
-      fs.copyFileSync(src, dest);
-      log(`  Copied: skills/${skill}/SKILL.md`, 'dim');
-    }
+    const dest = path.join(destDir, skill, 'SKILL.md');
+    await copySkillFile(src, dest, `skills/${skill}/SKILL.md`, overrideSkills, skipConfirm);
   }
 }
 
@@ -661,6 +713,21 @@ function copyFrameworkScripts(packageRoot, target) {
   }
 }
 
+// Installs one flat `<name>.md` pointer file per skill for harnesses that discover commands from a single folder.
+async function copyFlatPointers(harness, packageRoot, target, overrideSkills = false, skipConfirm = false) {
+  const { dir } = FLAT_POINTER_HARNESSES[harness];
+  const destDir = path.join(target, ...dir);
+  fs.mkdirSync(destDir, { recursive: true });
+
+  for (const skill of FRAMEWORK_SKILLS) {
+    const src = path.join(packageRoot, ...dir, `${skill}.md`);
+    if (!fs.existsSync(src)) continue;
+
+    const dest = path.join(destDir, `${skill}.md`);
+    await copySkillFile(src, dest, `${dir.join('/')}/${skill}.md`, overrideSkills, skipConfirm);
+  }
+}
+
 async function copyFrameworkCodexSkills(packageRoot, target, overrideSkills = false, skipConfirm = false) {
   const srcDir = path.join(packageRoot, '.codex', 'skills');
   const destDir = path.join(target, '.codex', 'skills');
@@ -670,30 +737,8 @@ async function copyFrameworkCodexSkills(packageRoot, target, overrideSkills = fa
     const src = path.join(srcDir, skill, 'SKILL.md');
     if (!fs.existsSync(src)) continue;
 
-    const destSkillDir = path.join(destDir, skill);
-    const dest = path.join(destSkillDir, 'SKILL.md');
-
-    if (fs.existsSync(dest)) {
-      if (overrideSkills) {
-        fs.mkdirSync(destSkillDir, { recursive: true });
-        fs.copyFileSync(src, dest);
-        log(`  Overridden: .codex/skills/${skill}/SKILL.md`, 'yellow');
-      } else if (skipConfirm) {
-        log(`  Skipped: .codex/skills/${skill}/SKILL.md (already exists)`, 'dim');
-      } else {
-        const shouldOverride = await promptYesNo(`  .codex/skills/${skill}/SKILL.md already exists. Override? (y/N): `, false);
-        if (shouldOverride) {
-          fs.copyFileSync(src, dest);
-          log(`  Overridden: .codex/skills/${skill}/SKILL.md`, 'yellow');
-        } else {
-          log(`  Skipped: .codex/skills/${skill}/SKILL.md`, 'dim');
-        }
-      }
-    } else {
-      fs.mkdirSync(destSkillDir, { recursive: true });
-      fs.copyFileSync(src, dest);
-      log(`  Copied: .codex/skills/${skill}/SKILL.md`, 'dim');
-    }
+    const dest = path.join(destDir, skill, 'SKILL.md');
+    await copySkillFile(src, dest, `.codex/skills/${skill}/SKILL.md`, overrideSkills, skipConfirm);
   }
 }
 
@@ -824,8 +869,8 @@ async function init(targetDir, skipConfirm = false, keepPrompts = false, overrid
 
   log('\nInstallation complete!', 'green');
   log('\nNext steps:', 'cyan');
-  log('1. Open your AI assistant (Claude Code, Cursor, Codex, or GitHub Copilot)');
-  log('2. Type /start (Claude Code) or paste .aicontext/prompts/start.md (Cursor/Copilot)');
+  log('1. Open your AI assistant (Claude Code, Cursor, Codex, opencode, Pi, or GitHub Copilot)');
+  log('2. Type /start (Claude Code, opencode, Pi) or paste .aicontext/prompts/start.md (Cursor/Copilot)');
   log('3. On first run, the AI will analyze your codebase and generate project context');
   const skipped = ASSISTANT_NAMES.filter((name) => !chosenAssistants.includes(name));
   if (skipped.length > 0) {
@@ -927,6 +972,11 @@ async function update(targetDir, skipConfirm = false, keepPrompts = false, overr
   }
   if (presentAssistants.includes('codex')) {
     log(`  - .codex/skills/ (${overrideSkills ? 'all existing will be overridden' : 'new skills only, existing will be prompted'})`, 'yellow');
+  }
+  for (const [name, { dir }] of Object.entries(FLAT_POINTER_HARNESSES)) {
+    if (presentAssistants.includes(name)) {
+      log(`  - ${dir.join('/')}/ (${overrideSkills ? 'all existing will be overridden' : 'new skills only, existing will be prompted'})`, 'yellow');
+    }
   }
   if (presentAssistants.includes('cursor')) {
     log('  - .cursor/', 'yellow');
@@ -1289,6 +1339,7 @@ module.exports = {
   DEPRECATED_AGENTS,
   FRAMEWORK_SKILLS,
   FRAMEWORK_CODEX_SKILLS,
+  FLAT_POINTER_HARNESSES,
   DEPRECATED_SKILLS,
   FRAMEWORK_SCRIPTS,
   DEPRECATED_SCRIPTS,
@@ -1298,6 +1349,7 @@ module.exports = {
   copyFrameworkAgents,
   copyFrameworkSkills,
   copyFrameworkCodexSkills,
+  copyFlatPointers,
   copyFrameworkScripts,
   installConfig,
   setConfigValue,

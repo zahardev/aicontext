@@ -6,7 +6,7 @@ Present this guide to the user. Do not summarize or shorten — output it as-is.
 
 ## What is AIContext?
 
-AIContext gives AI coding assistants persistent memory about your project. It creates standardized context files — rules, prompts, templates, specs, tasks — that work across Claude Code, Codex, Cursor, and GitHub Copilot. Designed Claude-first — for best experience, use Claude Code in an IDE (VS Code, JetBrains, etc.).
+AIContext gives AI coding assistants persistent memory about your project. It creates standardized context files — rules, prompts, templates, specs, tasks — that work across Claude Code, Codex, Cursor, opencode, Pi, and GitHub Copilot. Designed Claude-first — for best experience, use Claude Code in an IDE (VS Code, JetBrains, etc.).
 
 Install: `npx @zahardev/aicontext init`
 
@@ -18,7 +18,7 @@ For a new feature, the full flow is:
 
 `/start` → `/start-feature` → `/run-task` → `/finish-task`
 
-Skills are invoked as `/skill-name` in Claude Code. In Codex, Cursor, and Copilot, use `use skill-name` instead. Run `/aic-skills` (or `use aic-skills`) any time to see all available commands.
+Skills are invoked as `/skill-name` in Claude Code, opencode, and Pi. In Codex, Cursor, and Copilot, use `use skill-name` instead. Run `/aic-skills` (or `use aic-skills`) any time to see all available commands.
 
 ## Key Concepts
 

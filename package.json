@@ -1,7 +1,7 @@
 {
   "name": "@zahardev/aicontext",
   "version": "1.10.0",
-  "description": "Give your AI coding assistants persistent memory about your project. Works with any language (PHP, Python, JS, Rust, Go) and framework (Laravel, Django, Next.js, WordPress). Supports Claude Code, Codex, Cursor, and GitHub Copilot.",
+  "description": "Give your AI coding assistants persistent memory about your project. Works with any language (PHP, Python, JS, Rust, Go) and framework (Laravel, Django, Next.js, WordPress). Supports Claude Code, Codex, Cursor, opencode, Pi, and GitHub Copilot.",
   "keywords": [
     "ai",
     "claude",
@@ -51,6 +51,8 @@
     ".aicontext/scripts/",
     ".claude/",
     ".codex/",
+    ".opencode/",
+    ".pi/",
     ".cursor/",
     ".github/copilot-instructions.md"
   ],
