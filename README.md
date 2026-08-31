@@ -14,7 +14,7 @@ Most AI coding sessions lose context, skip planning, and need constant hand-hold
 
 **Works with any language or framework** — PHP, Python, JavaScript, TypeScript, Rust, Go, and more.
 
-**Supports multiple AI tools** — Claude Code, Codex, Cursor, and GitHub Copilot.
+**Supports multiple AI tools** — Claude Code, Codex, Cursor, opencode, Pi, and GitHub Copilot.
 
 ## Quick Start
 
@@ -24,7 +24,7 @@ cd /path/to/your-project
 aicontext init
 ```
 
-**Every session must begin with `/start`** (Claude Code) or `use start` (Codex, Cursor, Copilot). This loads your project context, rules, and workflow — without it, none of the other commands will work correctly. On first run, the AI will analyze your codebase and generate project context automatically.
+**Every session must begin with `/start`** (Claude Code, opencode, Pi) or `use start` (Codex, Cursor, Copilot). This loads your project context, rules, and workflow — without it, none of the other commands will work correctly. On first run, the AI will analyze your codebase and generate project context automatically.
 
 Run `/aic-help` (or `use aic-help`) for a guided tour of available workflows and best practices.
 
@@ -127,7 +127,7 @@ AIContext creates a `.aicontext/` directory with shared rules, prompts, and temp
 
 | Tool | How to invoke skills |
 |------|---------------------|
-| Claude Code | `/skill-name` (e.g., `/start-feature`) |
+| Claude Code, opencode, Pi | `/skill-name` (e.g., `/start-feature`) |
 | Codex, Cursor, Copilot | `use skill-name` (e.g., `use start-feature`) |
 
 Claude Code gets the richest experience with `/command` skills and parallel subagents. All tools share the same underlying prompts and instructions.
@@ -155,6 +155,8 @@ cp -r /tmp/aicontext/.aicontext .
 cp -r /tmp/aicontext/.claude .    # Claude Code
 cp -r /tmp/aicontext/.codex .     # Codex
 cp -r /tmp/aicontext/.cursor .    # Cursor
+cp -r /tmp/aicontext/.opencode .  # opencode
+cp -r /tmp/aicontext/.pi .        # Pi
 cp -r /tmp/aicontext/.github .    # GitHub Copilot
 rm -rf /tmp/aicontext
 ```

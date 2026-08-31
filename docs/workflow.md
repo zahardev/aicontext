@@ -1,7 +1,7 @@
 # Workflow Guide
 
 > **Skill invocation varies by tool.** Throughout this guide, skill names are shown as `/skill-name`. Use them as follows:
-> - **Claude Code:** `/skill-name` (e.g., `/start`)
+> - **Claude Code, opencode, Pi:** `/skill-name` (e.g., `/start`)
 > - **Codex:** `Use skill-name` (e.g., `Use start`)
 > - **Cursor / Copilot:** Paste the equivalent prompt file from `.aicontext/prompts/` (see the [skills reference](skills.md) for mappings).
 
