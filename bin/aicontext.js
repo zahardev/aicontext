@@ -336,14 +336,31 @@ function removeDeprecatedAgents(target) {
   }
 }
 
+// Matches a pointer file this CLI generated: description-only frontmatter, the pointer line
+// for this exact skill, and nothing else but an optional $ARGUMENTS line.
+function isGeneratedPointer(content, skill) {
+  const match = /^---\r?\n(?<frontmatter>[\s\S]*?)\r?\n---\r?\n(?<body>[\s\S]*)$/.exec(content);
+  if (!match) return false;
+
+  const frontmatterKeys = match.groups.frontmatter
+    .split(/\r?\n/)
+    .filter((line) => line.trim())
+    .map((line) => line.split(':')[0].trim());
+  if (frontmatterKeys.some((key) => key !== 'description')) return false;
+
+  const bodyLines = match.groups.body.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+  const allowed = [`Read and follow \`.aicontext/prompts/${skill}.md\``, '$ARGUMENTS'];
+  return bodyLines.length > 0 && bodyLines.every((line) => allowed.includes(line));
+}
+
 function removeDeprecatedSkills(target) {
-  // opencode and pi share their command folder with the user's own files, so a name match
-  // is not enough — only remove pointers that still reference a framework prompt.
+  // opencode and pi share their command folder with the user's own files, so a name match is not
+  // enough — only remove files that still match the pointer shape this CLI generates.
   for (const { dir } of Object.values(FLAT_POINTER_HARNESSES)) {
     for (const skill of DEPRECATED_SKILLS) {
       const filePath = path.join(target, ...dir, `${skill}.md`);
       if (!fs.existsSync(filePath)) continue;
-      if (!fs.readFileSync(filePath, 'utf8').includes(`.aicontext/prompts/${skill}.md`)) continue;
+      if (!isGeneratedPointer(fs.readFileSync(filePath, 'utf8'), skill)) continue;
       fs.unlinkSync(filePath);
       log(`  Removed deprecated: ${path.relative(target, filePath)}`, 'dim');
     }
@@ -1357,6 +1374,7 @@ module.exports = {
   setAgentModel,
   removeDeprecatedPrompts,
   removeDeprecatedAgents,
+  isGeneratedPointer,
   removeDeprecatedSkills,
   getExistingFiles,
   hasExistingPrompts,
