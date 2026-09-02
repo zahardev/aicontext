@@ -1,6 +1,6 @@
 ---
 name: add-step
-description: Add a new step to the current task based on conversation context.
+description: Use only when the user directly asks to add work to the current task plan. Adds a new step from conversation context.
 ---
 
 Read and follow `.aicontext/prompts/add-step.md`

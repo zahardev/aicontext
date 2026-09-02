@@ -1,6 +1,6 @@
 ---
 name: create-task
-description: Create a task file from current discussion — lighter alternative to /start-feature.
+description: Use only when the user directly asks to create or formalize a task from the current discussion.
 ---
 
 Read and follow `.aicontext/prompts/create-task.md`

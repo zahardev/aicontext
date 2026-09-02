@@ -25,6 +25,7 @@ const {
   copyFrameworkPrompts,
   copyFrameworkAgents,
   copyFrameworkSkills,
+  copyFrameworkCodexSkills,
   copyFrameworkScripts,
   installConfig,
   resolveCommitAnswer,
@@ -1159,6 +1160,23 @@ describe('selfHealMissingFiles', () => {
     assert.strictEqual(fs.existsSync(skillPath), true);
   });
 
+  it('should restore missing Codex policy metadata without overwriting existing metadata', () => {
+    const missingPolicy = path.join(tempDir, '.codex', 'skills', 'start', 'agents', 'openai.yaml');
+    const existingPolicy = path.join(tempDir, '.codex', 'skills', 'resume-task', 'agents', 'openai.yaml');
+    fs.unlinkSync(missingPolicy);
+    fs.mkdirSync(path.dirname(existingPolicy), { recursive: true });
+    fs.writeFileSync(existingPolicy, 'user policy');
+
+    const healed = selfHealMissingFiles(packageRoot, tempDir, ['codex']);
+
+    assert.strictEqual(healed, 1);
+    assert.strictEqual(
+      fs.readFileSync(missingPolicy, 'utf8'),
+      fs.readFileSync(path.join(packageRoot, '.codex', 'skills', 'start', 'agents', 'openai.yaml'), 'utf8')
+    );
+    assert.strictEqual(fs.readFileSync(existingPolicy, 'utf8'), 'user policy');
+  });
+
   it('should not overwrite existing files', () => {
     const promptPath = path.join(tempDir, '.aicontext', 'prompts', 'start.md');
     fs.writeFileSync(promptPath, 'user modified');
@@ -1451,6 +1469,52 @@ describe('copyFrameworkSkills', () => {
 
     assert.strictEqual(fs.existsSync(path.join(destDir, '.claude', 'skills', 'start')), false);
     assert.strictEqual(fs.existsSync(path.join(destDir, '.claude', 'skills', 'resume-task', 'SKILL.md')), true);
+  });
+});
+
+describe('copyFrameworkCodexSkills', () => {
+  let tempDir;
+  let srcDir;
+  let destDir;
+
+  beforeEach(() => {
+    tempDir = createTempDir();
+    srcDir = path.join(tempDir, 'source');
+    destDir = path.join(tempDir, 'dest');
+    const skillDir = path.join(srcDir, '.codex', 'skills', 'start');
+    fs.mkdirSync(path.join(skillDir, 'agents'), { recursive: true });
+    fs.writeFileSync(path.join(skillDir, 'SKILL.md'), 'start skill');
+    fs.writeFileSync(path.join(skillDir, 'agents', 'openai.yaml'), 'policy:\n  allow_implicit_invocation: true\n');
+  });
+
+  afterEach(() => {
+    removeTempDir(tempDir);
+  });
+
+  it('should copy policy metadata with each Codex skill', async () => {
+    await copyFrameworkCodexSkills(srcDir, destDir);
+
+    const skillDir = path.join(destDir, '.codex', 'skills', 'start');
+    assert.strictEqual(fs.readFileSync(path.join(skillDir, 'SKILL.md'), 'utf8'), 'start skill');
+    assert.strictEqual(
+      fs.readFileSync(path.join(skillDir, 'agents', 'openai.yaml'), 'utf8'),
+      'policy:\n  allow_implicit_invocation: true\n'
+    );
+  });
+
+  it('should update policy metadata when preserving an existing skill', async () => {
+    const skillDir = path.join(destDir, '.codex', 'skills', 'start');
+    fs.mkdirSync(path.join(skillDir, 'agents'), { recursive: true });
+    fs.writeFileSync(path.join(skillDir, 'SKILL.md'), 'user skill');
+    fs.writeFileSync(path.join(skillDir, 'agents', 'openai.yaml'), 'old policy');
+
+    await copyFrameworkCodexSkills(srcDir, destDir, false, true);
+
+    assert.strictEqual(fs.readFileSync(path.join(skillDir, 'SKILL.md'), 'utf8'), 'user skill');
+    assert.strictEqual(
+      fs.readFileSync(path.join(skillDir, 'agents', 'openai.yaml'), 'utf8'),
+      'policy:\n  allow_implicit_invocation: true\n'
+    );
   });
 });
 
