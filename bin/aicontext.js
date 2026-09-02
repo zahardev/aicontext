@@ -462,13 +462,15 @@ function selfHealMissingFiles(packageRoot, target, presentAssistants) {
       const codexSrcDir = path.join(packageRoot, '.codex', 'skills');
       const codexDestDir = path.join(target, '.codex', 'skills');
       for (const skill of FRAMEWORK_CODEX_SKILLS) {
-        const src = path.join(codexSrcDir, skill, 'SKILL.md');
-        const dest = path.join(codexDestDir, skill, 'SKILL.md');
-        if (fs.existsSync(src) && !fs.existsSync(dest)) {
-          fs.mkdirSync(path.join(codexDestDir, skill), { recursive: true });
-          fs.copyFileSync(src, dest);
-          log(`  Restored: .codex/skills/${skill}/SKILL.md`, 'yellow');
-          healed++;
+        for (const file of ['SKILL.md', path.join('agents', 'openai.yaml')]) {
+          const src = path.join(codexSrcDir, skill, file);
+          const dest = path.join(codexDestDir, skill, file);
+          if (fs.existsSync(src) && !fs.existsSync(dest)) {
+            fs.mkdirSync(path.dirname(dest), { recursive: true });
+            fs.copyFileSync(src, dest);
+            log(`  Restored: .codex/skills/${skill}/${file}`, 'yellow');
+            healed++;
+          }
         }
       }
     } else if (FLAT_POINTER_HARNESSES[name]) {
@@ -756,6 +758,14 @@ async function copyFrameworkCodexSkills(packageRoot, target, overrideSkills = fa
 
     const dest = path.join(destDir, skill, 'SKILL.md');
     await copySkillFile(src, dest, `.codex/skills/${skill}/SKILL.md`, overrideSkills, skipConfirm);
+
+    const policySrc = path.join(srcDir, skill, 'agents', 'openai.yaml');
+    if (fs.existsSync(policySrc)) {
+      const policyDest = path.join(destDir, skill, 'agents', 'openai.yaml');
+      fs.mkdirSync(path.dirname(policyDest), { recursive: true });
+      fs.copyFileSync(policySrc, policyDest);
+      log(`  Copied: .codex/skills/${skill}/agents/openai.yaml`, 'dim');
+    }
   }
 }
 

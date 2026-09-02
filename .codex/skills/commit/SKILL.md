@@ -1,6 +1,6 @@
 ---
 name: commit
-description: Use to commit current changes following project commit rules (template, body settings).
+description: Use only when the user directly asks to commit current changes. Follows project commit rules for the message and scope.
 ---
 
 Read and follow `.aicontext/prompts/commit.md`
