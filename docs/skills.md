@@ -135,7 +135,12 @@ Comprehensive code review: architecture, correctness, and codebase health. Quest
 ### `/draft-pr`
 **Prompt:** `draft-pr.md`
 
-Generates a PR title and description from the task file and git history. Saved to `.aicontext/data/pr-drafts/`.
+Generates a PR title and description from the task file and git history, saved to `.aicontext/data/pr-drafts/`. Never pushes or creates a PR.
+
+### `/make-pr`
+**Prompt:** `make-pr.md`
+
+Creates the GitHub PR — reuses the local draft (or generates one), pushes the branch when required, and runs `gh pr create`.
 
 ### `/gh-review-check`
 **Prompt:** `gh-review-check.md`

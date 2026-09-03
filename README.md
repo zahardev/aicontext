@@ -95,7 +95,8 @@ Learn more in the [development model guide](docs/development-model.md).
 
 ### Issue & PR workflow
 - `/draft-issue` — draft a GitHub issue from conversation, create it on GitHub, and auto-fill the issue ID in subsequent task filenames
-- `/draft-pr` — generate PR description from task context and git history
+- `/draft-pr` — generate a PR description from task context and git history (local file only)
+- `/make-pr` — push the branch if needed and create the PR on GitHub
 - `/finish-task` can auto-create PRs and run the review-fix loop — configure `after_task.pr` and `after_task.review_loop` in `config.yml` for a fully automated code → commit → push → PR → review → fix pipeline
 - `/gh-review-fix-loop` — automate the review-fix-push cycle (works with CodeRabbit, human reviewers, etc.)
 - `/gh-fix-tests` — fix failing CI checks automatically: diagnose, fix, push, retry until green

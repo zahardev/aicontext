@@ -107,7 +107,7 @@ For small scope (<200 lines), runs inline for interactive feedback. For large sc
 
 ### Drafting a PR
 
-Use `/draft-pr` to generate a PR title and description from your task file and git history. The draft is saved to `.aicontext/data/pr-drafts/` for review before creating the actual PR.
+Use `/draft-pr` to generate a PR title and description from your task file and git history, saved to `.aicontext/data/pr-drafts/` for review. When you're ready, `/make-pr` pushes the branch if needed and opens the PR from that draft — or run it directly and it drafts on the spot.
 
 ### Triaging Review Comments
 

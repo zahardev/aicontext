@@ -1,5 +1,5 @@
 ---
-description: Draft a pull request title and body based on the current task file and git changes
+description: Draft a pull request title and body to a local file — no push, no GitHub PR
 ---
 
 Read and follow `.aicontext/prompts/draft-pr.md`
