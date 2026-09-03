@@ -13,7 +13,7 @@ Build the current branch's draft filename using the same rule as `/draft-pr`: re
 
 If the draft file exists, read its `# ` heading as the title and the remaining content as the body. If it predates the latest branch commit, ask whether to reuse or regenerate it.
 
-If no draft exists, read the current task file, then run `git log {base_branch}..HEAD --oneline` and `git diff {base_branch}...HEAD --stat`.
+If no draft exists or the user chooses regeneration, read the current task file, then run `git log {base_branch}..HEAD --oneline` and `git diff {base_branch}...HEAD --stat`.
 
 Write a generated title under 70 characters in imperative mood.
 
@@ -35,8 +35,8 @@ Resolve the current branch into a shell variable, then run `git push -u origin "
 
 ## 4. Create or Update
 
-Write the body to a temp file. Run `gh pr view --json number,url 2>/dev/null`.
+Resolve the title, base branch, and temp-file path into shell variables. Write the body to the temp file, then run `gh pr view --json number,url 2>/dev/null`.
 
-If a PR exists, run `gh pr edit --title "{title}" --body-file {tmp_file}`, then report its URL and number. Otherwise run `gh pr create --base "{base_branch}" --title "{title}" --body-file {tmp_file}`. Always delete the temp file.
+If a PR exists, run `gh pr edit --title "$title" --body-file "$tmp_file"`, then report its URL and number. Otherwise run `gh pr create --base "$base_branch" --title "$title" --body-file "$tmp_file"`. Always delete the temp file.
 
 Report the PR URL and number (e.g. `#42`); `finish-task.md` and `gh-review-fix-loop.md` find it through `gh pr view`.
