@@ -5,7 +5,7 @@
 ## Critical Safety Rules
 
 **NEVER run without explicit user confirmation:**
-- `git push` - Any push to remote (including non-force). Always ask first, unless pre-authorized by `after_task.push: true` (or `ask` resolved to Yes upfront) or an active `/gh-review-fix-loop` cycle.
+- `git push` - Any push to remote (including non-force). Always ask first, unless pre-authorized by `after_task.push: true` (or `ask` resolved to Yes upfront), `/make-pr`'s prerequisite branch push, or an active `/gh-review-fix-loop` cycle.
 - `git push --force` - Destructive git operations
 - Database wipe/reset commands
 - Volume/container deletion commands

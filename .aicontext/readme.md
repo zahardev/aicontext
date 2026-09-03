@@ -83,7 +83,7 @@ Common subdirectories:
 | Subdirectory | Purpose |
 |--------------|---------|
 | `code-reviews/` | Code review results from `/diff-review` and `/branch-review` skills |
-| `pr-drafts/` | Pull request drafts from `/draft-pr` skill |
+| `pr-drafts/` | Pull request drafts from `/draft-pr`, consumed by `/make-pr` |
 | `github-pr-reviews/` | PR review comment files from `/gh-review-check` skill |
 | `issue-drafts/` | GitHub issue drafts from `/draft-issue` skill |
 
@@ -112,7 +112,7 @@ Subdirectories are created automatically by skills and scripts when needed.
 2. Paste `prompts/review-task.md` (or use `/review-task`) to validate plans
 
 ### Pull Request Workflow (Claude Code / Codex)
-1. Use `/draft-pr` to draft a pull request from the task file and git changes
+1. Use `/draft-pr` to draft a pull request from the task file and git changes, then `/make-pr` to push and create it
 2. After PR review, use `/gh-review-check` to fetch and triage review comments
 3. Fix valid issues, resolve false positives directly on GitHub
 
@@ -143,7 +143,8 @@ Skills automate common workflows. Both Claude Code (`.claude/skills/`) and Codex
 | `review` | `prompts/review.md` | Review code (scope: diff, branch, commit, path) |
 | `deep-review` | `prompts/deep-review.md` | Comprehensive architecture + correctness review |
 | `next-step` | — | Complete step, reflect, start next |
-| `draft-pr` | — | Draft pull request |
+| `draft-pr` | — | Draft pull request to a local file |
+| `make-pr` | — | Push if needed and create the PR on GitHub |
 | `draft-issue` | — | Draft GitHub issue from conversation context |
 | `gh-review-check` | — | Triage PR review comments |
 

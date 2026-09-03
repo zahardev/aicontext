@@ -55,13 +55,11 @@ If `after_task.push` resolved to Yes: run `git status` to verify the current bra
 
 ### PR
 
-If `after_task.pr` resolved to Yes: check if push happened (either in the push step above or earlier). If not pushed and no remote branch exists, ask the user: "PR creation requires pushing to remote. Push now? (Y/n)". If the user declines, skip PR and note in summary.
-
-If push is confirmed, delegate to `draft-pr.md`. The `pr.save_to_file` and `pr.create_in_github` settings in config control what `draft-pr.md` does.
+If `after_task.pr` resolved to Yes: delegate to `make-pr.md`, which pushes the branch, drafts, and creates the PR. Its push is a prerequisite of PR creation and fires even when `after_task.push` is `false`.
 
 ### Review loop
 
-If `after_task.review_loop` resolved to Yes: check if a remote PR exists for the current branch (`gh pr view --json number 2>/dev/null`). If a PR exists, delegate to `gh-review-fix-loop.md`. If no remote PR exists (e.g. user creates PRs manually, or `pr.create_in_github: false`), skip the loop — the task is already marked done; the user handles reviews on their own PR.
+If `after_task.review_loop` resolved to Yes: check if a remote PR exists for the current branch (`gh pr view --json number 2>/dev/null`). If a PR exists, delegate to `gh-review-fix-loop.md`. If no remote PR exists (e.g. `after_task.pr: false` and the user creates PRs manually), skip the loop — the task is already marked done; the user handles reviews on their own PR.
 
 ## 7. Resumed Run Detection
 
