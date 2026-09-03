@@ -1,41 +1,40 @@
 # Make PR
 
-Create a GitHub pull request for the current branch, pushing it first.
+Push the current branch and create or update its GitHub pull request.
 
-## 1. Gather Context
+## 1. Load Settings
 
-- Follow `ensure-config.md` to read project settings — `project.base_branch` (default: `main`)
-- Run `git status` to get the current branch and tracking state. If HEAD is detached, stop and ask the user
+- Follow `ensure-config.md`; get `project.base_branch` (default: `main`)
+- Run `git status` for the current branch and tracking state. If HEAD is detached, stop and ask the user
 
 ## 2. Push
 
-Run `git push -u origin {branch}` — a no-op when the remote is already current. This push is pre-authorized as this workflow's prerequisite, independent of `after_task.push`.
-
-Push before anything else so the PR, new or existing, contains every local commit.
+Run `git push -u origin {branch}` before checking for a PR so it includes every local commit. This required push is pre-authorized, regardless of `after_task.push`.
 
 ## 3. Existing PR
 
-Run `gh pr view --json number,url 2>/dev/null`. If a PR already exists, report its URL — the push above updated it — and stop.
+Run `gh pr view --json number,url 2>/dev/null`. If a PR exists, report its URL and stop; the push updated it.
 
-## 4. Resolve the Draft
+## 4. Draft the PR
 
-Look for `.aicontext/data/pr-drafts/{branch}.md` (branch name sanitized as in `draft-pr.md`).
+Read the current task file, then run `git log {base_branch}..HEAD --oneline` and `git diff {base_branch}...HEAD --stat`.
 
-- **No draft** → follow `draft-pr.md` sections 1–3 to write one, then continue
-- **Draft older than the branch's last commit** → ask:
-  > This draft predates the latest commit.
-  > 1. Regenerate it
-  > 2. Use it as is
+Write a title under 70 characters in imperative mood.
 
-  Regenerate via `draft-pr.md` sections 1–3
-- **Draft current** → use it
+Use this body:
 
-Date the draft by its last commit (`git log -1 --format=%cI -- {draft-path}`), falling back to file mtime when the draft is untracked — `pr-drafts/` is committed, so mtime alone makes a checked-out stale draft look fresh.
+```
+## Summary
+- <what changed and why>
 
-The first `# ` heading is the title; everything after it is the body. Leave the file in place.
+## Test plan
+- [ ] <behavior to verify>
+```
+
+Write for testers: use concise, plain language and focus on the behavior to verify. Include implementation details only when they affect testing.
 
 ## 5. Create
 
-Write the body to a temp file, run `gh pr create --base "{base_branch}" --title "{title}" --body-file {tmp_file}`, and always delete the temp file afterward.
+Write the body to a temp file. Run `gh pr create --base "{base_branch}" --title "{title}" --body-file {tmp_file}`, then always delete the temp file.
 
-Report the PR URL and number (e.g. `#42`) — `finish-task.md` and `gh-review-fix-loop.md` detect it via `gh pr view`.
+Report the PR URL and number (e.g. `#42`); `finish-task.md` and `gh-review-fix-loop.md` find it through `gh pr view`.

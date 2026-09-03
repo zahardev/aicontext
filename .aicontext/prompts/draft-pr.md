@@ -25,7 +25,7 @@ Draft a pull request for the current branch and save it locally. Never pushes, n
 - <checklist of what to verify manually or via tests>
 ```
 
-Keep it factual — describe what changed, not how.
+Write for testers: use concise, plain language and focus on the behavior to verify. Include implementation details only when they affect testing.
 
 ## 3. Save
 
