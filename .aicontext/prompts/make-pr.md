@@ -7,19 +7,15 @@ Push the current branch and create or update its GitHub pull request.
 - Follow `ensure-config.md`; get `project.base_branch` (default: `main`)
 - Run `git status` for the current branch and tracking state. If HEAD is detached, stop and ask the user
 
-## 2. Push
+## 2. Load or Generate a Draft
 
-Run `git push -u origin {branch}` before checking for a PR so it includes every local commit. This required push is pre-authorized, regardless of `after_task.push`.
+Build the current branch's draft filename using the same rule as `/draft-pr`: replace path-unsafe characters with `-`, then append the first 12 characters of the branch name's SHA-256 hash.
 
-## 3. Existing PR
+If the draft file exists, read its `# ` heading as the title and the remaining content as the body. If it predates the latest branch commit, ask whether to reuse or regenerate it.
 
-Run `gh pr view --json number,url 2>/dev/null`. If a PR exists, report its URL and stop; the push updated it.
+If no draft exists, read the current task file, then run `git log {base_branch}..HEAD --oneline` and `git diff {base_branch}...HEAD --stat`.
 
-## 4. Draft the PR
-
-Read the current task file, then run `git log {base_branch}..HEAD --oneline` and `git diff {base_branch}...HEAD --stat`.
-
-Write a title under 70 characters in imperative mood.
+Write a generated title under 70 characters in imperative mood.
 
 Use this body:
 
@@ -33,8 +29,14 @@ Use this body:
 
 Write for testers: use concise, plain language and focus on the behavior to verify. Include implementation details only when they affect testing.
 
-## 5. Create
+## 3. Push
 
-Write the body to a temp file. Run `gh pr create --base "{base_branch}" --title "{title}" --body-file {tmp_file}`, then always delete the temp file.
+Resolve the current branch into a shell variable, then run `git push -u origin "$branch"` before checking for a PR so it includes every local commit. This required push is pre-authorized, regardless of `after_task.push`.
+
+## 4. Create or Update
+
+Write the body to a temp file. Run `gh pr view --json number,url 2>/dev/null`.
+
+If a PR exists, run `gh pr edit --title "{title}" --body-file {tmp_file}`, then report its URL and number. Otherwise run `gh pr create --base "{base_branch}" --title "{title}" --body-file {tmp_file}`. Always delete the temp file.
 
 Report the PR URL and number (e.g. `#42`); `finish-task.md` and `gh-review-fix-loop.md` find it through `gh pr view`.
