@@ -50,6 +50,18 @@ const FRAMEWORK_SCRIPTS = ['pr-reviews.cjs', 'pr-resolve.cjs'];
 const DEPRECATED_SCRIPTS = ['pr-reviews.js', 'pr-resolve.js'];
 const CONFIG_FILE = 'config.yml';
 const LEGACY_RESUME_TASK_PROMPT_HASH = 'c3aa05589c9e8240307aa19f22c344dbb3f8d0ba813491ce52594bcaeb831e38';
+const LEGACY_SKILL_HASHES = {
+  'branch-review': new Set(['3a2eaf122930cdcd6d53a904acb28309c68101226dc09954a9c56e745853ab69', '3fcfd67ca49b04968fe2b2e8735255c6a00e1aca36a6f6a609bf47ff777c8bf1', '81431902ab86f4bd40b392ac51165f52650fa7a2a10a6c4dc3ab1f3f14637631', 'eeba2b94930e1d15f25621e821e38dcaec0fe6eb018cead045629c21ce3ef0d1']),
+  'check-plan': new Set(['2a6fb111dce6b04cd056dbb0b1e3d173910e9ece39c4029e5e3a4f581c34bc6d', '7ea921e77599f35a0d1331cacbd8c3b2a12dc9802523a06d8730af246653bad6', '20449a95909a97bb30b818f1608763f9c2399d8b62b28d69cf179b45c666aeb5', '427531de0afa6e51c6353d0684cdd609b3964aa325c5f66296963904a73e4751']),
+  'check-task': new Set(['37ce7c45c564cbb07a7cb44c3b4bb4a22816be777cf64c288f8c55846567c6e4', '81c78948ee842e137584e61437e3deb4da8dbf276637ec1a110f40e576d13db0', 'baf9927dcb5d42fa222f2f26784209527a59b8a0ddec3f8b653f6dd9c6268296', '7aa8671a6467dc456236c7bee409b54afd939231febb249a21f2bd8716daa80e', 'b7473ffd53352dc2686d0c1b0cd23a7bff7dcc4203e1265ae682e309209745b9']),
+  'diff-review': new Set(['3fe8559f841f38ffe9c2aa87dd277ba12aa25488b25a863b079b51dd6280e17e', '690e26188c95cb685b847de4553f08bf258aae7cd3a766fb7cd86b3b0dccc963', '09cb154e65da72c044bdd46eb274051a39bfe1afd904648e44d1fc1de8cba4f9', '92844dbbeeb9d991863dc22f633ec18c8527c400f5d1454b16bfc8c50bbe3c57']),
+  'standards-check': new Set(['4b473586ee5cbcd17f39dd04fef61702489a8d9089d7b4cbabbc008bfd2cb057', '82149ebbb89b39293dc213dfd6d36ff2a84c2f9c37c17a9cae265310a5569f91', '619870ff6dfd1347e86c01ca553a181cf9121628d131559975138e623db07f8e', 'c8701e883220d9d65ed2eb098ac301ff3838dc5ef052291a2f2e570285e41a21']),
+  'pr-review-check': new Set(['0254053eaeb8f0ff03f46dba7841d24678f9f62e25fa91d5de2212b4aaf63870', '0a513d4fca85d0fcca6b4e68794f4bf9f851e10aa252fe8fcc0dd34d0bfdacff', 'badb02531544779fe2db880ae255f7bd4d3823f7227e61bdd313ca67f6b6b194', 'c6ff1ffb75a8a206b6533e0ec5f135a3db9069339ac21afa29c76360de379b7d', 'c9624a2acdca7c464577dafeca37aa0eedebe9fbc80ff5f05ba19b39de1e0fac']),
+  'review-task-plan': new Set(['40fd326fe3fa6a890e9f2d31980855c41ca4b07e153102e16a50eb5f69b7ea8b', 'd6f785ee6b062a8999e257a297dd3f692e59175413dee9e4b2542b560bd43bba', '3a2d9aaad7b7bff4ede69e39db6481e619edb7c3b2a4ff52beef87fd0001ebeb']),
+  'run-steps': new Set(['389782623a8701d0d85dd000c93d1e2f1c1048015c0aa711cc1a73ce93ab9917', '7e3b214cbe19f604a3c2a2eff4c2876e3f508092bf4d7f8cec577c09646a8cf0']),
+  'review-plan': new Set(['3537e52c91f541a28a7fd514475db169e90fe9d3fa87c6449fcbb7c4a47a196e', 'e8a5e1e2fd2933ae149dff096d0bf346962bbadab7fde66392f321e733a2f462']),
+  'resume-task': new Set(['a74602227cf9522c3f175f3fd4449899ba3f931f7529457ca7a4c349ad4fd3b6', 'e84e074ef053d754afa93b3d516e523e674e91d2e3aa95fd7339d2117ae3302e']),
+};
 
 function isDirectory(p) {
   try {
@@ -360,18 +372,7 @@ function isGeneratedPointer(content, skill) {
 }
 
 function isGeneratedSkill(content, skill) {
-  const match = /^---\r?\n(?<frontmatter>[\s\S]*?)\r?\n---\r?\n(?<body>[\s\S]*)$/.exec(content);
-  if (!match) return false;
-
-  const fields = Object.fromEntries(match.groups.frontmatter
-    .split(/\r?\n/)
-    .filter((line) => line.trim())
-    .map((line) => line.split(/:\s*/, 2)));
-  if (Object.keys(fields).some((key) => !['name', 'description'].includes(key)) || fields.name !== skill) return false;
-
-  const bodyLines = match.groups.body.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
-  const allowed = [`Read and follow \`.aicontext/prompts/${skill}.md\``, '$ARGUMENTS'];
-  return bodyLines.length > 0 && bodyLines.every((line) => allowed.includes(line));
+  return LEGACY_SKILL_HASHES[skill]?.has(crypto.createHash('sha256').update(content).digest('hex')) ?? false;
 }
 
 function isGeneratedCodexPolicy(content) {
