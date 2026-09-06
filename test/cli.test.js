@@ -855,6 +855,7 @@ describe('DEPRECATED_SKILLS', () => {
 
 describe('removeDeprecatedSkills', () => {
   let tempDir;
+  const generatedResumeTaskSkill = '---\nname: resume-task\ndescription: Load task context, show progress, and surface ambiguities and conflicts before resuming implementation\n---\n\nRead and follow `.aicontext/prompts/resume-task.md`\n';
 
   beforeEach(() => {
     tempDir = createTempDir();
@@ -864,16 +865,14 @@ describe('removeDeprecatedSkills', () => {
     removeTempDir(tempDir);
   });
 
-  it('should remove deprecated skill directories', () => {
-    fs.mkdirSync(path.join(tempDir, '.claude', 'skills', 'task'), { recursive: true });
-    fs.writeFileSync(path.join(tempDir, '.claude', 'skills', 'task', 'SKILL.md'), '---\nname: task\ndescription: Old task skill\n---\n\nRead and follow `.aicontext/prompts/task.md`\n');
-    fs.mkdirSync(path.join(tempDir, '.claude', 'skills', 'diff-review'), { recursive: true });
-    fs.writeFileSync(path.join(tempDir, '.claude', 'skills', 'diff-review', 'SKILL.md'), '---\nname: diff-review\ndescription: Old review skill\n---\n\nRead and follow `.aicontext/prompts/diff-review.md`\n');
+  it('should remove generated deprecated skill directories', () => {
+    const skillPath = path.join(tempDir, '.claude', 'skills', 'resume-task', 'SKILL.md');
+    fs.mkdirSync(path.dirname(skillPath), { recursive: true });
+    fs.writeFileSync(skillPath, generatedResumeTaskSkill);
 
     removeDeprecatedSkills(tempDir);
 
-    assert.strictEqual(fs.existsSync(path.join(tempDir, '.claude', 'skills', 'task')), false);
-    assert.strictEqual(fs.existsSync(path.join(tempDir, '.claude', 'skills', 'diff-review')), false);
+    assert.strictEqual(fs.existsSync(path.dirname(skillPath)), false);
   });
 
   it('should not fail when deprecated skills do not exist', () => {
@@ -884,23 +883,24 @@ describe('removeDeprecatedSkills', () => {
   it('should not remove non-deprecated skills', () => {
     fs.mkdirSync(path.join(tempDir, '.claude', 'skills', 'start'), { recursive: true });
     fs.writeFileSync(path.join(tempDir, '.claude', 'skills', 'start', 'SKILL.md'), 'content');
-    fs.mkdirSync(path.join(tempDir, '.claude', 'skills', 'task'), { recursive: true });
-    fs.writeFileSync(path.join(tempDir, '.claude', 'skills', 'task', 'SKILL.md'), '---\nname: task\ndescription: Old task skill\n---\n\nRead and follow `.aicontext/prompts/task.md`\n');
+    const generatedSkillPath = path.join(tempDir, '.claude', 'skills', 'resume-task', 'SKILL.md');
+    fs.mkdirSync(path.dirname(generatedSkillPath), { recursive: true });
+    fs.writeFileSync(generatedSkillPath, generatedResumeTaskSkill);
 
     removeDeprecatedSkills(tempDir);
 
     assert.strictEqual(fs.existsSync(path.join(tempDir, '.claude', 'skills', 'start')), true);
-    assert.strictEqual(fs.existsSync(path.join(tempDir, '.claude', 'skills', 'task')), false);
+    assert.strictEqual(fs.existsSync(path.dirname(generatedSkillPath)), false);
   });
 
   it('should preserve user-authored deprecated skills', () => {
     const skillPath = path.join(tempDir, '.claude', 'skills', 'resume-task', 'SKILL.md');
     fs.mkdirSync(path.dirname(skillPath), { recursive: true });
-    fs.writeFileSync(skillPath, 'my custom task recovery workflow');
+    fs.writeFileSync(skillPath, generatedResumeTaskSkill.replace('description: Load task context, show progress, and surface ambiguities and conflicts before resuming implementation', 'description: My custom task recovery workflow'));
 
     removeDeprecatedSkills(tempDir);
 
-    assert.strictEqual(fs.readFileSync(skillPath, 'utf8'), 'my custom task recovery workflow');
+    assert.match(fs.readFileSync(skillPath, 'utf8'), /description: My custom task recovery workflow/);
   });
 });
 

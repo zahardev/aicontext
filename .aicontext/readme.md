@@ -58,9 +58,8 @@ Located in `rules/`:
 |------|-------------|
 | `generate.md` | Auto-runs when `project.md` is missing |
 | `start.md` | Start of session - read rules and confirm |
-| `task.md` | Before starting work on a task |
-| `plan.md` | Review a task plan for issues |
-| `after_step.md` | After completing a plan step - reflect and adjust |
+| `load-task.md` | Before starting or continuing work on a task |
+| `load-spec.md` | Review a feature's requirements, task progress, and gaps |
 | `review.md` | Code review after implementation |
 
 ## Scripts
