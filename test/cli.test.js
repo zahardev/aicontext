@@ -577,7 +577,12 @@ describe('removeDeprecatedPrompts', () => {
   it('should remove deprecated prompt files', () => {
     fs.mkdirSync(path.join(tempDir, '.aicontext', 'prompts'), { recursive: true });
     for (const file of DEPRECATED_PROMPTS) {
-      fs.writeFileSync(path.join(tempDir, '.aicontext', 'prompts', file), 'content');
+      const target = path.join(tempDir, '.aicontext', 'prompts', file);
+      if (file === 'resume-task.md') {
+        fs.copyFileSync(path.join(__dirname, 'fixtures', 'resume-task.md'), target);
+      } else {
+        fs.writeFileSync(target, 'content');
+      }
     }
 
     removeDeprecatedPrompts(tempDir);
