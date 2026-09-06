@@ -349,8 +349,8 @@ describe('update', () => {
     fs.writeFileSync(path.join(tempDir, '.aicontext', 'prompts', 'task.md'), 'old content');
 
     // Remove a new prompt to verify it gets recreated by update
-    const resumeTaskPrompt = path.join(tempDir, '.aicontext', 'prompts', 'resume-task.md');
-    if (fs.existsSync(resumeTaskPrompt)) fs.unlinkSync(resumeTaskPrompt);
+    const loadTaskPrompt = path.join(tempDir, '.aicontext', 'prompts', 'load-task.md');
+    if (fs.existsSync(loadTaskPrompt)) fs.unlinkSync(loadTaskPrompt);
 
     await update(tempDir, true);
 
@@ -362,7 +362,7 @@ describe('update', () => {
     assert.strictEqual(fs.existsSync(path.join(tempDir, '.aicontext', 'prompts', 'task.md')), false);
 
     // New prompts should be created by update
-    assert.strictEqual(fs.existsSync(resumeTaskPrompt), true);
+    assert.strictEqual(fs.existsSync(loadTaskPrompt), true);
   });
 
   it('should refresh version cache on update', async () => {
@@ -476,8 +476,8 @@ describe('version cache', () => {
 });
 
 describe('FRAMEWORK_PROMPTS', () => {
-  it('should contain exactly 49 framework prompt files', () => {
-    assert.strictEqual(FRAMEWORK_PROMPTS.length, 49);
+  it('should contain exactly 50 framework prompt files', () => {
+    assert.strictEqual(FRAMEWORK_PROMPTS.length, 50);
   });
 
   it('should contain the expected prompt files', () => {
@@ -486,7 +486,7 @@ describe('FRAMEWORK_PROMPTS', () => {
       'commit.md', 'create-task.md', 'deep-review.md', 'deep-review-criteria.md', 'do-it.md', 'draft-issue.md', 'ensure-config.md', 'identify-task.md',
       'draft-pr.md', 'make-pr.md', 'finish-task.md', 'generate.md', 'generate-docs.md', 'generate-guide.md', 'generate-reference.md', 'gh-fix-tests.md', 'gh-review-fix-loop.md', 'next-step.md', 'plan-tasks.md',
       'gh-review-check.md', 'install-playwright-cli.md', 'prepare-release.md', 'resolve-task-naming.md', 'resolve-test-types.md', 'resolve-tests.md', 'review.md', 'review-criteria.md', 'detect-review-scope.md',
-      'brainstorm.md', 'check-update.md', 'interview.md', 'migrate-config.md', 'resolve-asks.md', 'resume-task.md', 'review-task.md', 'run-step.md', 'run-task.md', 'start-feature.md', 'start.md', 'step-loop.md', 'test-writer.md', 'thoughts.md', 'tidy-aic.md',
+      'brainstorm.md', 'check-update.md', 'interview.md', 'load-spec.md', 'load-task.md', 'migrate-config.md', 'resolve-asks.md', 'review-task.md', 'run-step.md', 'run-task.md', 'start-feature.md', 'start.md', 'step-loop.md', 'test-writer.md', 'thoughts.md', 'tidy-aic.md',
     ];
     assert.deepStrictEqual([...FRAMEWORK_PROMPTS].sort(), [...expected].sort());
   });
@@ -494,8 +494,25 @@ describe('FRAMEWORK_PROMPTS', () => {
 
 describe('DEPRECATED_PROMPTS', () => {
   it('should contain the old prompt file names', () => {
-    const expected = ['check_plan.md', 'check_task.md', 'check-task.md', 'review-task-plan.md', 'after_step.md', 'plan.md', 'task.md', 'start-task.md', 'diff-review.md', 'branch-review.md', 'standards-check.md', 'pr-review-check.md', 'check-plan.md', 'run-steps.md', 'review-plan.md', 'review-scope.md', 'update-check.md', 'auto-setup.md', 'resolve-task-lifecycle-asks.md'];
+    const expected = ['check_plan.md', 'check_task.md', 'check-task.md', 'review-task-plan.md', 'after_step.md', 'plan.md', 'task.md', 'start-task.md', 'diff-review.md', 'branch-review.md', 'standards-check.md', 'pr-review-check.md', 'check-plan.md', 'run-steps.md', 'review-plan.md', 'review-scope.md', 'update-check.md', 'auto-setup.md', 'resolve-task-lifecycle-asks.md', 'resume-task.md'];
     assert.deepStrictEqual([...DEPRECATED_PROMPTS].sort(), [...expected].sort());
+  });
+});
+
+describe('removeDeprecatedPrompts', () => {
+  it('should remove generated resume-task prompts but preserve user-authored ones', () => {
+    const tempDir = createTempDir();
+    const promptDir = path.join(tempDir, '.aicontext', 'prompts');
+    const promptPath = path.join(promptDir, 'resume-task.md');
+    fs.mkdirSync(promptDir, { recursive: true });
+    fs.copyFileSync(path.join(__dirname, 'fixtures', 'resume-task.md'), promptPath);
+    removeDeprecatedPrompts(tempDir);
+    assert.strictEqual(fs.existsSync(promptPath), false);
+
+    fs.writeFileSync(promptPath, 'my custom task recovery workflow');
+    removeDeprecatedPrompts(tempDir);
+    assert.strictEqual(fs.readFileSync(promptPath, 'utf8'), 'my custom task recovery workflow');
+    removeTempDir(tempDir);
   });
 });
 
@@ -809,13 +826,13 @@ describe('removeDeprecatedAgents', () => {
 });
 
 describe('FRAMEWORK_SKILLS', () => {
-  it('should contain exactly 33 skill names', () => {
-    assert.strictEqual(FRAMEWORK_SKILLS.length, 33);
+  it('should contain exactly 34 skill names', () => {
+    assert.strictEqual(FRAMEWORK_SKILLS.length, 34);
   });
 
   it('should contain the expected skills', () => {
     const expected = [
-      'add-step', 'add-idea', 'create-task', 'start', 'start-feature', 'plan-tasks', 'resume-task', 'review-task', 'run-step', 'run-task', 'finish-task',
+      'add-step', 'add-idea', 'create-task', 'start', 'start-feature', 'plan-tasks', 'load-task', 'load-spec', 'review-task', 'run-step', 'run-task', 'finish-task',
       'align-context', 'do-it', 'challenge', 'brainstorm', 'thoughts', 'interview', 'commit', 'review', 'deep-review', 'next-step', 'draft-pr', 'make-pr', 'gh-review-check',
       'draft-issue', 'generate-docs', 'prepare-release', 'gh-review-fix-loop', 'gh-fix-tests', 'web-inspect', 'aic-help', 'aic-skills', 'tidy-aic',
     ];
@@ -831,7 +848,7 @@ describe('FRAMEWORK_SKILLS', () => {
 
 describe('DEPRECATED_SKILLS', () => {
   it('should contain the old skill names', () => {
-    const expected = ['task', 'after-step', 'next', 'pr', 'start-task', 'diff-review', 'branch-review', 'standards-check', 'pr-review-check', 'check-plan', 'check-task', 'review-task-plan', 'run-steps', 'review-plan'];
+    const expected = ['task', 'after-step', 'next', 'pr', 'start-task', 'diff-review', 'branch-review', 'standards-check', 'pr-review-check', 'check-plan', 'check-task', 'review-task-plan', 'run-steps', 'review-plan', 'resume-task'];
     assert.deepStrictEqual([...DEPRECATED_SKILLS].sort(), [...expected].sort());
   });
 });
@@ -849,9 +866,9 @@ describe('removeDeprecatedSkills', () => {
 
   it('should remove deprecated skill directories', () => {
     fs.mkdirSync(path.join(tempDir, '.claude', 'skills', 'task'), { recursive: true });
-    fs.writeFileSync(path.join(tempDir, '.claude', 'skills', 'task', 'SKILL.md'), 'content');
+    fs.writeFileSync(path.join(tempDir, '.claude', 'skills', 'task', 'SKILL.md'), '---\nname: task\ndescription: Old task skill\n---\n\nRead and follow `.aicontext/prompts/task.md`\n');
     fs.mkdirSync(path.join(tempDir, '.claude', 'skills', 'diff-review'), { recursive: true });
-    fs.writeFileSync(path.join(tempDir, '.claude', 'skills', 'diff-review', 'SKILL.md'), 'content');
+    fs.writeFileSync(path.join(tempDir, '.claude', 'skills', 'diff-review', 'SKILL.md'), '---\nname: diff-review\ndescription: Old review skill\n---\n\nRead and follow `.aicontext/prompts/diff-review.md`\n');
 
     removeDeprecatedSkills(tempDir);
 
@@ -868,12 +885,22 @@ describe('removeDeprecatedSkills', () => {
     fs.mkdirSync(path.join(tempDir, '.claude', 'skills', 'start'), { recursive: true });
     fs.writeFileSync(path.join(tempDir, '.claude', 'skills', 'start', 'SKILL.md'), 'content');
     fs.mkdirSync(path.join(tempDir, '.claude', 'skills', 'task'), { recursive: true });
-    fs.writeFileSync(path.join(tempDir, '.claude', 'skills', 'task', 'SKILL.md'), 'old');
+    fs.writeFileSync(path.join(tempDir, '.claude', 'skills', 'task', 'SKILL.md'), '---\nname: task\ndescription: Old task skill\n---\n\nRead and follow `.aicontext/prompts/task.md`\n');
 
     removeDeprecatedSkills(tempDir);
 
     assert.strictEqual(fs.existsSync(path.join(tempDir, '.claude', 'skills', 'start')), true);
     assert.strictEqual(fs.existsSync(path.join(tempDir, '.claude', 'skills', 'task')), false);
+  });
+
+  it('should preserve user-authored deprecated skills', () => {
+    const skillPath = path.join(tempDir, '.claude', 'skills', 'resume-task', 'SKILL.md');
+    fs.mkdirSync(path.dirname(skillPath), { recursive: true });
+    fs.writeFileSync(skillPath, 'my custom task recovery workflow');
+
+    removeDeprecatedSkills(tempDir);
+
+    assert.strictEqual(fs.readFileSync(skillPath, 'utf8'), 'my custom task recovery workflow');
   });
 });
 
@@ -1162,7 +1189,7 @@ describe('selfHealMissingFiles', () => {
 
   it('should restore missing Codex policy metadata without overwriting existing metadata', () => {
     const missingPolicy = path.join(tempDir, '.codex', 'skills', 'start', 'agents', 'openai.yaml');
-    const existingPolicy = path.join(tempDir, '.codex', 'skills', 'resume-task', 'agents', 'openai.yaml');
+    const existingPolicy = path.join(tempDir, '.codex', 'skills', 'load-task', 'agents', 'openai.yaml');
     fs.unlinkSync(missingPolicy);
     fs.mkdirSync(path.dirname(existingPolicy), { recursive: true });
     fs.writeFileSync(existingPolicy, 'user policy');
@@ -1422,7 +1449,7 @@ describe('copyFrameworkSkills', () => {
     );
     // Other skills should be copied
     assert.strictEqual(
-      fs.existsSync(path.join(destDir, '.claude', 'skills', 'resume-task', 'SKILL.md')),
+      fs.existsSync(path.join(destDir, '.claude', 'skills', 'load-task', 'SKILL.md')),
       true
     );
   });
@@ -1468,7 +1495,7 @@ describe('copyFrameworkSkills', () => {
     await copyFrameworkSkills(srcDir, destDir);
 
     assert.strictEqual(fs.existsSync(path.join(destDir, '.claude', 'skills', 'start')), false);
-    assert.strictEqual(fs.existsSync(path.join(destDir, '.claude', 'skills', 'resume-task', 'SKILL.md')), true);
+    assert.strictEqual(fs.existsSync(path.join(destDir, '.claude', 'skills', 'load-task', 'SKILL.md')), true);
   });
 });
 

@@ -101,7 +101,7 @@ Subdirectories are created automatically by skills and scripts when needed.
 2. When the idea is ready to act on, use `/start-feature` (spec), `/create-task` (task), or `/add-step` (step) to formalize it, then remove the line from Ideas
 
 ### Working on a Task
-1. Paste `prompts/task.md` content (or use `/resume-task` in Claude Code)
+1. Paste `prompts/load-task.md` content (or use `/load-task` in Claude Code)
 2. Create/update task file in `tasks/` using `templates/task.template.md`
 3. Follow plan construction rules from `prompts/plan-steps.md` (TDD is config-driven via `tdd` in `config.yml`)
 4. After each step, use `prompts/after_step.md` (or `/next-step`) to reflect and continue
@@ -138,7 +138,8 @@ Skills automate common workflows. Both Claude Code (`.claude/skills/`) and Codex
 | Skill | Equivalent Prompt | Description |
 |-------|-------------------|-------------|
 | `start` | `prompts/start.md` | Confirm project readiness |
-| `resume-task` | `prompts/task.md` | Analyze task before implementation |
+| `load-task` | `prompts/load-task.md` | Load task context before implementation |
+| `load-spec` | `prompts/load-spec.md` | Load feature-level progress and gaps |
 | `review-task` | `prompts/review-task.md` | Validate task plan for issues |
 | `review` | `prompts/review.md` | Review code (scope: diff, branch, commit, path) |
 | `deep-review` | `prompts/deep-review.md` | Comprehensive architecture + correctness review |

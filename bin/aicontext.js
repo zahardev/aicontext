@@ -2,6 +2,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 const readline = require('readline');
 const os = require('os');
 const https = require('https');
@@ -17,9 +18,9 @@ const FRAMEWORK_PROMPTS = [
   'commit.md', 'create-task.md', 'deep-review.md', 'deep-review-criteria.md', 'do-it.md', 'draft-issue.md', 'ensure-config.md', 'identify-task.md',
   'draft-pr.md', 'make-pr.md', 'finish-task.md', 'generate.md', 'gh-fix-tests.md', 'gh-review-fix-loop.md', 'next-step.md', 'plan-tasks.md',
   'gh-review-check.md', 'install-playwright-cli.md', 'prepare-release.md', 'review.md', 'review-criteria.md', 'detect-review-scope.md',
-  'brainstorm.md', 'check-update.md', 'generate-docs.md', 'generate-guide.md', 'generate-reference.md', 'interview.md', 'migrate-config.md', 'resolve-asks.md', 'resolve-task-naming.md', 'resolve-test-types.md', 'resolve-tests.md', 'resume-task.md', 'review-task.md', 'run-step.md', 'run-task.md', 'start-feature.md', 'start.md', 'step-loop.md', 'test-writer.md', 'thoughts.md', 'tidy-aic.md',
+  'brainstorm.md', 'check-update.md', 'generate-docs.md', 'generate-guide.md', 'generate-reference.md', 'interview.md', 'load-spec.md', 'load-task.md', 'migrate-config.md', 'resolve-asks.md', 'resolve-task-naming.md', 'resolve-test-types.md', 'resolve-tests.md', 'review-task.md', 'run-step.md', 'run-task.md', 'start-feature.md', 'start.md', 'step-loop.md', 'test-writer.md', 'thoughts.md', 'tidy-aic.md',
 ];
-const DEPRECATED_PROMPTS = ['check_plan.md', 'check_task.md', 'check-task.md', 'review-task-plan.md', 'after_step.md', 'plan.md', 'task.md', 'start-task.md', 'diff-review.md', 'branch-review.md', 'standards-check.md', 'pr-review-check.md', 'check-plan.md', 'run-steps.md', 'review-plan.md', 'review-scope.md', 'update-check.md', 'auto-setup.md', 'resolve-task-lifecycle-asks.md'];
+const DEPRECATED_PROMPTS = ['check_plan.md', 'check_task.md', 'check-task.md', 'review-task-plan.md', 'after_step.md', 'plan.md', 'task.md', 'start-task.md', 'diff-review.md', 'branch-review.md', 'standards-check.md', 'pr-review-check.md', 'check-plan.md', 'run-steps.md', 'review-plan.md', 'review-scope.md', 'update-check.md', 'auto-setup.md', 'resolve-task-lifecycle-asks.md', 'resume-task.md'];
 const FRAMEWORK_AGENTS = [
   'docs-generator.md',
   'researcher.md',
@@ -29,12 +30,12 @@ const FRAMEWORK_AGENTS = [
 ];
 const DEPRECATED_AGENTS = ['pr-review-summarizer.md', 'deep-reviewer.md', 'standards-checker.md'];
 const FRAMEWORK_SKILLS = [
-  'add-step', 'add-idea', 'create-task', 'start', 'start-feature', 'plan-tasks', 'resume-task', 'review-task', 'run-step', 'run-task', 'finish-task',
+  'add-step', 'add-idea', 'create-task', 'start', 'start-feature', 'plan-tasks', 'load-task', 'load-spec', 'review-task', 'run-step', 'run-task', 'finish-task',
   'align-context', 'do-it', 'challenge', 'brainstorm', 'thoughts', 'interview', 'commit', 'review', 'deep-review', 'next-step', 'draft-pr', 'make-pr', 'gh-review-check',
   'draft-issue', 'generate-docs', 'prepare-release', 'gh-review-fix-loop', 'gh-fix-tests', 'web-inspect', 'aic-help', 'aic-skills', 'tidy-aic',
 ];
 const FRAMEWORK_CODEX_SKILLS = [
-  'add-step', 'add-idea', 'create-task', 'start', 'start-feature', 'plan-tasks', 'resume-task', 'review-task', 'run-step', 'run-task', 'finish-task',
+  'add-step', 'add-idea', 'create-task', 'start', 'start-feature', 'plan-tasks', 'load-task', 'load-spec', 'review-task', 'run-step', 'run-task', 'finish-task',
   'align-context', 'do-it', 'challenge', 'brainstorm', 'thoughts', 'interview', 'commit', 'review', 'deep-review', 'next-step', 'draft-pr', 'make-pr', 'gh-review-check',
   'draft-issue', 'generate-docs', 'prepare-release', 'gh-review-fix-loop', 'gh-fix-tests', 'web-inspect', 'aic-help', 'aic-skills', 'tidy-aic',
 ];
@@ -44,10 +45,11 @@ const FLAT_POINTER_HARNESSES = {
   opencode: { dir: ['.opencode', 'command'] },
   pi: { dir: ['.pi', 'prompts'] },
 };
-const DEPRECATED_SKILLS = ['task', 'after-step', 'next', 'pr', 'start-task', 'diff-review', 'branch-review', 'standards-check', 'pr-review-check', 'check-plan', 'check-task', 'review-task-plan', 'run-steps', 'review-plan'];
+const DEPRECATED_SKILLS = ['task', 'after-step', 'next', 'pr', 'start-task', 'diff-review', 'branch-review', 'standards-check', 'pr-review-check', 'check-plan', 'check-task', 'review-task-plan', 'run-steps', 'review-plan', 'resume-task'];
 const FRAMEWORK_SCRIPTS = ['pr-reviews.cjs', 'pr-resolve.cjs'];
 const DEPRECATED_SCRIPTS = ['pr-reviews.js', 'pr-resolve.js'];
 const CONFIG_FILE = 'config.yml';
+const LEGACY_RESUME_TASK_PROMPT_HASH = 'c3aa05589c9e8240307aa19f22c344dbb3f8d0ba813491ce52594bcaeb831e38';
 
 function isDirectory(p) {
   try {
@@ -319,10 +321,14 @@ function removeDeprecatedPrompts(target) {
   const promptsDir = path.join(target, '.aicontext', 'prompts');
   for (const file of DEPRECATED_PROMPTS) {
     const filePath = path.join(promptsDir, file);
-    if (fs.existsSync(filePath)) {
+    if (fs.existsSync(filePath) && (file !== 'resume-task.md' || isGeneratedResumeTaskPrompt(fs.readFileSync(filePath, 'utf8')))) {
       fs.unlinkSync(filePath);
     }
   }
+}
+
+function isGeneratedResumeTaskPrompt(content) {
+  return crypto.createHash('sha256').update(content).digest('hex') === LEGACY_RESUME_TASK_PROMPT_HASH;
 }
 
 function removeDeprecatedAgents(target) {
@@ -353,6 +359,25 @@ function isGeneratedPointer(content, skill) {
   return bodyLines.length > 0 && bodyLines.every((line) => allowed.includes(line));
 }
 
+function isGeneratedSkill(content, skill) {
+  const match = /^---\r?\n(?<frontmatter>[\s\S]*?)\r?\n---\r?\n(?<body>[\s\S]*)$/.exec(content);
+  if (!match) return false;
+
+  const fields = Object.fromEntries(match.groups.frontmatter
+    .split(/\r?\n/)
+    .filter((line) => line.trim())
+    .map((line) => line.split(/:\s*/, 2)));
+  if (Object.keys(fields).some((key) => !['name', 'description'].includes(key)) || fields.name !== skill) return false;
+
+  const bodyLines = match.groups.body.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+  const allowed = [`Read and follow \`.aicontext/prompts/${skill}.md\``, '$ARGUMENTS'];
+  return bodyLines.length > 0 && bodyLines.every((line) => allowed.includes(line));
+}
+
+function isGeneratedCodexPolicy(content) {
+  return /^policy:\r?\n  allow_implicit_invocation: (true|false)\r?\n?$/.test(content);
+}
+
 function removeDeprecatedSkills(target) {
   // opencode and pi share their command folder with the user's own files, so a name match is not
   // enough — only remove files that still match the pointer shape this CLI generates.
@@ -366,13 +391,21 @@ function removeDeprecatedSkills(target) {
     }
   }
 
-  for (const dir of [path.join(target, '.claude', 'skills'), path.join(target, '.codex', 'skills')]) {
+  for (const [dir, hasPolicy] of [[path.join(target, '.claude', 'skills'), false], [path.join(target, '.codex', 'skills'), true]]) {
     for (const skill of DEPRECATED_SKILLS) {
       const skillPath = path.join(dir, skill);
-      if (fs.existsSync(skillPath)) {
-        fs.rmSync(skillPath, { recursive: true });
-        log(`  Removed deprecated: ${path.relative(target, skillPath)}/`, 'dim');
+      const skillFile = path.join(skillPath, 'SKILL.md');
+      if (!fs.existsSync(skillFile) || !isGeneratedSkill(fs.readFileSync(skillFile, 'utf8'), skill)) continue;
+
+      fs.unlinkSync(skillFile);
+      const policyPath = path.join(skillPath, 'agents', 'openai.yaml');
+      if (hasPolicy && fs.existsSync(policyPath) && isGeneratedCodexPolicy(fs.readFileSync(policyPath, 'utf8'))) {
+        fs.unlinkSync(policyPath);
       }
+      const agentsPath = path.join(skillPath, 'agents');
+      if (fs.existsSync(agentsPath) && fs.readdirSync(agentsPath).length === 0) fs.rmdirSync(agentsPath);
+      if (fs.existsSync(skillPath) && fs.readdirSync(skillPath).length === 0) fs.rmdirSync(skillPath);
+      log(`  Removed deprecated: ${path.relative(target, skillPath)}/`, 'dim');
     }
   }
 }

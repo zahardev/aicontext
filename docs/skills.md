@@ -47,15 +47,20 @@ Executes all pending steps in the current task file automatically. One agent imp
 - After all steps: runs review and tests per `after_task` config
 - Stops on blockers, critical findings, or uncovered decisions
 
-### `/resume-task`
-**Prompt:** `resume-task.md`
+### `/load-task`
+**Prompt:** `load-task.md`
 
-Reads the three-layer context for the current task and surfaces resume state. Essential for starting a new session mid-task.
+Reads the three-layer context for the current task and surfaces task state. Essential for starting a new session mid-task.
 
 - Reads: spec (requirements, decisions) → task-context (patterns, gotchas) → task (plan, progress)
 - Detects spec↔task drift (requirements not covered by steps)
 - Detects staleness (empty task-context with completed steps, `Decision Overrides` not yet applied to the spec)
 - Backwards compatible with pre-1.6.0 tasks (no spec or task-context)
+
+### `/load-spec`
+**Prompt:** `load-spec.md`
+
+Reads one feature spec, its linked tasks, and any coverage gaps.
 
 ### `/finish-task`
 **Prompt:** `finish-task.md`
