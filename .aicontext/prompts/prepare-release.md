@@ -41,6 +41,6 @@ Show the user:
 - Version being released
 - Each file updated and what changed
 - Any issues (missing files, inconsistencies)
-- Next: `Run /commit to commit the release updates.`
+- Next: `Run {native commit invocation} to commit the release updates.`
 
 Wait for user confirmation.

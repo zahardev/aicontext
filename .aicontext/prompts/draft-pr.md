@@ -31,4 +31,4 @@ Write for testers: use concise, plain language and focus on the behavior to veri
 
 Build a collision-resistant filename: replace `/` and other path-unsafe characters in the branch name with `-`, then append the first 12 characters of its SHA-256 hash (e.g. `feature/auth` → `feature-auth-a1b2c3d4e5f6.md`). Save the title and body to `.aicontext/data/pr-drafts/{branch}.md` with the title as an `# ` heading. Overwrite an existing draft for the same branch.
 
-Tell the user the filename — do not output the PR body in chat unless asked. Then append: `Run /make-pr to push and create the PR on GitHub.`
+Tell the user the filename - do not output the PR body in chat unless asked. Then append: `Run {native make-pr invocation} to push and create the PR on GitHub.`
