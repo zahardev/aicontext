@@ -377,9 +377,13 @@ function migrateOpenCodePointers(target) {
   const commandsDir = path.join(target, '.opencode', 'commands');
   if (!fs.existsSync(legacyDir)) return;
 
-  for (const skill of FRAMEWORK_SKILLS) {
+  for (const skill of [...FRAMEWORK_SKILLS, ...DEPRECATED_SKILLS]) {
     const legacyFile = path.join(legacyDir, `${skill}.md`);
     if (!fs.existsSync(legacyFile) || !isGeneratedPointer(fs.readFileSync(legacyFile, 'utf8'), skill)) continue;
+    if (DEPRECATED_SKILLS.includes(skill)) {
+      fs.unlinkSync(legacyFile);
+      continue;
+    }
     fs.mkdirSync(commandsDir, { recursive: true });
     const commandFile = path.join(commandsDir, `${skill}.md`);
     if (!fs.existsSync(commandFile)) fs.renameSync(legacyFile, commandFile);

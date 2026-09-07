@@ -2020,6 +2020,20 @@ describe('opencode and pi entry points', () => {
     assert.strictEqual(fs.existsSync(path.join(legacyDir, 'start.md')), false);
   });
 
+  it('should remove deprecated generated OpenCode pointers from command', async () => {
+    const legacyDir = path.join(tempDir, '.opencode', 'command');
+    fs.mkdirSync(legacyDir, { recursive: true });
+    fs.writeFileSync(
+      path.join(legacyDir, 'resume-task.md'),
+      '---\ndescription: Resume task\n---\n\nRead and follow `.aicontext/prompts/resume-task.md`\n\n$ARGUMENTS\n'
+    );
+    fs.writeFileSync(path.join(tempDir, '.aicontext', '.version'), '1.10.0');
+
+    await update(tempDir, true);
+
+    assert.strictEqual(fs.existsSync(path.join(legacyDir, 'resume-task.md')), false);
+  });
+
   it('should preserve customized pointer files on update', async () => {
     const custom = path.join(tempDir, '.opencode', 'commands', 'start.md');
     fs.writeFileSync(custom, 'user content');
