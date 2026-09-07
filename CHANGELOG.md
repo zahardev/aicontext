@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.11.0] - 2026-09-07
+
+### Added
+- **OpenCode and Pi support** — both harnesses now install slash-invocable AIContext workflows
+- **Selective Codex skill routing** — safe, high-signal skills can be invoked naturally while sensitive workflows require explicit selection
+- **`/make-pr`** — explicitly pushes the current branch when needed and creates a GitHub pull request; `/draft-pr` now only writes a local draft
+- **Deliverable verification** — task completion checks runnable deliverables and resumes execution when it finds a gap
+- **`/load-spec`** — load a feature's requirements, linked-task progress, and coverage gaps
+
+### Changed
+- **Typed response references** - `Q`, `C`, `R`, `D`, `A`, `F`, and `O` labels make questions, concerns, risks, decisions, actions, unexpected findings, and options easy to reference
+- **Task loading** — `/load-task` replaces `/resume-task`; updates remove generated legacy assets while preserving customized replacements
+
 ## [1.10.0] - 2026-05-02
 
 ### Added

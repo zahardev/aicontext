@@ -14,7 +14,7 @@ Most AI coding sessions lose context, skip planning, and need constant hand-hold
 
 **Works with any language or framework** — PHP, Python, JavaScript, TypeScript, Rust, Go, and more.
 
-**Supports multiple AI tools** — Claude Code, Codex, Cursor, opencode, Pi, and GitHub Copilot.
+**One workflow. Six coding agents.** Your team can use Claude Code, Codex, Cursor, opencode, Pi, or GitHub Copilot without losing its shared specs, task history, quality gates, or delivery process.
 
 ## Quick Start
 
@@ -24,9 +24,9 @@ cd /path/to/your-project
 aicontext init
 ```
 
-**Every session must begin with `/start`** (Claude Code, opencode, Pi) or `use start` (Codex, Cursor, Copilot). This loads your project context, rules, and workflow — without it, none of the other commands will work correctly. On first run, the AI will analyze your codebase and generate project context automatically.
+**Every session must begin with the native `start` invocation.** This loads your project context, rules, and workflow - without it, none of the other commands will work correctly. On first run, the AI will analyze your codebase and generate project context automatically.
 
-Run `/aic-help` (or `use aic-help`) for a guided tour of available workflows and best practices.
+Run the native `aic-help` invocation for a guided tour of available workflows and best practices.
 
 ## What Makes AIContext Different
 
@@ -35,28 +35,28 @@ Run `/aic-help` (or `use aic-help`) for a guided tour of available workflows and
 Writing a `CLAUDE.md` or `.cursorrules` file gives your AI memory. AIContext gives it a **way of working** — built on [Spec Driven Development](https://martinfowler.com/articles/exploring-gen-ai/sdd-3-tools.html), where the spec is the source of truth and code is derived from it:
 
 ```text
-/start-feature  →  Interview  →  Spec + Task(s)
+start-feature  →  Interview  →  Spec + Task(s)
                                       ↓
-                                /run-task  →  Implement + Review + Test (automated per step)
+                                run-task  →  Implement + Review + Test (automated per step)
                                       ↓
-                                /finish-task  →  Sync docs, update worklog, handle git
+                                finish-task  →  Sync docs, update worklog, handle git
 ```
 
-**The AI interviews you** before writing code — exploring your codebase to avoid asking what it can determine itself. It recommends answers based on what it found, walks every dimension breadth-first so nothing is missed, and captures decisions as it goes. You confirm or correct — not explain from scratch.
+**The AI interviews you** before writing code - exploring your codebase to avoid asking what it can determine itself. It recommends answers based on what it found, walks every dimension breadth-first so nothing is missed, and captures decisions as it goes. You confirm or correct - not explain from scratch.
 
-**The AI executes the plan** — each step is implemented, reviewed, and tested automatically. You supervise rather than drive.
+**The AI executes the plan** - each step is implemented, reviewed, and tested automatically. You supervise rather than drive.
 
-**The AI reviews its own code** — built-in review catches bugs, security issues, and architectural problems before you even look at the diff.
+**The AI reviews its own code** - built-in review catches bugs, security issues, and architectural problems before you even look at the diff.
 
-**The AI tests in the browser** — `/web-inspect` opens real pages, checks console errors, interacts with elements, and captures screenshots. No more copy-pasting console errors.
+**The AI tests in the browser** - the `web-inspect` skill opens real pages, checks console errors, interacts with elements, and captures screenshots. No more copy-pasting console errors.
 
-**The AI drives the process** — after every action, the AI tells you what to do next. Finished a step? "Run `/next-step` to continue." Closed a task? "Spec has more pending tasks — start the next one?" You never have to guess the next command.
+**The AI drives the process** - after every action, the AI tells you what to do next in your tool's own syntax. Finished a step? "Run `$next-step` to continue." Closed a task? "Spec has more pending tasks - start the next one?" You never have to guess the next command.
 
-**The AI ships the code** — after finishing a task, the AI can commit, push, create a PR, and run the review-fix loop automatically. Configure once, and the full pipeline runs hands-free on every task.
+**The AI ships the code** - after finishing a task, the AI can commit, push, create a PR, and run the review-fix loop automatically. Configure once, and the full pipeline runs hands-free on every task.
 
-**The AI adapts to your workflow** — on first run, it asks how you like to work: reviews after every step or only at the end? Commit per step or per task? Push automatically? It remembers your answers and never asks again.
+**The AI adapts to your workflow** - on first run, it asks how you like to work: reviews after every step or only at the end? Commit per step or per task? Push automatically? It remembers your answers and never asks again.
 
-**The AI remembers across sessions** — specs, tasks, and task-contexts capture everything. Start a new session, run `/load-task`, and the AI picks up where it left off. No knowledge is lost.
+**The AI remembers across sessions** - specs, tasks, and task-contexts capture everything. Start a new session, run the `load-task` skill, and the AI picks up where it left off. No knowledge is lost.
 
 ### Three layers of persistent context
 
@@ -73,49 +73,51 @@ Learn more in the [development model guide](docs/development-model.md).
 ## Key Features
 
 ### Structured planning
-- `/start-feature` — thorough discovery interview before any code is written
-- `/create-task` — quick task creation from conversation when a full interview isn't needed
-- `/plan-tasks` — break an existing spec into multiple tasks
-- `/add-idea` — capture a deferred idea to the worklog mid-session so it's not lost
+- `start-feature` - thorough discovery interview before any code is written
+- `create-task` - quick task creation from conversation when a full interview isn't needed
+- `plan-tasks` - break an existing spec into multiple tasks
+- `add-idea` - capture a deferred idea to the worklog mid-session so it's not lost
 
 ### Automated execution
-- `/run-task` — execute all steps with built-in review and test loops
-- `/run-step` — execute a single step with full control
-- `/do-it` — turn a conversation into a task step and implement it immediately
+- `run-task` - execute all steps with built-in review and test loops
+- `run-step` - execute a single step with full control
+- `do-it` - turn a conversation into a task step and implement it immediately
 
 ### Code review
-- `/review` — quick correctness scan (bugs, security, edge cases)
-- `/deep-review` — comprehensive architecture + correctness + codebase health review
+- `review` - quick correctness scan (bugs, security, edge cases)
+- `deep-review` - comprehensive architecture + correctness + codebase health review
 - Specialized reviewer agent runs in parallel without consuming your main conversation (Claude Code)
 
 ### Session continuity
-- `/load-task` — read spec, task-context, and task to continue exactly where you left off
-- `/load-spec` — read a feature spec, linked-task progress, and coverage gaps
-- `/finish-task` — close out a task: sync spec, write completion notes, handle git
-- `/align-context` — sync all context files with current state
+- `load-task` - read spec, task-context, and task to continue exactly where you left off
+- `load-spec` - read a feature spec, linked-task progress, and coverage gaps
+- `finish-task` - close out a task: sync spec, write completion notes, handle git
+- `align-context` - sync all context files with current state
 
 ### Issue & PR workflow
-- `/draft-issue` — draft a GitHub issue from conversation, create it on GitHub, and auto-fill the issue ID in subsequent task filenames
-- `/draft-pr` — generate a PR description from task context and git history (local file only)
-- `/make-pr` — push the branch if needed and create the PR on GitHub
-- `/finish-task` can auto-create PRs and run the review-fix loop — configure `after_task.pr` and `after_task.review_loop` in `config.yml` for a fully automated code → commit → push → PR → review → fix pipeline
-- `/gh-review-fix-loop` — automate the review-fix-push cycle (works with CodeRabbit, human reviewers, etc.)
-- `/gh-fix-tests` — fix failing CI checks automatically: diagnose, fix, push, retry until green
+**Draft locally. Publish deliberately.** `draft-pr` never touches GitHub; `make-pr` is the explicit publishing step.
+
+- `draft-issue` - draft a GitHub issue from conversation, create it on GitHub, and auto-fill the issue ID in subsequent task filenames
+- `draft-pr` - generate a PR description from task context and git history (local file only)
+- `make-pr` - push the branch if needed and create the PR on GitHub
+- `finish-task` can auto-create PRs and run the review-fix loop - configure `after_task.pr` and `after_task.review_loop` in `config.yml` for a fully automated code → commit → push → PR → review → fix pipeline
+- `gh-review-fix-loop` - automate the review-fix-push cycle (works with CodeRabbit, human reviewers, etc.)
+- `gh-fix-tests` - fix failing CI checks automatically: diagnose, fix, push, retry until green
 
 ### Thinking tools
-- `/interview` — structured discovery on any topic — the AI walks dimensions, recommends answers, and captures decisions
-- `/brainstorm` — generate missing angles, better implementations, and new combinations
-- `/thoughts` — quick "what do you think?" check-in for feedback mid-conversation
+- `interview` - structured discovery on any topic - the AI walks dimensions, recommends answers, and captures decisions
+- `brainstorm` - generate missing angles, better implementations, and new combinations
+- `thoughts` - quick "what do you think?" check-in for feedback mid-conversation
 
 ### Documentation generation
-- `/generate-docs` — generate project documentation from code and existing artifacts (reference, guide, or both)
+- `generate-docs` - generate project documentation from code and existing artifacts (reference, guide, or both)
 
 ### Project maintenance
-- `/prepare-release` — generate changelog, update version numbers, and prepare a release commit
-- `/tidy-aic` — archive completed tasks and specs, clean up session artifacts, keep the project directory lean
+- `prepare-release` - generate changelog, update version numbers, and prepare a release commit
+- `tidy-aic` - archive completed tasks and specs, clean up session artifacts, keep the project directory lean
 
 ### Browser inspection
-- `/web-inspect` — open pages, check console errors, interact with elements, capture screenshots
+- `web-inspect` - open pages, check console errors, interact with elements, capture screenshots
 
 ### Safety guardrails
 - Blocks destructive commands, enforces TDD, requires explicit permission before implementation
@@ -130,7 +132,8 @@ AIContext creates a `.aicontext/` directory with shared rules, prompts, and temp
 | Tool | How to invoke skills |
 |------|---------------------|
 | Claude Code, opencode, Pi | `/skill-name` (e.g., `/start-feature`) |
-| Codex, Cursor, Copilot | `use skill-name` (e.g., `use start-feature`) |
+| Codex | `$skill-name` (e.g., `$start-feature`) |
+| Cursor, Copilot | `use skill-name` (e.g., `use start-feature`) |
 
 Claude Code gets the richest experience with `/command` skills and parallel subagents. All tools share the same underlying prompts and instructions.
 
@@ -198,6 +201,7 @@ One config file controls how the AI works — no prompt engineering needed:
 
 | Version | Highlights |
 |---------|------------|
+| **1.11.0** | OpenCode and Pi workflow support. Selective Codex skill routing. Explicit `make-pr` workflow, with `draft-pr` now local-only. Task and spec loading via `load-task` and `load-spec`. Typed response references for questions, concerns, risks, decisions, actions, unexpected findings, and options. |
 | **1.10.0** | Configurable TDD (`tdd: true/false/ask`). Dedicated `plan-steps.md` for plan-creation-time rules. Branch verification before remote ops. Correct git range operators in PR drafts. |
 | **1.9.0** | Documentation generation (`/generate-docs`). Type-aware test config with per-type scoping. Self-healing updates and `--force` flag. Choose which AI tools to install. Clearer skill names (`/resume-task`, `/review-task`). |
 | **1.8.0** | PR workflow automation — config guards, review-fix loop, resumable close. Project tidying (`/tidy-aic`). TDD-aware planning. "Brief" → "task-context" rename. Local version cache. ESM compatibility fix. |
