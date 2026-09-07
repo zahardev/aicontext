@@ -54,5 +54,5 @@ Step N closed:
 If Task-context shows +0 entries, explain why nothing was learned (this should be rare — most steps produce at least a file reference).
 
 After the summary, append one handoff line based on the task state:
-- If unchecked plan steps remain → `Run {native next-step invocation} to continue.`
-- If this was the last unchecked step → `Final step closed. Run {native finish-task invocation} to close the task.`
+- If unchecked plan steps remain → append the active tool's `next-step` handoff.
+- If this was the last unchecked step → append the active tool's `finish-task` handoff.

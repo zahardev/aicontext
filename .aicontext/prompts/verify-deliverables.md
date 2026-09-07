@@ -21,7 +21,7 @@ Run nothing before approval.
 
 ## 3. Run
 
-Run only approved checks with Bash or `/web-inspect`. Never read `.env`; ask for required values.
+Run only approved checks with Bash or the active tool's `web-inspect` invocation. Never read `.env`; ask for required values.
 
 Report each deliverable as pass, fail, or couldn't-verify. Do not report unrun checks as passed.
 

@@ -93,6 +93,8 @@ Use the user's tool syntax in every skill suggestion or handoff:
 - Codex: `$skill-name`
 - Cursor, Copilot: `use skill-name`
 
+When a prompt requests a native invocation, substitute the active tool's exact syntax before responding. Never show a placeholder to the user.
+
 ## AI Response & Behavior Rules
 
 ### Question Pacing
@@ -137,9 +139,9 @@ After a workflow prompt finishes (file creation, step close, task finish, review
 **Mid-conversation turns during interviews or discussions** must end with either the next question, an explicit options menu, or a handoff — never a wrap-up statement that drops the thread.
 
 **Examples:**
-- After `close-step` with unchecked steps remaining: `Run {native next-step invocation} to continue.`
-- After `/finish-task` with pending tasks in the same spec: `Spec '{Spec Name}' has more pending tasks. Next: '{task_name}'. Would you like to start it now?`
-- After a mid-task discussion surfaces new work: `{native add-step invocation} to add it to the plan, or {native do-it invocation} to add the step and execute immediately.`
+- After `close-step` with unchecked steps remaining: append the active tool's `next-step` handoff.
+- After `finish-task` with pending tasks in the same spec: `Spec '{Spec Name}' has more pending tasks. Next: '{task_name}'. Would you like to start it now?`
+- After a mid-task discussion surfaces new work: append the active tool's `add-step` or `do-it` handoff.
 
 **Why:** workflow continuity. The AI holds the map; the user should never have to guess the next command. Next-action pointers are not tangents under Information Density — they are actionable and belong in the reply.
 

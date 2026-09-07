@@ -42,7 +42,7 @@ const FRAMEWORK_CODEX_SKILLS = [
 // Harnesses whose skills are flat `<name>.md` pointer files rather than `<name>/SKILL.md` directories.
 // Both ship the same skill set as `.claude`, so they reuse FRAMEWORK_SKILLS.
 const FLAT_POINTER_HARNESSES = {
-  opencode: { dir: ['.opencode', 'command'] },
+  opencode: { dir: ['.opencode', 'commands'] },
   pi: { dir: ['.pi', 'prompts'] },
 };
 const DEPRECATED_SKILLS = ['task', 'after-step', 'next', 'pr', 'start-task', 'diff-review', 'branch-review', 'standards-check', 'pr-review-check', 'check-plan', 'check-task', 'review-task-plan', 'run-steps', 'review-plan', 'resume-task'];
@@ -367,8 +367,25 @@ function isGeneratedPointer(content, skill) {
   if (frontmatterKeys.some((key) => key !== 'description')) return false;
 
   const bodyLines = match.groups.body.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
-  const allowed = [`Read and follow \`.aicontext/prompts/${skill}.md\``, '$ARGUMENTS'];
-  return bodyLines.length > 0 && bodyLines.every((line) => allowed.includes(line));
+  const promptReference = `Read and follow \`.aicontext/prompts/${skill}.md\``;
+  return bodyLines[0] === promptReference &&
+    (bodyLines.length === 1 || (bodyLines.length === 2 && bodyLines[1] === '$ARGUMENTS'));
+}
+
+function migrateOpenCodePointers(target) {
+  const legacyDir = path.join(target, '.opencode', 'command');
+  const commandsDir = path.join(target, '.opencode', 'commands');
+  if (!fs.existsSync(legacyDir)) return;
+
+  for (const skill of FRAMEWORK_SKILLS) {
+    const legacyFile = path.join(legacyDir, `${skill}.md`);
+    if (!fs.existsSync(legacyFile) || !isGeneratedPointer(fs.readFileSync(legacyFile, 'utf8'), skill)) continue;
+    fs.mkdirSync(commandsDir, { recursive: true });
+    const commandFile = path.join(commandsDir, `${skill}.md`);
+    if (!fs.existsSync(commandFile)) fs.renameSync(legacyFile, commandFile);
+    else fs.unlinkSync(legacyFile);
+  }
+  log('  Migrated generated OpenCode commands to .opencode/commands/', 'dim');
 }
 
 function isGeneratedSkill(content, skill) {
@@ -969,6 +986,8 @@ async function update(targetDir, skipConfirm = false, keepPrompts = false, overr
   }
 
   const currentVersion = fs.readFileSync(versionFile, 'utf8').trim();
+
+  migrateOpenCodePointers(target);
 
   const presentAssistants = ASSISTANT_NAMES.filter((name) => ASSISTANTS[name].detect(target));
   const missingAssistants = ASSISTANT_NAMES.filter((name) => !ASSISTANTS[name].detect(target));

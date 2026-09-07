@@ -41,6 +41,6 @@ Show the user:
 - Version being released
 - Each file updated and what changed
 - Any issues (missing files, inconsistencies)
-- Next: `Run {native commit invocation} to commit the release updates.`
+- Next: append the active tool's `commit` handoff.
 
 Wait for user confirmation.

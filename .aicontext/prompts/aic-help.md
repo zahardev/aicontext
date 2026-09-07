@@ -54,7 +54,7 @@ Describe the fix in conversation → `do-it` - creates a task step and implement
 
 ## Tips
 
-- **Don't restart sessions unnecessarily.** The agent accumulates context across steps — restarting loses that. Use `/load-task` when you must restart.
+- **Don't restart sessions unnecessarily.** The agent accumulates context across steps - restarting loses that. Use the native `load-task` invocation when you must restart.
 
 ## Customization
 

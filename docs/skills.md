@@ -7,7 +7,7 @@ Skills are invocable commands that automate common development tasks. Each skill
 | Tool | Syntax | Example |
 |------|--------|---------|
 | Claude Code, opencode, Pi | `/skill-name` | `/start-feature` |
-| Codex | `Use skill-name` | `Use start-feature` |
+| Codex | `$skill-name` | `$start-feature` |
 | Cursor / Copilot | Paste prompt file | Paste `.aicontext/prompts/start-feature.md` |
 
 ## Development Flow Skills

@@ -46,4 +46,4 @@ On yes, run `node .aicontext/scripts/pr-resolve.cjs <path-to-review-file>`.
 
 ---
 
-After completion: `Review triage complete. Next: {native commit invocation} to commit any fixes you made, or address the fix actions first.`
+After completion, append the active tool's `commit` handoff if fixes were made. Otherwise, tell the user to address the fix actions first.

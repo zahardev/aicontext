@@ -1343,7 +1343,7 @@ describe('hasExistingFrameworkFiles', () => {
     const agentsDir = path.join(tempDir, '.claude', 'agents');
     const skillsDir = path.join(tempDir, '.claude', 'skills');
     const codexDir = path.join(tempDir, '.codex', 'skills');
-    const opencodeDir = path.join(tempDir, '.opencode', 'command');
+    const opencodeDir = path.join(tempDir, '.opencode', 'commands');
     const piDir = path.join(tempDir, '.pi', 'prompts');
     const promptsDir = path.join(tempDir, '.aicontext', 'prompts');
 
@@ -1966,9 +1966,9 @@ describe('opencode and pi entry points', () => {
   it('should install a pointer file per skill for both harnesses', () => {
     for (const skill of FRAMEWORK_SKILLS) {
       assert.strictEqual(
-        fs.existsSync(path.join(tempDir, '.opencode', 'command', `${skill}.md`)),
+        fs.existsSync(path.join(tempDir, '.opencode', 'commands', `${skill}.md`)),
         true,
-        `.opencode/command/${skill}.md missing`
+        `.opencode/commands/${skill}.md missing`
       );
       assert.strictEqual(
         fs.existsSync(path.join(tempDir, '.pi', 'prompts', `${skill}.md`)),
@@ -1998,17 +1998,30 @@ describe('opencode and pi entry points', () => {
   });
 
   it('should restore deleted pointer files on update', async () => {
-    fs.rmSync(path.join(tempDir, '.opencode', 'command', 'start.md'));
+    fs.rmSync(path.join(tempDir, '.opencode', 'commands', 'start.md'));
     fs.rmSync(path.join(tempDir, '.pi', 'prompts', 'start.md'));
 
     await update(tempDir, true);
 
-    assert.strictEqual(fs.existsSync(path.join(tempDir, '.opencode', 'command', 'start.md')), true);
+    assert.strictEqual(fs.existsSync(path.join(tempDir, '.opencode', 'commands', 'start.md')), true);
     assert.strictEqual(fs.existsSync(path.join(tempDir, '.pi', 'prompts', 'start.md')), true);
   });
 
+  it('should migrate generated OpenCode pointers from command to commands', async () => {
+    const commandsDir = path.join(tempDir, '.opencode', 'commands');
+    const legacyDir = path.join(tempDir, '.opencode', 'command');
+    fs.mkdirSync(legacyDir, { recursive: true });
+    fs.renameSync(path.join(commandsDir, 'start.md'), path.join(legacyDir, 'start.md'));
+    fs.writeFileSync(path.join(tempDir, '.aicontext', '.version'), '1.10.0');
+
+    await update(tempDir, true);
+
+    assert.strictEqual(fs.existsSync(path.join(commandsDir, 'start.md')), true);
+    assert.strictEqual(fs.existsSync(path.join(legacyDir, 'start.md')), false);
+  });
+
   it('should preserve customized pointer files on update', async () => {
-    const custom = path.join(tempDir, '.opencode', 'command', 'start.md');
+    const custom = path.join(tempDir, '.opencode', 'commands', 'start.md');
     fs.writeFileSync(custom, 'user content');
 
     // Force the full copy path rather than the self-heal shortcut
@@ -2032,7 +2045,7 @@ describe('opencode and pi entry points', () => {
     const fresh = createTempDir();
     try {
       await copyFlatPointers('opencode', packageRoot, fresh, false, true);
-      const written = fs.readdirSync(path.join(fresh, '.opencode', 'command')).sort();
+      const written = fs.readdirSync(path.join(fresh, '.opencode', 'commands')).sort();
       assert.deepStrictEqual(written, FRAMEWORK_SKILLS.map((s) => `${s}.md`).sort());
     } finally {
       removeTempDir(fresh);
@@ -2050,12 +2063,12 @@ describe('opencode and pi entry points', () => {
   });
 
   it('should not remove a user-authored file that shares a deprecated skill name', () => {
-    const userFile = path.join(tempDir, '.opencode', 'command', 'task.md');
+    const userFile = path.join(tempDir, '.opencode', 'commands', 'task.md');
     fs.writeFileSync(userFile, 'my own task command');
     const stalePointer = path.join(tempDir, '.pi', 'prompts', 'task.md');
     fs.writeFileSync(stalePointer, '---\ndescription: Old task skill\n---\n\nRead and follow `.aicontext/prompts/task.md`\n\n$ARGUMENTS\n');
     // Cites a framework prompt, but not its own — a user file, not a stale pointer
-    const citingFile = path.join(tempDir, '.opencode', 'command', 'next.md');
+    const citingFile = path.join(tempDir, '.opencode', 'commands', 'next.md');
     fs.writeFileSync(citingFile, 'My notes on `.aicontext/prompts/run-task.md`');
     // Frontmatter and the right pointer line, but extra prose — the user's own file
     const pointerLikeFile = path.join(tempDir, '.pi', 'prompts', 'start-task.md');
@@ -2081,6 +2094,7 @@ describe('opencode and pi entry points', () => {
       true
     );
     assert.strictEqual(isGeneratedPointer('My own task command', 'task'), false);
+    assert.strictEqual(isGeneratedPointer('---\ndescription: x\n---\n\n$ARGUMENTS\n', 'task'), false);
     // Right shape, wrong skill
     assert.strictEqual(
       isGeneratedPointer('---\ndescription: x\n---\n\nRead and follow `.aicontext/prompts/other.md`\n', 'task'),
@@ -2095,7 +2109,7 @@ describe('opencode and pi entry points', () => {
 
   it('should pass arguments through on both harnesses', () => {
     for (const p of [
-      path.join(tempDir, '.opencode', 'command'),
+      path.join(tempDir, '.opencode', 'commands'),
       path.join(tempDir, '.pi', 'prompts'),
     ]) {
       for (const skill of FRAMEWORK_SKILLS) {

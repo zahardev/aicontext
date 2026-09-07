@@ -103,7 +103,7 @@ Subdirectories are created automatically by skills and scripts when needed.
 1. Paste `prompts/load-task.md` content (or use the native `load-task` skill invocation)
 2. Create/update task file in `tasks/` using `templates/task.template.md`
 3. Follow plan construction rules from `prompts/plan-steps.md` (TDD is config-driven via `tdd` in `config.yml`)
-4. After each step, use `prompts/after_step.md` (or the native `next-step` skill invocation) to reflect and continue
+4. After each step, use the native `next-step` skill invocation to reflect and continue
 5. Update `worklog.md` when complete
 
 ### Reviewing Work

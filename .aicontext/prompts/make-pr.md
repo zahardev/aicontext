@@ -13,7 +13,7 @@ Build the current branch's draft filename using the same rule as `/draft-pr`: re
 
 If the draft file exists, read its `# ` heading as the title and the remaining content as the body. If it predates the latest branch commit, ask whether to reuse or regenerate it.
 
-If no draft exists or the user chooses regeneration, read the current task file, then run `git log {base_branch}..HEAD --oneline` and `git diff {base_branch}...HEAD --stat`.
+If no draft exists or the user chooses regeneration, read the current task file. Resolve `project.base_branch` into `base_branch`, then run `git log "${base_branch}..HEAD" --oneline` and `git diff "${base_branch}...HEAD" --stat`.
 
 Write a generated title under 70 characters in imperative mood.
 
