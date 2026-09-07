@@ -22,5 +22,5 @@ Pass the corpus explicitly to the reviewer subagent along with the resolved scop
 4. **Re-review** — repeat 2–3 up to 5 times total. If issues remain after 5 iterations, stop and tell the user: "I've done 5 review cycles — please check if there are remaining issues." The user decides to resolve manually or run another cycle.
 5. **Test** — if `after_step.tests` resolved to anything other than `false`: compute the changed-files corpus per the Review corpus table above (same rules), call `resolve-tests.md` with the resolved value, `step` context, and the corpus. If `ERROR`: surface to the user and skip tests. If `SKIP`: report skip and continue. If `COMMANDS`: pass them to `test-runner` subagent (Claude Code) or run inline (Cursor/Copilot/Codex).
 6. **Fix tests** — if tests fail and the fix is clear, fix and re-run. Otherwise stop (see Stop Conditions in `run-task.md`).
-7. **Commit** — if `after_step.commit` resolved to Yes: follow `commit.md` inline
+7. **Commit** — if `after_step.commit` resolved to Yes: explicitly invoke the `commit` skill using Native Skill Syntax
 8. **Close step** — follow `close-step.md` (updates task, task-context, spec and outputs a summary with counts). Do not advance until the close-step summary is output.

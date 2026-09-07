@@ -47,7 +47,7 @@ Update `.aicontext/worklog.md`:
 
 ### Commit
 
-If `after_task.commit` resolved to Yes **and** `git status` shows uncommitted changes, follow `commit.md` inline. Do not depend on implicit skill invocation. If there are no uncommitted changes (step-level commits already covered everything), silently skip and note `"commit: skipped — no uncommitted changes"` in the summary.
+If `after_task.commit` resolved to Yes **and** `git status` shows uncommitted changes, explicitly invoke the `commit` skill using Native Skill Syntax (`$commit` in Codex). Do not depend on implicit skill invocation. If there are no uncommitted changes (step-level commits already covered everything), silently skip and note `"commit: skipped — no uncommitted changes"` in the summary.
 
 ### Push
 
