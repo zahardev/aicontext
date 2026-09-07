@@ -20,7 +20,8 @@ Run after-task actions based on resolved `after_task.*` values:
 1. **Review** — if `after_task.review` resolved to `normal` or `deep`: compute corpus (`{base-branch}...HEAD` + uncommitted working tree). Call `reviewer` subagent (Claude Code) or follow the playbook inline (Cursor/Copilot). Pass the exact playbook path: `normal` → `.aicontext/prompts/review.md`, `deep` → `.aicontext/prompts/deep-review.md`
 2. **Tests** — if `after_task.tests` resolved to anything other than `false`: call `resolve-tests.md` with the resolved value and `task` context. If `ERROR`: surface to the user, do not run tests. If `SKIP`: report skip and continue. If `COMMANDS`: pass them to `test-runner` subagent (Claude Code) or run inline (Cursor/Copilot/Codex).
 3. Fix any issues found
-4. `All steps complete. Run /finish-task to close the task.`
+4. **Verify deliverables** — follow `verify-deliverables.md`; it stops silently if no concrete check is available.
+5. If verification added or resumed a step, return to Section 2 to execute it, then repeat this section. Otherwise, append the active tool's `finish-task` handoff.
 
 ## Stop Conditions
 

@@ -14,6 +14,10 @@ const {
   FRAMEWORK_AGENTS,
   DEPRECATED_AGENTS,
   FRAMEWORK_SKILLS,
+  ASSISTANTS,
+  copyFlatPointers,
+  addAssistant,
+  isGeneratedPointer,
   DEPRECATED_SKILLS,
   FRAMEWORK_SCRIPTS,
   selfHealMissingFiles,
@@ -21,6 +25,7 @@ const {
   copyFrameworkPrompts,
   copyFrameworkAgents,
   copyFrameworkSkills,
+  copyFrameworkCodexSkills,
   copyFrameworkScripts,
   installConfig,
   resolveCommitAnswer,
@@ -39,6 +44,8 @@ const {
   init,
   update,
 } = require('../bin/aicontext.js');
+
+const packageRoot = path.join(__dirname, '..');
 
 const originalLog = console.log;
 before(() => { console.log = process.env.DEBUG ? originalLog : () => {}; });
@@ -342,8 +349,8 @@ describe('update', () => {
     fs.writeFileSync(path.join(tempDir, '.aicontext', 'prompts', 'task.md'), 'old content');
 
     // Remove a new prompt to verify it gets recreated by update
-    const resumeTaskPrompt = path.join(tempDir, '.aicontext', 'prompts', 'resume-task.md');
-    if (fs.existsSync(resumeTaskPrompt)) fs.unlinkSync(resumeTaskPrompt);
+    const loadTaskPrompt = path.join(tempDir, '.aicontext', 'prompts', 'load-task.md');
+    if (fs.existsSync(loadTaskPrompt)) fs.unlinkSync(loadTaskPrompt);
 
     await update(tempDir, true);
 
@@ -355,7 +362,7 @@ describe('update', () => {
     assert.strictEqual(fs.existsSync(path.join(tempDir, '.aicontext', 'prompts', 'task.md')), false);
 
     // New prompts should be created by update
-    assert.strictEqual(fs.existsSync(resumeTaskPrompt), true);
+    assert.strictEqual(fs.existsSync(loadTaskPrompt), true);
   });
 
   it('should refresh version cache on update', async () => {
@@ -469,17 +476,17 @@ describe('version cache', () => {
 });
 
 describe('FRAMEWORK_PROMPTS', () => {
-  it('should contain exactly 48 framework prompt files', () => {
-    assert.strictEqual(FRAMEWORK_PROMPTS.length, 48);
+  it('should contain exactly 50 framework prompt files', () => {
+    assert.strictEqual(FRAMEWORK_PROMPTS.length, 50);
   });
 
   it('should contain the expected prompt files', () => {
     const expected = [
       'add-step.md', 'aic-help.md', 'aic-skills.md', 'align-context.md', 'challenge.md', 'close-step.md',
       'commit.md', 'create-task.md', 'deep-review.md', 'deep-review-criteria.md', 'do-it.md', 'draft-issue.md', 'ensure-config.md', 'identify-task.md',
-      'draft-pr.md', 'finish-task.md', 'generate.md', 'generate-docs.md', 'generate-guide.md', 'generate-reference.md', 'gh-fix-tests.md', 'gh-review-fix-loop.md', 'next-step.md', 'plan-tasks.md',
+      'draft-pr.md', 'make-pr.md', 'finish-task.md', 'generate.md', 'generate-docs.md', 'generate-guide.md', 'generate-reference.md', 'gh-fix-tests.md', 'gh-review-fix-loop.md', 'next-step.md', 'plan-tasks.md',
       'gh-review-check.md', 'install-playwright-cli.md', 'prepare-release.md', 'resolve-task-naming.md', 'resolve-test-types.md', 'resolve-tests.md', 'review.md', 'review-criteria.md', 'detect-review-scope.md',
-      'brainstorm.md', 'check-update.md', 'interview.md', 'migrate-config.md', 'resolve-asks.md', 'resume-task.md', 'review-task.md', 'run-step.md', 'run-task.md', 'start-feature.md', 'start.md', 'step-loop.md', 'test-writer.md', 'thoughts.md', 'tidy-aic.md',
+      'brainstorm.md', 'check-update.md', 'interview.md', 'load-spec.md', 'load-task.md', 'migrate-config.md', 'resolve-asks.md', 'review-task.md', 'run-step.md', 'run-task.md', 'start-feature.md', 'start.md', 'step-loop.md', 'test-writer.md', 'thoughts.md', 'tidy-aic.md',
     ];
     assert.deepStrictEqual([...FRAMEWORK_PROMPTS].sort(), [...expected].sort());
   });
@@ -487,8 +494,25 @@ describe('FRAMEWORK_PROMPTS', () => {
 
 describe('DEPRECATED_PROMPTS', () => {
   it('should contain the old prompt file names', () => {
-    const expected = ['check_plan.md', 'check_task.md', 'check-task.md', 'review-task-plan.md', 'after_step.md', 'plan.md', 'task.md', 'start-task.md', 'diff-review.md', 'branch-review.md', 'standards-check.md', 'pr-review-check.md', 'check-plan.md', 'run-steps.md', 'review-plan.md', 'review-scope.md', 'update-check.md', 'auto-setup.md', 'resolve-task-lifecycle-asks.md'];
+    const expected = ['check_plan.md', 'check_task.md', 'check-task.md', 'review-task-plan.md', 'after_step.md', 'plan.md', 'task.md', 'start-task.md', 'diff-review.md', 'branch-review.md', 'standards-check.md', 'pr-review-check.md', 'check-plan.md', 'run-steps.md', 'review-plan.md', 'review-scope.md', 'update-check.md', 'auto-setup.md', 'resolve-task-lifecycle-asks.md', 'resume-task.md'];
     assert.deepStrictEqual([...DEPRECATED_PROMPTS].sort(), [...expected].sort());
+  });
+});
+
+describe('removeDeprecatedPrompts', () => {
+  it('should remove generated resume-task prompts but preserve user-authored ones', () => {
+    const tempDir = createTempDir();
+    const promptDir = path.join(tempDir, '.aicontext', 'prompts');
+    const promptPath = path.join(promptDir, 'resume-task.md');
+    fs.mkdirSync(promptDir, { recursive: true });
+    fs.copyFileSync(path.join(__dirname, 'fixtures', 'resume-task.md'), promptPath);
+    removeDeprecatedPrompts(tempDir);
+    assert.strictEqual(fs.existsSync(promptPath), false);
+
+    fs.writeFileSync(promptPath, 'my custom task recovery workflow');
+    removeDeprecatedPrompts(tempDir);
+    assert.strictEqual(fs.readFileSync(promptPath, 'utf8'), 'my custom task recovery workflow');
+    removeTempDir(tempDir);
   });
 });
 
@@ -553,7 +577,12 @@ describe('removeDeprecatedPrompts', () => {
   it('should remove deprecated prompt files', () => {
     fs.mkdirSync(path.join(tempDir, '.aicontext', 'prompts'), { recursive: true });
     for (const file of DEPRECATED_PROMPTS) {
-      fs.writeFileSync(path.join(tempDir, '.aicontext', 'prompts', file), 'content');
+      const target = path.join(tempDir, '.aicontext', 'prompts', file);
+      if (file === 'resume-task.md') {
+        fs.copyFileSync(path.join(__dirname, 'fixtures', 'resume-task.md'), target);
+      } else {
+        fs.writeFileSync(target, 'content');
+      }
     }
 
     removeDeprecatedPrompts(tempDir);
@@ -802,14 +831,14 @@ describe('removeDeprecatedAgents', () => {
 });
 
 describe('FRAMEWORK_SKILLS', () => {
-  it('should contain exactly 32 skill names', () => {
-    assert.strictEqual(FRAMEWORK_SKILLS.length, 32);
+  it('should contain exactly 34 skill names', () => {
+    assert.strictEqual(FRAMEWORK_SKILLS.length, 34);
   });
 
   it('should contain the expected skills', () => {
     const expected = [
-      'add-step', 'add-idea', 'create-task', 'start', 'start-feature', 'plan-tasks', 'resume-task', 'review-task', 'run-step', 'run-task', 'finish-task',
-      'align-context', 'do-it', 'challenge', 'brainstorm', 'thoughts', 'interview', 'commit', 'review', 'deep-review', 'next-step', 'draft-pr', 'gh-review-check',
+      'add-step', 'add-idea', 'create-task', 'start', 'start-feature', 'plan-tasks', 'load-task', 'load-spec', 'review-task', 'run-step', 'run-task', 'finish-task',
+      'align-context', 'do-it', 'challenge', 'brainstorm', 'thoughts', 'interview', 'commit', 'review', 'deep-review', 'next-step', 'draft-pr', 'make-pr', 'gh-review-check',
       'draft-issue', 'generate-docs', 'prepare-release', 'gh-review-fix-loop', 'gh-fix-tests', 'web-inspect', 'aic-help', 'aic-skills', 'tidy-aic',
     ];
     assert.deepStrictEqual([...FRAMEWORK_SKILLS].sort(), [...expected].sort());
@@ -824,13 +853,14 @@ describe('FRAMEWORK_SKILLS', () => {
 
 describe('DEPRECATED_SKILLS', () => {
   it('should contain the old skill names', () => {
-    const expected = ['task', 'after-step', 'next', 'pr', 'start-task', 'diff-review', 'branch-review', 'standards-check', 'pr-review-check', 'check-plan', 'check-task', 'review-task-plan', 'run-steps', 'review-plan'];
+    const expected = ['task', 'after-step', 'next', 'pr', 'start-task', 'diff-review', 'branch-review', 'standards-check', 'pr-review-check', 'check-plan', 'check-task', 'review-task-plan', 'run-steps', 'review-plan', 'resume-task'];
     assert.deepStrictEqual([...DEPRECATED_SKILLS].sort(), [...expected].sort());
   });
 });
 
 describe('removeDeprecatedSkills', () => {
   let tempDir;
+  const generatedResumeTaskSkill = '---\nname: resume-task\ndescription: Load task context, show progress, and surface ambiguities and conflicts before resuming implementation\n---\n\nRead and follow `.aicontext/prompts/resume-task.md`\n';
 
   beforeEach(() => {
     tempDir = createTempDir();
@@ -840,16 +870,14 @@ describe('removeDeprecatedSkills', () => {
     removeTempDir(tempDir);
   });
 
-  it('should remove deprecated skill directories', () => {
-    fs.mkdirSync(path.join(tempDir, '.claude', 'skills', 'task'), { recursive: true });
-    fs.writeFileSync(path.join(tempDir, '.claude', 'skills', 'task', 'SKILL.md'), 'content');
-    fs.mkdirSync(path.join(tempDir, '.claude', 'skills', 'diff-review'), { recursive: true });
-    fs.writeFileSync(path.join(tempDir, '.claude', 'skills', 'diff-review', 'SKILL.md'), 'content');
+  it('should remove generated deprecated skill directories', () => {
+    const skillPath = path.join(tempDir, '.claude', 'skills', 'resume-task', 'SKILL.md');
+    fs.mkdirSync(path.dirname(skillPath), { recursive: true });
+    fs.writeFileSync(skillPath, generatedResumeTaskSkill);
 
     removeDeprecatedSkills(tempDir);
 
-    assert.strictEqual(fs.existsSync(path.join(tempDir, '.claude', 'skills', 'task')), false);
-    assert.strictEqual(fs.existsSync(path.join(tempDir, '.claude', 'skills', 'diff-review')), false);
+    assert.strictEqual(fs.existsSync(path.dirname(skillPath)), false);
   });
 
   it('should not fail when deprecated skills do not exist', () => {
@@ -860,13 +888,24 @@ describe('removeDeprecatedSkills', () => {
   it('should not remove non-deprecated skills', () => {
     fs.mkdirSync(path.join(tempDir, '.claude', 'skills', 'start'), { recursive: true });
     fs.writeFileSync(path.join(tempDir, '.claude', 'skills', 'start', 'SKILL.md'), 'content');
-    fs.mkdirSync(path.join(tempDir, '.claude', 'skills', 'task'), { recursive: true });
-    fs.writeFileSync(path.join(tempDir, '.claude', 'skills', 'task', 'SKILL.md'), 'old');
+    const generatedSkillPath = path.join(tempDir, '.claude', 'skills', 'resume-task', 'SKILL.md');
+    fs.mkdirSync(path.dirname(generatedSkillPath), { recursive: true });
+    fs.writeFileSync(generatedSkillPath, generatedResumeTaskSkill);
 
     removeDeprecatedSkills(tempDir);
 
     assert.strictEqual(fs.existsSync(path.join(tempDir, '.claude', 'skills', 'start')), true);
-    assert.strictEqual(fs.existsSync(path.join(tempDir, '.claude', 'skills', 'task')), false);
+    assert.strictEqual(fs.existsSync(path.dirname(generatedSkillPath)), false);
+  });
+
+  it('should preserve user-authored deprecated skills', () => {
+    const skillPath = path.join(tempDir, '.claude', 'skills', 'resume-task', 'SKILL.md');
+    fs.mkdirSync(path.dirname(skillPath), { recursive: true });
+    fs.writeFileSync(skillPath, generatedResumeTaskSkill.replace('description: Load task context, show progress, and surface ambiguities and conflicts before resuming implementation', 'description: My custom task recovery workflow'));
+
+    removeDeprecatedSkills(tempDir);
+
+    assert.match(fs.readFileSync(skillPath, 'utf8'), /description: My custom task recovery workflow/);
   });
 });
 
@@ -1153,6 +1192,23 @@ describe('selfHealMissingFiles', () => {
     assert.strictEqual(fs.existsSync(skillPath), true);
   });
 
+  it('should restore missing Codex policy metadata without overwriting existing metadata', () => {
+    const missingPolicy = path.join(tempDir, '.codex', 'skills', 'start', 'agents', 'openai.yaml');
+    const existingPolicy = path.join(tempDir, '.codex', 'skills', 'load-task', 'agents', 'openai.yaml');
+    fs.unlinkSync(missingPolicy);
+    fs.mkdirSync(path.dirname(existingPolicy), { recursive: true });
+    fs.writeFileSync(existingPolicy, 'user policy');
+
+    const healed = selfHealMissingFiles(packageRoot, tempDir, ['codex']);
+
+    assert.strictEqual(healed, 1);
+    assert.strictEqual(
+      fs.readFileSync(missingPolicy, 'utf8'),
+      fs.readFileSync(path.join(packageRoot, '.codex', 'skills', 'start', 'agents', 'openai.yaml'), 'utf8')
+    );
+    assert.strictEqual(fs.readFileSync(existingPolicy, 'utf8'), 'user policy');
+  });
+
   it('should not overwrite existing files', () => {
     const promptPath = path.join(tempDir, '.aicontext', 'prompts', 'start.md');
     fs.writeFileSync(promptPath, 'user modified');
@@ -1287,11 +1343,15 @@ describe('hasExistingFrameworkFiles', () => {
     const agentsDir = path.join(tempDir, '.claude', 'agents');
     const skillsDir = path.join(tempDir, '.claude', 'skills');
     const codexDir = path.join(tempDir, '.codex', 'skills');
+    const opencodeDir = path.join(tempDir, '.opencode', 'commands');
+    const piDir = path.join(tempDir, '.pi', 'prompts');
     const promptsDir = path.join(tempDir, '.aicontext', 'prompts');
 
     if (fs.existsSync(agentsDir)) fs.rmSync(agentsDir, { recursive: true });
     if (fs.existsSync(skillsDir)) fs.rmSync(skillsDir, { recursive: true });
     if (fs.existsSync(codexDir)) fs.rmSync(codexDir, { recursive: true });
+    if (fs.existsSync(opencodeDir)) fs.rmSync(opencodeDir, { recursive: true });
+    if (fs.existsSync(piDir)) fs.rmSync(piDir, { recursive: true });
     if (fs.existsSync(promptsDir)) fs.rmSync(promptsDir, { recursive: true });
 
     assert.strictEqual(hasExistingFrameworkFiles(tempDir), false);
@@ -1394,7 +1454,7 @@ describe('copyFrameworkSkills', () => {
     );
     // Other skills should be copied
     assert.strictEqual(
-      fs.existsSync(path.join(destDir, '.claude', 'skills', 'resume-task', 'SKILL.md')),
+      fs.existsSync(path.join(destDir, '.claude', 'skills', 'load-task', 'SKILL.md')),
       true
     );
   });
@@ -1440,7 +1500,53 @@ describe('copyFrameworkSkills', () => {
     await copyFrameworkSkills(srcDir, destDir);
 
     assert.strictEqual(fs.existsSync(path.join(destDir, '.claude', 'skills', 'start')), false);
-    assert.strictEqual(fs.existsSync(path.join(destDir, '.claude', 'skills', 'resume-task', 'SKILL.md')), true);
+    assert.strictEqual(fs.existsSync(path.join(destDir, '.claude', 'skills', 'load-task', 'SKILL.md')), true);
+  });
+});
+
+describe('copyFrameworkCodexSkills', () => {
+  let tempDir;
+  let srcDir;
+  let destDir;
+
+  beforeEach(() => {
+    tempDir = createTempDir();
+    srcDir = path.join(tempDir, 'source');
+    destDir = path.join(tempDir, 'dest');
+    const skillDir = path.join(srcDir, '.codex', 'skills', 'start');
+    fs.mkdirSync(path.join(skillDir, 'agents'), { recursive: true });
+    fs.writeFileSync(path.join(skillDir, 'SKILL.md'), 'start skill');
+    fs.writeFileSync(path.join(skillDir, 'agents', 'openai.yaml'), 'policy:\n  allow_implicit_invocation: true\n');
+  });
+
+  afterEach(() => {
+    removeTempDir(tempDir);
+  });
+
+  it('should copy policy metadata with each Codex skill', async () => {
+    await copyFrameworkCodexSkills(srcDir, destDir);
+
+    const skillDir = path.join(destDir, '.codex', 'skills', 'start');
+    assert.strictEqual(fs.readFileSync(path.join(skillDir, 'SKILL.md'), 'utf8'), 'start skill');
+    assert.strictEqual(
+      fs.readFileSync(path.join(skillDir, 'agents', 'openai.yaml'), 'utf8'),
+      'policy:\n  allow_implicit_invocation: true\n'
+    );
+  });
+
+  it('should update policy metadata when preserving an existing skill', async () => {
+    const skillDir = path.join(destDir, '.codex', 'skills', 'start');
+    fs.mkdirSync(path.join(skillDir, 'agents'), { recursive: true });
+    fs.writeFileSync(path.join(skillDir, 'SKILL.md'), 'user skill');
+    fs.writeFileSync(path.join(skillDir, 'agents', 'openai.yaml'), 'old policy');
+
+    await copyFrameworkCodexSkills(srcDir, destDir, false, true);
+
+    assert.strictEqual(fs.readFileSync(path.join(skillDir, 'SKILL.md'), 'utf8'), 'user skill');
+    assert.strictEqual(
+      fs.readFileSync(path.join(skillDir, 'agents', 'openai.yaml'), 'utf8'),
+      'policy:\n  allow_implicit_invocation: true\n'
+    );
   });
 });
 
@@ -1842,5 +1948,201 @@ describe('resolveCommitAnswer', () => {
   it('maps unknown inputs to null — keep template default', () => {
     assert.strictEqual(resolveCommitAnswer('9'), null);
     assert.strictEqual(resolveCommitAnswer('yes'), null);
+  });
+});
+
+describe('opencode and pi entry points', () => {
+  let tempDir;
+
+  beforeEach(async () => {
+    tempDir = createTempDir();
+    await init(tempDir, true);
+  });
+
+  afterEach(() => {
+    removeTempDir(tempDir);
+  });
+
+  it('should install a pointer file per skill for both harnesses', () => {
+    for (const skill of FRAMEWORK_SKILLS) {
+      assert.strictEqual(
+        fs.existsSync(path.join(tempDir, '.opencode', 'commands', `${skill}.md`)),
+        true,
+        `.opencode/commands/${skill}.md missing`
+      );
+      assert.strictEqual(
+        fs.existsSync(path.join(tempDir, '.pi', 'prompts', `${skill}.md`)),
+        true,
+        `.pi/prompts/${skill}.md missing`
+      );
+    }
+  });
+
+  it('should detect both harnesses via the assistant registry', () => {
+    assert.strictEqual(ASSISTANTS.opencode.detect(tempDir), true);
+    assert.strictEqual(ASSISTANTS.pi.detect(tempDir), true);
+
+    const emptyDir = createTempDir();
+    try {
+      assert.strictEqual(ASSISTANTS.opencode.detect(emptyDir), false);
+      assert.strictEqual(ASSISTANTS.pi.detect(emptyDir), false);
+    } finally {
+      removeTempDir(emptyDir);
+    }
+  });
+
+  it('should list both folders in getExistingFiles', () => {
+    const existing = getExistingFiles(tempDir);
+    assert.ok(existing.includes('.opencode'), '.opencode not reported');
+    assert.ok(existing.includes('.pi'), '.pi not reported');
+  });
+
+  it('should restore deleted pointer files on update', async () => {
+    fs.rmSync(path.join(tempDir, '.opencode', 'commands', 'start.md'));
+    fs.rmSync(path.join(tempDir, '.pi', 'prompts', 'start.md'));
+
+    await update(tempDir, true);
+
+    assert.strictEqual(fs.existsSync(path.join(tempDir, '.opencode', 'commands', 'start.md')), true);
+    assert.strictEqual(fs.existsSync(path.join(tempDir, '.pi', 'prompts', 'start.md')), true);
+  });
+
+  it('should migrate generated OpenCode pointers from command to commands', async () => {
+    const commandsDir = path.join(tempDir, '.opencode', 'commands');
+    const legacyDir = path.join(tempDir, '.opencode', 'command');
+    fs.mkdirSync(legacyDir, { recursive: true });
+    fs.renameSync(path.join(commandsDir, 'start.md'), path.join(legacyDir, 'start.md'));
+    fs.writeFileSync(path.join(tempDir, '.aicontext', '.version'), '1.10.0');
+
+    await update(tempDir, true);
+
+    assert.strictEqual(fs.existsSync(path.join(commandsDir, 'start.md')), true);
+    assert.strictEqual(fs.existsSync(path.join(legacyDir, 'start.md')), false);
+  });
+
+  it('should remove deprecated generated OpenCode pointers from command', async () => {
+    const legacyDir = path.join(tempDir, '.opencode', 'command');
+    fs.mkdirSync(legacyDir, { recursive: true });
+    fs.writeFileSync(
+      path.join(legacyDir, 'resume-task.md'),
+      '---\ndescription: Resume task\n---\n\nRead and follow `.aicontext/prompts/resume-task.md`\n\n$ARGUMENTS\n'
+    );
+    fs.writeFileSync(path.join(tempDir, '.aicontext', '.version'), '1.10.0');
+
+    await update(tempDir, true);
+
+    assert.strictEqual(fs.existsSync(path.join(legacyDir, 'resume-task.md')), false);
+  });
+
+  it('should preserve customized pointer files on update', async () => {
+    const custom = path.join(tempDir, '.opencode', 'commands', 'start.md');
+    fs.writeFileSync(custom, 'user content');
+
+    // Force the full copy path rather than the self-heal shortcut
+    fs.writeFileSync(path.join(tempDir, '.aicontext', '.version'), '0.0.1');
+    await update(tempDir, true);
+
+    assert.strictEqual(fs.readFileSync(custom, 'utf8'), 'user content');
+  });
+
+  it('should override customized pointer files when overrideSkills is set', async () => {
+    const custom = path.join(tempDir, '.pi', 'prompts', 'start.md');
+    fs.writeFileSync(custom, 'user content');
+
+    await copyFlatPointers('pi', packageRoot, tempDir, true, true);
+
+    const shipped = fs.readFileSync(path.join(packageRoot, '.pi', 'prompts', 'start.md'), 'utf8');
+    assert.strictEqual(fs.readFileSync(custom, 'utf8'), shipped);
+  });
+
+  it('should keep every skill pointer in sync with FRAMEWORK_SKILLS', async () => {
+    const fresh = createTempDir();
+    try {
+      await copyFlatPointers('opencode', packageRoot, fresh, false, true);
+      const written = fs.readdirSync(path.join(fresh, '.opencode', 'commands')).sort();
+      assert.deepStrictEqual(written, FRAMEWORK_SKILLS.map((s) => `${s}.md`).sort());
+    } finally {
+      removeTempDir(fresh);
+    }
+  });
+
+  it('should install a missing harness via add-assistant', async () => {
+    fs.rmSync(path.join(tempDir, '.pi'), { recursive: true });
+    assert.strictEqual(ASSISTANTS.pi.detect(tempDir), false);
+
+    await addAssistant('pi', tempDir, true);
+
+    assert.strictEqual(ASSISTANTS.pi.detect(tempDir), true);
+    assert.strictEqual(fs.existsSync(path.join(tempDir, '.pi', 'prompts', 'start.md')), true);
+  });
+
+  it('should not remove a user-authored file that shares a deprecated skill name', () => {
+    const userFile = path.join(tempDir, '.opencode', 'commands', 'task.md');
+    fs.writeFileSync(userFile, 'my own task command');
+    const stalePointer = path.join(tempDir, '.pi', 'prompts', 'task.md');
+    fs.writeFileSync(stalePointer, '---\ndescription: Old task skill\n---\n\nRead and follow `.aicontext/prompts/task.md`\n\n$ARGUMENTS\n');
+    // Cites a framework prompt, but not its own — a user file, not a stale pointer
+    const citingFile = path.join(tempDir, '.opencode', 'commands', 'next.md');
+    fs.writeFileSync(citingFile, 'My notes on `.aicontext/prompts/run-task.md`');
+    // Frontmatter and the right pointer line, but extra prose — the user's own file
+    const pointerLikeFile = path.join(tempDir, '.pi', 'prompts', 'start-task.md');
+    fs.writeFileSync(
+      pointerLikeFile,
+      '---\ndescription: mine\n---\n\nRead and follow `.aicontext/prompts/start-task.md`\n\nThen deploy to staging.\n'
+    );
+
+    removeDeprecatedSkills(tempDir);
+
+    assert.strictEqual(fs.readFileSync(userFile, 'utf8'), 'my own task command');
+    assert.strictEqual(fs.readFileSync(citingFile, 'utf8'), 'My notes on `.aicontext/prompts/run-task.md`');
+    assert.strictEqual(fs.existsSync(pointerLikeFile), true, 'file with extra prose was deleted');
+    assert.strictEqual(fs.existsSync(stalePointer), false);
+  });
+
+  it('should recognize only generated pointer files', () => {
+    const generated = '---\ndescription: Anything at all\n---\n\nRead and follow `.aicontext/prompts/task.md`\n\n$ARGUMENTS\n';
+    assert.strictEqual(isGeneratedPointer(generated, 'task'), true);
+    // Pre-$ARGUMENTS pointers must still be recognized
+    assert.strictEqual(
+      isGeneratedPointer('---\ndescription: x\n---\n\nRead and follow `.aicontext/prompts/task.md`\n', 'task'),
+      true
+    );
+    assert.strictEqual(isGeneratedPointer('My own task command', 'task'), false);
+    assert.strictEqual(isGeneratedPointer('---\ndescription: x\n---\n\n$ARGUMENTS\n', 'task'), false);
+    // Right shape, wrong skill
+    assert.strictEqual(
+      isGeneratedPointer('---\ndescription: x\n---\n\nRead and follow `.aicontext/prompts/other.md`\n', 'task'),
+      false
+    );
+    // Extra frontmatter keys mean the user edited it
+    assert.strictEqual(
+      isGeneratedPointer('---\ndescription: x\nagent: build\n---\n\nRead and follow `.aicontext/prompts/task.md`\n', 'task'),
+      false
+    );
+  });
+
+  it('should pass arguments through on both harnesses', () => {
+    for (const p of [
+      path.join(tempDir, '.opencode', 'commands'),
+      path.join(tempDir, '.pi', 'prompts'),
+    ]) {
+      for (const skill of FRAMEWORK_SKILLS) {
+        const content = fs.readFileSync(path.join(p, `${skill}.md`), 'utf8');
+        assert.ok(content.includes('$ARGUMENTS'), `${p}/${skill}.md has no $ARGUMENTS placeholder`);
+      }
+    }
+  });
+
+  it('should report framework files present when only pointer files remain', () => {
+    for (const dir of [
+      path.join(tempDir, '.claude', 'agents'),
+      path.join(tempDir, '.claude', 'skills'),
+      path.join(tempDir, '.codex', 'skills'),
+      path.join(tempDir, '.aicontext', 'prompts'),
+    ]) {
+      if (fs.existsSync(dir)) fs.rmSync(dir, { recursive: true });
+    }
+
+    assert.strictEqual(hasExistingFrameworkFiles(tempDir), true);
   });
 });

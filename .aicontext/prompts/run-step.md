@@ -10,9 +10,9 @@ Follow `ensure-config.md`.
 
 ## 2. Find the Step
 
-- If an argument is provided (e.g. `/run-step 3`), use that step number
+- If an argument is provided (e.g. `run-step 3`), use that step number
 - Otherwise, use the first unchecked step (`- [ ]`)
-- If no unchecked steps remain: `All steps are complete. Run /finish-task to close the task.`
+- If no unchecked steps remain: append the active tool's `finish-task` handoff.
 
 ## 3. Execute
 

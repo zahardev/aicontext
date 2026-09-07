@@ -2,6 +2,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 const readline = require('readline');
 const os = require('os');
 const https = require('https');
@@ -15,11 +16,11 @@ const CACHE_TTL = 60 * 60 * 1000; // 1 hour in milliseconds
 const FRAMEWORK_PROMPTS = [
   'add-step.md', 'aic-help.md', 'aic-skills.md', 'align-context.md', 'challenge.md', 'close-step.md',
   'commit.md', 'create-task.md', 'deep-review.md', 'deep-review-criteria.md', 'do-it.md', 'draft-issue.md', 'ensure-config.md', 'identify-task.md',
-  'draft-pr.md', 'finish-task.md', 'generate.md', 'gh-fix-tests.md', 'gh-review-fix-loop.md', 'next-step.md', 'plan-tasks.md',
+  'draft-pr.md', 'make-pr.md', 'finish-task.md', 'generate.md', 'gh-fix-tests.md', 'gh-review-fix-loop.md', 'next-step.md', 'plan-tasks.md',
   'gh-review-check.md', 'install-playwright-cli.md', 'prepare-release.md', 'review.md', 'review-criteria.md', 'detect-review-scope.md',
-  'brainstorm.md', 'check-update.md', 'generate-docs.md', 'generate-guide.md', 'generate-reference.md', 'interview.md', 'migrate-config.md', 'resolve-asks.md', 'resolve-task-naming.md', 'resolve-test-types.md', 'resolve-tests.md', 'resume-task.md', 'review-task.md', 'run-step.md', 'run-task.md', 'start-feature.md', 'start.md', 'step-loop.md', 'test-writer.md', 'thoughts.md', 'tidy-aic.md',
+  'brainstorm.md', 'check-update.md', 'generate-docs.md', 'generate-guide.md', 'generate-reference.md', 'interview.md', 'load-spec.md', 'load-task.md', 'migrate-config.md', 'resolve-asks.md', 'resolve-task-naming.md', 'resolve-test-types.md', 'resolve-tests.md', 'review-task.md', 'run-step.md', 'run-task.md', 'start-feature.md', 'start.md', 'step-loop.md', 'test-writer.md', 'thoughts.md', 'tidy-aic.md',
 ];
-const DEPRECATED_PROMPTS = ['check_plan.md', 'check_task.md', 'check-task.md', 'review-task-plan.md', 'after_step.md', 'plan.md', 'task.md', 'start-task.md', 'diff-review.md', 'branch-review.md', 'standards-check.md', 'pr-review-check.md', 'check-plan.md', 'run-steps.md', 'review-plan.md', 'review-scope.md', 'update-check.md', 'auto-setup.md', 'resolve-task-lifecycle-asks.md'];
+const DEPRECATED_PROMPTS = ['check_plan.md', 'check_task.md', 'check-task.md', 'review-task-plan.md', 'after_step.md', 'plan.md', 'task.md', 'start-task.md', 'diff-review.md', 'branch-review.md', 'standards-check.md', 'pr-review-check.md', 'check-plan.md', 'run-steps.md', 'review-plan.md', 'review-scope.md', 'update-check.md', 'auto-setup.md', 'resolve-task-lifecycle-asks.md', 'resume-task.md'];
 const FRAMEWORK_AGENTS = [
   'docs-generator.md',
   'researcher.md',
@@ -29,19 +30,38 @@ const FRAMEWORK_AGENTS = [
 ];
 const DEPRECATED_AGENTS = ['pr-review-summarizer.md', 'deep-reviewer.md', 'standards-checker.md'];
 const FRAMEWORK_SKILLS = [
-  'add-step', 'add-idea', 'create-task', 'start', 'start-feature', 'plan-tasks', 'resume-task', 'review-task', 'run-step', 'run-task', 'finish-task',
-  'align-context', 'do-it', 'challenge', 'brainstorm', 'thoughts', 'interview', 'commit', 'review', 'deep-review', 'next-step', 'draft-pr', 'gh-review-check',
+  'add-step', 'add-idea', 'create-task', 'start', 'start-feature', 'plan-tasks', 'load-task', 'load-spec', 'review-task', 'run-step', 'run-task', 'finish-task',
+  'align-context', 'do-it', 'challenge', 'brainstorm', 'thoughts', 'interview', 'commit', 'review', 'deep-review', 'next-step', 'draft-pr', 'make-pr', 'gh-review-check',
   'draft-issue', 'generate-docs', 'prepare-release', 'gh-review-fix-loop', 'gh-fix-tests', 'web-inspect', 'aic-help', 'aic-skills', 'tidy-aic',
 ];
 const FRAMEWORK_CODEX_SKILLS = [
-  'add-step', 'add-idea', 'create-task', 'start', 'start-feature', 'plan-tasks', 'resume-task', 'review-task', 'run-step', 'run-task', 'finish-task',
-  'align-context', 'do-it', 'challenge', 'brainstorm', 'thoughts', 'interview', 'commit', 'review', 'deep-review', 'next-step', 'draft-pr', 'gh-review-check',
+  'add-step', 'add-idea', 'create-task', 'start', 'start-feature', 'plan-tasks', 'load-task', 'load-spec', 'review-task', 'run-step', 'run-task', 'finish-task',
+  'align-context', 'do-it', 'challenge', 'brainstorm', 'thoughts', 'interview', 'commit', 'review', 'deep-review', 'next-step', 'draft-pr', 'make-pr', 'gh-review-check',
   'draft-issue', 'generate-docs', 'prepare-release', 'gh-review-fix-loop', 'gh-fix-tests', 'web-inspect', 'aic-help', 'aic-skills', 'tidy-aic',
 ];
-const DEPRECATED_SKILLS = ['task', 'after-step', 'next', 'pr', 'start-task', 'diff-review', 'branch-review', 'standards-check', 'pr-review-check', 'check-plan', 'check-task', 'review-task-plan', 'run-steps', 'review-plan'];
+// Harnesses whose skills are flat `<name>.md` pointer files rather than `<name>/SKILL.md` directories.
+// Both ship the same skill set as `.claude`, so they reuse FRAMEWORK_SKILLS.
+const FLAT_POINTER_HARNESSES = {
+  opencode: { dir: ['.opencode', 'commands'] },
+  pi: { dir: ['.pi', 'prompts'] },
+};
+const DEPRECATED_SKILLS = ['task', 'after-step', 'next', 'pr', 'start-task', 'diff-review', 'branch-review', 'standards-check', 'pr-review-check', 'check-plan', 'check-task', 'review-task-plan', 'run-steps', 'review-plan', 'resume-task'];
 const FRAMEWORK_SCRIPTS = ['pr-reviews.cjs', 'pr-resolve.cjs'];
 const DEPRECATED_SCRIPTS = ['pr-reviews.js', 'pr-resolve.js'];
 const CONFIG_FILE = 'config.yml';
+const LEGACY_RESUME_TASK_PROMPT_HASH = 'c3aa05589c9e8240307aa19f22c344dbb3f8d0ba813491ce52594bcaeb831e38';
+const LEGACY_SKILL_HASHES = {
+  'branch-review': new Set(['3a2eaf122930cdcd6d53a904acb28309c68101226dc09954a9c56e745853ab69', '3fcfd67ca49b04968fe2b2e8735255c6a00e1aca36a6f6a609bf47ff777c8bf1', '81431902ab86f4bd40b392ac51165f52650fa7a2a10a6c4dc3ab1f3f14637631', 'eeba2b94930e1d15f25621e821e38dcaec0fe6eb018cead045629c21ce3ef0d1']),
+  'check-plan': new Set(['2a6fb111dce6b04cd056dbb0b1e3d173910e9ece39c4029e5e3a4f581c34bc6d', '7ea921e77599f35a0d1331cacbd8c3b2a12dc9802523a06d8730af246653bad6', '20449a95909a97bb30b818f1608763f9c2399d8b62b28d69cf179b45c666aeb5', '427531de0afa6e51c6353d0684cdd609b3964aa325c5f66296963904a73e4751']),
+  'check-task': new Set(['37ce7c45c564cbb07a7cb44c3b4bb4a22816be777cf64c288f8c55846567c6e4', '81c78948ee842e137584e61437e3deb4da8dbf276637ec1a110f40e576d13db0', 'baf9927dcb5d42fa222f2f26784209527a59b8a0ddec3f8b653f6dd9c6268296', '7aa8671a6467dc456236c7bee409b54afd939231febb249a21f2bd8716daa80e', 'b7473ffd53352dc2686d0c1b0cd23a7bff7dcc4203e1265ae682e309209745b9']),
+  'diff-review': new Set(['3fe8559f841f38ffe9c2aa87dd277ba12aa25488b25a863b079b51dd6280e17e', '690e26188c95cb685b847de4553f08bf258aae7cd3a766fb7cd86b3b0dccc963', '09cb154e65da72c044bdd46eb274051a39bfe1afd904648e44d1fc1de8cba4f9', '92844dbbeeb9d991863dc22f633ec18c8527c400f5d1454b16bfc8c50bbe3c57']),
+  'standards-check': new Set(['4b473586ee5cbcd17f39dd04fef61702489a8d9089d7b4cbabbc008bfd2cb057', '82149ebbb89b39293dc213dfd6d36ff2a84c2f9c37c17a9cae265310a5569f91', '619870ff6dfd1347e86c01ca553a181cf9121628d131559975138e623db07f8e', 'c8701e883220d9d65ed2eb098ac301ff3838dc5ef052291a2f2e570285e41a21']),
+  'pr-review-check': new Set(['0254053eaeb8f0ff03f46dba7841d24678f9f62e25fa91d5de2212b4aaf63870', '0a513d4fca85d0fcca6b4e68794f4bf9f851e10aa252fe8fcc0dd34d0bfdacff', 'badb02531544779fe2db880ae255f7bd4d3823f7227e61bdd313ca67f6b6b194', 'c6ff1ffb75a8a206b6533e0ec5f135a3db9069339ac21afa29c76360de379b7d', 'c9624a2acdca7c464577dafeca37aa0eedebe9fbc80ff5f05ba19b39de1e0fac']),
+  'review-task-plan': new Set(['40fd326fe3fa6a890e9f2d31980855c41ca4b07e153102e16a50eb5f69b7ea8b', 'd6f785ee6b062a8999e257a297dd3f692e59175413dee9e4b2542b560bd43bba', '3a2d9aaad7b7bff4ede69e39db6481e619edb7c3b2a4ff52beef87fd0001ebeb']),
+  'run-steps': new Set(['389782623a8701d0d85dd000c93d1e2f1c1048015c0aa711cc1a73ce93ab9917', '7e3b214cbe19f604a3c2a2eff4c2876e3f508092bf4d7f8cec577c09646a8cf0']),
+  'review-plan': new Set(['3537e52c91f541a28a7fd514475db169e90fe9d3fa87c6449fcbb7c4a47a196e', 'e8a5e1e2fd2933ae149dff096d0bf346962bbadab7fde66392f321e733a2f462']),
+  'resume-task': new Set(['a74602227cf9522c3f175f3fd4449899ba3f931f7529457ca7a4c349ad4fd3b6', 'e84e074ef053d754afa93b3d516e523e674e91d2e3aa95fd7339d2117ae3302e']),
+};
 
 function isDirectory(p) {
   try {
@@ -76,6 +96,22 @@ const ASSISTANTS = {
     detect: (target) => isDirectory(path.join(target, '.codex')),
     install: async (packageRoot, target, opts) => {
       await copyFrameworkCodexSkills(packageRoot, target, opts.overrideSkills, opts.skipConfirm);
+    },
+  },
+  opencode: {
+    label: 'opencode',
+    folder: '.opencode/',
+    detect: (target) => isDirectory(path.join(target, '.opencode')),
+    install: async (packageRoot, target, opts) => {
+      await copyFlatPointers('opencode', packageRoot, target, opts.overrideSkills, opts.skipConfirm);
+    },
+  },
+  pi: {
+    label: 'Pi',
+    folder: '.pi/',
+    detect: (target) => isDirectory(path.join(target, '.pi')),
+    install: async (packageRoot, target, opts) => {
+      await copyFlatPointers('pi', packageRoot, target, opts.overrideSkills, opts.skipConfirm);
     },
   },
   copilot: {
@@ -242,6 +278,8 @@ function getExistingFiles(target) {
     '.claude',
     '.codex',
     '.cursor',
+    '.opencode',
+    '.pi',
     '.github/copilot-instructions.md',
   ];
 
@@ -285,17 +323,24 @@ function hasExistingFrameworkFiles(target) {
   const hasAgent = FRAMEWORK_AGENTS.some((f) => fs.existsSync(path.join(agentsDir, f)));
   const hasSkill = FRAMEWORK_SKILLS.some((s) => fs.existsSync(path.join(skillsDir, s, 'SKILL.md')));
   const hasCodexSkill = FRAMEWORK_CODEX_SKILLS.some((s) => fs.existsSync(path.join(codexSkillsDir, s, 'SKILL.md')));
-  return hasAgent || hasSkill || hasCodexSkill || hasExistingPrompts(target);
+  const hasFlatPointer = Object.values(FLAT_POINTER_HARNESSES).some(({ dir }) =>
+    FRAMEWORK_SKILLS.some((s) => fs.existsSync(path.join(target, ...dir, `${s}.md`)))
+  );
+  return hasAgent || hasSkill || hasCodexSkill || hasFlatPointer || hasExistingPrompts(target);
 }
 
 function removeDeprecatedPrompts(target) {
   const promptsDir = path.join(target, '.aicontext', 'prompts');
   for (const file of DEPRECATED_PROMPTS) {
     const filePath = path.join(promptsDir, file);
-    if (fs.existsSync(filePath)) {
+    if (fs.existsSync(filePath) && (file !== 'resume-task.md' || isGeneratedResumeTaskPrompt(fs.readFileSync(filePath, 'utf8')))) {
       fs.unlinkSync(filePath);
     }
   }
+}
+
+function isGeneratedResumeTaskPrompt(content) {
+  return crypto.createHash('sha256').update(content).digest('hex') === LEGACY_RESUME_TASK_PROMPT_HASH;
 }
 
 function removeDeprecatedAgents(target) {
@@ -309,14 +354,80 @@ function removeDeprecatedAgents(target) {
   }
 }
 
+// Matches a pointer file this CLI generated: description-only frontmatter, the pointer line
+// for this exact skill, and nothing else but an optional $ARGUMENTS line.
+function isGeneratedPointer(content, skill) {
+  const match = /^---\r?\n(?<frontmatter>[\s\S]*?)\r?\n---\r?\n(?<body>[\s\S]*)$/.exec(content);
+  if (!match) return false;
+
+  const frontmatterKeys = match.groups.frontmatter
+    .split(/\r?\n/)
+    .filter((line) => line.trim())
+    .map((line) => line.split(':')[0].trim());
+  if (frontmatterKeys.some((key) => key !== 'description')) return false;
+
+  const bodyLines = match.groups.body.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+  const promptReference = `Read and follow \`.aicontext/prompts/${skill}.md\``;
+  return bodyLines[0] === promptReference &&
+    (bodyLines.length === 1 || (bodyLines.length === 2 && bodyLines[1] === '$ARGUMENTS'));
+}
+
+function migrateOpenCodePointers(target) {
+  const legacyDir = path.join(target, '.opencode', 'command');
+  const commandsDir = path.join(target, '.opencode', 'commands');
+  if (!fs.existsSync(legacyDir)) return;
+
+  for (const skill of [...FRAMEWORK_SKILLS, ...DEPRECATED_SKILLS]) {
+    const legacyFile = path.join(legacyDir, `${skill}.md`);
+    if (!fs.existsSync(legacyFile) || !isGeneratedPointer(fs.readFileSync(legacyFile, 'utf8'), skill)) continue;
+    if (DEPRECATED_SKILLS.includes(skill)) {
+      fs.unlinkSync(legacyFile);
+      continue;
+    }
+    fs.mkdirSync(commandsDir, { recursive: true });
+    const commandFile = path.join(commandsDir, `${skill}.md`);
+    if (!fs.existsSync(commandFile)) fs.renameSync(legacyFile, commandFile);
+    else fs.unlinkSync(legacyFile);
+  }
+  log('  Migrated generated OpenCode commands to .opencode/commands/', 'dim');
+}
+
+function isGeneratedSkill(content, skill) {
+  return LEGACY_SKILL_HASHES[skill]?.has(crypto.createHash('sha256').update(content).digest('hex')) ?? false;
+}
+
+function isGeneratedCodexPolicy(content) {
+  return /^policy:\r?\n  allow_implicit_invocation: (true|false)\r?\n?$/.test(content);
+}
+
 function removeDeprecatedSkills(target) {
-  for (const dir of [path.join(target, '.claude', 'skills'), path.join(target, '.codex', 'skills')]) {
+  // opencode and pi share their command folder with the user's own files, so a name match is not
+  // enough — only remove files that still match the pointer shape this CLI generates.
+  for (const { dir } of Object.values(FLAT_POINTER_HARNESSES)) {
+    for (const skill of DEPRECATED_SKILLS) {
+      const filePath = path.join(target, ...dir, `${skill}.md`);
+      if (!fs.existsSync(filePath)) continue;
+      if (!isGeneratedPointer(fs.readFileSync(filePath, 'utf8'), skill)) continue;
+      fs.unlinkSync(filePath);
+      log(`  Removed deprecated: ${path.relative(target, filePath)}`, 'dim');
+    }
+  }
+
+  for (const [dir, hasPolicy] of [[path.join(target, '.claude', 'skills'), false], [path.join(target, '.codex', 'skills'), true]]) {
     for (const skill of DEPRECATED_SKILLS) {
       const skillPath = path.join(dir, skill);
-      if (fs.existsSync(skillPath)) {
-        fs.rmSync(skillPath, { recursive: true });
-        log(`  Removed deprecated: ${path.relative(target, skillPath)}/`, 'dim');
+      const skillFile = path.join(skillPath, 'SKILL.md');
+      if (!fs.existsSync(skillFile) || !isGeneratedSkill(fs.readFileSync(skillFile, 'utf8'), skill)) continue;
+
+      fs.unlinkSync(skillFile);
+      const policyPath = path.join(skillPath, 'agents', 'openai.yaml');
+      if (hasPolicy && fs.existsSync(policyPath) && isGeneratedCodexPolicy(fs.readFileSync(policyPath, 'utf8'))) {
+        fs.unlinkSync(policyPath);
       }
+      const agentsPath = path.join(skillPath, 'agents');
+      if (fs.existsSync(agentsPath) && fs.readdirSync(agentsPath).length === 0) fs.rmdirSync(agentsPath);
+      if (fs.existsSync(skillPath) && fs.readdirSync(skillPath).length === 0) fs.rmdirSync(skillPath);
+      log(`  Removed deprecated: ${path.relative(target, skillPath)}/`, 'dim');
     }
   }
 }
@@ -406,12 +517,26 @@ function selfHealMissingFiles(packageRoot, target, presentAssistants) {
       const codexSrcDir = path.join(packageRoot, '.codex', 'skills');
       const codexDestDir = path.join(target, '.codex', 'skills');
       for (const skill of FRAMEWORK_CODEX_SKILLS) {
-        const src = path.join(codexSrcDir, skill, 'SKILL.md');
-        const dest = path.join(codexDestDir, skill, 'SKILL.md');
+        for (const file of ['SKILL.md', path.join('agents', 'openai.yaml')]) {
+          const src = path.join(codexSrcDir, skill, file);
+          const dest = path.join(codexDestDir, skill, file);
+          if (fs.existsSync(src) && !fs.existsSync(dest)) {
+            fs.mkdirSync(path.dirname(dest), { recursive: true });
+            fs.copyFileSync(src, dest);
+            log(`  Restored: .codex/skills/${skill}/${file}`, 'yellow');
+            healed++;
+          }
+        }
+      }
+    } else if (FLAT_POINTER_HARNESSES[name]) {
+      const { dir } = FLAT_POINTER_HARNESSES[name];
+      for (const skill of FRAMEWORK_SKILLS) {
+        const src = path.join(packageRoot, ...dir, `${skill}.md`);
+        const dest = path.join(target, ...dir, `${skill}.md`);
         if (fs.existsSync(src) && !fs.existsSync(dest)) {
-          fs.mkdirSync(path.join(codexDestDir, skill), { recursive: true });
+          fs.mkdirSync(path.dirname(dest), { recursive: true });
           fs.copyFileSync(src, dest);
-          log(`  Restored: .codex/skills/${skill}/SKILL.md`, 'yellow');
+          log(`  Restored: ${dir.join('/')}/${skill}.md`, 'yellow');
           healed++;
         }
       }
@@ -467,6 +592,29 @@ async function copyFrameworkAgents(packageRoot, target, overrideAgents = false, 
   }
 }
 
+// Copies one skill file, applying the shared override/skip/prompt policy for files the user may have edited.
+async function copySkillFile(src, dest, display, overrideSkills, skipConfirm) {
+  fs.mkdirSync(path.dirname(dest), { recursive: true });
+
+  if (!fs.existsSync(dest)) {
+    fs.copyFileSync(src, dest);
+    log(`  Copied: ${display}`, 'dim');
+    return;
+  }
+
+  if (overrideSkills) {
+    fs.copyFileSync(src, dest);
+    log(`  Overridden: ${display}`, 'yellow');
+  } else if (skipConfirm) {
+    log(`  Skipped: ${display} (already exists)`, 'dim');
+  } else if (await promptYesNo(`  ${display} already exists. Override? (y/N): `, false)) {
+    fs.copyFileSync(src, dest);
+    log(`  Overridden: ${display}`, 'yellow');
+  } else {
+    log(`  Skipped: ${display}`, 'dim');
+  }
+}
+
 async function copyFrameworkSkills(packageRoot, target, overrideSkills = false, skipConfirm = false) {
   const srcDir = path.join(packageRoot, '.claude', 'skills');
   const destDir = path.join(target, '.claude', 'skills');
@@ -476,30 +624,8 @@ async function copyFrameworkSkills(packageRoot, target, overrideSkills = false, 
     const src = path.join(srcDir, skill, 'SKILL.md');
     if (!fs.existsSync(src)) continue;
 
-    const destSkillDir = path.join(destDir, skill);
-    const dest = path.join(destSkillDir, 'SKILL.md');
-
-    if (fs.existsSync(dest)) {
-      if (overrideSkills) {
-        fs.mkdirSync(destSkillDir, { recursive: true });
-        fs.copyFileSync(src, dest);
-        log(`  Overridden: skills/${skill}/SKILL.md`, 'yellow');
-      } else if (skipConfirm) {
-        log(`  Skipped: skills/${skill}/SKILL.md (already exists)`, 'dim');
-      } else {
-        const shouldOverride = await promptYesNo(`  skills/${skill}/SKILL.md already exists. Override? (y/N): `, false);
-        if (shouldOverride) {
-          fs.copyFileSync(src, dest);
-          log(`  Overridden: skills/${skill}/SKILL.md`, 'yellow');
-        } else {
-          log(`  Skipped: skills/${skill}/SKILL.md`, 'dim');
-        }
-      }
-    } else {
-      fs.mkdirSync(destSkillDir, { recursive: true });
-      fs.copyFileSync(src, dest);
-      log(`  Copied: skills/${skill}/SKILL.md`, 'dim');
-    }
+    const dest = path.join(destDir, skill, 'SKILL.md');
+    await copySkillFile(src, dest, `skills/${skill}/SKILL.md`, overrideSkills, skipConfirm);
   }
 }
 
@@ -661,6 +787,21 @@ function copyFrameworkScripts(packageRoot, target) {
   }
 }
 
+// Installs one flat `<name>.md` pointer file per skill for harnesses that discover commands from a single folder.
+async function copyFlatPointers(harness, packageRoot, target, overrideSkills = false, skipConfirm = false) {
+  const { dir } = FLAT_POINTER_HARNESSES[harness];
+  const destDir = path.join(target, ...dir);
+  fs.mkdirSync(destDir, { recursive: true });
+
+  for (const skill of FRAMEWORK_SKILLS) {
+    const src = path.join(packageRoot, ...dir, `${skill}.md`);
+    if (!fs.existsSync(src)) continue;
+
+    const dest = path.join(destDir, `${skill}.md`);
+    await copySkillFile(src, dest, `${dir.join('/')}/${skill}.md`, overrideSkills, skipConfirm);
+  }
+}
+
 async function copyFrameworkCodexSkills(packageRoot, target, overrideSkills = false, skipConfirm = false) {
   const srcDir = path.join(packageRoot, '.codex', 'skills');
   const destDir = path.join(target, '.codex', 'skills');
@@ -670,29 +811,15 @@ async function copyFrameworkCodexSkills(packageRoot, target, overrideSkills = fa
     const src = path.join(srcDir, skill, 'SKILL.md');
     if (!fs.existsSync(src)) continue;
 
-    const destSkillDir = path.join(destDir, skill);
-    const dest = path.join(destSkillDir, 'SKILL.md');
+    const dest = path.join(destDir, skill, 'SKILL.md');
+    await copySkillFile(src, dest, `.codex/skills/${skill}/SKILL.md`, overrideSkills, skipConfirm);
 
-    if (fs.existsSync(dest)) {
-      if (overrideSkills) {
-        fs.mkdirSync(destSkillDir, { recursive: true });
-        fs.copyFileSync(src, dest);
-        log(`  Overridden: .codex/skills/${skill}/SKILL.md`, 'yellow');
-      } else if (skipConfirm) {
-        log(`  Skipped: .codex/skills/${skill}/SKILL.md (already exists)`, 'dim');
-      } else {
-        const shouldOverride = await promptYesNo(`  .codex/skills/${skill}/SKILL.md already exists. Override? (y/N): `, false);
-        if (shouldOverride) {
-          fs.copyFileSync(src, dest);
-          log(`  Overridden: .codex/skills/${skill}/SKILL.md`, 'yellow');
-        } else {
-          log(`  Skipped: .codex/skills/${skill}/SKILL.md`, 'dim');
-        }
-      }
-    } else {
-      fs.mkdirSync(destSkillDir, { recursive: true });
-      fs.copyFileSync(src, dest);
-      log(`  Copied: .codex/skills/${skill}/SKILL.md`, 'dim');
+    const policySrc = path.join(srcDir, skill, 'agents', 'openai.yaml');
+    if (fs.existsSync(policySrc)) {
+      const policyDest = path.join(destDir, skill, 'agents', 'openai.yaml');
+      fs.mkdirSync(path.dirname(policyDest), { recursive: true });
+      fs.copyFileSync(policySrc, policyDest);
+      log(`  Copied: .codex/skills/${skill}/agents/openai.yaml`, 'dim');
     }
   }
 }
@@ -824,8 +951,8 @@ async function init(targetDir, skipConfirm = false, keepPrompts = false, overrid
 
   log('\nInstallation complete!', 'green');
   log('\nNext steps:', 'cyan');
-  log('1. Open your AI assistant (Claude Code, Cursor, Codex, or GitHub Copilot)');
-  log('2. Type /start (Claude Code) or paste .aicontext/prompts/start.md (Cursor/Copilot)');
+  log('1. Open your AI assistant (Claude Code, Cursor, Codex, opencode, Pi, or GitHub Copilot)');
+  log('2. Type /start (Claude Code, opencode, Pi) or paste .aicontext/prompts/start.md (Cursor/Copilot)');
   log('3. On first run, the AI will analyze your codebase and generate project context');
   const skipped = ASSISTANT_NAMES.filter((name) => !chosenAssistants.includes(name));
   if (skipped.length > 0) {
@@ -863,6 +990,8 @@ async function update(targetDir, skipConfirm = false, keepPrompts = false, overr
   }
 
   const currentVersion = fs.readFileSync(versionFile, 'utf8').trim();
+
+  migrateOpenCodePointers(target);
 
   const presentAssistants = ASSISTANT_NAMES.filter((name) => ASSISTANTS[name].detect(target));
   const missingAssistants = ASSISTANT_NAMES.filter((name) => !ASSISTANTS[name].detect(target));
@@ -927,6 +1056,11 @@ async function update(targetDir, skipConfirm = false, keepPrompts = false, overr
   }
   if (presentAssistants.includes('codex')) {
     log(`  - .codex/skills/ (${overrideSkills ? 'all existing will be overridden' : 'new skills only, existing will be prompted'})`, 'yellow');
+  }
+  for (const [name, { dir }] of Object.entries(FLAT_POINTER_HARNESSES)) {
+    if (presentAssistants.includes(name)) {
+      log(`  - ${dir.join('/')}/ (${overrideSkills ? 'all existing will be overridden' : 'new skills only, existing will be prompted'})`, 'yellow');
+    }
   }
   if (presentAssistants.includes('cursor')) {
     log('  - .cursor/', 'yellow');
@@ -1289,6 +1423,7 @@ module.exports = {
   DEPRECATED_AGENTS,
   FRAMEWORK_SKILLS,
   FRAMEWORK_CODEX_SKILLS,
+  FLAT_POINTER_HARNESSES,
   DEPRECATED_SKILLS,
   FRAMEWORK_SCRIPTS,
   DEPRECATED_SCRIPTS,
@@ -1298,6 +1433,7 @@ module.exports = {
   copyFrameworkAgents,
   copyFrameworkSkills,
   copyFrameworkCodexSkills,
+  copyFlatPointers,
   copyFrameworkScripts,
   installConfig,
   setConfigValue,
@@ -1305,6 +1441,7 @@ module.exports = {
   setAgentModel,
   removeDeprecatedPrompts,
   removeDeprecatedAgents,
+  isGeneratedPointer,
   removeDeprecatedSkills,
   getExistingFiles,
   hasExistingPrompts,

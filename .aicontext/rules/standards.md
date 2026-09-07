@@ -5,7 +5,7 @@
 ## Critical Safety Rules
 
 **NEVER run without explicit user confirmation:**
-- `git push` - Any push to remote (including non-force). Always ask first, unless pre-authorized by `after_task.push: true` (or `ask` resolved to Yes upfront) or an active `/gh-review-fix-loop` cycle.
+- `git push` - Any push to remote (including non-force). Always ask first, unless pre-authorized by `after_task.push: true` (or `ask` resolved to Yes upfront), `/make-pr`'s prerequisite branch push, or an active `/gh-review-fix-loop` cycle.
 - `git push --force` - Destructive git operations
 - Database wipe/reset commands
 - Volume/container deletion commands
@@ -35,14 +35,14 @@
 - **But**: Prefer duplication over the wrong abstraction - don't force unrelated code to share logic
 
 ### KISS (Keep It Stupid Simple)
-- Choose the simplest solution that solves the problem
-- Avoid clever code - prefer readable and obvious implementations
+- Prefer readable and obvious implementations
 - One function = one responsibility
 - Flat is better than nested (avoid deep callback/condition nesting)
 - Use early returns to handle edge cases first and reduce nesting
 - If a solution needs extensive comments to explain, simplify the code instead
+- Before writing complex logic, plan the method structure — what methods are needed and what each one does
 
-**Red flags for complexity:** functions >40 lines, >3 nesting levels, >3 parameters, generic solutions for specific problems.
+**Red flags for complexity:** functions >40 lines, >3 nesting levels, >3 parameters. When you hit a red flag, extract methods until the remaining code reads linearly.
 
 ### Code Documentation
 - Use descriptive, action-oriented descriptions
@@ -73,9 +73,9 @@ All commits go through `commit.md` — the single commit codepath. Read `.aicont
 
 ## Question UX
 
-When asking closed questions (2-4 discrete options), check `claude.question_style` in `.aicontext/config.yml`:
-- **`interactive`** (default): use `AskUserQuestion` tool for clickable options (Claude Code only)
-- **`numbered`**: present numbered options as plain text (1, 2, 3...) — user types the number
+Before asking closed questions (2-4 discrete options), check `claude.question_style` in `.aicontext/config.yml` (loaded into context at session start by `/start`):
+- **`interactive`**: use `AskUserQuestion` tool for clickable options (Claude Code only)
+- **`numbered`** (default): present numbered options as plain text (1, 2, 3...) — user types the number
 - **Other tools (Cursor, Copilot, Codex):** always use numbered regardless of setting
 - **Open-ended questions:** always use plain text
 - **Option labels:** use the exact text from the prompt. Don't add `(Recommended)` or `(default)` unless the prompt specifies it
@@ -83,48 +83,50 @@ When asking closed questions (2-4 discrete options), check `claude.question_styl
 
 ## Recommended Tools
 
-- **Web UI investigation**: When the user asks about visual issues, layout problems, or needs browser-based debugging, suggest `/web-inspect` (or `use web-inspect`) if `playwright-cli` is not already in use. It provides headed browser automation for inspecting pages, checking console errors, and capturing screenshots.
+- **Web UI investigation**: When the user asks about visual issues, layout problems, or needs browser-based debugging, suggest the native `web-inspect` invocation if `playwright-cli` is not already in use. It provides headed browser automation for inspecting pages, checking console errors, and capturing screenshots.
 - **Skill precedence**: When a task matches a registered skill, invoke the skill — do not bypass it with direct tool calls based on trained knowledge. Skills encode project-specific behavior that general knowledge doesn't capture.
+
+## Native Skill Syntax
+
+Use the user's tool syntax in every skill suggestion or handoff:
+- Claude Code, opencode, Pi: `/skill-name`
+- Codex: `$skill-name`
+- Cursor, Copilot: `use skill-name`
+
+When a prompt requests a native invocation, substitute the active tool's exact syntax before responding. Never show a placeholder to the user.
 
 ## AI Response & Behavior Rules
 
 ### Question Pacing
 
-Before asking open questions, apply the **independence test**: *"Does Q1's answer change how I'd phrase Q2?"* If **no**, batch them as a numbered list. If **yes**, ask atomically.
-
-**Why:** Atomic pacing has two costs.
-- **Token cost:** N round trips for N independent questions cost ~O(N²) cumulative input tokens (history resent each request) vs. ~O(N) for one batched message. Subagents pay this in full — isolated cache.
-- **Quality cost:** atomic questions cause drift to implementation after 1-2 answers; remaining root questions get skipped because the AI has enough context to start sketching. Breadth-first batching forces *collection before convergence*.
-
-The numbered-batching format mitigates the original concern (users giving shallow answers to a wall of questions) — the user sees the full menu, takes their time per number, and uses the existing `### Question Numbering` convention to keep answers threaded.
-
-**How to apply:**
-- **Batch (default for independent questions):** Parallel dimensions whose answers don't depend on each other — root scoping ("scope? priority? constraints? success criteria?"), independent clarifications, parallel config choices. Number them (Q5, Q6, Q7) per `### Question Numbering` so the user can answer in one message.
-- **Atomic (when answers are dependent):** Each answer reshapes the next — drilling into a specific decision, follow-ups that depend on prior answers, ambiguity that blocks further questions. The test: would Q2 make sense without Q1's answer?
-- **Interviews (`interview`, `start-feature`):** Always breadth-first first — fire all root scoping questions in one numbered batch, collect answers, *then* drill atomically into whichever dimensions need depth. This prevents "drift to implementation after 2 answers" where the remaining root questions get skipped.
-- **Interview persistence:** An interview ends when no ambiguities remain or the user explicitly closes — not when they answer the first batch. If an answer opens new branches, keep questioning. Applies to `resume-task`, `start-feature`, `interview`, `add-step`, `do-it`, and mid-task discussions.
-- **Self-raised concerns are questions.** When raising concerns about your own proposal: (1) hold all downstream output — no plans, edits, or "applying now" — until each concern has a user answer; (2) end each concern with a numbered question on its own line (`**Qn. …**`), never buried in trailing prose; (3) a labeled recommendation inside the exposition ("My pick: X because Y") is information, not a resolution — proceeding without an answer is the failure mode.
-- **Closed questions:** 2-4 discrete options follow `claude.question_style` in `config.yml` — see the `## Question UX` section above.
-- **Question numbering:** number sequentially across the entire conversation (never restart at 1); one question per number, keep the same number when answering to maintain the thread.
+- Batch independent questions; ask dependent follow-ups one at a time.
+- Continue until relevant ambiguity is resolved or the user closes the discussion.
+- When raising a concern, pause downstream work until answered and ask it as a standalone numbered question.
+- Label any response block that needs an answer or later reference. Number each type sequentially across the conversation and retain its identifier in replies and follow-ups:
+  - `Q1, Q2, .., Qn` - questions requiring an answer
+  - `C1, ..` - concerns requiring resolution
+  - `R1, ..` - risks that could affect the work
+  - `D1, ..` - confirmed decisions
+  - `A1, ..` - actions taken or next actions committed to
+  - `F1, ..` - unexpected or non-obvious discoveries that may affect the work
+  - `O1, ..` - options for a decision
+- Leave routine status, explanations, and ordinary prose unlabelled.
 
 ### Communication Style
 - Be professional and technically accurate
 - Focus on actionable outcomes
 - Never use "Perfect!", "Amazing!", "Great!" or similar exclamations
+- Never use em dashes. Use ` - ` instead.
 
 ### Information Density
 
-**CONCISENESS FIRST — HARD RULE, NOT A PREFERENCE.** Every line must earn its place. Applies to everything produced: responses, specs, tasks, task-context files, commits, rules, prompts, plan steps — *everything*. Conciseness means *the clearest output with no waste* — not the fewest possible words, but every word must count.
+**Be very concise. You do not like talking much.** Responses must be ADHD-compatible: scannable at a glance.
 
-**Why:** Verbose output bloats subsequent context and pushes earlier rules out of attention. Subagent reports become the lead's input, so bloat compounds across the chain — which is why subagents inherit this rule via `agent-setup.md`.
-
-**How to apply:**
-- When following a multi-step prompt (close-step, finish-task, etc.), do the work silently and output only the final deliverable. Don't narrate sub-step headers.
-- Skip preamble. Don't restate the question.
-- Don't offer a menu of options when one path is clearly right — pick it.
-- Match length to what the output needs, not what the prompt looks like. A one-line question can have a paragraph answer; a long prompt can warrant a one-line answer.
-- **Voice tangents and concerns only when real and actionable.** Hypothetical "worth noting" observations → think silently, drop them. Spend user attention on what changes a decision.
-- **Prompt topic lists are candidates, not required sections.** When a prompt lists things to report/surface/check, omit any with nothing to say — don't render empty headers.
+- Lead with the outcome.
+- Use short paragraphs, with headings or bullets only when they improve scanning.
+- Use simple, plain language. Do not try to sound smart.
+- Include only information that changes a decision or action.
+- Omit repetition, filler, and unrelated details.
 
 ### Always Offer Next Action
 
@@ -137,9 +139,9 @@ After a workflow prompt finishes (file creation, step close, task finish, review
 **Mid-conversation turns during interviews or discussions** must end with either the next question, an explicit options menu, or a handoff — never a wrap-up statement that drops the thread.
 
 **Examples:**
-- After `/close-step` with unchecked steps remaining: `Run /next-step to continue.`
-- After `/finish-task` with pending tasks in the same spec: `Spec '{Spec Name}' has more pending tasks. Next: '{task_name}'. Would you like to start it now?`
-- After a mid-task discussion surfaces new work: `/add-step to add it to the plan, or /do-it to add the step and execute immediately.`
+- After `close-step` with unchecked steps remaining: append the active tool's `next-step` handoff.
+- After `finish-task` with pending tasks in the same spec: `Spec '{Spec Name}' has more pending tasks. Next: '{task_name}'. Would you like to start it now?`
+- After a mid-task discussion surfaces new work: append the active tool's `add-step` or `do-it` handoff.
 
 **Why:** workflow continuity. The AI holds the map; the user should never have to guess the next command. Next-action pointers are not tangents under Information Density — they are actionable and belong in the reply.
 

@@ -58,9 +58,8 @@ Located in `rules/`:
 |------|-------------|
 | `generate.md` | Auto-runs when `project.md` is missing |
 | `start.md` | Start of session - read rules and confirm |
-| `task.md` | Before starting work on a task |
-| `plan.md` | Review a task plan for issues |
-| `after_step.md` | After completing a plan step - reflect and adjust |
+| `load-task.md` | Before starting or continuing work on a task |
+| `load-spec.md` | Review a feature's requirements, task progress, and gaps |
 | `review.md` | Code review after implementation |
 
 ## Scripts
@@ -83,7 +82,7 @@ Common subdirectories:
 | Subdirectory | Purpose |
 |--------------|---------|
 | `code-reviews/` | Code review results from `/diff-review` and `/branch-review` skills |
-| `pr-drafts/` | Pull request drafts from `/draft-pr` skill |
+| `pr-drafts/` | Pull request drafts from `/draft-pr`, consumed by `/make-pr` |
 | `github-pr-reviews/` | PR review comment files from `/gh-review-check` skill |
 | `issue-drafts/` | GitHub issue drafts from `/draft-issue` skill |
 
@@ -92,28 +91,28 @@ Subdirectories are created automatically by skills and scripts when needed.
 ## Workflow
 
 ### Starting a Session
-1. Paste `prompts/start.md` content (or use `/start` in Claude Code)
+1. Paste `prompts/start.md` content (or use the native `start` skill invocation)
 2. AI reads rules and project files
 3. AI confirms readiness
 
 ### Capturing Ideas Mid-Session
 1. Use `/add-idea` (or `Use add-idea`) to save the idea to the `## Ideas` section in `worklog.md` — a lightweight backlog for things worth revisiting
-2. When the idea is ready to act on, use `/start-feature` (spec), `/create-task` (task), or `/add-step` (step) to formalize it, then remove the line from Ideas
+2. When the idea is ready to act on, use the native `start-feature` (spec), `create-task` (task), or `add-step` (step) invocation to formalize it, then remove the line from Ideas
 
 ### Working on a Task
-1. Paste `prompts/task.md` content (or use `/resume-task` in Claude Code)
+1. Paste `prompts/load-task.md` content (or use the native `load-task` skill invocation)
 2. Create/update task file in `tasks/` using `templates/task.template.md`
 3. Follow plan construction rules from `prompts/plan-steps.md` (TDD is config-driven via `tdd` in `config.yml`)
-4. After each step, use `prompts/after_step.md` (or `/next-step`) to reflect and continue
+4. After each step, use the native `next-step` skill invocation to reflect and continue
 5. Update `worklog.md` when complete
 
 ### Reviewing Work
-1. Paste `prompts/review.md` (or use `/review`) for code review
-2. Paste `prompts/review-task.md` (or use `/review-task`) to validate plans
+1. Paste `prompts/review.md` (or use the native `review` skill invocation) for code review
+2. Paste `prompts/review-task.md` (or use the native `review-task` skill invocation) to validate plans
 
 ### Pull Request Workflow (Claude Code / Codex)
-1. Use `/draft-pr` to draft a pull request from the task file and git changes
-2. After PR review, use `/gh-review-check` to fetch and triage review comments
+1. Use the native `draft-pr` invocation to draft a pull request from the task file and git changes, then `make-pr` to push and create it
+2. After PR review, use the native `gh-review-check` invocation to fetch and triage review comments
 3. Fix valid issues, resolve false positives directly on GitHub
 
 ## Tool-Specific: Claude Code
@@ -133,17 +132,19 @@ To change a model, edit the `model:` field in `.claude/agents/<agent>.md`. Free 
 
 ### Skills (Claude Code & Codex)
 
-Skills automate common workflows. Both Claude Code (`.claude/skills/`) and Codex (`.codex/skills/`) ship the same set of skills — Claude Code invokes them with `/skill-name`, Codex with `Use skill-name`. The difference is that Claude Code skills delegate to subagents, while Codex skills are self-contained workflows.
+Skills automate common workflows. Both Claude Code (`.claude/skills/`) and Codex (`.codex/skills/`) ship the same set of skills — Claude Code invokes them with `/skill-name`, Codex with `$skill-name`. The difference is that Claude Code skills delegate to subagents, while Codex skills are self-contained workflows.
 
 | Skill | Equivalent Prompt | Description |
 |-------|-------------------|-------------|
 | `start` | `prompts/start.md` | Confirm project readiness |
-| `resume-task` | `prompts/task.md` | Analyze task before implementation |
+| `load-task` | `prompts/load-task.md` | Load task context before implementation |
+| `load-spec` | `prompts/load-spec.md` | Load feature-level progress and gaps |
 | `review-task` | `prompts/review-task.md` | Validate task plan for issues |
 | `review` | `prompts/review.md` | Review code (scope: diff, branch, commit, path) |
 | `deep-review` | `prompts/deep-review.md` | Comprehensive architecture + correctness review |
 | `next-step` | — | Complete step, reflect, start next |
-| `draft-pr` | — | Draft pull request |
+| `draft-pr` | — | Draft pull request to a local file |
+| `make-pr` | — | Push if needed and create the PR on GitHub |
 | `draft-issue` | — | Draft GitHub issue from conversation context |
 | `gh-review-check` | — | Triage PR review comments |
 

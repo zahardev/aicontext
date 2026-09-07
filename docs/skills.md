@@ -6,8 +6,8 @@ Skills are invocable commands that automate common development tasks. Each skill
 
 | Tool | Syntax | Example |
 |------|--------|---------|
-| Claude Code | `/skill-name` | `/start-feature` |
-| Codex | `Use skill-name` | `Use start-feature` |
+| Claude Code, opencode, Pi | `/skill-name` | `/start-feature` |
+| Codex | `$skill-name` | `$start-feature` |
 | Cursor / Copilot | Paste prompt file | Paste `.aicontext/prompts/start-feature.md` |
 
 ## Development Flow Skills
@@ -47,15 +47,20 @@ Executes all pending steps in the current task file automatically. One agent imp
 - After all steps: runs review and tests per `after_task` config
 - Stops on blockers, critical findings, or uncovered decisions
 
-### `/resume-task`
-**Prompt:** `resume-task.md`
+### `/load-task`
+**Prompt:** `load-task.md`
 
-Reads the three-layer context for the current task and surfaces resume state. Essential for starting a new session mid-task.
+Reads the three-layer context for the current task and surfaces task state. Essential for starting a new session mid-task.
 
 - Reads: spec (requirements, decisions) → task-context (patterns, gotchas) → task (plan, progress)
 - Detects spec↔task drift (requirements not covered by steps)
 - Detects staleness (empty task-context with completed steps, `Decision Overrides` not yet applied to the spec)
 - Backwards compatible with pre-1.6.0 tasks (no spec or task-context)
+
+### `/load-spec`
+**Prompt:** `load-spec.md`
+
+Reads one feature spec, its linked tasks, and any coverage gaps.
 
 ### `/finish-task`
 **Prompt:** `finish-task.md`
@@ -135,7 +140,12 @@ Comprehensive code review: architecture, correctness, and codebase health. Quest
 ### `/draft-pr`
 **Prompt:** `draft-pr.md`
 
-Generates a PR title and description from the task file and git history. Saved to `.aicontext/data/pr-drafts/`.
+Generates a PR title and description from the task file and git history, saved to `.aicontext/data/pr-drafts/`. Never pushes or creates a PR.
+
+### `/make-pr`
+**Prompt:** `make-pr.md`
+
+Creates the GitHub PR — reuses the local draft (or generates one), pushes the branch when required, and runs `gh pr create`.
 
 ### `/gh-review-check`
 **Prompt:** `gh-review-check.md`

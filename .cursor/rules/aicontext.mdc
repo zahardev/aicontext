@@ -9,5 +9,4 @@ Before starting any session, read and follow `.aicontext/prompts/start.md`.
 
 ## Prompts
 
-Reusable prompts are available in `.aicontext/prompts/`. When the user says `use <name>`, read `.aicontext/prompts/<name>.md` and follow the instructions in it. For example, `use resume-task` reads and follows `.aicontext/prompts/resume-task.md`.
-
+Reusable prompts are available in `.aicontext/prompts/`. When the user says `use <name>`, read `.aicontext/prompts/<name>.md` and follow the instructions in it. For example, `use load-task` reads and follows `.aicontext/prompts/load-task.md`.

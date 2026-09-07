@@ -6,7 +6,7 @@ Present this guide to the user. Do not summarize or shorten — output it as-is.
 
 ## What is AIContext?
 
-AIContext gives AI coding assistants persistent memory about your project. It creates standardized context files — rules, prompts, templates, specs, tasks — that work across Claude Code, Codex, Cursor, and GitHub Copilot. Designed Claude-first — for best experience, use Claude Code in an IDE (VS Code, JetBrains, etc.).
+AIContext gives AI coding assistants persistent memory about your project. It creates standardized context files — rules, prompts, templates, specs, tasks — that work across Claude Code, Codex, Cursor, opencode, Pi, and GitHub Copilot. Designed Claude-first — for best experience, use Claude Code in an IDE (VS Code, JetBrains, etc.).
 
 Install: `npx @zahardev/aicontext init`
 
@@ -16,9 +16,9 @@ Install: `npx @zahardev/aicontext init`
 
 For a new feature, the full flow is:
 
-`/start` → `/start-feature` → `/run-task` → `/finish-task`
+`start` → `start-feature` → `run-task` → `finish-task`
 
-Skills are invoked as `/skill-name` in Claude Code. In Codex, Cursor, and Copilot, use `use skill-name` instead. Run `/aic-skills` (or `use aic-skills`) any time to see all available commands.
+Skills use the native syntax for each tool: `/skill-name` in Claude Code, opencode, and Pi; `$skill-name` in Codex; and `use skill-name` in Cursor and Copilot. Run the native `aic-skills` invocation any time to see all available commands.
 
 ## Key Concepts
 
@@ -36,25 +36,25 @@ AI assistants forget everything between sessions. AIContext fixes this with four
 ## More Workflows
 
 **Resume mid-task (new session):**
-`/start` → `/resume-task` → `/run-task` → `/finish-task`
+`start` → `load-task` → `run-task` → `finish-task`
 
 **Quick fix (no spec needed):**
-Describe the fix in conversation → `/do-it` — creates a task step and implements it.
+Describe the fix in conversation → `do-it` - creates a task step and implements it.
 
 **Review changes:**
-`/review` — quick correctness scan (bugs, security, edge cases). 
-`/deep-review` — comprehensive architectural review.
+`review` - quick correctness scan (bugs, security, edge cases).
+`deep-review` - comprehensive architectural review.
 
 **PR review cycle:**
-`/gh-review-check` — one-time fetch and triage of PR review comments. 
-`/gh-review-fix-loop` — full automated cycle: fetch, triage, fix, push, repeat until clean.
+`gh-review-check` - one-time fetch and triage of PR review comments.
+`gh-review-fix-loop` - full automated cycle: fetch, triage, fix, push, repeat until clean.
 
 **Multiple tasks from one spec:**
-`/start-feature` (creates spec) → `/plan-tasks` (breaks spec into tasks) → `/run-task` per task
+`start-feature` (creates spec) → `plan-tasks` (breaks spec into tasks) → `run-task` per task
 
 ## Tips
 
-- **Don't restart sessions unnecessarily.** The agent accumulates context across steps — restarting loses that. Use `/resume-task` when you must restart.
+- **Don't restart sessions unnecessarily.** The agent accumulates context across steps - restarting loses that. Use the native `load-task` invocation when you must restart.
 
 ## Customization
 

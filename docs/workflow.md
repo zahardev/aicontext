@@ -1,8 +1,8 @@
 # Workflow Guide
 
 > **Skill invocation varies by tool.** Throughout this guide, skill names are shown as `/skill-name`. Use them as follows:
-> - **Claude Code:** `/skill-name` (e.g., `/start`)
-> - **Codex:** `Use skill-name` (e.g., `Use start`)
+> - **Claude Code, opencode, Pi:** `/skill-name` (e.g., `/start`)
+> - **Codex:** `$skill-name` (e.g., `$start`)
 > - **Cursor / Copilot:** Paste the equivalent prompt file from `.aicontext/prompts/` (see the [skills reference](skills.md) for mappings).
 
 ## Starting a Session
@@ -65,7 +65,7 @@ When starting a new session on an existing task:
 
 **1. `/start`** — load project context.
 
-**2. `/resume-task`** — the AI reads all three layers:
+**2. `/load-task`** — the AI reads all three layers:
 - **Spec** — requirements, decisions, non-goals
 - **Task-context** — patterns, gotchas, and supersession log of any spec decisions overturned mid-task
 - **Task** — plan steps, what's checked off, what's next
@@ -107,7 +107,7 @@ For small scope (<200 lines), runs inline for interactive feedback. For large sc
 
 ### Drafting a PR
 
-Use `/draft-pr` to generate a PR title and description from your task file and git history. The draft is saved to `.aicontext/data/pr-drafts/` for review before creating the actual PR.
+Use `/draft-pr` to generate a PR title and description from your task file and git history, saved to `.aicontext/data/pr-drafts/` for review. When you're ready, `/make-pr` pushes the branch if needed and opens the PR from that draft — or run it directly and it drafts on the spot.
 
 ### Triaging Review Comments
 

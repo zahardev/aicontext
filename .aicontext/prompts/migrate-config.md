@@ -53,6 +53,10 @@ Primary type = first row in `structure.md`'s `## Testing` table, or the row name
 
 Apply to `after_step.tests` and `after_task.tests` only. Update the inline comment if present.
 
+## PR keys
+
+`pr.save_to_file` and `pr.create_in_github` are removed — `/draft-pr` always writes the draft file and `/make-pr` always creates the PR. Strip the whole `pr:` block.
+
 ## Task naming token
 
 If `task_naming.pattern` contains `{task-name}`, rewrite to `{task_name}`.
