@@ -89,7 +89,8 @@ Before asking closed questions (2-4 discrete options), check `claude.question_st
 ## Native Skill Syntax
 
 Use the user's tool syntax in every skill suggestion or handoff:
-- Claude Code, opencode, Pi: `/skill-name`
+- Claude Code, opencode: `/skill-name`
+- Pi: `/skill:name`
 - Codex: `$skill-name`
 - Cursor, Copilot: `use skill-name`
 
