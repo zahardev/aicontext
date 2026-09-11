@@ -14,11 +14,11 @@ const NPM_PACKAGE = '@zahardev/aicontext';
 const CACHE_FILE = path.join(os.tmpdir(), 'aicontext-version-cache.json');
 const CACHE_TTL = 60 * 60 * 1000; // 1 hour in milliseconds
 const FRAMEWORK_PROMPTS = [
-  'add-step.md', 'aic-help.md', 'aic-skills.md', 'align-context.md', 'challenge.md', 'close-step.md',
+  'add-step.md', 'add-idea.md', 'aic-help.md', 'aic-skills.md', 'align-context.md', 'challenge.md', 'close-step.md',
   'commit.md', 'create-task.md', 'deep-review.md', 'deep-review-criteria.md', 'do-it.md', 'draft-issue.md', 'ensure-config.md', 'identify-task.md',
   'draft-pr.md', 'make-pr.md', 'finish-task.md', 'generate.md', 'gh-fix-tests.md', 'gh-review-fix-loop.md', 'next-step.md', 'plan-tasks.md',
   'gh-review-check.md', 'install-playwright-cli.md', 'prepare-release.md', 'review.md', 'review-criteria.md', 'detect-review-scope.md',
-  'brainstorm.md', 'check-update.md', 'generate-docs.md', 'generate-guide.md', 'generate-reference.md', 'interview.md', 'load-spec.md', 'load-task.md', 'migrate-config.md', 'resolve-asks.md', 'resolve-task-naming.md', 'resolve-test-types.md', 'resolve-tests.md', 'review-task.md', 'run-step.md', 'run-task.md', 'start-feature.md', 'start.md', 'step-loop.md', 'test-writer.md', 'thoughts.md', 'tidy-aic.md',
+  'brainstorm.md', 'check-update.md', 'generate-docs.md', 'generate-guide.md', 'generate-reference.md', 'interview.md', 'load-spec.md', 'load-task.md', 'migrate-config.md', 'resolve-asks.md', 'resolve-task-naming.md', 'resolve-test-types.md', 'resolve-tests.md', 'review-task.md', 'run-step.md', 'run-task.md', 'start-feature.md', 'start.md', 'step-loop.md', 'test-writer.md', 'thoughts.md', 'tidy-aic.md', 'web-inspect.md',
 ];
 const DEPRECATED_PROMPTS = ['check_plan.md', 'check_task.md', 'check-task.md', 'review-task-plan.md', 'after_step.md', 'plan.md', 'task.md', 'start-task.md', 'diff-review.md', 'branch-review.md', 'standards-check.md', 'pr-review-check.md', 'check-plan.md', 'run-steps.md', 'review-plan.md', 'review-scope.md', 'update-check.md', 'auto-setup.md', 'resolve-task-lifecycle-asks.md', 'resume-task.md'];
 const FRAMEWORK_AGENTS = [
@@ -40,10 +40,8 @@ const FRAMEWORK_CODEX_SKILLS = [
   'draft-issue', 'generate-docs', 'prepare-release', 'gh-review-fix-loop', 'gh-fix-tests', 'web-inspect', 'aic-help', 'aic-skills', 'tidy-aic',
 ];
 // Harnesses whose skills are flat `<name>.md` pointer files rather than `<name>/SKILL.md` directories.
-// Both ship the same skill set as `.claude`, so they reuse FRAMEWORK_SKILLS.
 const FLAT_POINTER_HARNESSES = {
   opencode: { dir: ['.opencode', 'commands'] },
-  pi: { dir: ['.pi', 'prompts'] },
 };
 const DEPRECATED_SKILLS = ['task', 'after-step', 'next', 'pr', 'start-task', 'diff-review', 'branch-review', 'standards-check', 'pr-review-check', 'check-plan', 'check-task', 'review-task-plan', 'run-steps', 'review-plan', 'resume-task'];
 const FRAMEWORK_SCRIPTS = ['pr-reviews.cjs', 'pr-resolve.cjs'];
@@ -111,7 +109,7 @@ const ASSISTANTS = {
     folder: '.pi/',
     detect: (target) => isDirectory(path.join(target, '.pi')),
     install: async (packageRoot, target, opts) => {
-      await copyFlatPointers('pi', packageRoot, target, opts.overrideSkills, opts.skipConfirm);
+      await copyFrameworkPiSkills(packageRoot, target, opts.overrideSkills, opts.skipConfirm);
     },
   },
   copilot: {
@@ -320,13 +318,15 @@ function hasExistingFrameworkFiles(target) {
   const agentsDir = path.join(target, '.claude', 'agents');
   const skillsDir = path.join(target, '.claude', 'skills');
   const codexSkillsDir = path.join(target, '.codex', 'skills');
+  const piSkillsDir = path.join(target, '.pi', 'skills');
   const hasAgent = FRAMEWORK_AGENTS.some((f) => fs.existsSync(path.join(agentsDir, f)));
   const hasSkill = FRAMEWORK_SKILLS.some((s) => fs.existsSync(path.join(skillsDir, s, 'SKILL.md')));
   const hasCodexSkill = FRAMEWORK_CODEX_SKILLS.some((s) => fs.existsSync(path.join(codexSkillsDir, s, 'SKILL.md')));
+  const hasPiSkill = FRAMEWORK_SKILLS.some((s) => fs.existsSync(path.join(piSkillsDir, s, 'SKILL.md')));
   const hasFlatPointer = Object.values(FLAT_POINTER_HARNESSES).some(({ dir }) =>
     FRAMEWORK_SKILLS.some((s) => fs.existsSync(path.join(target, ...dir, `${s}.md`)))
   );
-  return hasAgent || hasSkill || hasCodexSkill || hasFlatPointer || hasExistingPrompts(target);
+  return hasAgent || hasSkill || hasCodexSkill || hasPiSkill || hasFlatPointer || hasExistingPrompts(target);
 }
 
 function removeDeprecatedPrompts(target) {
@@ -372,6 +372,20 @@ function isGeneratedPointer(content, skill) {
     (bodyLines.length === 1 || (bodyLines.length === 2 && bodyLines[1] === '$ARGUMENTS'));
 }
 
+function removeGeneratedPiPromptWrappers(target) {
+  const promptsDir = path.join(target, '.pi', 'prompts');
+  if (!fs.existsSync(promptsDir)) return;
+
+  for (const skill of [...FRAMEWORK_SKILLS, ...DEPRECATED_SKILLS]) {
+    const filePath = path.join(promptsDir, `${skill}.md`);
+    if (!fs.existsSync(filePath) || !isGeneratedPointer(fs.readFileSync(filePath, 'utf8'), skill)) continue;
+    fs.unlinkSync(filePath);
+    log(`  Removed generated Pi prompt: prompts/${skill}.md`, 'dim');
+  }
+
+  if (fs.readdirSync(promptsDir).length === 0) fs.rmdirSync(promptsDir);
+}
+
 function migrateOpenCodePointers(target) {
   const legacyDir = path.join(target, '.opencode', 'command');
   const commandsDir = path.join(target, '.opencode', 'commands');
@@ -401,8 +415,8 @@ function isGeneratedCodexPolicy(content) {
 }
 
 function removeDeprecatedSkills(target) {
-  // opencode and pi share their command folder with the user's own files, so a name match is not
-  // enough — only remove files that still match the pointer shape this CLI generates.
+  // OpenCode shares its command folder with the user's own files, so a name match is not enough -
+  // only remove files that still match the pointer shape this CLI generates.
   for (const { dir } of Object.values(FLAT_POINTER_HARNESSES)) {
     for (const skill of DEPRECATED_SKILLS) {
       const filePath = path.join(target, ...dir, `${skill}.md`);
@@ -526,6 +540,19 @@ function selfHealMissingFiles(packageRoot, target, presentAssistants) {
             log(`  Restored: .codex/skills/${skill}/${file}`, 'yellow');
             healed++;
           }
+        }
+      }
+    } else if (name === 'pi') {
+      const piSrcDir = path.join(packageRoot, '.pi', 'skills');
+      const piDestDir = path.join(target, '.pi', 'skills');
+      for (const skill of FRAMEWORK_SKILLS) {
+        const src = path.join(piSrcDir, skill, 'SKILL.md');
+        const dest = path.join(piDestDir, skill, 'SKILL.md');
+        if (fs.existsSync(src) && !fs.existsSync(dest)) {
+          fs.mkdirSync(path.dirname(dest), { recursive: true });
+          fs.copyFileSync(src, dest);
+          log(`  Restored: .pi/skills/${skill}/SKILL.md`, 'yellow');
+          healed++;
         }
       }
     } else if (FLAT_POINTER_HARNESSES[name]) {
@@ -802,6 +829,20 @@ async function copyFlatPointers(harness, packageRoot, target, overrideSkills = f
   }
 }
 
+async function copyFrameworkPiSkills(packageRoot, target, overrideSkills = false, skipConfirm = false) {
+  const srcDir = path.join(packageRoot, '.pi', 'skills');
+  const destDir = path.join(target, '.pi', 'skills');
+  fs.mkdirSync(destDir, { recursive: true });
+
+  for (const skill of FRAMEWORK_SKILLS) {
+    const src = path.join(srcDir, skill, 'SKILL.md');
+    if (!fs.existsSync(src)) continue;
+
+    const dest = path.join(destDir, skill, 'SKILL.md');
+    await copySkillFile(src, dest, `.pi/skills/${skill}/SKILL.md`, overrideSkills, skipConfirm);
+  }
+}
+
 async function copyFrameworkCodexSkills(packageRoot, target, overrideSkills = false, skipConfirm = false) {
   const srcDir = path.join(packageRoot, '.codex', 'skills');
   const destDir = path.join(target, '.codex', 'skills');
@@ -952,7 +993,7 @@ async function init(targetDir, skipConfirm = false, keepPrompts = false, overrid
   log('\nInstallation complete!', 'green');
   log('\nNext steps:', 'cyan');
   log('1. Open your AI assistant (Claude Code, Cursor, Codex, opencode, Pi, or GitHub Copilot)');
-  log('2. Type /start (Claude Code, opencode, Pi) or paste .aicontext/prompts/start.md (Cursor/Copilot)');
+  log('2. Type /start (Claude Code, opencode), /skill:start (Pi), or paste .aicontext/prompts/start.md (Cursor/Copilot)');
   log('3. On first run, the AI will analyze your codebase and generate project context');
   const skipped = ASSISTANT_NAMES.filter((name) => !chosenAssistants.includes(name));
   if (skipped.length > 0) {
@@ -992,6 +1033,7 @@ async function update(targetDir, skipConfirm = false, keepPrompts = false, overr
   const currentVersion = fs.readFileSync(versionFile, 'utf8').trim();
 
   migrateOpenCodePointers(target);
+  removeGeneratedPiPromptWrappers(target);
 
   const presentAssistants = ASSISTANT_NAMES.filter((name) => ASSISTANTS[name].detect(target));
   const missingAssistants = ASSISTANT_NAMES.filter((name) => !ASSISTANTS[name].detect(target));
@@ -1433,6 +1475,7 @@ module.exports = {
   copyFrameworkAgents,
   copyFrameworkSkills,
   copyFrameworkCodexSkills,
+  copyFrameworkPiSkills,
   copyFlatPointers,
   copyFrameworkScripts,
   installConfig,
@@ -1442,6 +1485,7 @@ module.exports = {
   removeDeprecatedPrompts,
   removeDeprecatedAgents,
   isGeneratedPointer,
+  removeGeneratedPiPromptWrappers,
   removeDeprecatedSkills,
   getExistingFiles,
   hasExistingPrompts,

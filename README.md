@@ -131,7 +131,8 @@ AIContext creates a `.aicontext/` directory with shared rules, prompts, and temp
 
 | Tool | How to invoke skills |
 |------|---------------------|
-| Claude Code, opencode, Pi | `/skill-name` (e.g., `/start-feature`) |
+| Claude Code, opencode | `/skill-name` (e.g., `/start-feature`) |
+| Pi | `/skill:name` (e.g., `/skill:start-feature`) |
 | Codex | `$skill-name` (e.g., `$start-feature`) |
 | Cursor, Copilot | `use skill-name` (e.g., `use start-feature`) |
 
