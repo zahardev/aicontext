@@ -4,4 +4,4 @@ description: Prepare a version release — follows project release config in `.a
 disable-model-invocation: true
 ---
 
-Read and follow `../../../.aicontext/prompts/prepare-release.md`
+Read and follow `.aicontext/prompts/prepare-release.md`

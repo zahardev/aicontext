@@ -4,4 +4,4 @@ description: Execute all pending steps in the current task file — creates task
 disable-model-invocation: true
 ---
 
-Read and follow `../../../.aicontext/prompts/run-task.md`
+Read and follow `.aicontext/prompts/run-task.md`

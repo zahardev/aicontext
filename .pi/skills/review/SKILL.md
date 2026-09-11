@@ -4,4 +4,4 @@ description: Review code changes for bugs, security, edge cases. Scope with args
 disable-model-invocation: true
 ---
 
-Read and follow `../../../.aicontext/prompts/review.md`
+Read and follow `.aicontext/prompts/review.md`

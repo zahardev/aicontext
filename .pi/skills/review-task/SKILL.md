@@ -4,4 +4,4 @@ description: Validate the current task — plan quality, spec coverage, delivera
 disable-model-invocation: true
 ---
 
-Read and follow `../../../.aicontext/prompts/review-task.md`
+Read and follow `.aicontext/prompts/review-task.md`

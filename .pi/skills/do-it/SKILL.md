@@ -4,4 +4,4 @@ description: Turn the current discussion into a task step and implement it — a
 disable-model-invocation: true
 ---
 
-Read and follow `../../../.aicontext/prompts/do-it.md`
+Read and follow `.aicontext/prompts/do-it.md`

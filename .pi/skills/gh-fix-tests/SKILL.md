@@ -4,4 +4,4 @@ description: Fix failing CI checks on the current PR — fetches failures via gh
 disable-model-invocation: true
 ---
 
-Read and follow `../../../.aicontext/prompts/gh-fix-tests.md`
+Read and follow `.aicontext/prompts/gh-fix-tests.md`

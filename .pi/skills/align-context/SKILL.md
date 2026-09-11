@@ -4,4 +4,4 @@ description: Update all context files (task, spec, task-context, worklog) to ref
 disable-model-invocation: true
 ---
 
-Read and follow `../../../.aicontext/prompts/align-context.md`
+Read and follow `.aicontext/prompts/align-context.md`

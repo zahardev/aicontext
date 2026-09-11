@@ -4,4 +4,4 @@ description: Mark previous step as done in the task file, then start the next st
 disable-model-invocation: true
 ---
 
-Read and follow `../../../.aicontext/prompts/next-step.md`
+Read and follow `.aicontext/prompts/next-step.md`

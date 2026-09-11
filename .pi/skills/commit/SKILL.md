@@ -4,4 +4,4 @@ description: Commit current changes following project commit rules (template, bo
 disable-model-invocation: true
 ---
 
-Read and follow `../../../.aicontext/prompts/commit.md`
+Read and follow `.aicontext/prompts/commit.md`

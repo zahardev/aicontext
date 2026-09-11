@@ -4,4 +4,4 @@ description: Automate the PR review cycle — fetches review comments, triages, 
 disable-model-invocation: true
 ---
 
-Read and follow `../../../.aicontext/prompts/gh-review-fix-loop.md`
+Read and follow `.aicontext/prompts/gh-review-fix-loop.md`
