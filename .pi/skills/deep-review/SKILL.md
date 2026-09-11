@@ -4,4 +4,4 @@ description: Comprehensive code review — architecture + correctness. Scope wit
 disable-model-invocation: true
 ---
 
-Read and follow `../../../.aicontext/prompts/deep-review.md`
+Read and follow `.aicontext/prompts/deep-review.md`

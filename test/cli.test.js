@@ -1980,12 +1980,12 @@ describe('opencode and pi entry points', () => {
       const codexPolicy = fs.readFileSync(path.join(packageRoot, '.codex', 'skills', skill, 'agents', 'openai.yaml'), 'utf8');
       const content = fs.readFileSync(skillPath, 'utf8');
       const piDescription = content.match(/^description: (.+)$/m)?.[1];
-      const promptPath = '../../../.aicontext/prompts/' + skill + '.md';
+      const promptPath = '.aicontext/prompts/' + skill + '.md';
 
       assert.strictEqual(content.match(/^name: (.+)$/m)?.[1], skill, `${skill} name differs`);
       assert.strictEqual(piDescription, piSkillDescriptions[skill], `${skill} description differs`);
       assert.ok(content.includes(promptPath), `${skill} has no canonical prompt reference`);
-      assert.ok(fs.existsSync(path.resolve(path.dirname(skillPath), promptPath)), `${skill} prompt reference is invalid`);
+      assert.ok(fs.existsSync(path.join(tempDir, promptPath)), `${skill} prompt reference is invalid`);
       assert.strictEqual(
         /disable-model-invocation: true/.test(content),
         /allow_implicit_invocation: false/.test(codexPolicy),

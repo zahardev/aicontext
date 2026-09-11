@@ -4,4 +4,4 @@ description: Pause and push back — surface questions, wrong assumptions, conce
 disable-model-invocation: true
 ---
 
-Read and follow `../../../.aicontext/prompts/challenge.md`
+Read and follow `.aicontext/prompts/challenge.md`

@@ -4,4 +4,4 @@ description: Archive completed tasks, specs, and worklog entries — clean up .a
 disable-model-invocation: true
 ---
 
-Read and follow `../../../.aicontext/prompts/tidy-aic.md`
+Read and follow `.aicontext/prompts/tidy-aic.md`

@@ -4,4 +4,4 @@ description: Close out the current task — verify all steps done, sync spec, fi
 disable-model-invocation: true
 ---
 
-Read and follow `../../../.aicontext/prompts/finish-task.md`
+Read and follow `.aicontext/prompts/finish-task.md`

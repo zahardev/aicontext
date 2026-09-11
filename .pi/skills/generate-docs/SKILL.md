@@ -4,4 +4,4 @@ description: Generate project documentation from code and AIContext artifacts â€
 disable-model-invocation: true
 ---
 
-Read and follow `../../../.aicontext/prompts/generate-docs.md`
+Read and follow `.aicontext/prompts/generate-docs.md`

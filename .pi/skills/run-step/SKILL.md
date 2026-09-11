@@ -4,4 +4,4 @@ description: Execute a single step from the task plan. Accepts optional step num
 disable-model-invocation: true
 ---
 
-Read and follow `../../../.aicontext/prompts/run-step.md`
+Read and follow `.aicontext/prompts/run-step.md`

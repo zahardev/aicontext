@@ -4,4 +4,4 @@ description: Capture a deferred idea to the worklog Ideas section — quickly lo
 disable-model-invocation: true
 ---
 
-Read and follow `../../../.aicontext/prompts/add-idea.md`
+Read and follow `.aicontext/prompts/add-idea.md`
