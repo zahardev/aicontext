@@ -27,7 +27,7 @@ Read `.aicontext/data/version.json`. If missing or unreadable, go to step 4.
 
 Compare `nextCheck` (YYYY-MM-DD) against today's date:
 
-- **Not due yet** → skip silently to step 5.
+- **Not due yet** → skip this update check and return to the calling workflow without output.
 - **Due (today ≥ `nextCheck`)** → proceed to step 4.
 
 ## 4. Fetch latest version
