@@ -492,6 +492,16 @@ describe('FRAMEWORK_PROMPTS', () => {
   });
 });
 
+describe('check-update workflow', () => {
+  it('should skip comparison and return to its caller when a scheduled check is not due', () => {
+    const prompt = fs.readFileSync(path.join(packageRoot, '.aicontext', 'prompts', 'check-update.md'), 'utf8');
+    const notDueInstruction = prompt.match(/\*\*Not due yet\*\*[^\n]*/)?.[0] || '';
+
+    assert.match(notDueInstruction, /return to the calling workflow without output/i);
+    assert.doesNotMatch(notDueInstruction, /step 5|compar/i);
+  });
+});
+
 describe('DEPRECATED_PROMPTS', () => {
   it('should contain the old prompt file names', () => {
     const expected = ['check_plan.md', 'check_task.md', 'check-task.md', 'review-task-plan.md', 'after_step.md', 'plan.md', 'task.md', 'start-task.md', 'diff-review.md', 'branch-review.md', 'standards-check.md', 'pr-review-check.md', 'check-plan.md', 'run-steps.md', 'review-plan.md', 'review-scope.md', 'update-check.md', 'auto-setup.md', 'resolve-task-lifecycle-asks.md', 'resume-task.md'];
