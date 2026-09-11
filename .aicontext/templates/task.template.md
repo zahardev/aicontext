@@ -22,16 +22,7 @@
 ## Plan:
 
 ### Step 1: [Step Title]
-- [ ] [Task/feature 1]
-- [ ] [Task/feature 2]
-
-### Step 2: [Step Title]
-- [ ] [Task/feature 1]
-- [ ] [Task/feature 2]
-
-### Step 3: [Step Title]
-- [ ] [Task/feature 1]
-- [ ] [Task/feature 2]
+- [ ] [Necessary task item]
 
 ## Completion Notes:
 

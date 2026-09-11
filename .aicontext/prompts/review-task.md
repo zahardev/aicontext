@@ -7,7 +7,7 @@ Validate the current task holistically. Follow `identify-task.md` to find it, th
 ### Plan quality
 1. **Behavioral correctness** — trace the feature's runtime behavior end-to-end (triggers, decisions, side effects) and verify the plan builds that behavior. Verify by behavior, not by matching spec wording to plan wording.
 2. **Dependency order** — no step depends on a later step (per `plan-steps.md`).
-3. **Over-engineering** — unnecessary complexity or abstractions.
+3. **Plan minimality** — apply [Minimum Necessary Plan](plan-steps.md#minimum-necessary-plan) and [Complete Planning Before Execution](plan-steps.md#complete-planning-before-execution).
 4. **TDD structure** — read `tdd` from config. If `true`: apply test-first checks per `plan-steps.md` (including its "skip when project has no tests" rule). If `false`: skip this check.
 
 ### Spec alignment
