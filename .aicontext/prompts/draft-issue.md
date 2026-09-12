@@ -1,7 +1,5 @@
 # Draft Issue
 
-Draft a GitHub issue based on the current conversation context.
-
 ## 1. Gather Context
 
 - Review the current conversation for requirements, decisions, and feature details

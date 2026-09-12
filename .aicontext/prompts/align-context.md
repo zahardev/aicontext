@@ -1,7 +1,5 @@
 # Align Context
 
-Update all context files to reflect the current state of work. Fix what's stale, fill what's missing, then report what changed.
-
 ## 1. Identify the Task
 
 Read and follow `identify-task.md` to find the active task.

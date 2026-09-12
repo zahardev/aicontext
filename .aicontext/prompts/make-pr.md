@@ -1,7 +1,5 @@
 # Make PR
 
-Push the current branch and create or update its GitHub pull request.
-
 ## 1. Load Settings
 
 - Follow `ensure-config.md` with `project.base_branch` (default: `main`)

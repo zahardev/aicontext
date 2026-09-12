@@ -1,7 +1,5 @@
 # Generate Docs
 
-Generate project documentation from code and AIContext artifacts.
-
 ## 1. Config
 
 Follow `ensure-config.md` with `docs.output_path`, then create the resolved output directory if it does not exist.

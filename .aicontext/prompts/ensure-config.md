@@ -1,7 +1,5 @@
 # Ensure Config
 
-**Called with:** `fields` - exact config paths the caller needs. When omitted, derive them from explicit config reads in the calling prompt.
-
 ## 1. Session memo
 
 If config was already loaded this session, reuse the merged values and source map. Reread only a source file changed since loading, then refresh affected memoized values.

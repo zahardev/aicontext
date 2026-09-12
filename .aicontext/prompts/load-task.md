@@ -1,7 +1,5 @@
 # Load Task
 
-Read the three-layer context for the current task, then surface ambiguities and resume state.
-
 ## Identify the Task
 
 Read and follow `identify-task.md` to find the active task.

@@ -1,7 +1,5 @@
 # Deep Review
 
-Comprehensive code review across architecture, correctness, and codebase health.
-
 ## Setup
 
 Read these files to understand the project:

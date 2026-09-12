@@ -1,7 +1,5 @@
 # Resolve Asks
 
-Prompt the user for each field in the passed list, run the preflight if needed, and return resolved values.
-
 **Called with:** `fields` — requested config fields that need user input (`after_step.*`, `after_task.*`, or `tdd`), including each field's source file and whether its value is `ask` or invalid.
 
 ## 1. Preflight — type-table discovery

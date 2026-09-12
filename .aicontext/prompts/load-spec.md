@@ -1,7 +1,5 @@
 # Load Spec
 
-Read one feature spec and surface its requirements, task progress, and gaps.
-
 ## Identify the Spec
 
 Use an explicit spec reference when provided. Otherwise, use the spec linked from the current task. If neither identifies a spec, ask the user which file in `.aicontext/specs/` to load.
