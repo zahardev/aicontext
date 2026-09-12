@@ -1,7 +1,5 @@
 # Resolve Task Naming
 
-Turn `task_naming.pattern` into a final task filename. Called by task-creating prompts (`create-task`, `start-feature`, `plan-tasks`) — they pass the task-name slug, use the returned filename verbatim.
-
 **Called with** a lowercase-hyphenated task-name slug. Follow `ensure-config.md` with `task_naming.*`. `task_naming.pattern` is either `ask` (shows the menu below) or a literal template using tokens `{version}`, `{issue_id}`, `{date}`, `{task_name}`.
 
 ## 1. Ask Mode

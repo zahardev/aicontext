@@ -1,6 +1,6 @@
 # Detect Review Scope
 
-Shared scope detection for `/review` and `/deep-review`. Follow `ensure-config.md` with `project.base_branch` (default: `main`).
+Follow `ensure-config.md` with `project.base_branch` (default: `main`).
 
 ## Scope Options
 

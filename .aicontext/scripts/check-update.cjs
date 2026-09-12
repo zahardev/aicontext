@@ -2,20 +2,14 @@
 
 const fs = require('fs');
 const path = require('path');
-const { spawnSync } = require('child_process');
+const { spawn, spawnSync } = require('child_process');
 
-const FREQUENCY_DAYS = {
-  daily: 1,
-  weekly: 7,
-  biweekly: 14,
-  monthly: 30,
-};
+const FREQUENCY_DAYS = { daily: 1, weekly: 7, biweekly: 14, monthly: 30 };
 
 function readYamlValue(filePath, section, key) {
   try {
     const lines = fs.readFileSync(filePath, 'utf8').split('\n');
     let inSection = false;
-
     for (const line of lines) {
       if (new RegExp(`^${section}:\\s*(?:#.*)?$`).test(line)) {
         inSection = true;
@@ -23,14 +17,10 @@ function readYamlValue(filePath, section, key) {
       }
       if (inSection && /^\S[^:]*:/.test(line)) break;
       if (!inSection || /^\s*#/.test(line)) continue;
-
       const match = line.match(new RegExp(`^\\s+${key}:\\s*([^#\\s]+)`));
       if (match) return match[1].replace(/^['"]|['"]$/g, '');
     }
-  } catch {
-    // Missing or unreadable config uses the default.
-  }
-
+  } catch {}
   return null;
 }
 
@@ -54,9 +44,7 @@ function writeJson(filePath, data) {
   try {
     fs.mkdirSync(path.dirname(filePath), { recursive: true });
     fs.writeFileSync(filePath, `${JSON.stringify(data, null, 2)}\n`);
-  } catch {
-    // Update checks must never block startup.
-  }
+  } catch {}
 }
 
 function addDays(date, days) {
@@ -70,7 +58,6 @@ function isNewerVersion(candidate, current) {
   const candidateParts = candidate.split(/[.-]/).slice(0, 3).map(Number);
   const currentParts = current.split(/[.-]/).slice(0, 3).map(Number);
   if (candidateParts.some(Number.isNaN) || currentParts.some(Number.isNaN)) return false;
-
   for (let index = 0; index < 3; index += 1) {
     if (candidateParts[index] > currentParts[index]) return true;
     if (candidateParts[index] < currentParts[index]) return false;
@@ -96,38 +83,57 @@ function isValidDate(value) {
 }
 
 function executeVersionCheck(projectRoot) {
-  const result = spawnSync('aicontext', ['version', projectRoot], {
-    stdio: 'ignore',
-    timeout: 10000,
-  });
+  const result = spawnSync('aicontext', ['version', projectRoot], { stdio: 'ignore', timeout: 10000 });
   return !result.error && result.status === 0;
+}
+
+function refreshUpdateCache({ projectRoot, today, frequency, executeVersionCheck: check = executeVersionCheck }) {
+  const cacheFile = path.join(projectRoot, '.aicontext', 'data', 'version.json');
+  let succeeded = false;
+  try {
+    succeeded = check(projectRoot) !== false;
+  } catch {}
+  const cache = readJson(cacheFile);
+  cache.nextCheck = addDays(today, FREQUENCY_DAYS[frequency] || FREQUENCY_DAYS.weekly);
+  cache.noticePending = succeeded && Boolean(formatUpdateNotice(cache));
+  writeJson(cacheFile, cache);
+}
+
+function dispatchVersionCheck(projectRoot, today, frequency) {
+  try {
+    const child = spawn(process.execPath, [__filename, '--refresh', projectRoot, today, frequency], {
+      detached: true,
+      stdio: 'ignore',
+    });
+    child.unref();
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 function runUpdateCheck({
   projectRoot = path.resolve(__dirname, '..', '..'),
   today = new Date().toISOString().slice(0, 10),
-  executeVersionCheck: check = executeVersionCheck,
+  dispatchVersionCheck: dispatch = dispatchVersionCheck,
 } = {}) {
   try {
     const frequency = readUpdateFrequency(projectRoot);
     if (frequency === 'never') return '';
-
     const cacheFile = path.join(projectRoot, '.aicontext', 'data', 'version.json');
-    const existing = readJson(cacheFile);
-    if (isValidDate(existing.nextCheck) && today < existing.nextCheck) return '';
+    const cache = readJson(cacheFile);
 
-    let succeeded = false;
-    try {
-      succeeded = check(projectRoot) !== false;
-    } catch {
-      succeeded = false;
+    if (cache.noticePending) {
+      cache.noticePending = false;
+      writeJson(cacheFile, cache);
+      const notice = formatUpdateNotice(cache);
+      if (notice) return notice;
     }
-
-    const refreshed = readJson(cacheFile);
-    refreshed.nextCheck = addDays(today, FREQUENCY_DAYS[frequency]);
-    writeJson(cacheFile, refreshed);
-
-    return succeeded ? formatUpdateNotice(refreshed) : '';
+    if (isValidDate(cache.nextCheck) && today < cache.nextCheck) return '';
+    cache.nextCheck = addDays(today, FREQUENCY_DAYS[frequency]);
+    writeJson(cacheFile, cache);
+    dispatch(projectRoot, today, frequency);
+    return '';
   } catch {
     return '';
   }
@@ -138,12 +144,20 @@ module.exports = {
   formatUpdateNotice,
   isNewerVersion,
   readUpdateFrequency,
+  refreshUpdateCache,
   runUpdateCheck,
 };
 
 if (require.main === module) {
-  const notice = runUpdateCheck({
-    projectRoot: process.argv[2] ? path.resolve(process.argv[2]) : path.resolve(__dirname, '..', '..'),
-  });
-  if (notice) process.stdout.write(`${notice}\n`);
+  if (process.argv[2] === '--refresh') {
+    refreshUpdateCache({
+      projectRoot: path.resolve(process.argv[3]),
+      today: process.argv[4],
+      frequency: process.argv[5],
+    });
+  } else {
+    const projectRoot = process.argv[2] ? path.resolve(process.argv[2]) : path.resolve(__dirname, '..', '..');
+    const notice = runUpdateCheck({ projectRoot });
+    if (notice) process.stdout.write(`${notice}\n`);
+  }
 }
