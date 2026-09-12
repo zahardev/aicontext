@@ -2,11 +2,11 @@
 
 Load and repair only the project settings required by the active workflow.
 
-**Called with:** `fields` - exact config paths the caller needs. When omitted, derive them from explicit config reads in the calling prompt. Never resolve unrelated fields.
+**Called with:** `fields` - exact config paths the caller needs. When omitted, derive them from explicit config reads in the calling prompt.
 
 ## 1. Session memo
 
-If config was already loaded this session, reuse the merged values and validation results. Reread only a source file changed since loading, then refresh affected values and validation results.
+If config was already loaded this session, reuse the merged values and source map. Reread only a source file changed since loading, then refresh affected memoized values.
 
 ## 2. First demand
 
@@ -14,27 +14,34 @@ If config was already loaded this session, reuse the merged values and validatio
 2. Read `.aicontext/config.yml` and `config.local.yml` if present.
 3. Merge recursively by key; local values override shared values without replacing sibling keys.
 4. Record whether each effective value came from shared or local config.
-5. Validate all present known values once using the constraints below. Ignore unknown keys silently. Record invalid fields without surfacing them unless requested.
 
-### Validation
+Do not validate, migrate, inspect, or report discrepancies across the whole config while loading it.
+
+## 3. Requested fields
+
+Handle each requested field independently. Do not inspect or report unrequested deprecated, unexpected, or extra fields.
+
+### Present value
+
+- **Recognized:** use it.
+- **`ask`:** for `after_step.*`, `after_task.*`, and `tdd`, follow `resolve-asks.md` with only that requested field. Other `ask` fields retain the interaction defined by their owning workflow.
+- **Unexpected:** show the valid options, require a correction, persist it in the source file that supplied the value, and refresh the session memo.
+
+### Missing value
+
+1. Follow `migrate-config.md` with the requested field. Inspect only legacy aliases that can supply that field.
+2. If an alias supplies the field, migrate it in its source file, refresh the session memo, and handle the resulting value as a present value.
+3. Otherwise read only that field's default from `.aicontext/templates/config.template.yml`, persist it to shared config, refresh the session memo, and handle the default as a present value. A commented default counts as the default.
+
+### Recognized values
 
 - `after_*.review`: `normal`, `deep`, `false`, `ask`
-- `after_*.tests`: type, optional `-full` or `-affected` scope, or a `|`-joined list. Type names must exist in `structure.md`'s `## Testing` table. Skip type lookup for `all`, `false`, `ask`, and literal shell commands.
+- `after_*.tests`: type, optional `-full` or `-affected` scope, or a `|`-joined list. Requested type names must exist in `structure.md`'s `## Testing` table. Skip type lookup for `all`, `false`, `ask`, and literal shell commands.
 - `after_*.commit`, `after_task.push`, `after_task.pr`, `after_task.review_loop`, `tdd`, `commit.body`, `spec_naming.derive_from_task`, `issue.save_to_file`, `gh_fix_tests.push`: allowed booleans; lifecycle fields and `tdd` also allow `ask`.
 - `task_naming.source`: `git-branch`, `package-json`, `manual`
 - `update_check.frequency`: `daily`, `weekly`, `biweekly`, `monthly`, `never`
 - `claude.question_style`: `numbered`, `interactive`
 - `issue.create_in_github`: `true`, `false`, `ask`
-- Unrestricted strings, `task_naming.pattern: ask`, supported task-naming templates, and unknown extra fields are valid.
-
-If deprecated keys, values, or tokens are present, follow `migrate-config.md` immediately. Migrate each value in its source file, reread changed sources, rebuild merged values, and revalidate affected fields.
-
-## 3. Requested fields
-
-For each requested field:
-
-- **Missing:** read only its default from `.aicontext/templates/config.template.yml`, copy it into shared config, then refresh the session memo. A commented default counts as the default.
-- **Invalid:** show the field's valid options, require a correction, and persist it in the source file that supplied the invalid value. Revalidate before use.
-- **`ask`:** for `after_step.*`, `after_task.*`, and `tdd`, follow `resolve-asks.md` with only the requested `ask` fields. Other `ask` fields retain the interaction defined by their owning workflow.
+- Unrestricted strings and `task_naming.pattern: ask` are recognized. Task naming templates may use `{version}`, `{issue_id}`, `{date}`, and `{task_name}`.
 
 Return only the requested effective values to the caller.

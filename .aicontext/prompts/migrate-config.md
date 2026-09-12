@@ -1,62 +1,31 @@
 # Migrate Config
 
-Invoked by `ensure-config.md` when validation detects deprecated keys, values, or tokens. Fix the values in whichever file contains them (`config.yml` or `config.local.yml`). Do not move keys between files.
+Supply one requested missing field from relevant legacy aliases without scanning the rest of config.
 
-Map to the new structure, remove old keys, note the one-time migration in your reply.
+**Called with:** `field` - the requested field missing from the merged config.
 
-## Commit keys
+## 1. Find aliases
 
-| Old key | New keys |
-|---|---|
-| `commit.mode: per-step` | `after_step.commit: true`, `after_task.commit: false` |
-| `commit.mode: per-task` | `after_step.commit: false`, `after_task.commit: true` |
-| `commit.mode: manual` | `after_step.commit: false`, `after_task.commit: false` |
-| `commit.finish_action: nothing` | `after_task.commit: false` |
-| `commit.finish_action: ask` | `after_task.commit: ask` |
-| `commit.finish_action: commit` | `after_task.commit: true` |
-| `commit.finish_action: commit+push` | `after_task.commit: true`, `after_task.push: true` |
+Inspect only aliases listed for `field`. Resolve shared/local alias values with local precedence.
 
-If both `commit.mode` and `commit.finish_action` are present, apply `commit.mode` first, then let `commit.finish_action` override `after_task.commit` / `after_task.push`. Strip both old keys once mapped.
-
-## Review/tests scope keys
-
-| Old key | New key |
-|---|---|
-| `after_step.review: true` | `after_step.review: normal` |
-| `after_step.tests: true` | `after_step.tests: normal` |
-| `after_task.deep_review: true` | `after_task.review: deep` |
-| `after_task.deep_review: false` | `after_task.review: false` |
-| `after_task.full_tests: true` | `after_task.tests: deep` |
-| `after_task.full_tests: false` | `after_task.tests: false` |
-
-## Review vocabulary
-
-| Old value | New value |
-|---|---|
-| `partial` | `normal` |
-| `full` | `deep` |
-
-Apply to `after_step.review` and `after_task.review` only.
-
-## Tests vocabulary
-
-See `config.template.yml` for the grammar:
-
-| Old value | New value (after_step) | New value (after_task) |
+| Requested field | Legacy alias | Mapping |
 |---|---|---|
-| `partial` | `<primary-type>-affected` | `<primary-type>-affected` |
-| `normal`  | `<primary-type>-affected` | `<primary-type>-affected` |
-| `full`    | `all`                     | `all`                     |
-| `deep`    | `all`                     | `all`                     |
+| `after_step.commit` | `commit.mode` | `per-step` → `true`; `per-task`, `manual` → `false` |
+| `after_task.commit` | `commit.mode` | `per-task` → `true`; `per-step`, `manual` → `false` |
+| `after_task.commit` | `commit.finish_action` | `nothing` → `false`; `ask` → `ask`; `commit`, `commit+push` → `true` |
+| `after_task.push` | `commit.finish_action` | `commit+push` → `true`; other recognized values → `false` |
+| `after_task.review` | `after_task.deep_review` | `true` → `deep`; `false` → `false` |
+| `after_task.tests` | `after_task.full_tests` | `true` → `all`; `false` → `false` |
 
-Primary type = first row in `structure.md`'s `## Testing` table, or the row named `unit` if present. If no type table exists yet, leave the value untouched.
+For `after_task.commit`, `commit.finish_action` overrides `commit.mode` when both are present.
 
-Apply to `after_step.tests` and `after_task.tests` only. Update the inline comment if present.
+## 2. Migrate
 
-## PR keys
+If a recognized alias supplies the requested field:
 
-`pr.save_to_file` and `pr.create_in_github` are removed — `/draft-pr` always writes the draft file and `/make-pr` always creates the PR. Strip the whole `pr:` block.
+1. Write the mapped value to the alias's source file.
+2. Remove a single-purpose alias (`deep_review` or `full_tests`) after migration.
+3. Keep `commit.mode` and `commit.finish_action` until every replacement they can supply exists; do not create unrequested replacement fields merely to remove an alias.
+4. Report only the requested field's migration.
 
-## Task naming token
-
-If `task_naming.pattern` contains `{task-name}`, rewrite to `{task_name}`.
+If no recognized alias supplies the requested field, return `MISSING` without inspecting or reporting other discrepancies. `ensure-config.md` restores the template default.
