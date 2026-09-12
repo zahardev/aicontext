@@ -2,14 +2,14 @@
 
 ## 1. Auto-setup gate
 
-Read `.aicontext/project.md`.
+Read `.aicontext/project.md` unless it is already fully loaded and known unchanged in this session.
 
 - **If it does not exist:** STOP. Read `.aicontext/prompts/generate.md` and complete the entire setup. Do not proceed to step 2 until `project.md` has been created.
 - **If it exists:** proceed to step 2.
 
 ## 2. Load project context
 
-Read these files (later files override earlier ones). Do not batch these with the step 1 read — step 1 must resolve first.
+Read these files per the Session Context Reuse rule in `process.md` (later files override earlier ones). Do not batch these with the step 1 read — step 1 must resolve first.
 
 1. `.aicontext/rules/process.md` — task management, lifecycle rules
 2. `.aicontext/rules/standards.md` — coding standards, safety rules, AI behavior

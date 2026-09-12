@@ -10,7 +10,7 @@ If no specs exist:
 
 ## 2. Read Context
 
-Follow `ensure-config.md` with `task_naming.*` and `tdd` (`task_naming` drives the version prefix). Load the spec and any existing tasks linked in its `## Tasks` section — skip any file already Read earlier in this conversation.
+Follow `ensure-config.md` with `task_naming.*` and `tdd` (`task_naming` drives the version prefix). Load the spec and any existing tasks linked in its `## Tasks` section per the Session Context Reuse rule in `process.md`.
 
 ## 3. Assess Task Split
 

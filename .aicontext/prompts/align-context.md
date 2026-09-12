@@ -4,7 +4,7 @@
 
 Read and follow `identify-task.md` to find the active task.
 
-Read the task file and task-context (at `.aicontext/data/task-context/context-{task-filename}.md` if it exists). For the spec (if linked): if you already Read it earlier in this conversation, rely on that — don't re-Read. Otherwise Read it once (align-context needs a holistic view to catch cross-section conflicts).
+Load the task file, task-context (at `.aicontext/data/task-context/context-{task-filename}.md` if it exists), and linked spec per the Session Context Reuse rule in `process.md`. Align-context needs a holistic view to catch cross-section conflicts.
 
 ## 2. Task File
 

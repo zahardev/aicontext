@@ -4,7 +4,7 @@
 
 Read and follow `identify-task.md` to find the active task.
 
-Load the task file, spec (if linked), and task-context (at `.aicontext/data/task-context/context-{task-filename}.md` if it exists). Skip any file already Read earlier in this conversation — rely on memory.
+Load the task file, spec (if linked), and task-context (at `.aicontext/data/task-context/context-{task-filename}.md` if it exists) per the Session Context Reuse rule in `process.md`.
 
 Follow `ensure-config.md` with `after_task.*` and `project.base_branch`.
 
