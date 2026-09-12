@@ -503,6 +503,21 @@ describe('startup update workflow', () => {
   });
 });
 
+describe('lazy config resolution workflow', () => {
+  it('should inspect discrepancies only for requested fields', () => {
+    const prompt = fs.readFileSync(path.join(packageRoot, '.aicontext', 'prompts', 'ensure-config.md'), 'utf8');
+
+    assert.match(prompt, /read.*config\.yml.*config\.local\.yml/is);
+    assert.match(prompt, /merge recursively by key/i);
+    assert.match(prompt, /do not validate.*whole|without.*eager validation/i);
+    assert.match(prompt, /### Missing value[\s\S]*legacy aliases[\s\S]*default from .*config\.template/i);
+    assert.match(prompt, /### Present value[\s\S]*Unexpected[\s\S]*valid options[\s\S]*source file/i);
+    assert.match(prompt, /do not inspect or report unrequested/i);
+    assert.doesNotMatch(prompt, /Validate all present known values/i);
+    assert.doesNotMatch(prompt, /follow `migrate-config\.md` immediately/i);
+  });
+});
+
 describe('DEPRECATED_PROMPTS', () => {
   it('should contain the old prompt file names', () => {
     const expected = ['check_plan.md', 'check_task.md', 'check-task.md', 'review-task-plan.md', 'after_step.md', 'plan.md', 'task.md', 'start-task.md', 'diff-review.md', 'branch-review.md', 'standards-check.md', 'pr-review-check.md', 'check-plan.md', 'run-steps.md', 'review-plan.md', 'review-scope.md', 'update-check.md', 'check-update.md', 'auto-setup.md', 'resolve-task-lifecycle-asks.md', 'resume-task.md'];
