@@ -18,7 +18,7 @@ Use `.aicontext/templates/issue.template.md` as the body structure. Fill in each
 
 ## 3. Save and Create
 
-Follow `ensure-config.md` to read `issue.save_to_file` and `issue.create_in_github` from config.
+Follow `ensure-config.md` with `issue.save_to_file` and `issue.create_in_github`.
 
 ### Local file
 
@@ -38,8 +38,8 @@ If `ask`: prompt the user:
 
 If yes:
 1. Create the issue via `gh issue create` and show the URL
-2. Ask: "Save this as default? (y/N)" — if y, set `issue.create_in_github: true` in `config.yml`
-3. If saved as true, follow up: "Still want to save draft files locally? (Y/n)" — if n, set `issue.save_to_file: false` in `config.yml`
+2. Ask: "Save this as default? (y/N)" — if yes, set `issue.create_in_github: true` in the source file that supplied the effective value
+3. If saved as true, follow up: "Still want to save draft files locally? (Y/n)" — if no, set `issue.save_to_file: false` in its source file
 
 If `false`: skip GitHub creation.
 

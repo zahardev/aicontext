@@ -4,18 +4,7 @@ Generate project documentation from code and AIContext artifacts.
 
 ## 1. Config
 
-Follow `ensure-config.md` to load settings. Read `docs.output_path` — default `.aicontext/docs/`.
-
-If `docs.output_path` is not set or missing, ask:
-
-> Where should generated docs be saved?
-> 1. `.aicontext/docs/` (tracked with project)
-> 2. `docs/` (project root)
-> 3. Custom path
-
-Write the chosen value to `docs.output_path` in `config.yml`.
-
-Create the output directory if it doesn't exist.
+Follow `ensure-config.md` with `docs.output_path`, then create the resolved output directory if it does not exist.
 
 ## 2. Type Selection
 

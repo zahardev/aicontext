@@ -4,7 +4,7 @@ Draft a pull request for the current branch and save it locally. Never pushes, n
 
 ## 1. Gather Context
 
-- Follow `ensure-config.md` to read project settings
+- Follow `ensure-config.md` with `project.base_branch`
 - Read the current task file in `.aicontext/tasks/`
 - Run `git status` to verify the current branch and tracking state
 - Use `project.base_branch` from the config (default: `main`) for diff commands:

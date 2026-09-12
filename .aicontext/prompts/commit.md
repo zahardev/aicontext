@@ -8,7 +8,7 @@ Run `git status`. If there are no uncommitted changes, tell the user and stop.
 
 ## 2. Read commit rules
 
-Follow `ensure-config.md` to read project settings.
+Follow `ensure-config.md` with `commit.*`.
 
 Use `commit.template` for the message format and `commit.body` for whether to include a body.
 

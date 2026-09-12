@@ -6,7 +6,7 @@ Execute a single step from the current task plan.
 
 Follow `identify-task.md` to find the active task. Then read the task file, spec (if linked), and task-context (if it exists at `.aicontext/data/task-context/context-{task-filename}.md`).
 
-Follow `ensure-config.md`.
+Follow `ensure-config.md` with `after_step.*`.
 
 ## 2. Find the Step
 

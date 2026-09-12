@@ -2,7 +2,7 @@
 
 Turn `task_naming.pattern` into a final task filename. Called by task-creating prompts (`create-task`, `start-feature`, `plan-tasks`) — they pass the task-name slug, use the returned filename verbatim.
 
-**Called with** a lowercase-hyphenated task-name slug. Follow `ensure-config.md` to read `task_naming.pattern` — either `ask` (shows the menu below) or a literal template using tokens `{version}`, `{issue_id}`, `{date}`, `{task_name}`.
+**Called with** a lowercase-hyphenated task-name slug. Follow `ensure-config.md` with `task_naming.*`. `task_naming.pattern` is either `ask` (shows the menu below) or a literal template using tokens `{version}`, `{issue_id}`, `{date}`, `{task_name}`.
 
 ## 1. Ask Mode
 
@@ -17,7 +17,7 @@ If `pattern` is `ask`, present the menu per `## Question UX` in `standards.md`:
 
 For option 5, prompt: `Enter template (tokens: {version}, {issue_id}, {date}, {task_name}):`.
 
-After the answer, ask: `Save as default in config.yml? (y/N)` — default N. If y, write the chosen template string back to `task_naming.pattern` verbatim.
+After the answer, ask: `Save as default? (y/N)` — default N. If yes, write the chosen template string to the source file that supplied `task_naming.pattern`.
 
 Continue with the chosen template.
 
