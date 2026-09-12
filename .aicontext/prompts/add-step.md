@@ -1,7 +1,5 @@
 # Add Step
 
-Add a new step to the current task based on what was just discussed.
-
 ## 1. Identify the Task
 
 **`/add-step here`** — force the explicitly-referenced task (see `identify-task.md` rule 1). If no such reference exists, fall back below.

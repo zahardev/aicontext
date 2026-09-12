@@ -1,7 +1,5 @@
 # Finish Task
 
-Close out the current task: verify completion, sync spec, write completion notes, update worklog, and handle git.
-
 ## 1. Identify the Task
 
 Read and follow `identify-task.md` to find the active task.

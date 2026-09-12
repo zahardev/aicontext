@@ -1,7 +1,5 @@
 # GitHub Review Fix Loop
 
-Automate the PR review cycle: fetch comments, triage, fix, push, wait for re-review, repeat.
-
 ## Prerequisites
 
 - A PR must already exist for the current branch

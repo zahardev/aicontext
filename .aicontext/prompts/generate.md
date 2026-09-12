@@ -1,7 +1,5 @@
 # Generate Project Context
 
-Analyze this codebase and generate project-specific AI context files.
-
 ## Step 1: Analyze the Codebase
 
 Read and analyze the following files (if they exist):

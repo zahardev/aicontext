@@ -1,7 +1,5 @@
 # Start Feature
 
-Run a structured discovery flow before starting a new feature: interview, then spec + task creation.
-
 ## 1. Context Gathering
 
 1. Read `.aicontext/project.md` and `.aicontext/structure.md`

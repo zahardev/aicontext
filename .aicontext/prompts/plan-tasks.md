@@ -1,7 +1,5 @@
 # Plan Tasks
 
-Read an existing spec and propose a task breakdown.
-
 ## 1. Identify the Spec
 
 If no spec is obvious from context, list available specs in `.aicontext/specs/` and ask:

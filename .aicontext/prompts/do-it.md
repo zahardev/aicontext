@@ -1,7 +1,5 @@
 # Do It
 
-Turn what was just discussed into a task step and implement it.
-
 Follow `ensure-config.md` with `tdd` and `after_step.*`.
 
 ## 1. Add Step
