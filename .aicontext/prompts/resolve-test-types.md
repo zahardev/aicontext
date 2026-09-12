@@ -1,6 +1,6 @@
 # Resolve Test Types
 
-One-shot discovery flow. Scans the project for test commands, proposes a type mapping, and writes the confirmed result to `structure.md` (`## Testing` table) and the source files for the effective `after_*.tests` values.
+**Called with:** requested `after_*.tests` fields.
 
 Run when:
 - `structure.md` has no `## Testing` type table
@@ -38,7 +38,7 @@ If nothing is detected, propose one row: `| unit | <blank — ask user> | |`.
 
 ## 3. Propose
 
-Show the user the proposed table and resulting config values:
+Show the proposed table and values for requested fields only:
 
 ```
 Proposed type table (structure.md → ## Testing):
@@ -49,7 +49,7 @@ Proposed type table (structure.md → ## Testing):
 | integration | <detected command>           |                                  |
 | e2e        | <detected command>           |                                  |
 
-Proposed config:
+Proposed config (include requested fields only):
   after_step.tests: unit-affected
   after_task.tests: all
 ```
@@ -73,9 +73,9 @@ Ask per `## Question UX` in `standards.md`:
 
 On accept:
 - Update `structure.md` `## Testing` section with the confirmed table (keep existing columns, replace rows)
-- Update each field in the source file that supplied its effective value (shared config when missing):
+- Update requested fields only, in the source file supplying each effective value (shared config when missing):
   - `after_step.tests` → `<primary-type>-affected` (primary = first row, or `unit` if present)
   - `after_task.tests` → `all`
   - Write explicit scope form; do not save bare type names
 
-Report what changed in one line: `Wrote N types to structure.md; set after_step.tests=X, after_task.tests=Y in their config sources.`
+Report the type count and fields changed.

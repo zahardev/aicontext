@@ -1,7 +1,5 @@
 # Ensure Config
 
-Load and repair only the project settings required by the active workflow.
-
 **Called with:** `fields` - exact config paths the caller needs. When omitted, derive them from explicit config reads in the calling prompt.
 
 ## 1. Session memo
@@ -15,11 +13,7 @@ If config was already loaded this session, reuse the merged values and source ma
 3. Merge recursively by key; local values override shared values without replacing sibling keys.
 4. Record whether each effective value came from shared or local config.
 
-Do not validate, migrate, inspect, or report discrepancies across the whole config while loading it.
-
 ## 3. Requested fields
-
-Handle each requested field independently. Do not inspect or report unrequested deprecated, unexpected, or extra fields.
 
 ### Present value
 

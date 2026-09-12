@@ -12,6 +12,7 @@ const {
 } = require('../bin/aicontext.js');
 const {
   readUpdateFrequency,
+  refreshUpdateCache,
   runUpdateCheck,
 } = require('../.aicontext/scripts/check-update.cjs');
 
@@ -30,6 +31,21 @@ describe('cached startup update check', () => {
     fs.rmSync(projectRoot, { recursive: true, force: true });
   });
 
+  function dispatchWith(versions, result = true) {
+    return (root, today, frequency) => {
+      refreshUpdateCache({
+        projectRoot: root,
+        today,
+        frequency,
+        executeVersionCheck: () => {
+          if (versions) fs.writeFileSync(dataFile, JSON.stringify(versions));
+          return result;
+        },
+      });
+      return true;
+    };
+  }
+
   it('uses the local frequency override and defaults to weekly', () => {
     fs.writeFileSync(path.join(projectRoot, '.aicontext', 'config.local.yml'), 'update_check:\n  frequency: daily\n');
     assert.strictEqual(readUpdateFrequency(projectRoot), 'daily');
@@ -42,114 +58,96 @@ describe('cached startup update check', () => {
   it('skips checks that are not due', () => {
     fs.writeFileSync(dataFile, JSON.stringify({ nextCheck: '2026-09-13' }));
     let calls = 0;
-
     const notice = runUpdateCheck({
       projectRoot,
       today: '2026-09-12',
-      executeVersionCheck: () => { calls += 1; },
+      dispatchVersionCheck: () => { calls += 1; },
     });
-
     assert.strictEqual(calls, 0);
     assert.strictEqual(notice, '');
   });
 
-  it('rechecks when the cached schedule is invalid', () => {
+  it('dispatches invalid schedules without waiting for refresh output', () => {
     fs.writeFileSync(dataFile, JSON.stringify({ nextCheck: 'invalid' }));
     let calls = 0;
-
-    runUpdateCheck({
+    const notice = runUpdateCheck({
       projectRoot,
       today: '2026-09-12',
-      executeVersionCheck: () => { calls += 1; return true; },
+      dispatchVersionCheck: () => { calls += 1; return true; },
     });
-
     assert.strictEqual(calls, 1);
+    assert.strictEqual(notice, '');
   });
 
-  it('checks when due, schedules the next check, and reports a CLI update', () => {
+  it('caches a due CLI update and reports it on the next startup', () => {
     fs.writeFileSync(dataFile, JSON.stringify({ nextCheck: '2026-09-12' }));
+    const versions = { cliVersion: '1.11.0', currentVersion: '1.11.0', latestVersion: '1.12.0' };
 
-    const notice = runUpdateCheck({
+    const firstNotice = runUpdateCheck({
       projectRoot,
       today: '2026-09-12',
-      executeVersionCheck: () => {
-        fs.writeFileSync(dataFile, JSON.stringify({
-          cliVersion: '1.11.0',
-          currentVersion: '1.11.0',
-          latestVersion: '1.12.0',
-          lastChecked: '2026-09-12',
-        }));
-        return true;
-      },
+      dispatchVersionCheck: dispatchWith(versions),
+    });
+    const secondNotice = runUpdateCheck({
+      projectRoot,
+      today: '2026-09-12',
+      dispatchVersionCheck: () => { throw new Error('should not dispatch'); },
     });
 
-    assert.match(notice, /CLI v1\.11\.0 is behind v1\.12\.0/);
-    assert.match(notice, /aicontext upgrade/);
-    assert.strictEqual(JSON.parse(fs.readFileSync(dataFile, 'utf8')).nextCheck, '2026-09-19');
+    assert.strictEqual(firstNotice, '');
+    assert.match(secondNotice, /CLI v1\.11\.0 is behind v1\.12\.0/);
+    assert.match(secondNotice, /aicontext upgrade/);
+    const cache = JSON.parse(fs.readFileSync(dataFile, 'utf8'));
+    assert.strictEqual(cache.nextCheck, '2026-09-19');
+    assert.strictEqual(cache.noticePending, false);
   });
 
-  it('reports a project update without requiring a CLI upgrade', () => {
-    const notice = runUpdateCheck({
-      projectRoot,
-      today: '2026-09-12',
-      executeVersionCheck: () => {
-        fs.writeFileSync(dataFile, JSON.stringify({
-          cliVersion: '1.12.0',
-          currentVersion: '1.11.0',
-          latestVersion: '1.12.0',
-        }));
-        return true;
-      },
-    });
-
+  it('reports a cached project update without a CLI upgrade', () => {
+    fs.writeFileSync(dataFile, JSON.stringify({
+      cliVersion: '1.12.0',
+      currentVersion: '1.11.0',
+      latestVersion: '1.12.0',
+      nextCheck: '2026-09-19',
+      noticePending: true,
+    }));
+    const notice = runUpdateCheck({ projectRoot, today: '2026-09-12' });
     assert.match(notice, /project v1\.11\.0 is behind CLI v1\.12\.0/);
     assert.doesNotMatch(notice, /aicontext upgrade/);
-    assert.match(notice, /aicontext update/);
   });
 
-  it('stays silent and schedules the next check when execution fails', () => {
+  it('stays silent and schedules the next check when refresh fails', () => {
     const notice = runUpdateCheck({
       projectRoot,
       today: '2026-09-12',
-      executeVersionCheck: () => { throw new Error('unavailable'); },
+      dispatchVersionCheck: dispatchWith(null, false),
     });
-
+    const cache = JSON.parse(fs.readFileSync(dataFile, 'utf8'));
     assert.strictEqual(notice, '');
-    assert.strictEqual(JSON.parse(fs.readFileSync(dataFile, 'utf8')).nextCheck, '2026-09-19');
+    assert.strictEqual(cache.nextCheck, '2026-09-19');
+    assert.strictEqual(cache.noticePending, false);
   });
 
   it('stays silent when network results are unavailable', () => {
-    const notice = runUpdateCheck({
+    runUpdateCheck({
       projectRoot,
       today: '2026-09-12',
-      executeVersionCheck: () => {
-        fs.writeFileSync(dataFile, JSON.stringify({
-          cliVersion: '1.12.0',
-          currentVersion: '1.11.0',
-          latestVersion: null,
-        }));
-        return true;
-      },
+      dispatchVersionCheck: dispatchWith({
+        cliVersion: '1.12.0',
+        currentVersion: '1.11.0',
+        latestVersion: null,
+      }),
     });
-
-    assert.strictEqual(notice, '');
+    assert.strictEqual(runUpdateCheck({ projectRoot, today: '2026-09-12' }), '');
   });
 
-  it('stays silent when no update is available', () => {
+  it('schedules a retry window when worker dispatch fails', () => {
     const notice = runUpdateCheck({
       projectRoot,
       today: '2026-09-12',
-      executeVersionCheck: () => {
-        fs.writeFileSync(dataFile, JSON.stringify({
-          cliVersion: '1.12.0',
-          currentVersion: '1.12.0',
-          latestVersion: '1.12.0',
-        }));
-        return true;
-      },
+      dispatchVersionCheck: () => false,
     });
-
     assert.strictEqual(notice, '');
+    assert.strictEqual(JSON.parse(fs.readFileSync(dataFile, 'utf8')).nextCheck, '2026-09-19');
   });
 });
 

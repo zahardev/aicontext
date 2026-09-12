@@ -509,12 +509,27 @@ describe('lazy config resolution workflow', () => {
 
     assert.match(prompt, /read.*config\.yml.*config\.local\.yml/is);
     assert.match(prompt, /merge recursively by key/i);
-    assert.match(prompt, /do not validate.*whole|without.*eager validation/i);
+    assert.doesNotMatch(prompt, /Validate all present known values/i);
     assert.match(prompt, /### Missing value[\s\S]*legacy aliases[\s\S]*default from .*config\.template/i);
     assert.match(prompt, /### Present value[\s\S]*Unexpected[\s\S]*valid options[\s\S]*source file/i);
-    assert.match(prompt, /do not inspect or report unrequested/i);
-    assert.doesNotMatch(prompt, /Validate all present known values/i);
     assert.doesNotMatch(prompt, /follow `migrate-config\.md` immediately/i);
+  });
+});
+
+describe('scoped config migration', () => {
+  it('should update only requested test fields', () => {
+    const asks = fs.readFileSync(path.join(packageRoot, '.aicontext', 'prompts', 'resolve-asks.md'), 'utf8');
+    const types = fs.readFileSync(path.join(packageRoot, '.aicontext', 'prompts', 'resolve-test-types.md'), 'utf8');
+
+    assert.match(asks, /pass only those fields/i);
+    assert.match(types, /Update requested fields only/i);
+  });
+
+  it('should apply source precedence before alias precedence', () => {
+    const prompt = fs.readFileSync(path.join(packageRoot, '.aicontext', 'prompts', 'migrate-config.md'), 'utf8');
+
+    assert.match(prompt, /within each source[\s\S]*prefer the local result/i);
+    assert.match(prompt, /finish_action.*overrides.*mode.*only within the same source/i);
   });
 });
 

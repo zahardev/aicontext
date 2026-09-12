@@ -6,7 +6,7 @@ Supply one requested missing field from relevant legacy aliases without scanning
 
 ## 1. Find aliases
 
-Inspect only aliases listed for `field`. Resolve shared/local alias values with local precedence.
+Inspect only aliases listed for `field`. Map aliases within each source, then prefer the local result over the shared result.
 
 | Requested field | Legacy alias | Mapping |
 |---|---|---|
@@ -17,7 +17,7 @@ Inspect only aliases listed for `field`. Resolve shared/local alias values with 
 | `after_task.review` | `after_task.deep_review` | `true` → `deep`; `false` → `false` |
 | `after_task.tests` | `after_task.full_tests` | `true` → `all`; `false` → `false` |
 
-For `after_task.commit`, `commit.finish_action` overrides `commit.mode` when both are present.
+For `after_task.commit`, `commit.finish_action` overrides `commit.mode` only within the same source file.
 
 ## 2. Migrate
 

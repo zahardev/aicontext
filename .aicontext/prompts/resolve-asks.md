@@ -6,7 +6,7 @@ Prompt the user for each field in the passed list, run the preflight if needed, 
 
 ## 1. Preflight — type-table discovery
 
-If any `tests` field is in the list AND `structure.md` has no `## Testing` type table: run `resolve-test-types.md` once before prompting. The discovery flow writes the table and persists `after_step.tests` + `after_task.tests` to explicit values — after it returns, re-read config and drop any `tests` fields it already resolved from the list.
+If requested `tests` fields need a missing `## Testing` table, pass only those fields to `resolve-test-types.md`. After it returns, refresh their config values and remove resolved fields from the prompt list.
 
 ## 2. Stage 1 — decision per field
 
