@@ -511,7 +511,8 @@ describe('lazy config resolution workflow', () => {
     assert.match(prompt, /merge recursively by key/i);
     assert.doesNotMatch(prompt, /Validate all present known values/i);
     assert.match(prompt, /### Missing value[\s\S]*legacy aliases[\s\S]*default from .*config\.template/i);
-    assert.match(prompt, /### Present value[\s\S]*Unexpected[\s\S]*valid options[\s\S]*source file/i);
+    assert.match(prompt, /### Present value[\s\S]*Unexpected[\s\S]*caller[\s\S]*template entry[\s\S]*source file/i);
+    assert.doesNotMatch(prompt, /### Recognized values/);
     assert.doesNotMatch(prompt, /follow `migrate-config\.md` immediately/i);
   });
 });
