@@ -4,7 +4,7 @@ Crystallize the current discussion into a task file. Use when the discussion is 
 
 ## 1. Gather Context
 
-- Follow `ensure-config.md` to read project settings
+- Follow `ensure-config.md` with `task_naming.*` and `tdd`
 - Derive a short task-name slug (lowercase-hyphenated) from the discussion — this is the `{task_name}` input for the resolver
 
 ## 2. Spec Handling

@@ -4,7 +4,7 @@ Push the current branch and create or update its GitHub pull request.
 
 ## 1. Load Settings
 
-- Follow `ensure-config.md`; get `project.base_branch` (default: `main`)
+- Follow `ensure-config.md` with `project.base_branch` (default: `main`)
 - Run `git status` for the current branch and tracking state. If HEAD is detached, stop and ask the user
 
 ## 2. Load or Generate a Draft

@@ -15,12 +15,12 @@ const CACHE_FILE = path.join(os.tmpdir(), 'aicontext-version-cache.json');
 const CACHE_TTL = 60 * 60 * 1000; // 1 hour in milliseconds
 const FRAMEWORK_PROMPTS = [
   'add-step.md', 'add-idea.md', 'aic-help.md', 'aic-skills.md', 'align-context.md', 'challenge.md', 'close-step.md',
-  'commit.md', 'create-task.md', 'deep-review.md', 'deep-review-criteria.md', 'do-it.md', 'draft-issue.md', 'ensure-config.md', 'identify-task.md',
+  'commit.md', 'create-config.md', 'create-task.md', 'deep-review.md', 'deep-review-criteria.md', 'do-it.md', 'draft-issue.md', 'ensure-config.md', 'identify-task.md',
   'draft-pr.md', 'make-pr.md', 'finish-task.md', 'generate.md', 'gh-fix-tests.md', 'gh-review-fix-loop.md', 'next-step.md', 'plan-tasks.md',
   'gh-review-check.md', 'install-playwright-cli.md', 'prepare-release.md', 'review.md', 'review-criteria.md', 'detect-review-scope.md',
-  'brainstorm.md', 'check-update.md', 'generate-docs.md', 'generate-guide.md', 'generate-reference.md', 'interview.md', 'load-spec.md', 'load-task.md', 'migrate-config.md', 'resolve-asks.md', 'resolve-task-naming.md', 'resolve-test-types.md', 'resolve-tests.md', 'review-task.md', 'run-step.md', 'run-task.md', 'start-feature.md', 'start.md', 'step-loop.md', 'test-writer.md', 'thoughts.md', 'tidy-aic.md', 'web-inspect.md',
+  'brainstorm.md', 'generate-docs.md', 'generate-guide.md', 'generate-reference.md', 'interview.md', 'load-spec.md', 'load-task.md', 'migrate-config.md', 'resolve-asks.md', 'resolve-task-naming.md', 'resolve-test-types.md', 'resolve-tests.md', 'review-task.md', 'run-step.md', 'run-task.md', 'start-feature.md', 'start.md', 'step-loop.md', 'test-writer.md', 'thoughts.md', 'tidy-aic.md', 'web-inspect.md',
 ];
-const DEPRECATED_PROMPTS = ['check_plan.md', 'check_task.md', 'check-task.md', 'review-task-plan.md', 'after_step.md', 'plan.md', 'task.md', 'start-task.md', 'diff-review.md', 'branch-review.md', 'standards-check.md', 'pr-review-check.md', 'check-plan.md', 'run-steps.md', 'review-plan.md', 'review-scope.md', 'update-check.md', 'auto-setup.md', 'resolve-task-lifecycle-asks.md', 'resume-task.md'];
+const DEPRECATED_PROMPTS = ['check_plan.md', 'check_task.md', 'check-task.md', 'review-task-plan.md', 'after_step.md', 'plan.md', 'task.md', 'start-task.md', 'diff-review.md', 'branch-review.md', 'standards-check.md', 'pr-review-check.md', 'check-plan.md', 'run-steps.md', 'review-plan.md', 'review-scope.md', 'update-check.md', 'check-update.md', 'auto-setup.md', 'resolve-task-lifecycle-asks.md', 'resume-task.md'];
 const FRAMEWORK_AGENTS = [
   'docs-generator.md',
   'researcher.md',
@@ -44,7 +44,7 @@ const FLAT_POINTER_HARNESSES = {
   opencode: { dir: ['.opencode', 'commands'] },
 };
 const DEPRECATED_SKILLS = ['task', 'after-step', 'next', 'pr', 'start-task', 'diff-review', 'branch-review', 'standards-check', 'pr-review-check', 'check-plan', 'check-task', 'review-task-plan', 'run-steps', 'review-plan', 'resume-task'];
-const FRAMEWORK_SCRIPTS = ['pr-reviews.cjs', 'pr-resolve.cjs'];
+const FRAMEWORK_SCRIPTS = ['check-update.cjs', 'pr-reviews.cjs', 'pr-resolve.cjs'];
 const DEPRECATED_SCRIPTS = ['pr-reviews.js', 'pr-resolve.js'];
 const CONFIG_FILE = 'config.yml';
 const LEGACY_RESUME_TASK_PROMPT_HASH = 'c3aa05589c9e8240307aa19f22c344dbb3f8d0ba813491ce52594bcaeb831e38';

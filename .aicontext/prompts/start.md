@@ -15,7 +15,8 @@ Read these files (later files override earlier ones). Do not batch these with th
 2. `.aicontext/rules/standards.md` — coding standards, safety rules, AI behavior
 3. `.aicontext/structure.md` — commands, folder structure, environment
 4. `.aicontext/local.md` — personal/local settings (if it exists, gitignored)
-5. `.aicontext/config.yml` — project settings (and `config.local.yml` if present)
+
+Do not load `.aicontext/config.yml` during startup. Config-consuming workflows load it on demand through `ensure-config.md`.
 
 ## 3. Confirm readiness
 
@@ -23,4 +24,10 @@ After reading all files above, confirm in one sentence that includes the project
 
 ## 4. Check for updates (housekeeping)
 
-Follow `check-update.md`. This is background housekeeping — not the main task. This step produces output only when an update is available.
+After reporting readiness, run `node .aicontext/scripts/check-update.cjs {project_root}` once. If the helper is missing, fails, or prints nothing, continue silently.
+
+If it prints an update notice, show it and ask:
+
+> "Would you like me to run the upgrade?"
+> 1. **Yes** — run the command(s) from the notice
+> 2. **Not now**

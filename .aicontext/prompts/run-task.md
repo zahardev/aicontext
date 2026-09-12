@@ -7,7 +7,7 @@ Execute all pending steps in the current task file, accumulating context through
 1. Follow `identify-task.md` to find the active task
 2. Read the task file, linked spec (if any), and task-context at `.aicontext/data/task-context/context-{task-filename}.md`
 3. If no task-context exists, create one from `.aicontext/templates/task-context.template.md`
-4. Follow `ensure-config.md`.
+4. Follow `ensure-config.md` with `tdd`, `after_step.*`, `after_task.*`, and `project.base_branch`.
 
 ## 2. Execute
 

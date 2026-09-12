@@ -4,7 +4,7 @@ Rules for constructing task plan steps. Referenced by `create-task.md` (creation
 
 ## TDD-Aware Planning
 
-Read `tdd` from config (resolved via `ensure-config.md`). If `false`, skip this section entirely.
+Follow `ensure-config.md` with `tdd`. If the resolved value is `false`, skip this section entirely.
 
 If `true`, check if the project has tests (glob for test files). If no tests exist, skip TDD and implement directly.
 

@@ -39,7 +39,7 @@ For test failures, run the failing test(s) locally via `test-runner` subagent be
 
 ## 5. Commit and Push
 
-Follow `ensure-config.md` to read project settings. Read `gh_fix_tests.push` from config (default: `true`).
+Follow `ensure-config.md` with `gh_fix_tests.push` (default: `true`).
 
 - **`push: true`** (default): commit by delegating to `commit.md`, then push the current branch to the remote
 - **`push: false`**: commit by delegating to `commit.md`, do NOT push — caller decides when to push

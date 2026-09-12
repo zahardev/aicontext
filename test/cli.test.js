@@ -484,28 +484,28 @@ describe('FRAMEWORK_PROMPTS', () => {
   it('should contain the expected prompt files', () => {
     const expected = [
       'add-step.md', 'add-idea.md', 'aic-help.md', 'aic-skills.md', 'align-context.md', 'challenge.md', 'close-step.md',
-      'commit.md', 'create-task.md', 'deep-review.md', 'deep-review-criteria.md', 'do-it.md', 'draft-issue.md', 'ensure-config.md', 'identify-task.md',
+      'commit.md', 'create-config.md', 'create-task.md', 'deep-review.md', 'deep-review-criteria.md', 'do-it.md', 'draft-issue.md', 'ensure-config.md', 'identify-task.md',
       'draft-pr.md', 'make-pr.md', 'finish-task.md', 'generate.md', 'generate-docs.md', 'generate-guide.md', 'generate-reference.md', 'gh-fix-tests.md', 'gh-review-fix-loop.md', 'next-step.md', 'plan-tasks.md',
       'gh-review-check.md', 'install-playwright-cli.md', 'prepare-release.md', 'resolve-task-naming.md', 'resolve-test-types.md', 'resolve-tests.md', 'review.md', 'review-criteria.md', 'detect-review-scope.md',
-      'brainstorm.md', 'check-update.md', 'interview.md', 'load-spec.md', 'load-task.md', 'migrate-config.md', 'resolve-asks.md', 'review-task.md', 'run-step.md', 'run-task.md', 'start-feature.md', 'start.md', 'step-loop.md', 'test-writer.md', 'thoughts.md', 'tidy-aic.md', 'web-inspect.md',
+      'brainstorm.md', 'interview.md', 'load-spec.md', 'load-task.md', 'migrate-config.md', 'resolve-asks.md', 'review-task.md', 'run-step.md', 'run-task.md', 'start-feature.md', 'start.md', 'step-loop.md', 'test-writer.md', 'thoughts.md', 'tidy-aic.md', 'web-inspect.md',
     ];
     assert.deepStrictEqual([...FRAMEWORK_PROMPTS].sort(), [...expected].sort());
   });
 });
 
-describe('check-update workflow', () => {
-  it('should skip comparison and return to its caller when a scheduled check is not due', () => {
-    const prompt = fs.readFileSync(path.join(packageRoot, '.aicontext', 'prompts', 'check-update.md'), 'utf8');
-    const notDueInstruction = prompt.match(/\*\*Not due yet\*\*[^\n]*/)?.[0] || '';
+describe('startup update workflow', () => {
+  it('should defer config and update work to the cached helper', () => {
+    const prompt = fs.readFileSync(path.join(packageRoot, '.aicontext', 'prompts', 'start.md'), 'utf8');
 
-    assert.match(notDueInstruction, /return to the calling workflow without output/i);
-    assert.doesNotMatch(notDueInstruction, /step 5|compar/i);
+    assert.match(prompt, /Do not load.*config\.yml/i);
+    assert.match(prompt, /scripts\/check-update\.cjs/);
+    assert.doesNotMatch(prompt, /Follow `check-update\.md`/);
   });
 });
 
 describe('DEPRECATED_PROMPTS', () => {
   it('should contain the old prompt file names', () => {
-    const expected = ['check_plan.md', 'check_task.md', 'check-task.md', 'review-task-plan.md', 'after_step.md', 'plan.md', 'task.md', 'start-task.md', 'diff-review.md', 'branch-review.md', 'standards-check.md', 'pr-review-check.md', 'check-plan.md', 'run-steps.md', 'review-plan.md', 'review-scope.md', 'update-check.md', 'auto-setup.md', 'resolve-task-lifecycle-asks.md', 'resume-task.md'];
+    const expected = ['check_plan.md', 'check_task.md', 'check-task.md', 'review-task-plan.md', 'after_step.md', 'plan.md', 'task.md', 'start-task.md', 'diff-review.md', 'branch-review.md', 'standards-check.md', 'pr-review-check.md', 'check-plan.md', 'run-steps.md', 'review-plan.md', 'review-scope.md', 'update-check.md', 'check-update.md', 'auto-setup.md', 'resolve-task-lifecycle-asks.md', 'resume-task.md'];
     assert.deepStrictEqual([...DEPRECATED_PROMPTS].sort(), [...expected].sort());
   });
 });
