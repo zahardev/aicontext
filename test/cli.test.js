@@ -3,7 +3,7 @@ const assert = require('node:assert');
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
-const { execSync } = require('child_process');
+const { execSync, execFileSync } = require('child_process');
 
 const {
   VERSION,
@@ -2017,10 +2017,7 @@ describe('opencode and pi entry points', () => {
   it('should remove generated Pi prompt wrappers during update and preserve user prompts', async () => {
     const promptsDir = path.join(tempDir, '.pi', 'prompts');
     fs.mkdirSync(promptsDir, { recursive: true });
-    fs.writeFileSync(
-      path.join(promptsDir, 'start.md'),
-      '---\ndescription: Start\n---\n\nRead and follow `.aicontext/prompts/start.md`\n\n$ARGUMENTS\n'
-    );
+    fs.copyFileSync(path.join(__dirname, 'fixtures', 'pi-prompt-start.md'), path.join(promptsDir, 'start.md'));
     fs.writeFileSync(path.join(promptsDir, 'custom.md'), 'user prompt');
     fs.writeFileSync(path.join(tempDir, '.aicontext', '.version'), '1.10.0');
 
@@ -2029,6 +2026,33 @@ describe('opencode and pi entry points', () => {
     assert.strictEqual(fs.existsSync(path.join(promptsDir, 'start.md')), false);
     assert.strictEqual(fs.readFileSync(path.join(promptsDir, 'custom.md'), 'utf8'), 'user prompt');
     assert.strictEqual(fs.existsSync(path.join(tempDir, '.pi', 'skills', 'start', 'SKILL.md')), true);
+  });
+
+  it('should preserve generated Pi wrappers when an update is cancelled', () => {
+    const promptsDir = path.join(tempDir, '.pi', 'prompts');
+    fs.mkdirSync(promptsDir, { recursive: true });
+    const wrapper = path.join(promptsDir, 'start.md');
+    fs.copyFileSync(path.join(__dirname, 'fixtures', 'pi-prompt-start.md'), wrapper);
+    fs.writeFileSync(path.join(tempDir, '.aicontext', '.version'), '1.10.0');
+
+    execFileSync(process.execPath, [path.join(packageRoot, 'bin', 'aicontext.js'), 'update', tempDir], {
+      input: 'n\nn\nn\n',
+      stdio: 'pipe',
+    });
+
+    assert.strictEqual(fs.existsSync(wrapper), true);
+  });
+
+  it('should preserve user-authored Pi wrappers with canonical content', async () => {
+    const promptsDir = path.join(tempDir, '.pi', 'prompts');
+    fs.mkdirSync(promptsDir, { recursive: true });
+    const custom = '---\ndescription: My readiness workflow\n---\n\nRead and follow `.aicontext/prompts/start.md`\n\n$ARGUMENTS\n';
+    fs.writeFileSync(path.join(promptsDir, 'start.md'), custom);
+    fs.writeFileSync(path.join(tempDir, '.aicontext', '.version'), '1.10.0');
+
+    await update(tempDir, true);
+
+    assert.strictEqual(fs.readFileSync(path.join(promptsDir, 'start.md'), 'utf8'), custom);
   });
 
   it('should migrate generated OpenCode pointers from command to commands', async () => {
