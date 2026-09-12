@@ -5,7 +5,7 @@ Run a structured interview to thoroughly explore the current topic. Walk dimensi
 ## 1. Before Asking
 
 1. **Purpose check (standalone mode)** — when no topic is obvious from the recent conversation and no caller (e.g., `/start-feature`) seeded one, ask *"What are we trying to decide here?"* before doing anything else.
-2. Load `.aicontext/project.md` and `.aicontext/structure.md` (skip if already Read earlier in this conversation — rely on memory)
+2. Load `.aicontext/project.md` and `.aicontext/structure.md` per the Session Context Reuse rule in `process.md`
 3. Explore the codebase to understand what already exists related to the topic
 4. Review the current conversation for context already provided
 

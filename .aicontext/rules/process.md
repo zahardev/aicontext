@@ -57,6 +57,12 @@ Only the first category overlaps with the spec; the other three belong nowhere e
 
 ## Context Discipline
 
+### Session context reuse
+
+- Reuse prompts, rules, `project.md`, `structure.md`, and other stable reference files fully loaded in the current session. Reread only changed or previously incomplete content.
+- Refresh mutable operational state (tasks, specs, task-context, worklog, source files, and generated artifacts) when a workflow needs current state; reuse it when known unchanged.
+- Every instruction to read, load, or follow inherits this rule unless it explicitly requires a fresh read.
+
 ### Targeted reads
 
 When you need only a slice of a large file (`spec*.md`, `worklog.md`, `CHANGELOG.md`, multi-step task files, prompts), use the cheapest tool that gets you what you need:

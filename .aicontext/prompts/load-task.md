@@ -6,7 +6,7 @@ Read and follow `identify-task.md` to find the active task.
 
 ## Read Context
 
-Load every available layer — skip any file already Read earlier in this conversation:
+Load every available layer per the Session Context Reuse rule in `process.md`:
 
 - **Task file** — `.aicontext/tasks/{task-file}.md` (extract Spec link, task version, and plan progress)
 - **Spec** — if linked

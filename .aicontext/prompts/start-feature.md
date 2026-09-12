@@ -2,7 +2,7 @@
 
 ## 1. Context Gathering
 
-1. Read `.aicontext/project.md` and `.aicontext/structure.md`
+1. Load `.aicontext/project.md` and `.aicontext/structure.md` per the Session Context Reuse rule in `process.md`
 2. Ask the user to describe the feature in one or two sentences
 3. Explore the codebase to understand existing code related to the feature
 4. Build a starting **dimension list** for the interview based on what the exploration surfaced. See `interview.md` § 2 for typical dimensions and the internal-only / live-map rules. Carry this list into Step 2 so the interview starts with a seeded map.
