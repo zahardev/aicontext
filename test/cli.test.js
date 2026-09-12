@@ -511,7 +511,11 @@ describe('lazy config resolution workflow', () => {
     assert.match(prompt, /merge recursively by key/i);
     assert.doesNotMatch(prompt, /Validate all present known values/i);
     assert.match(prompt, /### Missing value[\s\S]*legacy aliases[\s\S]*default from .*config\.template/i);
-    assert.match(prompt, /### Present value[\s\S]*Unexpected[\s\S]*caller[\s\S]*template entry[\s\S]*source file/i);
+    const presentValue = prompt.match(/### Present value\n([\s\S]*?)(?=\n### )/)?.[1] || '';
+    assert.match(presentValue, /Unexpected/);
+    assert.match(presentValue, /caller/);
+    assert.match(presentValue, /template entry/);
+    assert.match(presentValue, /source file/);
     assert.doesNotMatch(prompt, /### Recognized values/);
     assert.doesNotMatch(prompt, /follow `migrate-config\.md` immediately/i);
   });
@@ -1747,6 +1751,17 @@ describe('writeVersionCache', () => {
     assert.strictEqual(data.currentVersion, '1.6.0');
     assert.strictEqual(data.latestVersion, '1.8.0');
     assert.match(data.lastChecked, /^\d{4}-\d{2}-\d{2}$/);
+  });
+
+  it('should preserve scheduler fields', () => {
+    const filePath = path.join(tempDir, 'version.json');
+    fs.writeFileSync(filePath, JSON.stringify({ nextCheck: '2026-09-19', noticePending: true }));
+
+    writeVersionCache(filePath, { cliVersion: '1.7.0', currentVersion: '1.6.0', latestVersion: '1.8.0' });
+
+    const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+    assert.strictEqual(data.nextCheck, '2026-09-19');
+    assert.strictEqual(data.noticePending, true);
   });
 
   it('should write null for missing versions', () => {

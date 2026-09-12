@@ -43,7 +43,9 @@ function readJson(filePath) {
 function writeJson(filePath, data) {
   try {
     fs.mkdirSync(path.dirname(filePath), { recursive: true });
-    fs.writeFileSync(filePath, `${JSON.stringify(data, null, 2)}\n`);
+    const tempFile = `${filePath}.${process.pid}.tmp`;
+    fs.writeFileSync(tempFile, `${JSON.stringify(data, null, 2)}\n`);
+    fs.renameSync(tempFile, filePath);
   } catch {}
 }
 
@@ -105,6 +107,7 @@ function dispatchVersionCheck(projectRoot, today, frequency) {
       detached: true,
       stdio: 'ignore',
     });
+    child.once('error', () => {});
     child.unref();
     return true;
   } catch {
