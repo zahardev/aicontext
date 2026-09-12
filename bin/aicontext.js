@@ -60,6 +60,16 @@ const LEGACY_SKILL_HASHES = {
   'review-plan': new Set(['3537e52c91f541a28a7fd514475db169e90fe9d3fa87c6449fcbb7c4a47a196e', 'e8a5e1e2fd2933ae149dff096d0bf346962bbadab7fde66392f321e733a2f462']),
   'resume-task': new Set(['a74602227cf9522c3f175f3fd4449899ba3f931f7529457ca7a4c349ad4fd3b6', 'e84e074ef053d754afa93b3d516e523e674e91d2e3aa95fd7339d2117ae3302e']),
 };
+// Fingerprints of all pre-native Pi prompt wrappers shipped through 1.11.0.
+const LEGACY_PI_PROMPT_HASHES = new Set([
+  '7d5f9135c106de6c582cae8732f9bfd69bc3e62cf70981f35d178c812cf2b655', '483bee6bf7147dd6bdfd016434857de39d1d5a3be825596d343a90234db69e2d', '8e12ff6269b4a9329b4f28eca80ee774232ff1d36ae4803b4bf2d799ae8d5a4d', 'a85ca1e9fbd5f2408f184d9e241b107b40108411e18d95db87849cdac5e5fbb7', '765f79f32b8e89b779de2fbc6ef7bd4ca52fe05657aeac998c4887a28c8f9fe1',
+  'e32af71654e7e3d9dc7829e3e2b2af795511f5f295cbdce44d305c379d2f3a07', '4e40dc4542894da4f76892313162c8fd173f46524b81875ebed2f1334a929a5e', 'd398731ae3adeb26ebce06234c8c020b273704120828d989d16813ac69068968', '9031eea9c5828f8525744849045319b04c01f389190c595e57b0aac283cc9ed3', '26f65d3930e6bb32e7191ff5a53a3bc6533c59d8e26e9fa3d1549e0c9365aabd',
+  'c210eab7c93fc2e192a6f41c0cc7e57aab940c9e996afe6bc720a856ecdcb448', 'c9b8a88a7aef80efd88880ce98abafd4b6baaadc42320abb30db75c5bce1ce9b', '0f684911094fe9329f3fc2065235090b933a95c596f8136f9ac0b14cb035f625', 'ec424e3b25431c5f1357859a635d7f66420e1c818ebdd503b002f8e41a9d9303', 'd5ce6e631e4df69294b95fa0a716524c3da889f4eec810bb79d431a36a935021',
+  '068c382eb4fd15610bb04e3d4decdbcf0e4c78fec4fb51a30b05ce374f8abfdf', '89658e2eedace667a510c2e01d5bf08d8e4e97ec784c38a043d5b0e210ac391b', 'd94bc2bb15701a4cc0286daeaa308ecc4d01107f456c2d8c9daa2c81af778126', '9b43bb706289cb35d81f06d3e02a8b640e3cd45157628892b771e8bbeabd39ba', '266148e1ad27f239f0c0ae5202ea8ebae01697840e5fc69d00ccea86ca7c3434',
+  'af609db4197baaa987083bd350a7b57bc31acff6ed0e9506466b52d82cdb237b', '26297bd631ec5ea8b07cf17ba7338bc0f9347c6caf3c46aebf8c6b423538147d', '5871930e415b24ddc4765435f5779e57f44ce168f146f1549676191c5209e578', 'df79fb640bdb9498825d0c8f888cde367eb7d267331924a14baf74b8bc3124f9', '29526c85d01f786334e335edb74e83afcbfc101beb7dc7c1e0aff3dfdb60b784',
+  'ac0a0061cd2de53720c661779e3c87ef3734175af85a0d2c5eb52aa9ee1e5915', 'a748b0ca546a88138815123fdc5c286d6703b8705c830d92c167534e3117b1e3', 'f00dad98ad850df22b6e7371c727393ffb269222d02ece2df3a8043288a34549', 'd1c647bf5dd3674e647bfff56a80259948508f4e2dfa03e64449be1107d2b3f7', '677864f5e7f695bb536dca8764375a0321d7d23b4333fce337615ffe8e0b35b0',
+  'c489c3b85429e53c99fe76430c74663129dbd9f393c35e3f852a3cf68545c5e4', 'f00abfa3c37e6d5c845a6ac1eeb960b1a2621e6edd156e359f3d4af2fbf09f04', '752495c308595b3fcd958f88c88323876b803001d8b249bbf3e901f79a4f838e', 'b05085f8510abbde61a08d120b7bc82c8801e5ffb9d01e047cc2e481aea740d8', '85af6d90ad15ab5fa77a307919f7e5a12460e4704ab08e0aee7b73e0f81764dc',
+]);
 
 function isDirectory(p) {
   try {
@@ -372,13 +382,17 @@ function isGeneratedPointer(content, skill) {
     (bodyLines.length === 1 || (bodyLines.length === 2 && bodyLines[1] === '$ARGUMENTS'));
 }
 
+function isGeneratedPiPromptWrapper(content) {
+  return LEGACY_PI_PROMPT_HASHES.has(crypto.createHash('sha256').update(content).digest('hex'));
+}
+
 function removeGeneratedPiPromptWrappers(target) {
   const promptsDir = path.join(target, '.pi', 'prompts');
   if (!fs.existsSync(promptsDir)) return;
 
   for (const skill of [...FRAMEWORK_SKILLS, ...DEPRECATED_SKILLS]) {
     const filePath = path.join(promptsDir, `${skill}.md`);
-    if (!fs.existsSync(filePath) || !isGeneratedPointer(fs.readFileSync(filePath, 'utf8'), skill)) continue;
+    if (!fs.existsSync(filePath) || !isGeneratedPiPromptWrapper(fs.readFileSync(filePath, 'utf8'))) continue;
     fs.unlinkSync(filePath);
     log(`  Removed generated Pi prompt: prompts/${skill}.md`, 'dim');
   }
@@ -1033,12 +1047,12 @@ async function update(targetDir, skipConfirm = false, keepPrompts = false, overr
   const currentVersion = fs.readFileSync(versionFile, 'utf8').trim();
 
   migrateOpenCodePointers(target);
-  removeGeneratedPiPromptWrappers(target);
 
   const presentAssistants = ASSISTANT_NAMES.filter((name) => ASSISTANTS[name].detect(target));
   const missingAssistants = ASSISTANT_NAMES.filter((name) => !ASSISTANTS[name].detect(target));
 
   if (currentVersion === VERSION) {
+    removeGeneratedPiPromptWrappers(target);
     const shouldReCopy = (overrideAgents || overrideSkills) && presentAssistants.length > 0;
     if (!shouldReCopy) {
       const healed = selfHealMissingFiles(packageRoot, target, presentAssistants);
@@ -1129,6 +1143,7 @@ async function update(targetDir, skipConfirm = false, keepPrompts = false, overr
   }
 
   // Update framework files (not user-generated ones)
+  removeGeneratedPiPromptWrappers(target);
   log('Updating rules...', 'dim');
   copyRecursive(path.join(packageRoot, '.aicontext', 'rules'), path.join(target, '.aicontext', 'rules'));
 
@@ -1485,6 +1500,7 @@ module.exports = {
   removeDeprecatedPrompts,
   removeDeprecatedAgents,
   isGeneratedPointer,
+  isGeneratedPiPromptWrapper,
   removeGeneratedPiPromptWrappers,
   removeDeprecatedSkills,
   getExistingFiles,
