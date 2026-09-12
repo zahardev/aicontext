@@ -218,12 +218,19 @@ function writeVersionCache(filePath, { cliVersion, currentVersion, latestVersion
       fs.mkdirSync(dir, { recursive: true });
     }
     const today = new Date().toISOString().slice(0, 10);
-    fs.writeFileSync(filePath, JSON.stringify({
+    let existing = {};
+    try {
+      existing = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+    } catch {}
+    const tempFile = `${filePath}.${process.pid}.tmp`;
+    fs.writeFileSync(tempFile, JSON.stringify({
+      ...existing,
       cliVersion: cliVersion ?? null,
       currentVersion: currentVersion ?? null,
       latestVersion: latestVersion ?? null,
       lastChecked: today,
     }, null, 2) + '\n');
+    fs.renameSync(tempFile, filePath);
   } catch {
     // Ignore cache write errors
   }
