@@ -4,7 +4,7 @@ Follow `process.md "Execution, finalization, and closure"` for administrative cl
 
 ## 1. Identify and Load
 
-Follow `identify-task.md`. Load the task, linked spec, task-context if present, and worklog per Session Context Reuse.
+Follow `identify-task.md`. Load the task, linked spec, task-context and worklog per Session Context Reuse.
 
 ## 2. Warn and Align
 
@@ -24,13 +24,13 @@ Resolve `issue.close_on_task_close` via `ensure-config.md`; `false` skips all re
 Resolve only the task's issue:
 - Prefer its explicit Issue link; a bare issue number requires a verified repository.
 - No issue reference means silent skip. If a known issue needs a repository, inspect the Git remote URL. Use an explicit link's repository instead of assuming the current remote owns it.
-- Support `github.com` initially. Report unsupported providers/unknown hosts without running `gh`; do not infer an issue from a PR URL.
+- Support `github.com` initially. When `issue.close_on_task_close` is `true`, report unsupported providers/unknown hosts without running `gh`; never take the issue number from a PR.
 
-Check the exact issue silently with `gh issue view "$issue" --repo "$repo" --json number,url,state`. Missing/already-closed issues mean silent skip; distinguish not-found from authentication/network failures and report failures briefly without undoing local closure.
+Check the exact issue silently with `gh issue view "$issue" --repo "$repo" --json number,url,state`. Already-closed issues mean silent skip. When `issue.close_on_task_close` is `true`, report one short line if a task's issue link is not found or lookup fails; local closure still completes.
 
 For an open issue:
-- `true`: close it.
-- `ask`: ask `Close GitHub issue #{number}?` (Yes / No); only Yes authorizes closure. Offer to save the choice as default (default No) in the config source that supplied `ask`.
+- `true`: close it without interaction.
+- `ask`: ask `Close GitHub issue #{number}?` (Yes / No); close it only on Yes. Offer to save the choice as default (default No) in the config source that supplied `ask`.
 
 Run `gh issue close "$issue" --repo "$repo" --reason completed` only when authorized. Confirm the resulting state; failures must not be reported as success or prevent local closure.
 
@@ -44,6 +44,6 @@ Task {task_name} closed:
 - Worklog: updated
 ```
 
-Append an issue result only for a proposed/performed action or a lookup failure/unsupported host.
+Append an issue result only for a proposed/performed action or, when `issue.close_on_task_close` is `true`, a lookup failure/unsupported host.
 
 If the spec has pending tasks, name the next one and append the active tool's `load-task` handoff; otherwise append `start-feature`. If more than 10 task files exist, suggest `tidy-aic` without running it.

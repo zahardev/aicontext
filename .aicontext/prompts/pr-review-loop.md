@@ -1,24 +1,24 @@
 # PR Review Loop
 
-Coordinate CI and review fixes for an existing PR. Never create or merge a PR, bypass approvals, dismiss blocking reviews, or force-push. Explicit invocation is independent of `after_task.*`.
+Coordinate CI and review fixes for an existing PR. Never create or merge a PR, bypass approvals, dismiss blocking reviews, or force-push.
 
 ## 1. Identify and Bound
 
-- Use an explicit PR URL if provided; otherwise inspect the current branch and Git remote. Support `github.com` initially; unknown/unsupported hosts stop with a short limitation report before any `gh` call.
+- Use an explicit PR URL if provided; otherwise inspect the current branch and Git remote. Support GitHub only; unknown/unsupported hosts stop with a short limitation report before any `gh` call.
 - Resolve the exact PR and repository with `gh pr view`; retain them for every helper and query. Require an open PR. Missing PR, auth/network errors, or ambiguous repository/branch means stop, not success.
-- Load the task/spec/task-context if available. A standalone PR without a task is valid; skip task-dependent context operations.
-- Use at most **5 fix cycles** and a **30-minute total deadline**. Pass the remaining budget to helpers. CI/review changes after any push invalidate earlier results.
+- Load the task/spec/task-context if available. A standalone PR without a task is valid.
+- Use at most **5 fix cycles** and a **30-minute total deadline**. Pass the remaining budget to helpers.
 - Before any fix, verify the checkout belongs to this PR's repository and head branch, is not detached, and contains its latest remote head. Stop for unrelated dirty changes or local/remote divergence; never switch, reset, or overwrite user work automatically.
 
 ## 2. Observe
 
 Read `gh pr view "$pr" --repo "$repo" --json state,url,headRefOid,isDraft,mergeable,mergeStateStatus,reviewDecision,statusCheckRollup` and current unresolved review threads.
 
-Poll pending checks every 15 seconds and `mergeable: UNKNOWN` every 10 seconds for up to 1 minute. After PR creation or a new head, allow up to 2 minutes for initial checks/review activity; zero comments is not review completion. Re-fetch after each wait.
+Poll pending checks and `mergeable: UNKNOWN` every 15 seconds for up to 1 minute. After PR creation or a new head, allow up to 2 minutes for initial checks/review activity; zero comments is not review completion. Re-fetch after each wait.
 
-- No checks or review activity after the discovery window: silently skip that phase. Do not query provider-specific bot configuration or invent requirements for absent CI/reviewers.
-- Failure fetching state/logs, unknown check conclusions, cancelled/timed-out checks, or exhausted waits: report the blocker; never treat it as green.
-- Scope observations to the latest head; if it changed, discard stale results and observe again within the same budget.
+- No checks or review activity after the discovery window: silently skip that phase.
+- If fetching state fails or waits are exhausted, report the blocker; never treat it as green.
+- Scope observations to the latest head; if it changed, discard stale results and observe again.
 
 ## 3. Fix Cycle
 

@@ -1,6 +1,6 @@
 # GitHub Review Fix Loop
 
-Resolve actionable GitHub review threads. Explicit invocation is independent of lifecycle flags. Never merge or dismiss a blocking review merely to claim readiness.
+Resolve actionable GitHub review threads. Never merge or dismiss a blocking review merely to claim readiness.
 
 ## 1. Context and Budget
 
@@ -8,7 +8,7 @@ Resolve actionable GitHub review threads. Explicit invocation is independent of 
 - Use the caller's exact PR/repository or resolve them from the current branch. The scripts infer repository and PR from the checkout: verify their `gh repo view` / `gh pr view` target equals the intended PR before using them. Do not run them against another PR.
 - Require the matching, non-detached PR head checkout with latest remote head present and no unrelated dirty work/divergence before fixing. Never switch/reset user work automatically.
 - Load task/spec/task-context if available; absence of a task does not block standalone PR use.
-- **Standalone:** at most 5 cycles and 30 minutes total. Retain both limits across CI helper calls.
+- **Standalone:** at most 5 cycles and 30 minutes total; re-triage only when new unresolved threads exist. No progress, exhausted cycles, timeout, or a human decision stops with specific blockers.
 - **Coordinator mode:** one triage/fix pass with the caller's remaining budget. No waits or nested retries; return `PUSHED`, `RESOLVED`, `CLEAR`, or `BLOCKED`. The coordinator owns CI and final readiness.
 
 ## 2. Triage and Resolve
@@ -34,11 +34,9 @@ Coordinator mode returns `PUSHED` with the new head and any unresolved blockers;
 
 ## 4. Standalone Follow-up
 
-After every push, follow `gh-fix-tests.md` with the same PR/repository and remaining deadline (at most 3 CI fix attempts within that budget). Stop on `BLOCKED`. No CI means skip that phase, not an invented local-suite requirement.
-
 Allow up to 2 minutes for new review activity, polling every 15 seconds; wait for any pending reviewer checks within the remaining total deadline. Re-fetch after every head change. Missing activity after the discovery window means no automatic review to process; do not query bot configuration.
 
-If the latest bot response says reviews are paused, report how to resume and stop. Re-run triage only when new unresolved threads exist. No progress, 5 exhausted cycles, timeout, or a human decision stops the loop with specific blockers.
+If the latest bot response says reviews are paused, report how to resume and stop.
 
 ## 5. Result
 

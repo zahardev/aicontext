@@ -18,7 +18,7 @@ For a new feature, the full flow is:
 
 `start` → `start-feature` → `run-task` → `close-task`
 
-`run-task` executes steps, then configured after-task actions; `close-task` handles administrative closure and optional issue closure; `finish-task` is a deprecated alias. Step closure keeps valuable notes.
+`run-task` executes steps, then configured after-task actions; `close-task` handles administrative closure and optional issue closure.
 
 Skills use the native syntax for each tool: `/skill-name` in Claude Code and opencode; `/skill:name` in Pi; `$skill-name` in Codex; and `use skill-name` in Cursor and Copilot. Run the native `aic-skills` invocation any time to see all available commands.
 

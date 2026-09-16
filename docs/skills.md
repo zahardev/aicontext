@@ -167,7 +167,7 @@ Coordinates CI and review fixes for an existing PR, then reports readiness or bl
 ### `/gh-review-fix-loop`
 **Prompt:** `gh-review-fix-loop.md`
 
-Fixes GitHub review threads; standalone: bounded retries + post-push CI; coordinator: one pass. Use `pr-review-loop` for readiness.
+Fixes GitHub review threads; standalone: bounded retries; coordinator: one pass. Use `pr-review-loop` for readiness.
 
 ### `/gh-fix-tests`
 **Prompt:** `gh-fix-tests.md`

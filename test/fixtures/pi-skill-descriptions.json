@@ -29,7 +29,7 @@
   "draft-issue": "Draft a GitHub issue based on a discussion or requirements in the current conversation",
   "generate-docs": "Generate project documentation from code and AIContext artifacts — reference (internal technical), guide (user-facing), or both",
   "prepare-release": "Prepare a version release — follows project release config in `.aicontext/release.md`, runs first-time setup if config is missing",
-  "gh-review-fix-loop": "Fix GitHub review threads; standalone: bounded retries + post-push CI; coordinator: one pass. Use pr-review-loop for readiness.",
+  "gh-review-fix-loop": "Fix GitHub review threads; standalone: bounded retries; coordinator: one pass. Use pr-review-loop for readiness.",
   "gh-fix-tests": "Wait for GitHub CI and fix failures; standalone has bounded retries and reports no checks as SKIP, coordinator returns silent SKIP; unknown state blocks.",
   "web-inspect": "Browser-based investigation using playwright-cli — open pages, inspect elements, check console errors, capture screenshots. Headed mode by default.",
   "aic-help": "Show AIContext quickstart guide with setup, workflows, and best practices",

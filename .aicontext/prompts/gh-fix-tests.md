@@ -1,6 +1,6 @@
 # GH Fix Tests
 
-Wait for and fix failing GitHub CI checks (tests, lint, type, build). Never weaken checks to obtain green results. Explicit invocation is independent of lifecycle flags.
+Wait for and fix failing GitHub CI checks (tests, lint, type, build). Fix the cause of a failing check; change a test only when the test itself is wrong.
 
 ## 1. Context and Budget
 
