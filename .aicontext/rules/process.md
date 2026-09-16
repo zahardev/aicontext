@@ -15,6 +15,13 @@
 
 **Task file is the source of truth.** In-session tools (Claude Code todo list, Cursor agent tasks) supplement real-time progress — the task file persists.
 
+### Execution, finalization, and closure
+
+- `/run-step` and `/do-it` execute steps with `after_step.*`; only `/run-task` owns finalization and runs `after_task.*`, once after all plan steps, including one-step and finalization-only runs.
+- Task `## Status:` is `Implementing` until configured finalization succeeds, `Ready to close` afterward, and `Done` only through `/close-task` (legacy alias: `/finish-task`). Skipped optional actions are not failures; failed or blocked enabled actions must not mark readiness. Adding or resuming implementation sets `Implementing` and reopens closed worklog/spec task entries. Notes alone never establish readiness.
+- Step closure appends valuable `[Step N]` completion notes: outcomes, compromises, follow-ups, learnings. Preserve earlier notes; update an existing note for the same outcome instead of duplicating it. No valuable information means no entry. Technical working knowledge belongs in task-context, not repeated in completion notes.
+- `/close-task` is administrative: warn about unchecked steps/deliverables without blocking or falsely checking them off, mark task/spec task/worklog done, and optionally close its issue. Never run after-task automation or inspect PRs.
+
 **Date format:** task files use `Month Day, Year` (e.g., "January 23, 2026"); changelog entries use `YYYY-MM-DD`. Always use the current real date.
 
 **Error handling:** document bugs, root causes, and resolution steps inside the task file.
@@ -51,7 +58,7 @@ Only the first category overlaps with the spec; the other three belong nowhere e
 - Use "should" voice — target state, not description
 - Follow the Information Density rule in `standards.md` — be concise without dropping signal
 
-**Checkbox timing:** `close-step` checks off only what a step delivered 100% unambiguously. `finish-task` walks task deliverables (unchecked = hard block) then spec requirements in linked subsections (unchecked = warning). Warnings resolve via one contract: **deliver** / **defer** / **revise**. Task deliverables are the gate; spec checkboxes are the consequence.
+**Checkbox timing:** Mark plan steps, deliverables, and spec requirements complete only when 100% delivered; finalization verifies cumulative completion, while administrative closure preserves unchecked work.
 
 **Spec drift:** `/load-task` runs `git log` (file-level) and AI semantic comparison (coverage) — both when possible. Git catches edits, semantic catches mismatches a git-untouched spec can still have.
 

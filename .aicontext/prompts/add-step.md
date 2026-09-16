@@ -21,6 +21,8 @@ See `process.md "Task Deliverables vs Spec Requirements"`.
 
 If a step for this work already exists, point to it instead of creating a duplicate.
 
+Set status to `Implementing` when adding or resuming work; this invalidates finalization readiness.
+
 Create a new step with the next step number. Add sub-items (`- [ ]`) capturing the deliverables. Follow `plan-steps.md`.
 
 ## 4. Update Spec

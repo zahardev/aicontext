@@ -24,7 +24,7 @@ Present options using user-friendly labels, not config field names. Ask per `## 
 | `after_step.tests` | Run tests after each step? | 1) No (recommended), 2) Affected tests only, 3) All | `false` / `<primary-type>-affected` / `all` |
 | `after_step.commit` | Commit after each step? | 1) No (recommended), 2) Yes | `false` / `true` |
 
-**After task completion:**
+**After all plan steps, inside `/run-task` only (not `/close-task`):**
 
 | Config field | Question | Options | Config value |
 |---|---|---|---|
@@ -32,8 +32,8 @@ Present options using user-friendly labels, not config field names. Ask per `## 
 | `after_task.tests` | Run tests after task? | 1) All (recommended), 2) Affected tests only, 3) No | `all` / `all-affected` / `false` |
 | `after_task.commit` | Commit after task? | 1) Yes (recommended), 2) No | `true` / `false` |
 | `after_task.push` | Push to remote? | 1) No (recommended), 2) Yes | `false` / `true` |
-| `after_task.pr` | Draft pull request after task? | 1) No (default), 2) Yes | `false` / `true` |
-| `after_task.review_loop` | Run pull request review loop after task? | 1) No (default), 2) Yes | `false` / `true` |
+| `after_task.pr` | Create/update PR after implementation (includes push)? | 1) No (default), 2) Yes | `false` / `true` |
+| `after_task.review_loop` | Run PR validation after automatic PR creation? | 1) No (default), 2) Yes | `false` / `true` |
 
 **Tests rows — `<primary-type>`:** resolves to the first row in `structure.md`'s `## Testing` table, or the row named `unit` if present.
 

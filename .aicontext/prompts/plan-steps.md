@@ -68,7 +68,7 @@ Task steps describe what to build or change — behavior descriptions belong in 
 
 ## Never include spec or task-context updates as plan steps
 
-Spec sync, task-context updates, requirement checkboxes, worklog updates, and spec completion are handled automatically by `close-step.md` and `finish-task.md`. Listing them as explicit plan steps is redundant and pollutes the plan.
+`close-step.md` handles spec sync, task-context updates, completion notes, and requirement checkboxes; `close-task.md` handles worklog updates and spec completion. Omit these from plan steps.
 
 **Bad:** "Update spec with new decision", "Append findings to task-context", "Check off completed requirements in spec"
 **Good:** omit them — they happen automatically at step/task close.

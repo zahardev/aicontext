@@ -1,6 +1,6 @@
 ---
 name: gh-fix-tests
-description: Fix failing CI checks on the current PR — fetches failures via gh CLI, diagnoses, fixes, pushes, waits for green. Covers lint, type, build, and tests. Retries up to 3 times.
+description: Wait for GitHub CI and fix failures; standalone has bounded retries and reports no checks as SKIP, coordinator returns silent SKIP; unknown state blocks.
 ---
 
 Read and follow `.aicontext/prompts/gh-fix-tests.md`

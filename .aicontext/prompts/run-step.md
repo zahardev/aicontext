@@ -10,7 +10,7 @@ Follow `ensure-config.md` with `after_step.*`.
 
 - If an argument is provided (e.g. `run-step 3`), use that step number
 - Otherwise, use the first unchecked step (`- [ ]`)
-- If no unchecked steps remain: append the active tool's `finish-task` handoff.
+- If no unchecked steps remain: stop with `run-task` for finalization when `Implementing`, `close-task` when `Ready to close`, or `start-feature` when `Done`. Use Native Skill Syntax. Never run `after_task.*` here.
 
 ## 3. Execute
 

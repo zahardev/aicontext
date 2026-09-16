@@ -23,13 +23,18 @@ The core development workflow — from idea to working code.
 2. Runs code review (if configured in quality checks table)
 3. Fixes issues found in review
 4. Runs tests (if configured)
-5. Commits (if configured)
-6. Updates the task-context with patterns, gotchas, and any mid-step `Decision Overrides`
-7. Writes new decisions, requirements, and non-goals directly to the spec
+5. Closes the step, recording valuable completion notes and updating task-context/spec
+6. Commits the step and its metadata (if configured)
 
 You watch and intervene only when needed. The AI stops when it hits a blocker, a critical review finding, or a decision not covered in planning.
 
-**4. `/finish-task`** — verifies all steps are done, syncs the spec with any decisions made during implementation, writes completion notes, updates the worklog, and handles git (commit / push / PR per your config).
+After all plan steps, `/run-task` runs the configured `after_task.*` pipeline: local review → tests/fixes → deliverable verification → commit/push → PR creation/update → optional PR validation. This includes one-step plans. `/run-step` and `/do-it` never run this pipeline; after the final step, invoke `/run-task` to finalize.
+
+Status becomes `Ready to close` only after successful finalization; failed enabled actions leave `Implementing`. Loading a task uses this persisted state, not completion notes.
+
+**4. `/close-task`** - warns about unfinished work without blocking, marks task/spec tracking and worklog done, and optionally closes the issue. It does not inspect PRs, commit/push, or rerun finalization. `/finish-task` remains a deprecated alias.
+
+`issue.close_on_task_close` defaults to `ask`; `true` closes an open linked issue automatically, `false` skips lookup. Missing/already-closed issues are silent, and remote failures do not prevent local closure.
 
 **5. Repeat** — if the spec has more tasks, pick the next one and run `/run-task` again.
 
@@ -141,19 +146,15 @@ After your PR receives review comments, use `/gh-review-check` to handle them ef
 
 ### Automated Review Cycle
 
-For a fully automated approach, use `/gh-review-fix-loop` after creating a PR. It runs the entire review cycle automatically:
+Use `/pr-review-loop` on an existing PR to coordinate CI and review fixes. It waits for initial activity, delegates to `/gh-fix-tests` and `/gh-review-fix-loop`, then rechecks the latest head, approvals, and mergeability. Limits: 5 fix cycles / 30 minutes. No CI or review activity after discovery skips that phase; pending/unknown state and missing applicable required approvals are blockers, not success. It never merges.
 
-1. Fetches existing review comments
-2. Triages each comment (fix / resolve / skip) based on severity and effort
-3. Resolves false positives with notes
-4. Fixes real issues
-5. Runs tests
-6. Commits, pushes, and waits for the next review pass
-7. Repeats until clean or max 5 cycles
+For automatic execution, set `after_task.pr` and `after_task.review_loop` to `true`. The latter retains its name but now selects whole-PR validation. With `pr: false`, requested automatic validation is skipped with a warning and no PR lookup. Setting either flag to `false` never disables explicit skills.
+
+GitHub is supported initially. Other providers, such as Bitbucket, receive a limitation report before GitHub operations; local execution/closure still work.
 
 ### Fixing Failing CI
 
-Use `/gh-fix-tests` when CI checks are failing on your PR. The AI fetches the failure logs, diagnoses root causes, fixes the code, pushes, and waits for CI to go green — retrying up to 3 times before escalating to you. Covers lint, type-check, build, and test failures.
+Use `/gh-fix-tests` to wait for pending CI and fix failures on your PR. The AI fetches the failure logs, diagnoses root causes, fixes the code, pushes, and waits for CI to go green — retrying up to 3 times before escalating to you. Covers lint, type-check, build, and test failures.
 
 ## Thinking Tools
 

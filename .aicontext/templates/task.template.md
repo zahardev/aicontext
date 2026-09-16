@@ -3,6 +3,13 @@
 ## Created:
 [Date - use format: Month Day, Year]
 
+## Status:
+Implementing
+<!-- See process.md "Execution, finalization, and closure". -->
+
+## Issue:
+[#N](https://github.com/{owner}/{repo}/issues/N)
+
 ## Spec:
 <!-- Optional: link to spec if this task is part of a larger feature -->
 [spec-{name}.md](../specs/spec-{name}.md)
