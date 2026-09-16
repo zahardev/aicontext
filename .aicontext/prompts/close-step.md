@@ -8,6 +8,7 @@ N = the step number just completed.
 
 - Check off completed items (`- [ ]` → `- [x]`)
 - Update the Last Updated date
+- Append valuable completion notes per `process.md "Execution, finalization, and closure"`; leave status `Implementing`.
 
 ## 2. Update Checkboxes (100% rule)
 
@@ -46,13 +47,14 @@ You MUST output this summary. It is the deliverable that proves context was upda
 ```
 Step N closed:
 - Task: [items checked off]
+- Completion notes: [added/updated, or "none"]
 - Checked: +N deliverables / +M spec requirements  (or "no checks affected")
 - Task-context: +[count] entries ([sections touched])
 - Spec: [what changed, or "no changes"]
 ```
 
-If Task-context shows +0 entries, explain why nothing was learned (this should be rare — most steps produce at least a file reference).
+Do not add filler to satisfy counts.
 
 After the summary, append one handoff line based on the task state:
 - If unchecked plan steps remain → append the active tool's `next-step` handoff.
-- If this was the last unchecked step → append the active tool's `finish-task` handoff.
+- If this was the last unchecked step → append the active tool's `run-task` handoff for implementation finalization.

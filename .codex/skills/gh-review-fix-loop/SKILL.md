@@ -1,6 +1,6 @@
 ---
 name: gh-review-fix-loop
-description: Use when a PR has review comments that need addressing. Fetches comments, triages them, fixes real issues, auto-resolves false positives, runs tests, commits, pushes, then waits for re-review. Repeats up to 5 cycles.
+description: Fix GitHub review threads; standalone: bounded retries + post-push CI; coordinator: one pass. Use pr-review-loop for readiness.
 ---
 
 Read and follow `.aicontext/prompts/gh-review-fix-loop.md`

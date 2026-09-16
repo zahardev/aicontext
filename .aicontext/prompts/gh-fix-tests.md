@@ -1,66 +1,34 @@
 # GH Fix Tests
 
-Fix failing CI on the current PR: fetch failures, diagnose, fix, push, wait for green. Covers all CI check types — lint, type, build, tests.
+Wait for and fix failing GitHub CI checks (tests, lint, type, build). Never weaken checks to obtain green results. Explicit invocation is independent of lifecycle flags.
 
-## Prerequisites
+## 1. Context and Budget
 
-- A PR must exist for the current branch
-- `gh` CLI must be installed and authenticated
+Use the caller's exact PR/repository, or resolve an explicit PR URL/current branch after verifying the remote is `github.com`. Unsupported/unknown providers, missing PR, or auth errors stop with a report before fixes. A standalone PR without a task is valid.
 
-## 1. Fetch Failing Checks
+- **Standalone:** at most 3 fix attempts and 30 minutes total.
+- **Coordinator mode:** one fix pass, caller's remaining deadline, no independent retry loop. Return `PUSHED`, `PASS`, `SKIP`, or `BLOCKED`; the coordinator owns subsequent waits and readiness.
+- Before fixing, require the PR head branch/repository checked out, a non-detached HEAD, latest remote head present, and no unrelated dirty work or divergence. Stop rather than switching/resetting user work.
 
-```
-gh pr checks
-```
+## 2. Observe Checks
 
-Identify failing checks by name. For each failing check, fetch the run logs:
-```
-gh run view --log-failed <run-id>
-```
+Read `gh pr checks "$pr" --repo "$repo"` and `gh pr view "$pr" --repo "$repo" --json headRefOid,statusCheckRollup`. Pending is not passed. On a new head, allow up to 2 minutes for initial checks to appear, polling every 15 seconds within the deadline. Standalone mode reports no checks after discovery as `SKIP`; coordinator mode returns silent `SKIP`.
 
-If no checks are failing, tell the user and stop.
+Wait for pending checks within the remaining deadline, then re-fetch state. Require successful retrieval; distinguish no checks from auth/network errors. Cancelled/timed-out/unknown conclusions or an exhausted wait return `BLOCKED`, not success. If the head changes, discard stale results and observe again within the same budget.
 
-## 2. Diagnose
+All checks passed (or explicitly skipped/neutral where GitHub accepts them) → `PASS`. Otherwise fetch logs for the exact failing check's run with `gh run view "$run_id" --repo "$repo" --log-failed`; if logs or the cause are unavailable, report and stop.
 
-For each failing check, parse the log output to identify:
-- **Which files** are involved (file paths in error messages, stack traces, lint reports)
-- **Which rule or test** failed (rule name, test name, build error)
-- **The root cause** (not just the symptom)
+## 3. Diagnose and Fix
 
-Read the implicated source files to understand context before fixing.
+Identify the failing rule/test, implicated files, and root cause. Read the relevant code before changing it. Fix causes rather than disabling tests, lint rules, or required checks. If a fix needs a product decision, stop and ask.
 
-## 3. Fix
+For test failures, run the failing tests locally through `test-runner` or inline before pushing. For lint/type/build failures, use CI as the verification source; do not claim an unrun local check passed.
 
-Implement fixes for each failing check. Prefer root-cause fixes over symptom suppression (no disabling lint rules to make them pass unless the rule is genuinely wrong for the case).
+## 4. Commit and Push
 
-## 4. Local Verify
+Follow `ensure-config.md` with `gh_fix_tests.push`. Follow `.aicontext/prompts/commit.md`, scoped to the fixes.
 
-For test failures, run the failing test(s) locally via `test-runner` subagent before pushing — do NOT skip this. For lint/type/build failures, CI is the source of truth — skip local verification.
+- `true`: verify branch/tracking state again, then push the PR head branch to its verified remote. Explicit invocation authorizes this configured non-force push; never push to a guessed remote.
+- `false`: commit without pushing; return `BLOCKED: fixes committed locally; remote CI not revalidated`. The coordinator must respect this setting rather than overriding it.
 
-## 5. Commit and Push
-
-Follow `ensure-config.md` with `gh_fix_tests.push` (default: `true`).
-
-- **`push: true`** (default): commit by delegating to `commit.md`, then push the current branch to the remote
-- **`push: false`**: commit by delegating to `commit.md`, do NOT push — caller decides when to push
-
-## 6. Wait for CI
-
-If pushed in Step 5, wait for CI to re-run:
-```
-timeout 30m gh pr checks --watch || true
-```
-
-## 7. Verify and Retry
-
-Check the new CI results:
-- **All checks pass** → done, report success and stop
-- **Some checks still fail** → increment attempt counter
-  - If `attempt < 3` → return to Step 1 with the new failure set
-  - If `attempt == 3` → stop, tell the user: "Still failing after 3 attempts: [list]. Manual investigation needed."
-
-## Exit Conditions
-
-- All CI checks pass → success
-- `attempt == 3` and failures remain → escalate to user
-- No checks are failing on entry → nothing to do
+Coordinator mode returns `PUSHED` with the new head and used attempt count. Standalone mode returns to Observe, retaining its deadline and attempt count; after 3 unsuccessful fix attempts report remaining failures. A push failure stops immediately.

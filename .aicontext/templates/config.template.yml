@@ -4,7 +4,7 @@
 #
 # Prompts reference settings as nested paths: after_step.commit, task_naming.pattern, etc.
 
-# Lifecycle actions — what happens after each step and after task completion.
+# Lifecycle hooks: after_step/after_task run automatically; /close-task handles administrative closure only.
 #
 # Review values: normal | deep | false | ask
 #   - normal:  scoped to this step's changes
@@ -38,7 +38,7 @@
 #   {files}` expects test files). If Affected is empty, the runner falls back to appending
 #   test-looking changed files to the Full command.
 #
-# Commit / push values: true | false | ask
+# Commit / push / pr / review_loop values: true | false | ask
 #
 # When `ask` fires, the user picks the action for this run, then answers a
 # second y/N "save as default?" prompt that can persist the choice to config.
@@ -55,12 +55,12 @@ after_step:
   commit: ask                 # commit after each step
 
 after_task:
-  review: ask                 # code review at task close via `reviewer` subagent
-  tests: ask                  # tests at task close via `test-runner` subagent
-  commit: ask                 # commit at task close (skipped if any step committed during the run)
-  push: ask                   # push to remote at task close
-  pr: ask                     # create the GitHub PR via /make-pr at task close; implies a branch push (true|false|ask)
-  review_loop: ask            # run gh-review-fix-loop after PR exists (true|false|ask). Skipped if no remote PR; defers task close.
+  review: deep                # whole-task review
+  tests: ask
+  commit: ask
+  push: ask
+  pr: ask
+  review_loop: ask            # PR validation after automatic PR success
 
 tdd: ask                        # true | false | ask
   # true:   testable plan steps follow test-first (write test → implement → verify)
@@ -102,6 +102,7 @@ claude:
   # Only applies to Claude Code. Other tools always use numbered.
 
 issue:
+  close_on_task_close: ask      # close the task's open issue on /close-task (true|false|ask); false skips remote lookup
   save_to_file: true            # save draft to .aicontext/data/issue-drafts/ (true|false)
   create_in_github: ask         # create issue via gh CLI (true|false|ask)
 

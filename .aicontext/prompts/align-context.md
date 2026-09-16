@@ -26,7 +26,7 @@ Append session knowledge to the task-context's sections. If no task-context exis
 If `.aicontext/worklog.md` doesn't exist, create it from `.aicontext/templates/worklog.template.md`.
 
 - If the task's spec isn't listed, add it under the appropriate section
-- Update task checkboxes to match actual completion state
+- Sync the worklog checkbox from task status; check only `Done`, not plan progress.
 - If all tasks under a spec are checked, move the spec to "Done" with today's date
 
 ## 6. Report

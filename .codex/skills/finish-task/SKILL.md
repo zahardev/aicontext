@@ -1,6 +1,6 @@
 ---
 name: finish-task
-description: Use when a task is complete. Verifies all steps are done, applies any task-context Decision Overrides to the spec, fills completion notes, updates changelog, and handles git (commit / push / PR per config).
+description: Deprecated alias for close-task. Administrative closure only; no PR inspection or publication.
 ---
 
 Read and follow `.aicontext/prompts/finish-task.md`

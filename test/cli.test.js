@@ -477,15 +477,15 @@ describe('version cache', () => {
 });
 
 describe('FRAMEWORK_PROMPTS', () => {
-  it('should contain exactly 52 framework prompt files', () => {
-    assert.strictEqual(FRAMEWORK_PROMPTS.length, 52);
+  it('should contain exactly 54 framework prompt files', () => {
+    assert.strictEqual(FRAMEWORK_PROMPTS.length, 54);
   });
 
   it('should contain the expected prompt files', () => {
     const expected = [
       'add-step.md', 'add-idea.md', 'aic-help.md', 'aic-skills.md', 'align-context.md', 'challenge.md', 'close-step.md',
       'commit.md', 'create-config.md', 'create-task.md', 'deep-review.md', 'deep-review-criteria.md', 'do-it.md', 'draft-issue.md', 'ensure-config.md', 'identify-task.md',
-      'draft-pr.md', 'make-pr.md', 'finish-task.md', 'generate.md', 'generate-docs.md', 'generate-guide.md', 'generate-reference.md', 'gh-fix-tests.md', 'gh-review-fix-loop.md', 'next-step.md', 'plan-tasks.md',
+      'draft-pr.md', 'make-pr.md', 'finish-task.md', 'close-task.md', 'pr-review-loop.md', 'generate.md', 'generate-docs.md', 'generate-guide.md', 'generate-reference.md', 'gh-fix-tests.md', 'gh-review-fix-loop.md', 'next-step.md', 'plan-tasks.md',
       'gh-review-check.md', 'install-playwright-cli.md', 'prepare-release.md', 'resolve-task-naming.md', 'resolve-test-types.md', 'resolve-tests.md', 'review.md', 'review-criteria.md', 'detect-review-scope.md',
       'brainstorm.md', 'interview.md', 'load-spec.md', 'load-task.md', 'migrate-config.md', 'resolve-asks.md', 'review-task.md', 'run-step.md', 'run-task.md', 'start-feature.md', 'start.md', 'step-loop.md', 'test-writer.md', 'thoughts.md', 'tidy-aic.md', 'web-inspect.md',
     ];
@@ -877,13 +877,13 @@ describe('removeDeprecatedAgents', () => {
 });
 
 describe('FRAMEWORK_SKILLS', () => {
-  it('should contain exactly 34 skill names', () => {
-    assert.strictEqual(FRAMEWORK_SKILLS.length, 34);
+  it('should contain exactly 36 skill names', () => {
+    assert.strictEqual(FRAMEWORK_SKILLS.length, 36);
   });
 
   it('should contain the expected skills', () => {
     const expected = [
-      'add-step', 'add-idea', 'create-task', 'start', 'start-feature', 'plan-tasks', 'load-task', 'load-spec', 'review-task', 'run-step', 'run-task', 'finish-task',
+      'add-step', 'add-idea', 'create-task', 'start', 'start-feature', 'plan-tasks', 'load-task', 'load-spec', 'review-task', 'run-step', 'run-task', 'finish-task', 'close-task', 'pr-review-loop',
       'align-context', 'do-it', 'challenge', 'brainstorm', 'thoughts', 'interview', 'commit', 'review', 'deep-review', 'next-step', 'draft-pr', 'make-pr', 'gh-review-check',
       'draft-issue', 'generate-docs', 'prepare-release', 'gh-review-fix-loop', 'gh-fix-tests', 'web-inspect', 'aic-help', 'aic-skills', 'tidy-aic',
     ];
@@ -2005,6 +2005,70 @@ describe('resolveCommitAnswer', () => {
   it('maps unknown inputs to null — keep template default', () => {
     assert.strictEqual(resolveCommitAnswer('9'), null);
     assert.strictEqual(resolveCommitAnswer('yes'), null);
+  });
+});
+
+describe('task lifecycle skill distribution', () => {
+  let tempDir;
+  const skills = ['close-task', 'pr-review-loop', 'finish-task'];
+
+  beforeEach(() => { tempDir = createTempDir(); });
+  afterEach(() => { removeTempDir(tempDir); });
+
+  function assertInstalled() {
+    for (const skill of skills) {
+      const prompt = `.aicontext/prompts/${skill}.md`;
+      assert.ok(fs.existsSync(path.join(tempDir, prompt)), `${skill} prompt missing`);
+      for (const harness of ['.claude', '.codex', '.pi']) {
+        const wrapper = fs.readFileSync(path.join(tempDir, harness, 'skills', skill, 'SKILL.md'), 'utf8');
+        assert.ok(wrapper.includes(prompt), `${harness}/${skill} pointer missing`);
+      }
+      assert.match(fs.readFileSync(path.join(tempDir, '.codex', 'skills', skill, 'agents', 'openai.yaml'), 'utf8'), /allow_implicit_invocation: false/);
+      assert.match(fs.readFileSync(path.join(tempDir, '.pi', 'skills', skill, 'SKILL.md'), 'utf8'), /disable-model-invocation: true/);
+      assert.ok(fs.readFileSync(path.join(tempDir, '.opencode', 'commands', `${skill}.md`), 'utf8').includes(prompt));
+    }
+    const runTaskPrompt = fs.readFileSync(path.join(tempDir, '.aicontext', 'prompts', 'run-task.md'), 'utf8');
+    assert.match(runTaskPrompt, /follow `\.aicontext\/prompts\/pr-review-loop\.md` with that target/);
+    for (const promptName of ['run-task', 'step-loop', 'gh-fix-tests', 'gh-review-fix-loop']) {
+      assert.match(
+        fs.readFileSync(path.join(tempDir, '.aicontext', 'prompts', `${promptName}.md`), 'utf8'),
+        /follow `\.aicontext\/prompts\/commit\.md`/i,
+        `${promptName} must follow commit prompt directly`
+      );
+    }
+    assert.match(fs.readFileSync(path.join(tempDir, '.aicontext', 'prompts', 'finish-task.md'), 'utf8'), /Follow `close-task\.md`/);
+  }
+
+  it('installs new skills and the retained alias with new-project defaults', async () => {
+    await init(tempDir, true);
+    assertInstalled();
+    const config = fs.readFileSync(path.join(tempDir, '.aicontext', 'config.yml'), 'utf8');
+    assert.match(config, /after_task:\n  review: deep/);
+    assert.match(config, /close_on_task_close: ask/);
+  });
+
+  it('updates all skill entry points without deleting the alias or changing configured lifecycle values', async () => {
+    await init(tempDir, true);
+    const configPath = path.join(tempDir, '.aicontext', 'config.yml');
+    const existing = fs.readFileSync(configPath, 'utf8')
+      .replace(/(after_task:\n  review:) \w+/, '$1 normal')
+      .replace(/(  review_loop:) \w+/, '$1 true');
+    fs.writeFileSync(configPath, existing);
+    const localPath = path.join(tempDir, '.aicontext', 'config.local.yml');
+    const local = 'after_task:\n  pr: false\n  review_loop: false\n';
+    fs.writeFileSync(localPath, local);
+    for (const skill of ['close-task', 'pr-review-loop']) {
+      for (const harness of ['.claude', '.codex', '.pi']) {
+        fs.rmSync(path.join(tempDir, harness, 'skills', skill), { recursive: true, force: true });
+      }
+      fs.rmSync(path.join(tempDir, '.opencode', 'commands', `${skill}.md`), { force: true });
+      fs.rmSync(path.join(tempDir, '.aicontext', 'prompts', `${skill}.md`), { force: true });
+    }
+    fs.writeFileSync(path.join(tempDir, '.aicontext', '.version'), '0.0.1');
+    await update(tempDir, true);
+    assertInstalled();
+    assert.strictEqual(fs.readFileSync(configPath, 'utf8'), existing);
+    assert.strictEqual(fs.readFileSync(localPath, 'utf8'), local);
   });
 });
 

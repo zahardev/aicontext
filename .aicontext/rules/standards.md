@@ -5,7 +5,7 @@
 ## Critical Safety Rules
 
 **NEVER run without explicit user confirmation:**
-- `git push` - Any push to remote (including non-force). Always ask first, unless pre-authorized by `after_task.push: true` (or `ask` resolved to Yes upfront), `/make-pr`'s prerequisite branch push, or an active `/gh-review-fix-loop` cycle.
+- `git push` - Ask first unless the active workflow explicitly authorizes a non-force push.
 - `git push --force` - Destructive git operations
 - Database wipe/reset commands
 - Volume/container deletion commands
@@ -141,7 +141,6 @@ After a workflow prompt finishes (file creation, step close, task finish, review
 
 **Examples:**
 - After `close-step` with unchecked steps remaining: append the active tool's `next-step` handoff.
-- After `finish-task` with pending tasks in the same spec: `Spec '{Spec Name}' has more pending tasks. Next: '{task_name}'. Would you like to start it now?`
 - After a mid-task discussion surfaces new work: append the active tool's `add-step` or `do-it` handoff.
 
 **Why:** workflow continuity. The AI holds the map; the user should never have to guess the next command. Next-action pointers are not tangents under Information Density — they are actionable and belong in the reply.

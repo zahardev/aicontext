@@ -30,4 +30,4 @@ If existing tasks already cover some requirements, note which are already covere
 
 ## 4. Create Tasks
 
-After user confirms, for each task: follow `resolve-task-naming.md` with `pattern` from config and the task's name slug to get its filename, then create the task at `.aicontext/tasks/{filename}.md` from `.aicontext/templates/task.template.md`. Derive plan steps from the spec requirements assigned to that task, following `plan-steps.md`. Append each task to the spec's `## Tasks` section, and to the `*Implemented by:*` footer of any spec subsection(s) the task implements.
+After user confirms, for each task: follow `resolve-task-naming.md` with `pattern` from config and the task's name slug to get its filename, then create the task at `.aicontext/tasks/{filename}.md` from `.aicontext/templates/task.template.md`. Populate the Issue link whenever known (including from naming); omit the Issue section if unknown. Derive plan steps from the spec requirements assigned to that task, following `plan-steps.md`. Append each task to the spec's `## Tasks` section, and to the `*Implemented by:*` footer of any spec subsection(s) the task implements.
