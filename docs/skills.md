@@ -47,7 +47,7 @@ Executes all pending steps in the current task file automatically. One agent imp
 - Checks commit configuration from `config.yml`
 - For each step: implement → review → fix → test → close step → commit
 - Review-fix inner loop runs up to 5 times per step
-- After all steps, including one-step plans: owns all `after_task.*` actions (local review, tests/fixes, verification, commit/push, PR, optional `pr-review-loop`)
+- After all steps, including one-step plans: owns all `after_task.*` actions (local review, tests/fixes, verification, commit/push, PR, optional `gh-resolve-pr`)
 - With no pending steps: finalizes implementation; `Ready to close` hands off to `/close-task` without automatically closing tracking
 - Stops on blockers, critical findings, or uncovered decisions
 
@@ -159,15 +159,15 @@ Creates the GitHub PR — reuses the local draft (or generates one), pushes the 
 
 Fetches unresolved PR review comments, classifies them (valid / false positive / low priority), fills actions (fix / resolve / skip), and bulk-resolves dismissed threads.
 
-### `/pr-review-loop`
-**Prompt:** `pr-review-loop.md`
+### `/gh-resolve-pr`
+**Prompt:** `gh-resolve-pr.md`
 
 Coordinates CI and review fixes for an existing PR, then reports readiness or blockers without merging. Uses at most 5 fix cycles / 30 minutes. Automatic `after_task.review_loop` invokes it only after automatic PR success; explicit invocation is independent of lifecycle flags.
 
 ### `/gh-review-fix-loop`
 **Prompt:** `gh-review-fix-loop.md`
 
-Fixes GitHub review threads; standalone: bounded retries; coordinator: one pass. Use `pr-review-loop` for readiness.
+Fixes GitHub review threads; standalone: bounded retries; coordinator: one pass. Use `gh-resolve-pr` for readiness.
 
 ### `/gh-fix-tests`
 **Prompt:** `gh-fix-tests.md`

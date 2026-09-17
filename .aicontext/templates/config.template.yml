@@ -60,7 +60,7 @@ after_task:
   commit: ask
   push: ask
   pr: ask
-  review_loop: ask            # PR validation after automatic PR success
+  review_loop: ask            # gh-resolve-pr after automatic PR success
 
 tdd: ask                        # true | false | ask
   # true:   testable plan steps follow test-first (write test → implement → verify)

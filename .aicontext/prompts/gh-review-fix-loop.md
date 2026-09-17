@@ -42,4 +42,4 @@ If the latest bot response says reviews are paused, report how to resume and sto
 
 Verify current review decisions as well as threads. Resolved threads do not clear a lingering `CHANGES_REQUESTED`; report reviewers who need to re-review rather than dismissing their reviews.
 
-Report resolved/fixed/skipped counts and CI results only when actually verified. This helper does not establish whole-PR readiness; use the active tool's `pr-review-loop` handoff for that when invoked standalone. Return results directly in coordinator mode.
+Report resolved/fixed/skipped counts and CI results only when actually verified. This helper does not establish whole-PR readiness; use the active tool's `gh-resolve-pr` handoff for that when invoked standalone. Return results directly in coordinator mode.

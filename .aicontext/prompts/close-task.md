@@ -22,15 +22,16 @@ List unchecked plan steps and deliverables (legacy: Requirements) without blocki
 Resolve `issue.close_on_task_close` via `ensure-config.md`; `false` skips all remote lookup.
 
 Resolve only the task's issue:
-- Prefer its explicit Issue link; a bare issue number requires a verified repository.
-- No issue reference means silent skip. If a known issue needs a repository, inspect the Git remote URL. Use an explicit link's repository instead of assuming the current remote owns it.
-- Support `github.com` initially. When `issue.close_on_task_close` is `true`, report unsupported providers/unknown hosts without running `gh`; never take the issue number from a PR.
+- Identify the task's issue from its explicit Issue link or from the issue-id position in the configured `task_naming` pattern via `ensure-config.md`; a bare issue number requires a verified repository, and never guess arbitrary numbers from a filename without an issue-id position. A `task_naming` pattern without an issue-id position or still set to `ask` means no pattern-based identification: use the explicit Issue link only, and never resolve or ask for a naming pattern during closure.
+- No issue identified means silent skip.
+- If `issue.close_on_task_close` is `ask` and an issue is identified, ask `Close GitHub issue #{number}?` (Yes / No); No skips all issue resolution, and Yes follows the `true` path.
+- If a known issue needs a repository, inspect the Git remote URL. Use an explicit link's repository instead of assuming the current remote owns it.
+- Support `github.com` initially. When `issue.close_on_task_close` is `true` or `ask` was answered Yes, report unsupported providers/unknown hosts without running `gh`; never take the issue number from a PR.
 
-Check the exact issue silently with `gh issue view "$issue" --repo "$repo" --json number,url,state`. Already-closed issues mean silent skip. When `issue.close_on_task_close` is `true`, report one short line if a task's issue link is not found or lookup fails; local closure still completes.
+Check the exact issue silently with `gh issue view "$issue" --repo "$repo" --json number,url,state`. Already-closed issues mean silent skip. When `issue.close_on_task_close` is `true` or `ask` was answered Yes, report one short line if a task's issue link is not found or lookup fails; local closure still completes.
 
 For an open issue:
-- `true`: close it without interaction.
-- `ask`: ask `Close GitHub issue #{number}?` (Yes / No); close it only on Yes. Offer to save the choice as default (default No) in the config source that supplied `ask`.
+- `true` or `ask` answered Yes: close it without interaction.
 
 Run `gh issue close "$issue" --repo "$repo" --reason completed` only when authorized. Confirm the resulting state; failures must not be reported as success or prevent local closure.
 
@@ -44,6 +45,6 @@ Task {task_name} closed:
 - Worklog: updated
 ```
 
-Append an issue result only for a proposed/performed action or, when `issue.close_on_task_close` is `true`, a lookup failure/unsupported host.
+Append an issue result only for a performed action or, when `issue.close_on_task_close` is `true` or `ask` was answered Yes, a lookup failure/unsupported host.
 
 If the spec has pending tasks, name the next one and append the active tool's `load-task` handoff; otherwise append `start-feature`. If more than 10 task files exist, suggest `tidy-aic` without running it.

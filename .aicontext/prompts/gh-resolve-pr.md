@@ -1,4 +1,4 @@
-# PR Review Loop
+# GH Resolve PR
 
 Coordinate CI and review fixes for an existing PR. Never create or merge a PR, bypass approvals, dismiss blocking reviews, or force-push.
 
