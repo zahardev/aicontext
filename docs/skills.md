@@ -162,7 +162,7 @@ Fetches unresolved PR review comments, classifies them (valid / false positive /
 ### `/gh-resolve-pr`
 **Prompt:** `gh-resolve-pr.md`
 
-Coordinates CI and review fixes for an existing PR, then reports readiness or blockers without merging. Uses at most 5 fix cycles / 30 minutes. Automatic `after_task.review_loop` invokes it only after automatic PR success; explicit invocation is independent of lifecycle flags.
+Coordinates CI and review fixes for an existing PR, then reports readiness or blockers without merging. Uses at most 5 fix cycles, bounded by `pr_validation_timeout`. Automatic `after_task.review_loop` invokes it only after automatic PR success; explicit invocation is independent of lifecycle flags.
 
 ### `/gh-review-fix-loop`
 **Prompt:** `gh-review-fix-loop.md`

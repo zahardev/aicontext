@@ -28,7 +28,7 @@ Ask the user:
 
 Follow `resolve-task-naming.md` with `pattern` from config and the task-name slug from step 1 to get the filename. Create the task file at `.aicontext/tasks/{filename}.md` from `.aicontext/templates/task.template.md`:
 
-- **Issue**: fill the explicit link for any known ID, including naming; omit the section if unknown
+- **Issue**: link to the known issue; omit the section if none
 - **Objective**: derive from the discussion — what this task aims to accomplish
 - **Spec link**: from step 2 (remove section if no spec)
 - **Deliverables**: definition of done for this work bundle — see `process.md "Task Deliverables vs Spec Requirements"`

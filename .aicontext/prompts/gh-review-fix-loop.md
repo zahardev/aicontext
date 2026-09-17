@@ -1,6 +1,6 @@
 # GitHub Review Fix Loop
 
-Resolve actionable GitHub review threads. Never merge or dismiss a blocking review merely to claim readiness.
+Resolve actionable GitHub review threads. Never merge or dismiss a review.
 
 ## 1. Context and Budget
 
@@ -8,7 +8,7 @@ Resolve actionable GitHub review threads. Never merge or dismiss a blocking revi
 - Use the caller's exact PR/repository or resolve them from the current branch. The scripts infer repository and PR from the checkout: verify their `gh repo view` / `gh pr view` target equals the intended PR before using them. Do not run them against another PR.
 - Require the matching, non-detached PR head checkout with latest remote head present and no unrelated dirty work/divergence before fixing. Never switch/reset user work automatically.
 - Load task/spec/task-context if available; absence of a task does not block standalone PR use.
-- **Standalone:** at most 5 cycles and 30 minutes total; re-triage only when new unresolved threads exist. No progress, exhausted cycles, timeout, or a human decision stops with specific blockers.
+- **Standalone:** at most 5 cycles, bounded by `pr_validation_timeout` via `ensure-config.md`; re-triage only when new unresolved threads exist. No progress, exhausted cycles, timeout, or a human decision stops with specific blockers.
 - **Coordinator mode:** one triage/fix pass with the caller's remaining budget. No waits or nested retries; return `PUSHED`, `RESOLVED`, `CLEAR`, or `BLOCKED`. The coordinator owns CI and final readiness.
 
 ## 2. Triage and Resolve
@@ -30,7 +30,7 @@ Follow `.aicontext/prompts/commit.md` for review fixes only. Verify branch/track
 
 After a successful push, change verified Fix rows to `resolve` in a fresh batch excluding processed threads, run `node .aicontext/scripts/pr-resolve.cjs "$review_file"`, and re-fetch them. If task context exists, sync new spec decisions/requirements; record supersessions per `process.md "Task-context content boundary"`.
 
-Coordinator mode returns `PUSHED` with the new head and any unresolved blockers; do not claim CI passed.
+Coordinator mode returns `PUSHED` with the new head and any unresolved blockers.
 
 ## 4. Standalone Follow-up
 
@@ -40,6 +40,6 @@ If the latest bot response says reviews are paused, report how to resume and sto
 
 ## 5. Result
 
-Verify current review decisions as well as threads. Resolved threads do not clear a lingering `CHANGES_REQUESTED`; report reviewers who need to re-review rather than dismissing their reviews.
+Verify review decisions as well as threads: resolved threads do not clear a lingering `CHANGES_REQUESTED`. Report reviewers who need to re-review.
 
 Report resolved/fixed/skipped counts and CI results only when actually verified. This helper does not establish whole-PR readiness; use the active tool's `gh-resolve-pr` handoff for that when invoked standalone. Return results directly in coordinator mode.

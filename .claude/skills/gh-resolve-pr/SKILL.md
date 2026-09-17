@@ -1,6 +1,6 @@
 ---
 name: gh-resolve-pr
-description: Coordinate CI/review fixes for an existing GitHub PR; report readiness or blockers, never merge.
+description: Fix CI and review findings on a GitHub PR, then report readiness.
 disable-model-invocation: true
 ---
 

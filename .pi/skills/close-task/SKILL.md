@@ -1,6 +1,6 @@
 ---
 name: close-task
-description: Administrative closure; warns about unfinished work, updates tracking, and optionally closes its issue. No PR inspection or publication.
+description: Close the task: update tracking and optionally its GitHub issue.
 disable-model-invocation: true
 ---
 

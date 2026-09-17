@@ -62,6 +62,8 @@ after_task:
   pr: ask
   review_loop: ask            # gh-resolve-pr after automatic PR success
 
+pr_validation_timeout: 60m      # outer bound for each gh-resolve-pr wait
+
 tdd: ask                        # true | false | ask
   # true:   testable plan steps follow test-first (write test → implement → verify)
   # false:  skip TDD — plan steps are implementation only
