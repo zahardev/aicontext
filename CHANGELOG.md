@@ -4,12 +4,12 @@
 
 ### Added
 - `close-task` provides administrative closure and optional issue closure; `finish-task` is a deprecated alias.
-- `pr-review-loop` coordinates bounded CI/review readiness checks without merging.
+- `gh-resolve-pr` coordinates bounded CI/review readiness checks without merging.
 - Persistent task status and valuable per-step completion notes.
 
 ### Changed
 - `run-task` owns `after_task.*`; closure no longer performs git/PR automation.
-- `after_task.review_loop` runs `pr-review-loop` only after automatic PR success.
+- `after_task.review_loop` runs `gh-resolve-pr` only after automatic PR success.
 - New/defaulted whole-task review is `deep`; existing settings remain unchanged.
 - CI/review helpers support shared coordinator budgets and standalone use.
 

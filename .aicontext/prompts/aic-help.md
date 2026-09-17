@@ -49,7 +49,7 @@ Describe the fix in conversation → `do-it` - creates a task step and implement
 
 **PR review cycle:**
 `gh-review-check` - one-time fetch and triage of PR review comments.
-`pr-review-loop` coordinates bounded CI/review fixes and reports GitHub PR readiness without merging; `gh-review-fix-loop` and `gh-fix-tests` remain standalone helpers. Explicit skills remain available regardless of automatic lifecycle flags.
+`gh-resolve-pr` coordinates bounded CI/review fixes and reports GitHub PR readiness without merging; `gh-review-fix-loop` and `gh-fix-tests` remain standalone helpers. Explicit skills remain available regardless of automatic lifecycle flags.
 
 **Multiple tasks from one spec:**
 `start-feature` (creates spec) → `plan-tasks` (breaks spec into tasks) → `run-task` per task

@@ -42,4 +42,4 @@ If exactly one PR matches, run `gh pr edit "$pr" --repo "$repo" --title "$title"
 
 Re-fetch the resulting PR and confirm its repository, head, and base before reporting success.
 
-Return the PR URL, number, repository, and head to the caller; automatic `pr-review-loop` uses this exact target. Failed push/create/update returns a blocker, never a successful PR handoff.
+Return the PR URL, number, repository, and head to the caller; automatic `gh-resolve-pr` uses this exact target. Failed push/create/update returns a blocker, never a successful PR handoff.

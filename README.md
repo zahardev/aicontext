@@ -99,8 +99,8 @@ Learn more in the [development model guide](docs/development-model.md).
 - `draft-issue` - draft a GitHub issue from conversation, create it on GitHub, and auto-fill the issue ID in subsequent task filenames
 - `draft-pr` - generate a PR description from task context and git history (local file only)
 - `make-pr` - push the branch if needed and create the PR on GitHub
-- `run-task` owns configured `after_task.*` finalization after all plan steps, including PR creation/update and optional `pr-review-loop`.
-- `pr-review-loop` validates an existing PR's CI, reviews, and mergeability without merging.
+- `run-task` owns configured `after_task.*` finalization after all plan steps, including PR creation/update and optional `gh-resolve-pr`.
+- `gh-resolve-pr` validates an existing PR's CI, reviews, and mergeability without merging.
 - GitHub is supported initially; unsupported providers receive a limitation report.
 - `gh-review-fix-loop` - automate the review-fix-push cycle (works with CodeRabbit, human reviewers, etc.)
 - `gh-fix-tests` - fix failing CI checks automatically: diagnose, fix, push, retry until green

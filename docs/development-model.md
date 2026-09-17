@@ -150,7 +150,7 @@ Lifecycle and commit settings live in `.aicontext/config.yml`. Personal override
 - `after_step.review` / `tests` / `commit` — fire after each step
 - `after_task.review` / `tests` / `commit` / `push` / `pr` / `review_loop` - run only inside `/run-task` after all plan steps, never during `/close-task`
 
-New/defaulted `after_task.review` is `deep`; existing settings are preserved. `after_task.commit` commits remaining changes even after step commits; no changes means skip. `after_task.push` is independent. `pr` authorizes PR creation/update and its prerequisite push. `review_loop` invokes `pr-review-loop` for CI, reviews, and mergeability only after automatic PR success. All flags govern automatic invocation only.
+New/defaulted `after_task.review` is `deep`; existing settings are preserved. `after_task.commit` commits remaining changes even after step commits; no changes means skip. `after_task.push` is independent. `pr` authorizes PR creation/update and its prerequisite push. `review_loop` invokes `gh-resolve-pr` for CI, reviews, and mergeability only after automatic PR success. All flags govern automatic invocation only.
 
 Issue closure belongs to `/close-task` through `issue.close_on_task_close: true | false | ask` (default `ask`). No PR inspection or publication occurs during closure.
 

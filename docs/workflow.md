@@ -146,7 +146,7 @@ After your PR receives review comments, use `/gh-review-check` to handle them ef
 
 ### Automated Review Cycle
 
-Use `/pr-review-loop` on an existing PR to coordinate CI and review fixes. It waits for initial activity, delegates to `/gh-fix-tests` and `/gh-review-fix-loop`, then rechecks the latest head, approvals, and mergeability. Limits: 5 fix cycles / 30 minutes. No CI or review activity after discovery skips that phase; pending/unknown state and missing applicable required approvals are blockers, not success. It never merges.
+Use `/gh-resolve-pr` on an existing PR to coordinate CI and review fixes. It waits for initial activity, delegates to `/gh-fix-tests` and `/gh-review-fix-loop`, then rechecks the latest head, approvals, and mergeability. Limits: 5 fix cycles / 30 minutes. No CI or review activity after discovery skips that phase; pending/unknown state and missing applicable required approvals are blockers, not success. It never merges.
 
 For automatic execution, set `after_task.pr` and `after_task.review_loop` to `true`. The latter retains its name but now selects whole-PR validation. With `pr: false`, requested automatic validation is skipped with a warning and no PR lookup. Setting either flag to `false` never disables explicit skills.
 
