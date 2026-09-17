@@ -28,7 +28,7 @@ After all plan steps complete:
 Only proceed after local finalization succeeds:
 
 - **Commit** — if `after_task.commit` is Yes and task-scoped uncommitted changes exist, follow `.aicontext/prompts/commit.md`. Step commits do not suppress remaining changes. No changes means silent skip; failure stops.
-- **Push** — if `after_task.push` is Yes, verify branch/tracking state and push the current branch to its verified remote; detached HEAD, ambiguity, or failure stops. Independent of the commit gate.
+- **Push** — if `after_task.push` is Yes, it authorizes this non-force push: verify branch/tracking state and push the current branch to its verified remote; detached HEAD, ambiguity, or failure stops. Independent of the commit gate.
 - **PR** — if `after_task.pr` is Yes, follow `make-pr.md` and retain the resulting URL, repository, and head. Require success.
 - **PR validation** — if the PR succeeded and `after_task.review_loop` is Yes, follow `.aicontext/prompts/gh-resolve-pr.md` with that target. `BLOCKED` stops finalization; `READY` continues. With `after_task.pr` false, skip it without searching for an existing PR.
 

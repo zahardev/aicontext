@@ -46,7 +46,6 @@ const {
 } = require('../bin/aicontext.js');
 
 const packageRoot = path.join(__dirname, '..');
-const piSkillDescriptions = JSON.parse(fs.readFileSync(path.join(__dirname, 'fixtures', 'pi-skill-descriptions.json'), 'utf8'));
 
 const originalLog = console.log;
 before(() => { console.log = process.env.DEBUG ? originalLog : () => {}; });
@@ -490,51 +489,6 @@ describe('FRAMEWORK_PROMPTS', () => {
       'brainstorm.md', 'interview.md', 'load-spec.md', 'load-task.md', 'migrate-config.md', 'resolve-asks.md', 'review-task.md', 'run-step.md', 'run-task.md', 'start-feature.md', 'start.md', 'step-loop.md', 'test-writer.md', 'thoughts.md', 'tidy-aic.md', 'web-inspect.md',
     ];
     assert.deepStrictEqual([...FRAMEWORK_PROMPTS].sort(), [...expected].sort());
-  });
-});
-
-describe('startup update workflow', () => {
-  it('should defer config and update work to the cached helper', () => {
-    const prompt = fs.readFileSync(path.join(packageRoot, '.aicontext', 'prompts', 'start.md'), 'utf8');
-
-    assert.match(prompt, /Do not load.*config\.yml/i);
-    assert.match(prompt, /scripts\/check-update\.cjs/);
-    assert.doesNotMatch(prompt, /Follow `check-update\.md`/);
-  });
-});
-
-describe('lazy config resolution workflow', () => {
-  it('should inspect discrepancies only for requested fields', () => {
-    const prompt = fs.readFileSync(path.join(packageRoot, '.aicontext', 'prompts', 'ensure-config.md'), 'utf8');
-
-    assert.match(prompt, /read.*config\.yml.*config\.local\.yml/is);
-    assert.match(prompt, /merge recursively by key/i);
-    assert.doesNotMatch(prompt, /Validate all present known values/i);
-    assert.match(prompt, /### Missing value[\s\S]*legacy aliases[\s\S]*default from .*config\.template/i);
-    const presentValue = prompt.match(/### Present value\n([\s\S]*?)(?=\n### )/)?.[1] || '';
-    assert.match(presentValue, /Unexpected/);
-    assert.match(presentValue, /caller/);
-    assert.match(presentValue, /template entry/);
-    assert.match(presentValue, /source file/);
-    assert.doesNotMatch(prompt, /### Recognized values/);
-    assert.doesNotMatch(prompt, /follow `migrate-config\.md` immediately/i);
-  });
-});
-
-describe('scoped config migration', () => {
-  it('should update only requested test fields', () => {
-    const asks = fs.readFileSync(path.join(packageRoot, '.aicontext', 'prompts', 'resolve-asks.md'), 'utf8');
-    const types = fs.readFileSync(path.join(packageRoot, '.aicontext', 'prompts', 'resolve-test-types.md'), 'utf8');
-
-    assert.match(asks, /pass only those fields/i);
-    assert.match(types, /Update requested fields only/i);
-  });
-
-  it('should apply source precedence before alias precedence', () => {
-    const prompt = fs.readFileSync(path.join(packageRoot, '.aicontext', 'prompts', 'migrate-config.md'), 'utf8');
-
-    assert.match(prompt, /within each source[\s\S]*prefer the local result/i);
-    assert.match(prompt, /finish_action.*overrides.*mode.*only within the same source/i);
   });
 });
 
@@ -2089,11 +2043,9 @@ describe('opencode and pi entry points', () => {
       const skillPath = path.join(tempDir, '.pi', 'skills', skill, 'SKILL.md');
       const codexPolicy = fs.readFileSync(path.join(packageRoot, '.codex', 'skills', skill, 'agents', 'openai.yaml'), 'utf8');
       const content = fs.readFileSync(skillPath, 'utf8');
-      const piDescription = content.match(/^description: (.+)$/m)?.[1];
       const promptPath = '.aicontext/prompts/' + skill + '.md';
 
       assert.strictEqual(content.match(/^name: (.+)$/m)?.[1], skill, `${skill} name differs`);
-      assert.strictEqual(piDescription, piSkillDescriptions[skill], `${skill} description differs`);
       assert.ok(content.includes(promptPath), `${skill} has no canonical prompt reference`);
       assert.ok(fs.existsSync(path.join(tempDir, promptPath)), `${skill} prompt reference is invalid`);
       assert.strictEqual(

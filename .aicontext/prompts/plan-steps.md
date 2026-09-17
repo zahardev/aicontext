@@ -61,6 +61,14 @@ Task steps describe what to build or change — behavior descriptions belong in 
 - "Create UserController with login() method using Library X"
 - "If update available: show notification, then ask 'Would you like to upgrade?' (Yes / Not now)"
 
+## Minimum Necessary Plan
+
+Add a plan step or item only if it is necessary for a required outcome, validation, or dependency. Do not split work for symmetry or narration. A task may have one step, and a step may have one item.
+
+## Complete Planning Before Execution
+
+Complete research, inventory, and decisions before presenting a plan. Include them as a plan step only when their output is a task deliverable.
+
 ## Checkbox Format
 - Use `- [ ]` for unchecked items; never `- [x]` in initial plans
 - Order steps by dependency — a step cannot depend on a later step

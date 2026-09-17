@@ -41,8 +41,6 @@ If the feature is a single cohesive piece, create one task without asking.
 ---
 
 > **Interview complete. Move directly to Step 5 — file creation.**
->
-> Every output below is a file on disk. Do not summarize, ask follow-ups, or propose changes. File creation only.
 
 ## 5. Create Spec, Task, Task-Context, and Worklog Files
 
