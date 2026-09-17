@@ -5,8 +5,8 @@ Execute pending steps, then finalize implementation. Own all automatic `after_ta
 ## 1. Setup
 
 1. Follow `identify-task.md`; load task, linked spec, task-context, and worklog per Session Context Reuse. Create missing task-context from its template.
-2. Check status. If `Done` with no new work, report already closed and stop. If `Ready to close` and no pending, new, or resumed work exists, hand off to `close-task` unless re-finalization is requested.
-3. Pending/new/resumed work invalidates readiness and reopens local tracking. Set status `Implementing` before execution or a finalization retry. Completed steps with this status proceed directly to Section 3.
+2. Check status. If `Done` with no new work, report already closed and stop. If `Ready to close` and no new or resumed work exists, suggest `close-task`.
+3. New or resumed work invalidates readiness and reopens local tracking. Set status `Implementing` before execution or a finalization retry; a `Pending` task starts here. Completed steps with this status proceed directly to Section 3.
 4. Follow `ensure-config.md` with `after_step.*` only when steps need execution, plus `after_task.review`, `after_task.tests`, `after_task.commit`, `after_task.push`, `after_task.pr`, and `project.base_branch`. Resolve `after_task.review_loop` only when `after_task.pr` is Yes.
 
 ## 2. Execute

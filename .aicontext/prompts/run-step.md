@@ -10,8 +10,8 @@ Follow `ensure-config.md` with `after_step.*`.
 
 - If an argument is provided (e.g. `run-step 3`), use that step number
 - Otherwise, use the first unchecked step (`- [ ]`)
-- If no unchecked steps remain: stop with `run-task` for finalization when `Implementing`, `close-task` when `Ready to close`, or `start-feature` when `Done`. Use Native Skill Syntax.
+- If no unchecked steps remain: stop with `run-task` for finalization when `Pending` or `Implementing`, `close-task` when `Ready to close`, or `start-feature` when `Done`. Use Native Skill Syntax.
 
 ## 3. Execute
 
-Follow `.aicontext/prompts/step-loop.md`. It runs review, tests, commit, and step close per the resolved config.
+Set status `Implementing` if it is `Pending`. Follow `.aicontext/prompts/step-loop.md`. It runs review, tests, commit, and step close per the resolved config.
