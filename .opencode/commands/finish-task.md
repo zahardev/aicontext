@@ -1,5 +1,5 @@
 ---
-description: Deprecated alias for close-task. Administrative closure only; no PR inspection or publication.
+description: Deprecated alias for close-task.
 ---
 
 Read and follow `.aicontext/prompts/finish-task.md`

@@ -18,7 +18,7 @@ For each unchecked item, ask: did *this step* deliver it **100% unambiguously**?
 - Yes → check the box.
 - Partial or unclear → leave unchecked. Cumulative verification happens at task close.
 
-Always walk the lists — never skip. If zero boxes were checked, report `no checks affected` in the summary. Most steps produce zero checks; that is normal.
+Always walk the lists — never skip. If zero boxes were checked, report `no checks affected` in the summary.
 
 *Legacy fallbacks:* task has no `## Deliverables:` or `## Requirements:` → skip the deliverables walk. Spec has no `*Implemented by:*` footers → whole-spec scan.
 
@@ -52,8 +52,6 @@ Step N closed:
 - Task-context: +[count] entries ([sections touched])
 - Spec: [what changed, or "no changes"]
 ```
-
-Do not add filler to satisfy counts.
 
 After the summary, append one handoff line based on the task state:
 - If unchecked plan steps remain → append the active tool's `next-step` handoff.

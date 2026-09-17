@@ -6,15 +6,15 @@ Wait for and fix failing GitHub CI checks (tests, lint, type, build). Fix the ca
 
 Use the caller's exact PR/repository, or resolve an explicit PR URL/current branch after verifying the remote is `github.com`. Unsupported/unknown providers, missing PR, or auth errors stop with a report before fixes. A standalone PR without a task is valid.
 
-- **Standalone:** at most 3 fix attempts and 30 minutes total.
+- **Standalone:** at most 3 fix attempts, bounded by `pr_validation_timeout` via `ensure-config.md`.
 - **Coordinator mode:** one fix pass, caller's remaining deadline, no independent retry loop. Return `PUSHED`, `PASS`, `SKIP`, or `BLOCKED`; the coordinator owns subsequent waits and readiness.
 - Before fixing, require the PR head branch/repository checked out, a non-detached HEAD, latest remote head present, and no unrelated dirty work or divergence. Stop rather than switching/resetting user work.
 
 ## 2. Observe Checks
 
-Read `gh pr checks "$pr" --repo "$repo"` and `gh pr view "$pr" --repo "$repo" --json headRefOid,statusCheckRollup`. Pending is not passed. On a new head, allow up to 2 minutes for initial checks to appear, polling every 15 seconds within the deadline. Standalone mode reports no checks after discovery as `SKIP`; coordinator mode returns silent `SKIP`.
+Coordinator mode uses the failing checks the caller passed; skip to Section 3.
 
-Wait for pending checks within the remaining deadline, then re-fetch state. Require successful retrieval; distinguish no checks from auth/network errors. Cancelled/timed-out/unknown conclusions or an exhausted wait return `BLOCKED`, not success. If the head changes, discard stale results and observe again within the same budget.
+Standalone: `gh pr checks "$pr" --repo "$repo" --watch --fail-fast` within the deadline, then `gh pr view "$pr" --repo "$repo" --json headRefOid,statusCheckRollup`. No checks returns `SKIP`; distinguish that from auth/network errors. Cancelled, timed-out, or unknown conclusions and an expired wait return `BLOCKED`. A changed head means observe again.
 
 All checks passed (or explicitly skipped/neutral where GitHub accepts them) → `PASS`. Otherwise fetch logs for the exact failing check's run with `gh run view "$run_id" --repo "$repo" --log-failed`; if logs or the cause are unavailable, report and stop.
 

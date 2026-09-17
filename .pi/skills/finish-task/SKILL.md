@@ -1,6 +1,6 @@
 ---
 name: finish-task
-description: Deprecated alias for close-task. Administrative closure only; no PR inspection or publication.
+description: Deprecated alias for close-task.
 disable-model-invocation: true
 ---
 

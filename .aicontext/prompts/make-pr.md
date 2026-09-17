@@ -2,10 +2,11 @@
 
 ## 1. Load Settings
 
-Inspect the Git remote URL before any `gh` command or push. Support `github.com` initially; unknown/unsupported providers stop with a limitation report. Verify the intended repository, head remote/branch, and base branch; do not guess a fork's push target.
+Explicit invocation authorizes the PR regardless of `after_task.pr`.
+
+Inspect the Git remote URL before any `gh` command or push. GitHub only: other or unknown hosts stop with a limitation report. Verify the intended repository, head remote/branch, and base branch; do not guess a fork's push target.
 
 - Follow `ensure-config.md` with `project.base_branch` (default: `main`)
-- Explicit `make-pr` invocation overrides lifecycle settings.
 - Run `git status` for the current branch and tracking state. If HEAD is detached, stop and ask the user
 
 ## 2. Load or Generate a Draft
@@ -42,4 +43,4 @@ If exactly one PR matches, run `gh pr edit "$pr" --repo "$repo" --title "$title"
 
 Re-fetch the resulting PR and confirm its repository, head, and base before reporting success.
 
-Return the PR URL, number, repository, and head to the caller; automatic `gh-resolve-pr` uses this exact target. Failed push/create/update returns a blocker, never a successful PR handoff.
+Return the PR URL, number, repository, and head to the caller; automatic `gh-resolve-pr` uses this exact target. Failed push/create/update returns a blocker.
