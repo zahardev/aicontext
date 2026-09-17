@@ -8,7 +8,7 @@ N = the step number just completed.
 
 - Check off completed items (`- [ ]` → `- [x]`)
 - Update the Last Updated date
-- Append valuable completion notes per `process.md "Execution, finalization, and closure"`; leave status `Implementing`.
+- Append valuable `[Step N]` notes: outcomes, compromises, follow-ups, learnings. Preserve earlier notes and update an existing note instead of duplicating it; nothing valuable means no entry. Working knowledge goes to task-context. Leave status `Implementing`.
 
 ## 2. Update Checkboxes (100% rule)
 

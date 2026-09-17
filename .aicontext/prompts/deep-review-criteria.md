@@ -114,7 +114,7 @@ After all phases, group findings by **root cause**:
 - **One finding per concern** — don't bundle multiple issues
 - Skip trivial findings (pure style preferences, bike-shedding)
 - If no significant findings, say so — don't invent issues
-- **Respect project standards** — never suggest changes that violate the project's own KISS, DRY, or over-engineering rules. If standards say "three similar lines is better than a premature abstraction", don't suggest abstracting two similar blocks.
+- **Respect project standards** — never suggest changes that violate the project's own KISS and DRY rules. If standards say "three similar lines is better than a premature abstraction", don't suggest abstracting two similar blocks.
 
 ## Output
 

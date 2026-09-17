@@ -1,22 +1,19 @@
 # Session Start
 
+## 1. Load project context
+
+Read these files.
+1. `.aicontext/rules/standards.md` — standards, rules
+2. `.aicontext/rules/process.md` — task management, lifecycle rules
+3. `.aicontext/structure.md` — commands, folder structure, environment
+4. `.aicontext/local.md` — personal/local settings (if it exists, gitignored)
+
 ## 1. Auto-setup gate
 
 Read `.aicontext/project.md` unless it is already fully loaded and known unchanged in this session.
 
-- **If it does not exist:** STOP. Read `.aicontext/prompts/generate.md` and complete the entire setup. Do not proceed to step 2 until `project.md` has been created.
-- **If it exists:** proceed to step 2.
-
-## 2. Load project context
-
-Read these files per the Session Context Reuse rule in `process.md` (later files override earlier ones). Do not batch these with the step 1 read — step 1 must resolve first.
-
-1. `.aicontext/rules/process.md` — task management, lifecycle rules
-2. `.aicontext/rules/standards.md` — coding standards, safety rules, AI behavior
-3. `.aicontext/structure.md` — commands, folder structure, environment
-4. `.aicontext/local.md` — personal/local settings (if it exists, gitignored)
-
-Do not load `.aicontext/config.yml` during startup. Config-consuming workflows load it on demand through `ensure-config.md`.
+- **If it does not exist:** STOP. Read `.aicontext/prompts/generate.md` and complete the entire setup. Do not proceed to step 3 until `project.md` has been created.
+- **If it exists:** proceed to step 3.
 
 ## 3. Confirm readiness
 
