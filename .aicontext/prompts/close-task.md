@@ -8,7 +8,7 @@ Follow `identify-task.md`. Load the task, linked spec, task-context and worklog 
 
 ## 2. Warn and Align
 
-List unchecked plan steps and deliverables (legacy: Requirements) without blocking or checking them off. Follow `align-context.md` sections 3–4 for known spec decisions and task-context only; note new work as a follow-up without re-verifying the whole spec.
+List unchecked plan steps and deliverables (legacy: Requirements) without blocking or checking them off; a `Pending` task warns that nothing was implemented. Follow `align-context.md` sections 3–4 for known spec decisions and task-context only; note new work as a follow-up without re-verifying the whole spec.
 
 ## 3. Mark Closed
 

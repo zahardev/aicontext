@@ -30,4 +30,4 @@ Candidate topics — omit any with nothing to report. Surface findings naturally
 After the report, append exactly one handoff using Native Skill Syntax:
 - User action required → `Address the flagged items first.`
 - Pending steps → `run-step` (one) or `run-task` (multiple).
-- No pending steps → `run-task` for finalization when `Implementing`, `close-task` when `Ready to close`, or `start-feature` when `Done`; never rerun finalization on load.
+- No pending steps → `run-task` for finalization when `Pending` or `Implementing`, `close-task` when `Ready to close`, or `start-feature` when `Done`; never rerun finalization on load.

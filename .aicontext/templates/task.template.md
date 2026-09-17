@@ -4,7 +4,7 @@
 [Date - use format: Month Day, Year]
 
 ## Status:
-Implementing
+Pending
 <!-- See process.md "Execution, finalization, and closure". -->
 
 ## Issue:
@@ -29,20 +29,10 @@ Implementing
 ## Plan:
 
 ### Step 1: [Step Title]
-- [ ] [Task/feature 1]
-- [ ] [Task/feature 2]
-
-### Step 2: [Step Title]
-- [ ] [Task/feature 1]
-- [ ] [Task/feature 2]
-
-### Step 3: [Step Title]
-- [ ] [Task/feature 1]
-- [ ] [Task/feature 2]
+- [ ] [Necessary task item]
 
 ## Completion Notes:
 
-- [Compromises made, follow-up tasks, important learnings — one item per line]
 
 ---
 
