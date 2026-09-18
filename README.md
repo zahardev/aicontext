@@ -86,6 +86,12 @@ Learn more in the [development model guide](docs/development-model.md).
 - `deep-review` - comprehensive architecture + correctness + codebase health review
 - Specialized reviewer agent runs in parallel without consuming your main conversation (Claude Code)
 
+### Agent orchestration
+You can make your AI the tech lead and give it a team of agents — it plans and delegates instead of coding.
+
+- `orchestrate-workers` - a coder, test writer, tester, and reviewer run as separate agents; the lead triages their findings and gates on your approval
+- Requires Herdr and Pi workers
+
 ### Session continuity
 - `load-task` - read spec, task-context, and task to continue exactly where you left off
 - `load-spec` - read a feature spec, linked-task progress, and coverage gaps
