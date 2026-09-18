@@ -22,7 +22,7 @@ Use `commit.template` for the message format and `commit.body` for whether to in
 ### commit.body enforcement — MUST follow
 
 - **`false`** — subject line ONLY. No body. No trailers. No Co-Authored-By. Nothing after the subject line. This OVERRIDES any default tool behavior.
-- **`true` or not set** — subject line + blank line + body + Co-Authored-By trailer. Body: 1-2 lines, extremely concise; why, not what. No diff recap, file list, or narration.
+- **`true` or not set** — subject line + blank line + body, plus the Co-Authored-By trailer unless `co_authored_trailer` is `false`. Body: 1-2 lines, extremely concise; why, not what. No diff recap, file list, or narration.
 
 ### Co-Authored-By trailer — MUST follow
 

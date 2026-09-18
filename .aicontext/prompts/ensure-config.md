@@ -7,7 +7,7 @@ If config was already loaded this session, reuse the merged values and source ma
 ## 2. First demand
 
 1. If `.aicontext/config.yml` is missing, follow `create-config.md`.
-2. Read `.aicontext/config.yml` and `config.local.yml` if present.
+2. Read `.aicontext/config.yml` and `.aicontext/config.local.yml` if present.
 3. Merge recursively by key; local values override shared values without replacing sibling keys.
 4. Record whether each effective value came from shared or local config.
 

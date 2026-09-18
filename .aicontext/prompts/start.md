@@ -21,7 +21,7 @@ After reading all files above, confirm in one sentence that includes the project
 
 ## 4. Check for updates (housekeeping)
 
-After reporting readiness, run `node .aicontext/scripts/check-update.cjs {project_root}` once. If the helper is missing, fails, or prints nothing, continue silently.
+After reporting readiness, run `node .aicontext/scripts/check-update.cjs "{project_root}"` once. If the helper is missing, fails, or prints nothing, continue silently.
 
 If it prints an update notice, show it and ask:
 

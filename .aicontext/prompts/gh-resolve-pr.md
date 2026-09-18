@@ -20,7 +20,7 @@ Fix CI and review findings on an existing PR, then report readiness. Never creat
 
 Re-fetch `gh pr view` and `gh pr checks "$pr" --repo "$repo" --required` plus unresolved threads at the latest head. No required checks is a valid result, not a failure.
 
-Ready requires: open, not draft, mergeable without conflicts, required checks passed, no unresolved actionable threads, and no missing or blocking review decision. Report anything else, including pending or unknown states, as a blocker.
+Ready requires: open, not draft, mergeable without conflicts, required checks passed, no unresolved actionable threads, and no missing or blocking review decision. While `mergeable` or `mergeStateStatus` is `UNKNOWN`, re-fetch within the deadline. Report anything else, including pending states, as a blocker.
 
 Report one of, naming any phase that had nothing to check:
 - `PR #{number} ready at {head}: not merged.`

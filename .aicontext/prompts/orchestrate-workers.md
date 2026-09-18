@@ -38,6 +38,8 @@ pane=$(herdr pane split --current --direction right --cwd "$PWD" --no-focus | gr
 herdr agent start <name> --kind pi --pane "$pane" -- --model <model> --thinking <thinking>
 ```
 
+An empty `$pane` means the split failed — stop, do not start the agent.
+
 Repeat per worker, splitting the previous pane with `--pane "$pane" --direction down`. Flags after `--` go to the agent; the table in section 3 supplies them.
 
 - Start the coder at the task beginning; start the test writer and tester fresh each step and close them after it.
@@ -79,11 +81,11 @@ Never block on a worker. Prompt it, then watch it in one background job per work
 
 ```bash
 herdr agent prompt <name> "<text>"        # returns immediately
-until herdr agent get <name> | grep -q '"agent_status":"working"'; do sleep 1; done
+for _ in $(seq 30); do herdr agent get <name> | grep -q '"agent_status":"working"' && break; sleep 1; done
 while herdr agent get <name> | grep -q '"agent_status":"working"'; do sleep 2; done
 ```
 
-Wait for `working` first: polling straight after the prompt reads the previous `idle` and reports a finish that never happened.
+Wait for `working` first: polling straight after the prompt reads the previous `idle` and reports a finish that never happened. The bound covers a worker that finishes before the first poll.
 
 1. **Coder** implements and stops.
 2. **Test writer** reads the code for its surface, but takes expectations from the spec and step: assert intended behavior, not what the code currently does.

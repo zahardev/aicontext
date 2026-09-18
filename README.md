@@ -90,7 +90,7 @@ Learn more in the [development model guide](docs/development-model.md).
 You can make your AI the tech lead and give it a team of agents — it plans and delegates instead of coding.
 
 - `orchestrate-workers` - a coder, test writer, tester, and reviewer run as separate agents; the lead triages their findings and gates on your approval
-- Requires Herdr and Pi workers
+- Requires Herdr; Pi workers preferred, other agent kinds on request
 
 ### Session continuity
 - `load-task` - read spec, task-context, and task to continue exactly where you left off

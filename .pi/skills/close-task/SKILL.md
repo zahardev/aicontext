@@ -1,6 +1,6 @@
 ---
 name: close-task
-description: Close the task: update tracking and optionally its GitHub issue.
+description: "Close the task: update tracking and optionally its GitHub issue."
 disable-model-invocation: true
 ---
 
