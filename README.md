@@ -203,6 +203,7 @@ One config file controls how the AI works — no prompt engineering needed:
 
 | Version | Highlights |
 |---------|------------|
+| **1.12.0** | Native Pi skills (`/skill:name`). Worker orchestration with `/orchestrate-workers`. Separate task closure via `/close-task` and persistent task status. Bounded PR readiness with `/gh-resolve-pr`. Cached, silent update checks and on-demand config loading. |
 | **1.11.0** | OpenCode and Pi workflow support. Selective Codex skill routing. Explicit `make-pr` workflow, with `draft-pr` now local-only. Task and spec loading via `load-task` and `load-spec`. Typed response references for questions, concerns, risks, decisions, actions, unexpected findings, and options. |
 | **1.10.0** | Configurable TDD (`tdd: true/false/ask`). Dedicated `plan-steps.md` for plan-creation-time rules. Branch verification before remote ops. Correct git range operators in PR drafts. |
 | **1.9.0** | Documentation generation (`/generate-docs`). Type-aware test config with per-type scoping. Self-healing updates and `--force` flag. Choose which AI tools to install. Clearer skill names (`/resume-task`, `/review-task`). |
