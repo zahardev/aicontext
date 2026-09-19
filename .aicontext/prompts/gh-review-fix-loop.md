@@ -1,102 +1,45 @@
 # GitHub Review Fix Loop
 
-Automate the PR review cycle: fetch comments, triage, fix, push, wait for re-review, repeat.
+Resolve actionable GitHub review threads. Never merge or dismiss a review.
 
-## Prerequisites
+## 1. Context and Budget
 
-- A PR must already exist for the current branch
-- `.aicontext/scripts/pr-reviews.cjs` and `.aicontext/scripts/pr-resolve.cjs` must be available
+- Require an existing open GitHub PR and `.aicontext/scripts/pr-reviews.cjs` / `pr-resolve.cjs`. Verify the provider from the PR URL/remote before `gh`; unsupported/unknown providers stop with a limitation report.
+- Use the caller's exact PR/repository or resolve them from the current branch. The scripts infer repository and PR from the checkout: verify their `gh repo view` / `gh pr view` target equals the intended PR before using them. Do not run them against another PR.
+- Require the matching, non-detached PR head checkout with latest remote head present and no unrelated dirty work/divergence before fixing. Never switch/reset user work automatically.
+- Load task/spec/task-context if available; absence of a task does not block standalone PR use.
+- **Standalone:** at most 5 cycles, bounded by `pr_validation_timeout` via `ensure-config.md`; re-triage only when new unresolved threads exist. No progress, exhausted cycles, timeout, or a human decision stops with specific blockers.
+- **Coordinator mode:** one triage/fix pass with the caller's remaining budget. No waits or nested retries; return `PUSHED`, `RESOLVED`, `CLEAR`, or `BLOCKED`. The coordinator owns CI and final readiness.
 
-## Before Starting
+## 2. Triage and Resolve
 
-Load the task file, spec (if linked), and task-context (at `.aicontext/data/task-context/context-{task-filename}.md` if it exists). Skip any file already Read earlier in this conversation — rely on memory.
+Run `node .aicontext/scripts/pr-reviews.cjs`. If no unresolved threads, return `CLEAR` (review threads only, not proof of green CI or mergeability).
 
-Set `cycle = 1`, max cycles = 5.
+For each thread:
+- **Fix:** actionable issue with a clear code change.
+- **Resolve:** false positive, irrelevant, or already addressed; explain why.
+- **Skip:** needs human judgment; report as a blocker.
 
-## Cycle Loop
+Fill the Reply column for Fix and Resolve entries. Run `node .aicontext/scripts/pr-resolve.cjs "$review_file"` for Resolve actions only; leave Fix rows unresolved until the successful push in Section 3. Inspect reply/resolution results and re-fetch threads; the script can report partial failures with exit code zero. Failures are blockers, not an empty review.
 
-Repeat until no fixable issues remain or `cycle > 5`:
+Implement Fix items and verify affected behavior locally. If verification fails or is unavailable, report a blocker. If none require code, do not push. Unresolved Skip items return `BLOCKED`.
 
-### 1. Fetch Review Comments
+## 3. Commit and Push
 
-```
-node .aicontext/scripts/pr-reviews.cjs
-```
+Follow `.aicontext/prompts/commit.md` for review fixes only. Verify branch/tracking state and push the PR head branch to its verified remote; the active review-fix cycle authorizes this non-force push. Stop on failure.
 
-### 2. Triage Each Comment
+After a successful push, change verified Fix rows to `resolve` in a fresh batch excluding processed threads, run `node .aicontext/scripts/pr-resolve.cjs "$review_file"`, and re-fetch them. If task context exists, sync new spec decisions/requirements; record supersessions per `process.md "Task-context content boundary"`.
 
-Actions:
-- **Fix** — real issue with a clear code change
-- **Resolve** — false positive, incorrect, irrelevant, or already addressed
-- **Skip** — needs user input or human judgment
+Coordinator mode returns `PUSHED` with the new head and any unresolved blockers.
 
-Fill the Reply column for every `resolve` and `fix` — the reply is posted as a comment on the PR thread. Keep it concise.
+## 4. Standalone Follow-up
 
-### 3. Resolve
+Allow up to 2 minutes for new review activity, polling every 15 seconds; wait for any pending reviewer checks within the remaining total deadline. Re-fetch after every head change. Missing activity after the discovery window means no automatic review to process; do not query bot configuration.
 
-Resolve all comments marked Resolve — the script processes the review file and posts Reply column text before resolving each thread:
-```
-node .aicontext/scripts/pr-resolve.cjs <path-to-review-file>
-```
+If the latest bot response says reviews are paused, report how to resume and stop.
 
-### 4. Fix
+## 5. Result
 
-Implement fixes for all comments marked Fix.
+Verify review decisions as well as threads: resolved threads do not clear a lingering `CHANGES_REQUESTED`. Report reviewers who need to re-review.
 
-### 5. Commit and Push
-
-**Skip this step if no code changed this cycle** (no Fix actions).
-
-Otherwise, commit all fixes by delegating to `commit.md`, then push the current branch to the remote.
-
-### 6. Wait for Checks and New Review
-
-Two-phase wait:
-
-**Phase 1 — wait for CI and review bots to finish:**
-
-If Step 5 pushed new commits, wait for CI:
-```
-timeout 30m gh pr checks --watch || true
-```
-Ignore the exit code — checks may fail (e.g., CI tests) but the review bot may still have finished. If nothing was pushed this cycle, skip this wait and proceed directly to the paused-reviews check and Phase 2.
-
-**Paused reviews check** — after checks complete, check if the review bot paused:
-```
-gh api repos/{owner}/{repo}/issues/{pr_number}/comments --jq '.[] | select(.body | test("review paused by coderabbit.ai")) | .id' | tail -1
-```
-If a paused comment is found, warn the user:
-> "CodeRabbit reviews are paused (too many commits). Comment `@coderabbitai resume` on the PR to re-enable, then re-run the loop."
-
-Stop the loop — do not continue cycling without active reviews.
-
-**Verify CI** — before moving to Phase 2, confirm all CI checks are green. Only needed if code changed this cycle (Step 5 pushed):
-- **Nothing was pushed this cycle** → skip this check, the last CI run still covers the code
-- **All CI checks passed** → continue to Phase 2
-- **Any CI check failed** → delegate to `/gh-fix-tests` (handles fetch + fix + push + retry with its own cycle cap). When it returns green, continue to Phase 2. If it escalates after 3 attempts, stop this loop and report to the user
-- **No CI configured** → run the full test suite locally. If tests fail, fix and re-run — or stop and ask the user if the cause isn't clear
-
-**Phase 2 — check for new review comments:**
-```
-node .aicontext/scripts/pr-reviews.cjs
-```
-
-- If new findings are saved: new review is ready — increment `cycle`, continue to next cycle
-- If "No unresolved review threads": no new feedback — exit the loop
-
-## After Loop Completes
-
-**Stale review state** — if the loop exited cleanly (0 unresolved threads), check for lingering `CHANGES_REQUESTED` reviews:
-```
-gh api repos/{owner}/{repo}/pulls/{pr_number}/reviews --jq '[.[] | select(.state == "CHANGES_REQUESTED")] | map(.user.login) | unique'
-```
-If any reviewers still show `CHANGES_REQUESTED`, warn the user:
-> "All threads are resolved but these reviewers still show 'Changes Requested': [list]. They may need to re-review or approve."
-
-Scan decisions made during this loop: did any reviewer feedback lead to a new architectural decision, requirement, or non-goal? If yes, update the spec. Supersessions of existing spec decisions → task-context's Decision Overrides. See `process.md "Task-context content boundary"`.
-
-## Exit Conditions
-
-- All fixable issues resolved and no new comments after a push
-- `cycle > 5` — report remaining open comments to the user
-- Tests fail and the root cause isn't clear — stop and ask the user
+Report resolved/fixed/skipped counts and CI results only when actually verified. This helper does not establish whole-PR readiness; use the active tool's `gh-resolve-pr` handoff for that when invoked standalone. Return results directly in coordinator mode.

@@ -3,6 +3,13 @@
 ## Created:
 [Date - use format: Month Day, Year]
 
+## Status:
+Pending
+<!-- See process.md "Execution, finalization, and closure". -->
+
+## Issue:
+[#N](https://github.com/{owner}/{repo}/issues/N)
+
 ## Spec:
 <!-- Optional: link to spec if this task is part of a larger feature -->
 [spec-{name}.md](../specs/spec-{name}.md)
@@ -22,20 +29,10 @@
 ## Plan:
 
 ### Step 1: [Step Title]
-- [ ] [Task/feature 1]
-- [ ] [Task/feature 2]
-
-### Step 2: [Step Title]
-- [ ] [Task/feature 1]
-- [ ] [Task/feature 2]
-
-### Step 3: [Step Title]
-- [ ] [Task/feature 1]
-- [ ] [Task/feature 2]
+- [ ] [Necessary task item]
 
 ## Completion Notes:
 
-- [Compromises made, follow-up tasks, important learnings — one item per line]
 
 ---
 

@@ -1,25 +1,21 @@
 # Load Task
 
-Read the three-layer context for the current task, then surface ambiguities and resume state.
-
 ## Identify the Task
 
 Read and follow `identify-task.md` to find the active task.
 
 ## Read Context
 
-Load every available layer — skip any file already Read earlier in this conversation:
+Load every available layer per the Session Context Reuse rule in `process.md`:
 
 - **Task file** — `.aicontext/tasks/{task-file}.md` (extract Spec link, task version, and plan progress)
 - **Spec** — if linked
 - **Task-context** — if it exists, `.aicontext/data/task-context/context-{task-filename}.md` (e.g. task `1.6.0-dev-flow-v2.md` → `data/task-context/context-1.6.0-dev-flow-v2.md`)
 - **Source files** — those related to the task and the next pending step
 
-For legacy tasks with neither a linked spec nor task-context, read the task and related source files only. Skip the dependent Surface checks.
-
 ## Surface
 
-- **Progress** — what's done, what's next
+- **Progress** — status, what's done, what's next; apply status rules from `process.md "Execution, finalization, and closure"`
 - **Ambiguities** — unclear requirements or underspecified areas
 - **Conflicts** — between available context, task deliverables, and source code
 - **Spec changes since task started** — if a spec is linked, run `git log --since={created date} -- .aicontext/specs/spec-{name}.md` and compare the linked subsection (via `*Implemented by:*` footer) against task Deliverables. Legacy specs without footers → whole-spec scan.
@@ -31,4 +27,7 @@ Candidate topics — omit any with nothing to report. Surface findings naturally
 
 ## Handoff
 
-After the report, append exactly one handoff: `Address the flagged items first.` when user action is required; otherwise, `Use run-step` for one pending step, `Use run-task` for multiple pending steps, or `Use finish-task` when all steps are complete.
+After the report, append exactly one handoff using Native Skill Syntax:
+- User action required → `Address the flagged items first.`
+- Pending steps → `run-step` (one) or `run-task` (multiple).
+- No pending steps → `run-task` for finalization when `Pending` or `Implementing`, `close-task` when `Ready to close`, or `start-feature` when `Done`; never rerun finalization on load.

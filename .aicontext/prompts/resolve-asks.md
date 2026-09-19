@@ -1,12 +1,10 @@
 # Resolve Asks
 
-Prompt the user for each field in the passed list, run the preflight if needed, and return resolved values.
-
-**Called with:** `fields` — list of config fields that need user input (`after_step.*`, `after_task.*`, or root-level like `tdd`). Caller has already collected them.
+**Called with:** `fields` — requested config fields that need user input (`after_step.*`, `after_task.*`, or `tdd`), including each field's source file and whether its value is `ask` or invalid.
 
 ## 1. Preflight — type-table discovery
 
-If any `tests` field is in the list AND `structure.md` has no `## Testing` type table: run `resolve-test-types.md` once before prompting. The discovery flow writes the table and persists `after_step.tests` + `after_task.tests` to explicit values — after it returns, re-read config and drop any `tests` fields it already resolved from the list.
+If requested `tests` fields need a missing `## Testing` table, pass only those fields to `resolve-test-types.md`. After it returns, refresh their config values and remove resolved fields from the prompt list.
 
 ## 2. Stage 1 — decision per field
 
@@ -26,7 +24,7 @@ Present options using user-friendly labels, not config field names. Ask per `## 
 | `after_step.tests` | Run tests after each step? | 1) No (recommended), 2) Affected tests only, 3) All | `false` / `<primary-type>-affected` / `all` |
 | `after_step.commit` | Commit after each step? | 1) No (recommended), 2) Yes | `false` / `true` |
 
-**After task completion:**
+**After all plan steps, inside `/run-task` only (not `/close-task`):**
 
 | Config field | Question | Options | Config value |
 |---|---|---|---|
@@ -34,15 +32,19 @@ Present options using user-friendly labels, not config field names. Ask per `## 
 | `after_task.tests` | Run tests after task? | 1) All (recommended), 2) Affected tests only, 3) No | `all` / `all-affected` / `false` |
 | `after_task.commit` | Commit after task? | 1) Yes (recommended), 2) No | `true` / `false` |
 | `after_task.push` | Push to remote? | 1) No (recommended), 2) Yes | `false` / `true` |
-| `after_task.pr` | Draft pull request after task? | 1) No (default), 2) Yes | `false` / `true` |
-| `after_task.review_loop` | Run pull request review loop after task? | 1) No (default), 2) Yes | `false` / `true` |
+| `after_task.pr` | Create/update PR after implementation (includes push)? | 1) No (default), 2) Yes | `false` / `true` |
+| `after_task.review_loop` | Run PR validation after automatic PR creation? | 1) No (default), 2) Yes | `false` / `true` |
 
 **Tests rows — `<primary-type>`:** resolves to the first row in `structure.md`'s `## Testing` table, or the row named `unit` if present.
 
-## 3. Stage 2 — save as default
+## 3. Persist
 
-After every Stage-1 answer, ask `Save as default? (y/N)` — default N. If y, write the answer back to `config.yml` so it won't ask again. If n, the answer applies only to this run. For the `tests` fields, save the explicit scope form shown in the "Config value" column (e.g. `unit-affected`, not bare `unit`).
+- **`ask` value:** after the Stage-1 answer, ask `Save as default? (y/N)` — default N. If yes, write the answer to the source file that supplied `ask`; if no, apply it only to this run.
+- **Invalid value:** explain why it is invalid and always persist the selected correction to its source file.
+- **Missing value restored by `ensure-config.md`:** its template default is already in shared config; handle an `ask` default normally.
+
+For `tests` fields, persist the explicit scope form from the table (for example, `unit-affected`, not bare `unit`). Revalidate every persisted value and refresh the config session memo.
 
 ## 4. Return
 
-Return the map of resolved values to the caller.
+Return the resolved map to the caller.

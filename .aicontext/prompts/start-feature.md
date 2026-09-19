@@ -1,10 +1,8 @@
 # Start Feature
 
-Run a structured discovery flow before starting a new feature: interview, then spec + task creation.
-
 ## 1. Context Gathering
 
-1. Read `.aicontext/project.md` and `.aicontext/structure.md`
+1. Load `.aicontext/project.md` and `.aicontext/structure.md` per the Session Context Reuse rule in `process.md`
 2. Ask the user to describe the feature in one or two sentences
 3. Explore the codebase to understand existing code related to the feature
 4. Build a starting **dimension list** for the interview based on what the exploration surfaced. See `interview.md` § 2 for typical dimensions and the internal-only / live-map rules. Carry this list into Step 2 so the interview starts with a seeded map.
@@ -43,8 +41,6 @@ If the feature is a single cohesive piece, create one task without asking.
 ---
 
 > **Interview complete. Move directly to Step 5 — file creation.**
->
-> Every output below is a file on disk. Do not summarize, ask follow-ups, or propose changes. File creation only.
 
 ## 5. Create Spec, Task, Task-Context, and Worklog Files
 
@@ -54,7 +50,7 @@ For each task being created, follow `resolve-task-naming.md` with `pattern` from
 
 **Spec** — `.aicontext/specs/spec-{first-task-filename}.md` from `spec.template.md`. Copy the interview's structured summary **verbatim** into `## Decisions`, then derive `## Requirements` and `## Non-Goals` from it. No file paths or implementation details.
 
-**Task(s)** — `.aicontext/tasks/{task-filename}.md` from `task.template.md`. Derive plan steps following `plan-steps.md`. Append the task to each implementing spec subsection's `*Implemented by:*` footer and to the spec's `## Tasks` section.
+**Task(s)** — `.aicontext/tasks/{task-filename}.md` from `task.template.md`. Populate the Issue link whenever known (including from naming); omit the Issue section if unknown. Derive plan steps following `plan-steps.md`. Append the task to each implementing spec subsection's `*Implemented by:*` footer and to the spec's `## Tasks` section.
 
 **Task-context(s)** — `.aicontext/data/task-context/context-{task-filename}.md` from `task-context.template.md`. If Step 1 exploration surfaced non-obvious codebase patterns, add them to `## Codebase Patterns` prefixed `[Step 0]` with concrete `file:line` anchors (e.g. `[Step 0] config.yml:12 — task_naming validated by ensure-config before use`).
 

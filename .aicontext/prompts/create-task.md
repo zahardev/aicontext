@@ -4,7 +4,7 @@ Crystallize the current discussion into a task file. Use when the discussion is 
 
 ## 1. Gather Context
 
-- Follow `ensure-config.md` to read project settings
+- Follow `ensure-config.md` with `task_naming.*` and `tdd`
 - Derive a short task-name slug (lowercase-hyphenated) from the discussion — this is the `{task_name}` input for the resolver
 
 ## 2. Spec Handling
@@ -28,6 +28,7 @@ Ask the user:
 
 Follow `resolve-task-naming.md` with `pattern` from config and the task-name slug from step 1 to get the filename. Create the task file at `.aicontext/tasks/{filename}.md` from `.aicontext/templates/task.template.md`:
 
+- **Issue**: link to the known issue; omit the section if none
 - **Objective**: derive from the discussion — what this task aims to accomplish
 - **Spec link**: from step 2 (remove section if no spec)
 - **Deliverables**: definition of done for this work bundle — see `process.md "Task Deliverables vs Spec Requirements"`

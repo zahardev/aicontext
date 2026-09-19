@@ -1,12 +1,10 @@
 # Align Context
 
-Update all context files to reflect the current state of work. Fix what's stale, fill what's missing, then report what changed.
-
 ## 1. Identify the Task
 
 Read and follow `identify-task.md` to find the active task.
 
-Read the task file and task-context (at `.aicontext/data/task-context/context-{task-filename}.md` if it exists). For the spec (if linked): if you already Read it earlier in this conversation, rely on that — don't re-Read. Otherwise Read it once (align-context needs a holistic view to catch cross-section conflicts).
+Load the task file, task-context (at `.aicontext/data/task-context/context-{task-filename}.md` if it exists), and linked spec per the Session Context Reuse rule in `process.md`. Align-context needs a holistic view to catch cross-section conflicts.
 
 ## 2. Task File
 
@@ -28,7 +26,7 @@ Append session knowledge to the task-context's sections. If no task-context exis
 If `.aicontext/worklog.md` doesn't exist, create it from `.aicontext/templates/worklog.template.md`.
 
 - If the task's spec isn't listed, add it under the appropriate section
-- Update task checkboxes to match actual completion state
+- Sync the worklog checkbox from task status; check only `Done`, not plan progress.
 - If all tasks under a spec are checked, move the spec to "Done" with today's date
 
 ## 6. Report

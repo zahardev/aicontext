@@ -16,9 +16,11 @@ Install: `npx @zahardev/aicontext init`
 
 For a new feature, the full flow is:
 
-`start` → `start-feature` → `run-task` → `finish-task`
+`start` → `start-feature` → `run-task` → `close-task`
 
-Skills use the native syntax for each tool: `/skill-name` in Claude Code, opencode, and Pi; `$skill-name` in Codex; and `use skill-name` in Cursor and Copilot. Run the native `aic-skills` invocation any time to see all available commands.
+`run-task` executes steps, then configured after-task actions; `close-task` handles administrative closure and optional issue closure.
+
+Skills use the native syntax for each tool: `/skill-name` in Claude Code and opencode; `/skill:name` in Pi; `$skill-name` in Codex; and `use skill-name` in Cursor and Copilot. Run the native `aic-skills` invocation any time to see all available commands.
 
 ## Key Concepts
 
@@ -36,7 +38,7 @@ AI assistants forget everything between sessions. AIContext fixes this with four
 ## More Workflows
 
 **Resume mid-task (new session):**
-`start` → `load-task` → `run-task` → `finish-task`
+`start` → `load-task` → `run-task` → `close-task`
 
 **Quick fix (no spec needed):**
 Describe the fix in conversation → `do-it` - creates a task step and implements it.
@@ -47,7 +49,7 @@ Describe the fix in conversation → `do-it` - creates a task step and implement
 
 **PR review cycle:**
 `gh-review-check` - one-time fetch and triage of PR review comments.
-`gh-review-fix-loop` - full automated cycle: fetch, triage, fix, push, repeat until clean.
+`gh-resolve-pr` handles a PR end to end, fixing failing CI and review comments. Use `gh-fix-tests` or `gh-review-fix-loop` if you want to handle only one of those jobs; you do not need them when using `gh-resolve-pr`.
 
 **Multiple tasks from one spec:**
 `start-feature` (creates spec) → `plan-tasks` (breaks spec into tasks) → `run-task` per task

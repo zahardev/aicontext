@@ -1,5 +1,23 @@
 # Changelog
 
+## [Unreleased]
+
+## [1.12.0] - 2026-09-18
+
+### Added
+- **Native Pi skills** — Pi workflows are invoked as `/skill:name`; prompt wrappers are gone
+- **Worker orchestration** — `/orchestrate-workers` and `/worker-start` delegate implementation to worker agents with a separate tester
+- **`/close-task`** — administrative closure with optional issue closure; `/finish-task` is a deprecated alias
+- **`/gh-resolve-pr`** — bounded CI and review readiness passes without merging
+- **Persistent task status** — Pending → Implementing → Ready to close → Done, plus per-step completion notes
+
+### Changed
+- **Startup update checks** are cached, silent unless an update is available, and no longer warn from stale data
+- **Config** loads and repairs only when a workflow needs it, instead of at session start
+- **Session context reuse** — prompts and stable project context load once; mutable state still refreshes
+- **`/run-task` owns the after-task pipeline** — closure no longer runs git or PR automation
+- **`/thoughts` and `/brainstorm`** require explicit invocation
+
 ## [1.11.0] - 2026-09-07
 
 ### Added

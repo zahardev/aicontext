@@ -8,6 +8,7 @@ N = the step number just completed.
 
 - Check off completed items (`- [ ]` → `- [x]`)
 - Update the Last Updated date
+- Append valuable `[Step N]` notes: outcomes, compromises, follow-ups, learnings. Preserve earlier notes and update an existing note instead of duplicating it; nothing valuable means no entry. Working knowledge goes to task-context. Leave status `Implementing`.
 
 ## 2. Update Checkboxes (100% rule)
 
@@ -17,7 +18,7 @@ For each unchecked item, ask: did *this step* deliver it **100% unambiguously**?
 - Yes → check the box.
 - Partial or unclear → leave unchecked. Cumulative verification happens at task close.
 
-Always walk the lists — never skip. If zero boxes were checked, report `no checks affected` in the summary. Most steps produce zero checks; that is normal.
+Always walk the lists — never skip. If zero boxes were checked, report `no checks affected` in the summary.
 
 *Legacy fallbacks:* task has no `## Deliverables:` or `## Requirements:` → skip the deliverables walk. Spec has no `*Implemented by:*` footers → whole-spec scan.
 
@@ -46,13 +47,12 @@ You MUST output this summary. It is the deliverable that proves context was upda
 ```
 Step N closed:
 - Task: [items checked off]
+- Completion notes: [added/updated, or "none"]
 - Checked: +N deliverables / +M spec requirements  (or "no checks affected")
 - Task-context: +[count] entries ([sections touched])
 - Spec: [what changed, or "no changes"]
 ```
 
-If Task-context shows +0 entries, explain why nothing was learned (this should be rare — most steps produce at least a file reference).
-
 After the summary, append one handoff line based on the task state:
 - If unchecked plan steps remain → append the active tool's `next-step` handoff.
-- If this was the last unchecked step → append the active tool's `finish-task` handoff.
+- If this was the last unchecked step → append the active tool's `run-task` handoff for implementation finalization.

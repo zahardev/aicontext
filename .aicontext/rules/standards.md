@@ -2,10 +2,20 @@
 
 *Coding standards, AI behavior, safety, and output quality bars. For workflow, lifecycle, and task/spec mechanics, see [process.md](process.md).*
 
+### Information Density
+
+**Always answer in extremely short and clear way** 
+- Responses must be ADHD-compatible: scannable at a glance.
+- Use short paragraphs, add headings or bullets if they improve scanning.
+- Use simple, plain language. Do not try to sound smart.
+- Include only information that changes a decision or action.
+- Answer in one or two sentences unless the user asks for detail.
+- Omit repetition, filler, and unrelated details.
+
 ## Critical Safety Rules
 
 **NEVER run without explicit user confirmation:**
-- `git push` - Any push to remote (including non-force). Always ask first, unless pre-authorized by `after_task.push: true` (or `ask` resolved to Yes upfront), `/make-pr`'s prerequisite branch push, or an active `/gh-review-fix-loop` cycle.
+- `git push` - Ask first unless the active workflow explicitly authorizes a non-force push.
 - `git push --force` - Destructive git operations
 - Database wipe/reset commands
 - Volume/container deletion commands
@@ -29,71 +39,43 @@
 ## Coding Standards
 
 ### DRY (Don't Repeat Yourself)
-- Extract repeated code into reusable functions only when used 3+ times
+- Extract repeated code into reusable functions
 - Share constants and configuration in a single location
 - Reuse existing utilities before creating new ones
-- **But**: Prefer duplication over the wrong abstraction - don't force unrelated code to share logic
 
 ### KISS (Keep It Stupid Simple)
 - Prefer readable and obvious implementations
 - One function = one responsibility
-- Flat is better than nested (avoid deep callback/condition nesting)
-- Use early returns to handle edge cases first and reduce nesting
-- If a solution needs extensive comments to explain, simplify the code instead
-- Before writing complex logic, plan the method structure — what methods are needed and what each one does
-
-**Red flags for complexity:** functions >40 lines, >3 nesting levels, >3 parameters. When you hit a red flag, extract methods until the remaining code reads linearly.
+- Flat is better than nested - use early returns to reduce nesting
+- If a code needs comments to explain, consider simplifying the code
+- Only make changes directly requested or clearly necessary
 
 ### Code Documentation
 - Use descriptive, action-oriented descriptions
-- Never use generic descriptions like "Get data" or "Filter items"
 - Describe what the method does, not what it is
-- Use type declarations instead of docblock types when possible
-- Document complex business logic with inline comments
 
-**Good:** "Retrieves and validates user input before processing", "Generates a signed URL for secure file download"
-**Bad:** "Get users", "Get URL"
+## Commits
 
-### Avoid Over-Engineering
-- Only make changes directly requested or clearly necessary
-- Don't add features, refactor code, or make "improvements" beyond what was asked
-- Don't add docstrings, comments, or type annotations to code you didn't change
-- Don't add error handling for scenarios that can't happen
-- Don't create helpers or abstractions for one-time operations
-- Three similar lines of code is better than a premature abstraction
+All commits go through `commit.md`.
 
-## Commit Style
-
-All commits go through `commit.md` — the single commit codepath. Read `.aicontext/config.yml` for commit configuration (`commit.body`, `commit.template`, `commit.co_authored_trailer`).
-
-- **`commit.body: true`** (default) — subject line + blank line + body + Co-Authored-By trailer from `commit.co_authored_trailer`.
-- **`commit.body: false`** — subject line only. No body, no trailers, no Co-Authored-By — nothing after the subject line.
-
-**Body content rules:** 1-3 lines. Why, not what. No diff recap, file list, narration, or re-explaining what the docs already cover.
 
 ## Question UX
 
-Before asking closed questions (2-4 discrete options), check `claude.question_style` in `.aicontext/config.yml` (loaded into context at session start by `/start`):
-- **`interactive`**: use `AskUserQuestion` tool for clickable options (Claude Code only)
-- **`numbered`** (default): present numbered options as plain text (1, 2, 3...) — user types the number
-- **Other tools (Cursor, Copilot, Codex):** always use numbered regardless of setting
-- **Open-ended questions:** always use plain text
+Ask closed questions (2-4 discrete options) as numbered plain text (1, 2, 3...); the user replies with the number. Never use a clickable-option tool: it closes off discussion. Open-ended questions are plain text too.
 - **Option labels:** use the exact text from the prompt. Don't add `(Recommended)` or `(default)` unless the prompt specifies it
 - **Option count:** present every option the prompt lists — do not merge or drop options
 
 ## Recommended Tools
 
 - **Web UI investigation**: When the user asks about visual issues, layout problems, or needs browser-based debugging, suggest the native `web-inspect` invocation if `playwright-cli` is not already in use. It provides headed browser automation for inspecting pages, checking console errors, and capturing screenshots.
-- **Skill precedence**: When a task matches a registered skill, invoke the skill — do not bypass it with direct tool calls based on trained knowledge. Skills encode project-specific behavior that general knowledge doesn't capture.
 
 ## Native Skill Syntax
 
 Use the user's tool syntax in every skill suggestion or handoff:
-- Claude Code, opencode, Pi: `/skill-name`
+- Claude Code, opencode: `/skill-name`
+- Pi: `/skill:name`
 - Codex: `$skill-name`
 - Cursor, Copilot: `use skill-name`
-
-When a prompt requests a native invocation, substitute the active tool's exact syntax before responding. Never show a placeholder to the user.
 
 ## AI Response & Behavior Rules
 
@@ -115,35 +97,19 @@ When a prompt requests a native invocation, substitute the active tool's exact s
 ### Communication Style
 - Be professional and technically accurate
 - Focus on actionable outcomes
-- Never use "Perfect!", "Amazing!", "Great!" or similar exclamations
-- Never use em dashes. Use ` - ` instead.
-
-### Information Density
-
-**Be very concise. You do not like talking much.** Responses must be ADHD-compatible: scannable at a glance.
-
-- Lead with the outcome.
-- Use short paragraphs, with headings or bullets only when they improve scanning.
-- Use simple, plain language. Do not try to sound smart.
-- Include only information that changes a decision or action.
-- Omit repetition, filler, and unrelated details.
-
 ### Always Offer Next Action
 
 After a workflow prompt finishes (file creation, step close, task finish, review, check), or after a mid-task discussion reaches actionable conclusions, end with a one-line pointer to the next command the user can run. Never leave the user wondering "now what?".
 
 **Format:** one line, after the required summary block.
 
-**Branch on state when possible** — pick the right next command, don't list both. The AI knows the task state after running the prompt; use it.
-
 **Mid-conversation turns during interviews or discussions** must end with either the next question, an explicit options menu, or a handoff — never a wrap-up statement that drops the thread.
 
 **Examples:**
 - After `close-step` with unchecked steps remaining: append the active tool's `next-step` handoff.
-- After `finish-task` with pending tasks in the same spec: `Spec '{Spec Name}' has more pending tasks. Next: '{task_name}'. Would you like to start it now?`
 - After a mid-task discussion surfaces new work: append the active tool's `add-step` or `do-it` handoff.
 
-**Why:** workflow continuity. The AI holds the map; the user should never have to guess the next command. Next-action pointers are not tangents under Information Density — they are actionable and belong in the reply.
+**Why:** workflow continuity. The AI holds the map; the user should never have to guess the next command. 
 
 ### Challenge and Suggest
 - Never agree with flawed reasoning or approaches — correct misconceptions and explain why.
@@ -155,12 +121,8 @@ After a workflow prompt finishes (file creation, step close, task finish, review
 - When a problem or idea is raised, propose or discuss the solution approach first.
 - Get explicit agreement on the approach before asking organizational questions (task scope, spec assignment, etc.).
 
-### Research and Investigation
-- For design discussions and deep research, read files directly — do not delegate to researcher subagents
-- Subagents are for routine tasks (test-running, code review, standards checks), not for research the user needs to follow in context
-
 ### Memory vs Project Rules
-- Always assess whether a user preference can be saved to project rules (process.md, standards.md, local.md, etc.)
+- Always assess whether a user preference can be saved to project rules (project.md, local.md, etc.)
 - Only use memory files for non-project-related information (personal preferences, cross-project context)
 - Project rules are the source of truth for how work is done in this project
 - **NEVER save rules or preferences silently** — always ask the user before writing to project rules or memory files

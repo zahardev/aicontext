@@ -1,7 +1,5 @@
 # GitHub Review Check
 
-Fetch and triage unresolved PR review comments on the current pull request.
-
 ## 1. Fetch
 
 Run `node .aicontext/scripts/pr-reviews.cjs`. It saves a structured file to `.aicontext/data/github-pr-reviews/pr-{number}-{iteration}.md` with a summary table and full comment details.

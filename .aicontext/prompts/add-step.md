@@ -1,7 +1,5 @@
 # Add Step
 
-Add a new step to the current task based on what was just discussed.
-
 ## 1. Identify the Task
 
 **`/add-step here`** — force the explicitly-referenced task (see `identify-task.md` rule 1). If no such reference exists, fall back below.
@@ -22,6 +20,8 @@ See `process.md "Task Deliverables vs Spec Requirements"`.
 ## 3. Add Step
 
 If a step for this work already exists, point to it instead of creating a duplicate.
+
+Set status to `Implementing` when adding or resuming work; this invalidates finalization readiness.
 
 Create a new step with the next step number. Add sub-items (`- [ ]`) capturing the deliverables. Follow `plan-steps.md`.
 

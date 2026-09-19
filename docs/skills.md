@@ -6,9 +6,12 @@ Skills are invocable commands that automate common development tasks. Each skill
 
 | Tool | Syntax | Example |
 |------|--------|---------|
-| Claude Code, opencode, Pi | `/skill-name` | `/start-feature` |
+| Claude Code, opencode | `/skill-name` | `/start-feature` |
+| Pi | `/skill:name` | `/skill:start-feature` |
 | Codex | `$skill-name` | `$start-feature` |
 | Cursor / Copilot | Paste prompt file | Paste `.aicontext/prompts/start-feature.md` |
+
+Pi uses native skills. Generated `.pi/prompts/` workflow wrappers are removed during update; user-authored prompts are preserved.
 
 ## Development Flow Skills
 
@@ -42,9 +45,10 @@ Executes all pending steps in the current task file automatically. One agent imp
 - Creates a task-context file if one doesn't exist
 - Reads three-layer context (spec → task-context → task)
 - Checks commit configuration from `config.yml`
-- For each step: implement → review → fix → test → commit → update task-context → sync spec
+- For each step: implement → review → fix → test → close step → commit
 - Review-fix inner loop runs up to 5 times per step
-- After all steps: runs review and tests per `after_task` config
+- After all steps, including one-step plans: owns all `after_task.*` actions (local review, tests/fixes, verification, commit/push, PR, optional `gh-resolve-pr`)
+- With no pending steps: finalizes implementation; `Ready to close` hands off to `/close-task` without automatically closing tracking
 - Stops on blockers, critical findings, or uncovered decisions
 
 ### `/load-task`
@@ -55,23 +59,26 @@ Reads the three-layer context for the current task and surfaces task state. Esse
 - Reads: spec (requirements, decisions) → task-context (patterns, gotchas) → task (plan, progress)
 - Detects spec↔task drift (requirements not covered by steps)
 - Detects staleness (empty task-context with completed steps, `Decision Overrides` not yet applied to the spec)
-- Backwards compatible with pre-1.6.0 tasks (no spec or task-context)
 
 ### `/load-spec`
 **Prompt:** `load-spec.md`
 
 Reads one feature spec, its linked tasks, and any coverage gaps.
 
-### `/finish-task`
+### `/close-task`
+**Prompt:** `close-task.md`
+
+Administratively closes a task without inspecting PRs or running git/after-task automation.
+
+- Warns about unfinished work without blocking or falsely checking it off
+- Marks task status, spec task entry, and worklog done; completion notes are step-level and optional
+- Optionally closes an open issue per config; missing/already-closed issues are silent
+- Remote failures/unsupported providers do not undo local closure
+
+### `/finish-task` (deprecated alias)
 **Prompt:** `finish-task.md`
 
-Closes out a completed task.
-
-- Verifies all plan steps are checked
-- Applies any task-context `Decision Overrides` to the spec and verifies new decisions/non-goals/requirements landed in the spec
-- Fills completion notes in the task file
-- Updates the worklog (checks off task, moves spec to Done if all tasks complete)
-- Handles git per `after_task.commit` and `after_task.push` in `config.yml`, delegates to `commit.md`; skips the commit when step-level commits already covered the work
+Forwards to `/close-task`. Existing invocations remain available with administrative-only behavior.
 
 ### `/create-task`
 **Prompt:** `create-task.md`
@@ -152,15 +159,20 @@ Creates the GitHub PR — reuses the local draft (or generates one), pushes the 
 
 Fetches unresolved PR review comments, classifies them (valid / false positive / low priority), fills actions (fix / resolve / skip), and bulk-resolves dismissed threads.
 
+### `/gh-resolve-pr`
+**Prompt:** `gh-resolve-pr.md`
+
+Coordinates CI and review fixes for an existing PR, then reports readiness or blockers without merging. Uses at most 5 fix cycles, bounded by `pr_validation_timeout`. Automatic `after_task.review_loop` invokes it only after automatic PR success; explicit invocation is independent of lifecycle flags.
+
 ### `/gh-review-fix-loop`
 **Prompt:** `gh-review-fix-loop.md`
 
-Automates the full PR review cycle: fetch comments → triage → resolve false positives → fix real issues → run tests → commit and push → wait for re-review → repeat. Max 5 cycles.
+Fixes GitHub review threads; standalone: bounded retries; coordinator: one pass. Use `gh-resolve-pr` for readiness.
 
 ### `/gh-fix-tests`
 **Prompt:** `gh-fix-tests.md`
 
-Fixes failing CI on the current PR. Fetches failures via `gh run view --log-failed`, diagnoses root cause, fixes, pushes, and waits for CI green. Covers lint, type, build, and tests. Retries up to 3 times. Config: `gh_fix_tests.push` (default `true`).
+Waits for GitHub CI and fixes failures. Standalone: bounded retries and no checks report `SKIP`; coordinator: silent `SKIP`; unknown state blocks.
 
 ## Documentation Skills
 
@@ -236,7 +248,7 @@ Browser-based investigation using playwright-cli. Opens pages in headed mode, in
 ### `/tidy-aic`
 **Prompt:** `tidy-aic.md`
 
-Archives completed tasks and specs, deletes session artifacts (task-context, code reviews, drafts, research), and moves done worklog entries to `archive/worklog.md`. Shows a summary and asks for confirmation before executing. Suggested automatically after `/finish-task` when >10 task files exist.
+Archives completed tasks and specs, deletes session artifacts (task-context, code reviews, drafts, research), and moves done worklog entries to `archive/worklog.md`. Shows a summary and asks for confirmation before executing. Suggested automatically after `/close-task` when >10 task files exist.
 
 ## Framework Skills
 

@@ -4,7 +4,7 @@ Rules for constructing task plan steps. Referenced by `create-task.md` (creation
 
 ## TDD-Aware Planning
 
-Read `tdd` from config (resolved via `ensure-config.md`). If `false`, skip this section entirely.
+Follow `ensure-config.md` with `tdd`. If the resolved value is `false`, skip this section entirely.
 
 If `true`, check if the project has tests (glob for test files). If no tests exist, skip TDD and implement directly.
 
@@ -61,6 +61,14 @@ Task steps describe what to build or change — behavior descriptions belong in 
 - "Create UserController with login() method using Library X"
 - "If update available: show notification, then ask 'Would you like to upgrade?' (Yes / Not now)"
 
+## Minimum Necessary Plan
+
+Add a plan step or item only if it is necessary for a required outcome, validation, or dependency. Do not split work for symmetry or narration. A task may have one step, and a step may have one item.
+
+## Complete Planning Before Execution
+
+Complete research, inventory, and decisions before presenting a plan. Include them as a plan step only when their output is a task deliverable.
+
 ## Checkbox Format
 - Use `- [ ]` for unchecked items; never `- [x]` in initial plans
 - Order steps by dependency — a step cannot depend on a later step
@@ -68,7 +76,7 @@ Task steps describe what to build or change — behavior descriptions belong in 
 
 ## Never include spec or task-context updates as plan steps
 
-Spec sync, task-context updates, requirement checkboxes, worklog updates, and spec completion are handled automatically by `close-step.md` and `finish-task.md`. Listing them as explicit plan steps is redundant and pollutes the plan.
+`close-step.md` handles spec sync, task-context updates, completion notes, and requirement checkboxes; `close-task.md` handles worklog updates and spec completion. Omit these from plan steps.
 
 **Bad:** "Update spec with new decision", "Append findings to task-context", "Check off completed requirements in spec"
 **Good:** omit them — they happen automatically at step/task close.

@@ -1,31 +1,28 @@
 # Ensure Config
 
-Read project settings from `.aicontext/config.yml` (and `config.local.yml` if it exists — local overrides shared).
+## 1. Session memo
 
-If `config.yml` doesn't exist, create it from `.aicontext/templates/config.template.yml` with defaults.
+If config was already loaded this session, reuse the merged values and source map. Reread only a source file changed since loading, then refresh affected memoized values.
 
-If `project.md` has commit rules or task naming settings, migrate those values into `config.yml` and remove the stale sections from `project.md`.
+## 2. First demand
 
-## Validate
+1. If `.aicontext/config.yml` is missing, follow `create-config.md`.
+2. Read `.aicontext/config.yml` and `.aicontext/config.local.yml` if present.
+3. Merge recursively by key; local values override shared values without replacing sibling keys.
+4. Record whether each effective value came from shared or local config.
 
-Scan the config and flag problems. List any flagged values before proceeding.
+## 3. Requested fields
 
-1. **Missing sections** — verify these top-level keys exist: `after_step`, `after_task`, `tdd`, `commit`, `project`, `task_naming`, `spec_naming`, `update_check`, `claude`, `pr`, `issue`, `docs`, `gh_fix_tests`. If any missing, load `.aicontext/templates/config.template.yml` and add them with defaults.
-2. **Deprecated patterns** — check each value in config against this list:
-   - `after_*.review`: flag if `partial` or `full`
-   - `after_*.tests`: flag if `partial`, `full`, `normal`, or `deep`
-   - Any key: flag if `commit.mode`, `commit.finish_action`, `after_*.deep_review`, or `after_*.full_tests` exists
-   - `task_naming.pattern`: flag if contains `{task-name}`
-3. **Tests type names** — for each `after_*.tests` value, split on `|`, strip `-full`/`-affected` — verify each remaining name is a row in `structure.md`'s `## Testing` table. Skip `all`, `false`, `ask`, and literal shell commands.
+### Present value
 
-If check #2 or #3 flagged anything, follow `migrate-config.md`. Values still invalid after migration are handled by interactive resolution below.
+- **Recognized:** use it.
+- **`ask`:** for `after_step.*`, `after_task.*`, and `tdd`, follow `resolve-asks.md` with only that requested field. Other `ask` fields retain the interaction defined by their owning workflow.
+- **Unexpected:** use options from the caller, or read only this field's template entry. Show the options, persist the correction in its source file, and refresh the session memo.
 
-## Interactive resolution
+### Missing value
 
-Collect all `after_step.*`, `after_task.*`, and root-level fields (`tdd`) whose value is `ask` or still invalid after checks #2/#3 and migration above.
+1. Follow `migrate-config.md` with the requested field. Inspect only legacy aliases that can supply that field.
+2. If an alias supplies the field, migrate it in its source file, refresh the session memo, and handle the resulting value as a present value.
+3. Otherwise read only that field's default from `.aicontext/templates/config.template.yml`, persist it to shared config, refresh the session memo, and handle the default as a present value. A commented default counts as the default.
 
-If any fields need input, follow `resolve-asks.md` with the collected field list. Intro line before the batch: *"A few workflow preferences to set:"*
-
-**Session memo:** if a field was already resolved earlier in this session, reuse the prior answer without re-prompting.
-
-Return the resolved config.
+Return only the requested effective values to the caller.

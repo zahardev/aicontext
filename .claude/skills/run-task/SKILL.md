@@ -1,6 +1,6 @@
 ---
 name: run-task
-description: Execute all pending steps in the current task file — creates task-context, checks commit config, runs each step with review-fix inner loop, commits per config
+description: Run pending steps, then after_task finalization; does not close the task.
 ---
 
 Read and follow `.aicontext/prompts/run-task.md`

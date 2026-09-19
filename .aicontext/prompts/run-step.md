@@ -1,19 +1,17 @@
 # Run Step
 
-Execute a single step from the current task plan.
-
 ## 1. Identify the Task
 
 Follow `identify-task.md` to find the active task. Then read the task file, spec (if linked), and task-context (if it exists at `.aicontext/data/task-context/context-{task-filename}.md`).
 
-Follow `ensure-config.md`.
+Follow `ensure-config.md` with `after_step.*`.
 
 ## 2. Find the Step
 
 - If an argument is provided (e.g. `run-step 3`), use that step number
 - Otherwise, use the first unchecked step (`- [ ]`)
-- If no unchecked steps remain: append the active tool's `finish-task` handoff.
+- If no unchecked steps remain: stop with `run-task` for finalization when `Pending` or `Implementing`, `close-task` when `Ready to close`, or `start-feature` when `Done`. Use Native Skill Syntax.
 
 ## 3. Execute
 
-Follow `.aicontext/prompts/step-loop.md`. It runs review, tests, commit, and step close per the resolved config.
+Set status `Implementing` if it is `Pending`. Follow `.aicontext/prompts/step-loop.md`. It runs review, tests, commit, and step close per the resolved config.

@@ -39,7 +39,7 @@ start-feature  →  Interview  →  Spec + Task(s)
                                       ↓
                                 run-task  →  Implement + Review + Test (automated per step)
                                       ↓
-                                finish-task  →  Sync docs, update worklog, handle git
+                                close-task  →  Mark tracking done, optionally close issue
 ```
 
 **The AI interviews you** before writing code - exploring your codebase to avoid asking what it can determine itself. It recommends answers based on what it found, walks every dimension breadth-first so nothing is missed, and captures decisions as it goes. You confirm or correct - not explain from scratch.
@@ -51,8 +51,6 @@ start-feature  →  Interview  →  Spec + Task(s)
 **The AI tests in the browser** - the `web-inspect` skill opens real pages, checks console errors, interacts with elements, and captures screenshots. No more copy-pasting console errors.
 
 **The AI drives the process** - after every action, the AI tells you what to do next in your tool's own syntax. Finished a step? "Run `$next-step` to continue." Closed a task? "Spec has more pending tasks - start the next one?" You never have to guess the next command.
-
-**The AI ships the code** - after finishing a task, the AI can commit, push, create a PR, and run the review-fix loop automatically. Configure once, and the full pipeline runs hands-free on every task.
 
 **The AI adapts to your workflow** - on first run, it asks how you like to work: reviews after every step or only at the end? Commit per step or per task? Push automatically? It remembers your answers and never asks again.
 
@@ -88,10 +86,17 @@ Learn more in the [development model guide](docs/development-model.md).
 - `deep-review` - comprehensive architecture + correctness + codebase health review
 - Specialized reviewer agent runs in parallel without consuming your main conversation (Claude Code)
 
+### Agent orchestration
+You can make your AI the tech lead and give it a team of agents — it plans and delegates instead of coding.
+
+- `orchestrate-workers` - a coder, test writer, tester, and reviewer run as separate agents; the lead triages their findings and gates on your approval
+- Requires Herdr; Pi workers preferred, other agent kinds on request
+
 ### Session continuity
 - `load-task` - read spec, task-context, and task to continue exactly where you left off
 - `load-spec` - read a feature spec, linked-task progress, and coverage gaps
-- `finish-task` - close out a task: sync spec, write completion notes, handle git
+- `close-task` - administrative closure: warn about unfinished work, mark tracking done, optionally close the linked issue
+- `finish-task` - deprecated alias for `close-task`; no PR or git automation
 - `align-context` - sync all context files with current state
 
 ### Issue & PR workflow
@@ -100,7 +105,9 @@ Learn more in the [development model guide](docs/development-model.md).
 - `draft-issue` - draft a GitHub issue from conversation, create it on GitHub, and auto-fill the issue ID in subsequent task filenames
 - `draft-pr` - generate a PR description from task context and git history (local file only)
 - `make-pr` - push the branch if needed and create the PR on GitHub
-- `finish-task` can auto-create PRs and run the review-fix loop - configure `after_task.pr` and `after_task.review_loop` in `config.yml` for a fully automated code → commit → push → PR → review → fix pipeline
+- `run-task` owns configured `after_task.*` finalization after all plan steps, including PR creation/update and optional `gh-resolve-pr`.
+- `gh-resolve-pr` validates an existing PR's CI, reviews, and mergeability without merging.
+- GitHub is supported initially; unsupported providers receive a limitation report.
 - `gh-review-fix-loop` - automate the review-fix-push cycle (works with CodeRabbit, human reviewers, etc.)
 - `gh-fix-tests` - fix failing CI checks automatically: diagnose, fix, push, retry until green
 
@@ -131,7 +138,8 @@ AIContext creates a `.aicontext/` directory with shared rules, prompts, and temp
 
 | Tool | How to invoke skills |
 |------|---------------------|
-| Claude Code, opencode, Pi | `/skill-name` (e.g., `/start-feature`) |
+| Claude Code, opencode | `/skill-name` (e.g., `/start-feature`) |
+| Pi | `/skill:name` (e.g., `/skill:start-feature`) |
 | Codex | `$skill-name` (e.g., `$start-feature`) |
 | Cursor, Copilot | `use skill-name` (e.g., `use start-feature`) |
 
@@ -201,6 +209,7 @@ One config file controls how the AI works — no prompt engineering needed:
 
 | Version | Highlights |
 |---------|------------|
+| **1.12.0** | Native Pi skills (`/skill:name`). Worker orchestration with `/orchestrate-workers`. Separate task closure via `/close-task` and persistent task status. Bounded PR readiness with `/gh-resolve-pr`. Cached, silent update checks and on-demand config loading. |
 | **1.11.0** | OpenCode and Pi workflow support. Selective Codex skill routing. Explicit `make-pr` workflow, with `draft-pr` now local-only. Task and spec loading via `load-task` and `load-spec`. Typed response references for questions, concerns, risks, decisions, actions, unexpected findings, and options. |
 | **1.10.0** | Configurable TDD (`tdd: true/false/ask`). Dedicated `plan-steps.md` for plan-creation-time rules. Branch verification before remote ops. Correct git range operators in PR drafts. |
 | **1.9.0** | Documentation generation (`/generate-docs`). Type-aware test config with per-type scoping. Self-healing updates and `--force` flag. Choose which AI tools to install. Clearer skill names (`/resume-task`, `/review-task`). |

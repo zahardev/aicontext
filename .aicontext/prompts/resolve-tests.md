@@ -1,7 +1,5 @@
 # Resolve Tests
 
-Turn an `after_*.tests` config value into shell commands.
-
 **Input:** `value`, `context` (`step` or `task`), optional `changed_files`.
 
 ## 1. Trivial cases

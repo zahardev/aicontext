@@ -1,7 +1,5 @@
 # Plan Tasks
 
-Read an existing spec and propose a task breakdown.
-
 ## 1. Identify the Spec
 
 If no spec is obvious from context, list available specs in `.aicontext/specs/` and ask:
@@ -12,7 +10,7 @@ If no specs exist:
 
 ## 2. Read Context
 
-Follow `ensure-config.md` to read project settings (`task_naming` drives the version prefix). Load the spec and any existing tasks linked in its `## Tasks` section — skip any file already Read earlier in this conversation.
+Follow `ensure-config.md` with `task_naming.*` and `tdd` (`task_naming` drives the version prefix). Load the spec and any existing tasks linked in its `## Tasks` section per the Session Context Reuse rule in `process.md`.
 
 ## 3. Assess Task Split
 
@@ -32,4 +30,4 @@ If existing tasks already cover some requirements, note which are already covere
 
 ## 4. Create Tasks
 
-After user confirms, for each task: follow `resolve-task-naming.md` with `pattern` from config and the task's name slug to get its filename, then create the task at `.aicontext/tasks/{filename}.md` from `.aicontext/templates/task.template.md`. Derive plan steps from the spec requirements assigned to that task, following `plan-steps.md`. Append each task to the spec's `## Tasks` section, and to the `*Implemented by:*` footer of any spec subsection(s) the task implements.
+After user confirms, for each task: follow `resolve-task-naming.md` with `pattern` from config and the task's name slug to get its filename, then create the task at `.aicontext/tasks/{filename}.md` from `.aicontext/templates/task.template.md`. Populate the Issue link whenever known (including from naming); omit the Issue section if unknown. Derive plan steps from the spec requirements assigned to that task, following `plan-steps.md`. Append each task to the spec's `## Tasks` section, and to the `*Implemented by:*` footer of any spec subsection(s) the task implements.

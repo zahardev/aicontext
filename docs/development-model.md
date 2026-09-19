@@ -25,7 +25,7 @@ A spec defines *what* to build and *why*. It contains:
 Specs contain no file paths or implementation details — they survive refactors. One spec can have multiple tasks.
 
 **Created by:** `/start-feature`
-**Updated by:** `/run-task` (syncs new decisions/requirements), `/do-it`, `/align-context`, `/finish-task`
+**Updated by:** `/run-task`, `/do-it`, `/align-context`, `/close-task`
 
 ### Task
 
@@ -36,12 +36,13 @@ A task defines *how* to build it and tracks *progress*. It contains:
 - **Objective** — what this task accomplishes
 - **Deliverables** — definition of done for this work bundle
 - **Plan** — step-by-step with checkboxes (`- [ ]` / `- [x]`)
-- **Completion Notes** — what was built, compromises, follow-ups
+- **Status** - `Implementing` → `Ready to close` → `Done`
+- **Completion Notes** - valuable step-attributed outcomes, compromises, learnings, and follow-ups; blank if nothing useful
 
-The AI checks off steps as it goes. When all steps are done, `/finish-task` closes it out.
+The AI checks off delivered steps and writes notes at step closure. `/run-task` finalizes implementation after all steps; `/close-task` closes tracking separately without blocking on unfinished work or inspecting PRs. Legacy `/finish-task` forwards to `/close-task`.
 
 **Created by:** `/start-feature`, `/plan-tasks`
-**Updated by:** `/run-task`, `/do-it`, `/align-context`
+**Updated by:** `/run-task`, `/do-it`, `/align-context`, `/close-task`
 
 ### Task-Context
 
@@ -70,11 +71,11 @@ The task-context is gitignored but never auto-deleted. If you start a new sessio
                         ↓
               Task-context accumulates knowledge
                         ↓
-                  /finish-task on Task 1
+                  /close-task on Task 1
                         ↓
                   /run-task on Task 2 (task-context carries over or new one created)
                         ↓
-                  /finish-task on Task 2
+                  /close-task on Task 2
                         ↓
               All tasks done → Spec moves to Done in worklog
 ```
@@ -122,11 +123,11 @@ The worklog tracks the status of all specs and tasks:
 - [x] [small-fix](tasks/small-fix.md) — 2026-03-15
 ```
 
-The worklog is AI-generated (not created by the CLI) and gitignored. `/finish-task` updates it when closing a task. `/align-context` fixes it if it's stale.
+The worklog is AI-generated (not created by the CLI) and gitignored. `/close-task` updates it when closing a task. `/align-context` fixes it if it's stale.
 
 ## Quality Checks
 
-Quality checks are configured in `.aicontext/config.yml` under `after_step` and `after_task`. Review and tests take scope values (`normal` | `deep` | `false` | `ask`); commit and push take boolean values (`true` | `false` | `ask`).
+Quality checks are configured in `.aicontext/config.yml` under `after_step` and `after_task`. Review and tests take scope values (`normal` | `deep` | `false` | `ask`); commit, push, PR, and review-loop actions take boolean values (`true` | `false` | `ask`).
 
 When set to `ask`, the AI prompts at the start of `/run-task` or `/run-step` with user-friendly options (e.g., "Normal review — this step's changes" or "Deep review — architecture + correctness") and offers to save your choice as the default.
 
@@ -144,18 +145,20 @@ When findings are returned, the AI assesses each by severity and effort:
 
 Lifecycle and commit settings live in `.aicontext/config.yml`. Personal overrides go in `config.local.yml` (gitignored).
 
-**Lifecycle actions** under `after_step` and `after_task` — same vocabulary at both timings. Review and tests take scope values (`normal` | `deep` | `false` | `ask`); commit and push take boolean values (`true` | `false` | `ask`). `ask` fires upfront at `/run-step` or `/run-task` entry with a two-stage prompt (Stage 1: pick action with timing-specific recommendation; Stage 2: save as default?). Once answered, the run proceeds unattended.
+**Lifecycle actions** under `after_step` and `after_task` — same vocabulary at both timings. Review and tests take scope values (`normal` | `deep` | `false` | `ask`); commit, push, PR, and review-loop actions take boolean values (`true` | `false` | `ask`). `ask` fires upfront at `/run-step` or `/run-task` entry with a two-stage prompt (Stage 1: pick action with timing-specific recommendation; Stage 2: save as default?). Once answered, the run proceeds unattended.
 
 - `after_step.review` / `tests` / `commit` — fire after each step
-- `after_task.review` / `tests` / `commit` / `push` — fire at task close
+- `after_task.review` / `tests` / `commit` / `push` / `pr` / `review_loop` - run only inside `/run-task` after all plan steps, never during `/close-task`
 
-`after_task.commit` is skipped automatically if any step committed during the run — step-level commits already cover the work. `after_task.push` fires independently so step-level commits still reach the remote.
+New/defaulted `after_task.review` is `deep`; existing settings are preserved. `after_task.commit` commits remaining changes even after step commits; no changes means skip. `after_task.push` is independent. `pr` authorizes PR creation/update and its prerequisite push. `review_loop` invokes `gh-resolve-pr` for CI, reviews, and mergeability only after automatic PR success. All flags govern automatic invocation only.
 
-The `reviewer` subagent receives an explicit corpus based on commit state: working-tree diff for uncommitted steps, last commit (`HEAD^..HEAD`) for committed steps, branch diff (`{base-branch}...HEAD` + uncommitted working tree) for task close.
+Issue closure belongs to `/close-task` through `issue.close_on_task_close: true | false | ask` (default `ask`). No PR inspection or publication occurs during closure.
+
+The `reviewer` subagent receives an explicit corpus based on commit state: working-tree diff for uncommitted steps, last commit (`HEAD^..HEAD`) for committed steps, branch diff (`{base-branch}...HEAD` + uncommitted working tree) for implementation finalization.
 
 **Commit format** under `commit`:
 - `commit.template`: description / description (#issue_id) / type: description / custom
 - `commit.body`: true (subject + body + trailer) / false (subject only)
 - `commit.co_authored_trailer`: template for the Co-Authored-By trailer
 
-All commits go through `commit.md` — the single commit codepath. Other prompts (`finish-task`, `run-task`, `do-it`) delegate to it.
+All commits use `commit.md`; administrative closure does not commit.

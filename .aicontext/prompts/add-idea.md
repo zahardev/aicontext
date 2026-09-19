@@ -1,7 +1,5 @@
 # Add Idea
 
-Capture a deferred idea to the worklog Ideas section without interrupting the session.
-
 ## 1. Get the idea description
 
 If the user provided text after the command, use it as the description — skip asking. Otherwise ask (open-ended):
