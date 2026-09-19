@@ -81,12 +81,10 @@ No `worker-start`, no `load-task`. Send the exact commands to run. Rules: run on
 Never block on a worker. Prompt it, then watch it in one background job per worker:
 
 ```bash
-herdr agent prompt <name> "<text>"        # returns immediately
-for _ in $(seq 30); do herdr agent get <name> | grep -q '"agent_status":"working"' && break; sleep 1; done
-while herdr agent get <name> | grep -q '"agent_status":"working"'; do sleep 2; done
+herdr agent prompt <name> "<text>" --wait --timeout 900000
 ```
 
-Wait for `working` first: polling straight after the prompt reads the previous `idle` and reports a finish that never happened. The bound covers a worker that finishes before the first poll.
+`--wait` settles on `idle`, `done`, or `blocked`. Only `idle` and `done` continue the loop; `blocked`, `agent_blocked`, `agent_prompt_stalled`, timeout, or a failed call stop and go to the user. Always pass `--timeout` — without it the wait is indefinite. Never prompt a worker that is already working: `--wait` can match that turn's completion instead of yours.
 
 1. **Coder** implements and stops.
 2. **Test writer** reads the code for its surface, but takes expectations from the spec and step: assert intended behavior, not what the code currently does.
