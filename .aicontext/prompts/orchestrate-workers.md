@@ -31,19 +31,20 @@ Use `$HERDR_BIN_PATH` if `herdr` is not on PATH. If Herdr is unavailable, tell t
 
 Prefer `--kind pi`. If Pi is unavailable, ask the user which agent kind to start and drop the `--model`/`--thinking` flags, which are Pi's.
 
-Split vertically first, then horizontally: the right part first, then the left.
+Workers live in their own tab, one pane each:
 
 ```bash
-pane=$(herdr pane split --current --direction right --cwd "$PWD" --no-focus | grep -oE '"pane_id":"[^"]+"' | cut -d'"' -f4)
+id() { grep -oE "\"$1\":\"[^\"]+\"" | head -1 | cut -d'"' -f4; }
+out=$(herdr tab create --cwd "$PWD" --label "Workers: {task_name}" --no-focus)
+tab=$(echo "$out" | id tab_id); pane=$(echo "$out" | id pane_id)
 herdr agent start <name> --kind pi --pane "$pane" -- --model <model> --thinking <thinking>
+pane=$(herdr pane split --pane "$pane" --direction down --cwd "$PWD" --no-focus | id pane_id)   # next worker
 ```
 
-An empty `$pane` means the split failed — stop, do not start the agent.
-
-Repeat per worker, splitting the previous pane with `--pane "$pane" --direction down`. Flags after `--` go to the agent; the table in section 3 supplies them.
+An empty id means the call failed — stop, do not start the agent. Flags after `--` go to the agent; the table in section 3 supplies them.
 
 - Start the coder at the task beginning; start the test writer and tester fresh each step and close them after it.
-- Close only panes you created, with `herdr pane close <pane_id>`.
+- Close a finished worker's pane with `herdr pane close <pane_id>`, and the whole tab with `herdr tab close "$tab"` when the task ends.
 - Give a started agent a few seconds before prompting it, and always filter `herdr agent list` through `grep`.
 
 ## 5. Worker handovers
