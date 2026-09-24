@@ -48,7 +48,12 @@
 - One function = one responsibility
 - Flat is better than nested - use early returns to reduce nesting
 - If a code needs comments to explain, consider simplifying the code
-- Only make changes directly requested or clearly necessary
+- Only make changes requested or required by the right design
+
+### Design Over Convenience
+- Choose the right design over the smallest change
+- Follow the existing design and architecture
+- If doing it properly means changing surrounding code, change it
 
 ### Code Documentation
 - Use descriptive, action-oriented descriptions

@@ -46,7 +46,7 @@ const FLAT_POINTER_HARNESSES = {
   opencode: { dir: ['.opencode', 'commands'] },
 };
 const DEPRECATED_SKILLS = ['task', 'after-step', 'next', 'pr', 'start-task', 'diff-review', 'branch-review', 'standards-check', 'pr-review-check', 'check-plan', 'check-task', 'review-task-plan', 'run-steps', 'review-plan', 'resume-task'];
-const FRAMEWORK_SCRIPTS = ['check-update.cjs', 'pr-reviews.cjs', 'pr-resolve.cjs'];
+const FRAMEWORK_SCRIPTS = ['check-update.cjs', 'pr-reviews.cjs', 'pr-resolve.cjs', 'prompt-worker.cjs'];
 const DEPRECATED_SCRIPTS = ['pr-reviews.js', 'pr-resolve.js'];
 const CONFIG_FILE = 'config.yml';
 const LEGACY_RESUME_TASK_PROMPT_HASH = 'c3aa05589c9e8240307aa19f22c344dbb3f8d0ba813491ce52594bcaeb831e38';
