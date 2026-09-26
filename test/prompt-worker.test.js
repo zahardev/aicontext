@@ -20,10 +20,10 @@ const write = (result = {}) => {
 if (group !== 'agent') process.exit(2);
 if (command === 'get') {
   const agent = (config.agents || {})[target] || {};
-  process.stdout.write(JSON.stringify({
+  process.stdout.write(JSON.stringify({ result: { agent: {
     cwd: agent.cwd || process.cwd(),
     agent_status: agent.agent_status || 'idle',
-  }));
+  } } }));
   process.exitCode = agent.exitCode || 0;
 } else if (command === 'wait') {
   write(((config.waits || {})[target]) || {});
@@ -164,6 +164,19 @@ describe('prompt-worker script', () => {
     assert.strictEqual(result.status, 1);
     assert.match(result.stderr, /Herdr stdout\nHerdr stderr/);
     assert.ok(readCalls().every(({ args }) => args[1] !== 'wait'));
+  });
+
+  it('keeps watching when a stalled prompt may have been delivered', async () => {
+    const result = await runScript(['worker', 'hello'], {
+      env: envFor({
+        agents: { worker: { cwd: projectDir } },
+        prompts: { worker: { exitCode: 1, stdout: '{"error":{"code":"agent_prompt_stalled"}}' } },
+      }),
+    });
+    await waitForCall(({ args }) => args[0] === 'agent' && args[1] === 'prompt' && args[2] === 'lead');
+
+    assert.strictEqual(result.status, 0);
+    assert.match(result.stderr, /read its screen before prompting again/);
   });
 
   it('waits for the worker, then the lead, before prompting the lead with worker status', async () => {
