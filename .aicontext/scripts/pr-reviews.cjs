@@ -26,6 +26,7 @@ const OUTPUT_DIR = path.join(__dirname, '..', 'data', 'github-pr-reviews');
 
 const QUERY = `
 query($owner: String!, $name: String!, $number: Int!, $after: String) {
+  viewer { login }
   repository(owner: $owner, name: $name) {
     pullRequest(number: $number) {
       title
@@ -86,12 +87,14 @@ function graphql(owner, name, number, after) {
 function fetchThreads(owner, name, number) {
   const threads = [];
   let title = null;
+  let viewer = null;
   let cursor = null;
 
   while (true) {
     const data = graphql(owner, name, number, cursor);
     const pr = data.data.repository.pullRequest;
     if (!title) title = pr.title || '';
+    if (!viewer) viewer = data.data.viewer?.login || null;
 
     const rt = pr.reviewThreads;
     threads.push(...rt.nodes);
@@ -100,7 +103,7 @@ function fetchThreads(owner, name, number) {
     cursor = rt.pageInfo.endCursor;
   }
 
-  return { threads, title };
+  return { threads, title, viewer };
 }
 
 function getPrInfo() {
@@ -150,6 +153,7 @@ function buildEntries(threads, skipPaths) {
       path: first.path,
       line: first.line,
       author: first.author?.login || 'ghost',
+      replies: comments.slice(1).map((c) => ({ author: c.author?.login || 'ghost', body: c.body })),
     });
   }
 
@@ -176,11 +180,11 @@ function stripNoise(body) {
   return body.trim();
 }
 
-function renderMarkdown(prNumber, title, iteration, entries) {
+function renderMarkdown(prNumber, title, iteration, entries, viewer) {
   const now = new Date().toISOString().replace('T', ' ').slice(0, 16);
   const lines = [
     `# PR #${prNumber} — ${title}`,
-    `Iteration: ${iteration} | Generated: ${now}`,
+    `Iteration: ${iteration} | Generated: ${now}${viewer ? ` | You: ${viewer}` : ''}`,
     '',
     '| # | Action | File:Line | Reviewer | Thread ID | Reply |',
     '|---|--------|-----------|----------|-----------|-------|',
@@ -192,7 +196,7 @@ function renderMarkdown(prNumber, title, iteration, entries) {
   });
 
   lines.push('');
-  lines.push('Actions: `resolve` (dismiss on GitHub) | `fix` (will address) | `skip` (awaiting human reply)');
+  lines.push('Actions: `resolve` (dismiss on GitHub) | `fix` (will address) | `skip` (leave open; posts Reply if filled)');
   lines.push('');
 
   entries.forEach((e, i) => {
@@ -202,6 +206,12 @@ function renderMarkdown(prNumber, title, iteration, entries) {
     lines.push('');
     lines.push(stripNoise(e.body));
     lines.push('');
+    for (const reply of e.replies || []) {
+      lines.push(`**Reply from ${reply.author}${reply.author === viewer ? ' (you)' : ''}:**`);
+      lines.push('');
+      lines.push(stripNoise(reply.body));
+      lines.push('');
+    }
   });
 
   return lines.join('\n');
@@ -214,7 +224,7 @@ function main() {
   checkGhCli();
 
   const { prNumber, owner, name } = getPrInfo();
-  const { threads, title } = fetchThreads(owner, name, prNumber);
+  const { threads, title, viewer } = fetchThreads(owner, name, prNumber);
   const entries = buildEntries(threads);
 
   if (countOnly) {
@@ -228,7 +238,7 @@ function main() {
   }
 
   const iteration = nextIteration(prNumber);
-  const md = renderMarkdown(prNumber, title, iteration, entries);
+  const md = renderMarkdown(prNumber, title, iteration, entries, viewer);
   const filepath = path.join(OUTPUT_DIR, `pr-${prNumber}-${iteration}.md`);
   fs.mkdirSync(OUTPUT_DIR, { recursive: true });
   fs.writeFileSync(filepath, md);

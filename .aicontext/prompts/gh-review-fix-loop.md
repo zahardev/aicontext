@@ -15,12 +15,7 @@ Resolve actionable GitHub review threads. Never merge or dismiss a review.
 
 Run `node .aicontext/scripts/pr-reviews.cjs`. If no unresolved threads, return `CLEAR` (review threads only, not proof of green CI or mergeability).
 
-For each thread:
-- **Fix:** actionable issue with a clear code change.
-- **Resolve:** false positive, irrelevant, or already addressed; explain why.
-- **Skip:** needs human judgment; report as a blocker.
-
-Fill the Reply column for Fix and Resolve entries. Run `node .aicontext/scripts/pr-resolve.cjs "$review_file"` for Resolve actions only; leave Fix rows unresolved until the successful push in Section 3. Inspect reply/resolution results and re-fetch threads; the script can report partial failures with exit code zero. Failures are blockers, not an empty review.
+Follow "Triage" then "Resolve" in `.aicontext/prompts/gh-review-triage.md`. Leave Fix rows unresolved until the successful push in Section 3. Failures are blockers, not an empty review.
 
 Implement Fix items and verify affected behavior locally. If verification fails or is unavailable, report a blocker. If none require code, do not push. Unresolved Skip items return `BLOCKED`.
 
@@ -28,7 +23,7 @@ Implement Fix items and verify affected behavior locally. If verification fails 
 
 Follow `.aicontext/prompts/commit.md` for review fixes only. Verify branch/tracking state and push the PR head branch to its verified remote; the active review-fix cycle authorizes this non-force push. Stop on failure.
 
-After a successful push, change verified Fix rows to `resolve` in a fresh batch excluding processed threads, run `node .aicontext/scripts/pr-resolve.cjs "$review_file"`, and re-fetch them. If task context exists, sync new spec decisions/requirements; record supersessions per `process.md "Task-context content boundary"`.
+After a successful push, change verified Fix rows to `resolve`, run `node .aicontext/scripts/pr-resolve.cjs "$review_file"`, and re-fetch them. If task context exists, sync new spec decisions/requirements; record supersessions per `process.md "Task-context content boundary"`.
 
 Coordinator mode returns `PUSHED` with the new head and any unresolved blockers.
 

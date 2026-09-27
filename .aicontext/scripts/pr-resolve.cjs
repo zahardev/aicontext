@@ -1,8 +1,10 @@
 #!/usr/bin/env node
 
 /**
- * Resolve PR review threads marked 'resolve' in a review file.
- * If a Reply column is filled, posts the reply as a comment before resolving.
+ * Process PR review threads marked in a review file:
+ * 'resolve' posts the Reply (if filled) and resolves the thread;
+ * 'skip' posts the Reply (if filled) and leaves the thread open.
+ * Processed rows are marked in the file so a rerun never repeats them.
  * Requires: gh CLI (https://cli.github.com/) authenticated with `gh auth login`
  */
 
@@ -96,18 +98,38 @@ function parseCommentIds(content) {
   return ids;
 }
 
-function parseResolveEntries(content) {
+function parseEntries(content) {
   const entries = [];
-  const regex = /\|\s*(\d+)\s*\|\s*resolve\s*\|.*\|\s*(PRRT_\S+)\s*\|\s*(.*?)\s*\|/gi;
+  const regex = /\|\s*(\d+)\s*\|\s*(resolve|skip)\s*\|.*\|\s*(PRRT_\S+)\s*\|\s*(.*?)\s*\|/gi;
   let match;
   while ((match = regex.exec(content)) !== null) {
+    const action = match[2].toLowerCase();
+    const reply = match[4].trim();
+    if (action === 'skip' && !reply) continue;
     entries.push({
       number: parseInt(match[1], 10),
-      threadId: match[2],
-      reply: match[3].trim(),
+      action,
+      threadId: match[3],
+      reply,
     });
   }
   return entries;
+}
+
+function updateRow(content, number, changes) {
+  const rowStart = new RegExp(`^\\|\\s*${number}\\s*\\|`);
+  let updated = false;
+  return content
+    .split('\n')
+    .map((line) => {
+      if (updated || !rowStart.test(line)) return line;
+      updated = true;
+      const cells = line.split('|').slice(1, -1).map((cell) => cell.trim());
+      if (changes.action !== undefined) cells[1] = changes.action;
+      if (changes.reply !== undefined) cells[5] = changes.reply;
+      return `| ${cells.join(' | ')} |`;
+    })
+    .join('\n');
 }
 
 function main() {
@@ -119,11 +141,15 @@ function main() {
   checkGhCli();
 
   const filepath = process.argv[2];
-  const content = fs.readFileSync(filepath, 'utf8');
+  let content = fs.readFileSync(filepath, 'utf8');
+  const record = (number, changes) => {
+    content = updateRow(content, number, changes);
+    fs.writeFileSync(filepath, content);
+  };
 
-  const entries = parseResolveEntries(content);
+  const entries = parseEntries(content);
   if (!entries.length) {
-    console.log("No threads marked 'resolve' found in the file.");
+    console.log("No 'resolve' threads or 'skip' threads with replies found in the file.");
     return;
   }
 
@@ -142,7 +168,8 @@ function main() {
     ({ owner, name: repo } = getRepoInfo());
   }
 
-  console.log(`Resolving ${entries.length} thread(s)...\n`);
+  const toResolve = entries.filter((e) => e.action === 'resolve').length;
+  console.log(`Processing ${entries.length} thread(s)...\n`);
 
   let resolved = 0;
   for (const e of entries) {
@@ -152,6 +179,7 @@ function main() {
         const { ok, error } = postReply(owner, repo, prNumber, cid, e.reply);
         if (ok) {
           console.log(`  Replied:  #${e.number} — ${e.reply.slice(0, 60)}`);
+          record(e.number, e.action === 'skip' ? { action: 'replied' } : { reply: '' });
         } else {
           console.log(`  Reply failed: #${e.number} — ${error}`);
         }
@@ -160,20 +188,23 @@ function main() {
       }
     }
 
+    if (e.action !== 'resolve') continue;
+
     const { ok, error } = resolveThread(e.threadId);
     if (ok) {
       console.log(`  Resolved: #${e.number}`);
+      record(e.number, { action: 'resolved' });
       resolved++;
     } else {
       console.log(`  Failed:   #${e.number} — ${error}`);
     }
   }
 
-  console.log(`\nDone: ${resolved}/${entries.length} resolved.`);
+  console.log(`\nDone: ${resolved}/${toResolve} resolved.`);
 }
 
 // Export for testing
-module.exports = { parsePrNumber, parseCommentIds, parseResolveEntries };
+module.exports = { parsePrNumber, parseCommentIds, parseEntries, updateRow };
 
 if (require.main === module) {
   main();
