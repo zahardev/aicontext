@@ -17,7 +17,7 @@ const FRAMEWORK_PROMPTS = [
   'add-step.md', 'add-idea.md', 'aic-help.md', 'aic-skills.md', 'align-context.md', 'challenge.md', 'close-step.md',
   'commit.md', 'create-config.md', 'create-task.md', 'deep-review.md', 'deep-review-criteria.md', 'do-it.md', 'draft-issue.md', 'ensure-config.md', 'identify-task.md',
   'draft-pr.md', 'make-pr.md', 'finish-task.md', 'close-task.md', 'gh-resolve-pr.md', 'generate.md', 'gh-fix-tests.md', 'gh-review-fix-loop.md', 'next-step.md', 'plan-tasks.md',
-  'gh-review-check.md', 'install-playwright-cli.md', 'prepare-release.md', 'review.md', 'review-criteria.md', 'detect-review-scope.md',
+  'gh-review-check.md', 'gh-review-triage.md', 'install-playwright-cli.md', 'prepare-release.md', 'review.md', 'review-criteria.md', 'detect-review-scope.md',
   'brainstorm.md', 'generate-docs.md', 'generate-guide.md', 'generate-reference.md', 'interview.md', 'load-spec.md', 'load-task.md', 'migrate-config.md', 'resolve-asks.md', 'resolve-task-naming.md', 'resolve-test-types.md', 'resolve-tests.md', 'review-task.md', 'run-step.md', 'run-task.md', 'orchestrate-workers.md', 'start-feature.md', 'start.md', 'step-loop.md', 'worker-start.md', 'test-writer.md', 'thoughts.md', 'tidy-aic.md', 'web-inspect.md',
 ];
 const DEPRECATED_PROMPTS = ['check_plan.md', 'check_task.md', 'check-task.md', 'review-task-plan.md', 'after_step.md', 'plan.md', 'task.md', 'start-task.md', 'diff-review.md', 'branch-review.md', 'standards-check.md', 'pr-review-check.md', 'check-plan.md', 'run-steps.md', 'review-plan.md', 'review-scope.md', 'update-check.md', 'check-update.md', 'auto-setup.md', 'resolve-task-lifecycle-asks.md', 'resume-task.md'];

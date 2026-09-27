@@ -118,6 +118,40 @@ describe('buildEntries', () => {
     assert.strictEqual(entry.commentId, 42);
     assert.strictEqual(entry.body, 'Fix this');
     assert.strictEqual(entry.author, 'reviewer1');
+    assert.deepStrictEqual(entry.replies, [{ author: 'author1', body: 'Reply' }]);
+  });
+
+  it('should include every follow-up comment in order with ghost fallback', () => {
+    const threads = [
+      {
+        isResolved: false, isOutdated: false, id: 'PRRT_replies',
+        comments: { nodes: [
+          { databaseId: 1, body: 'Original', path: 'src/main.js', line: 10, author: { login: 'reviewer' } },
+          { databaseId: 2, body: 'First reply', author: { login: 'author1' } },
+          { databaseId: 3, body: 'Second reply', author: null },
+          { databaseId: 4, body: 'Third reply' },
+        ] },
+      },
+    ];
+
+    assert.deepStrictEqual(buildEntries(threads)[0].replies, [
+      { author: 'author1', body: 'First reply' },
+      { author: 'ghost', body: 'Second reply' },
+      { author: 'ghost', body: 'Third reply' },
+    ]);
+  });
+
+  it('should use an empty replies array when there are no follow-up comments', () => {
+    const threads = [
+      {
+        isResolved: false, isOutdated: false, id: 'PRRT_single',
+        comments: { nodes: [
+          { databaseId: 1, body: 'Original', path: 'src/main.js', line: 10, author: { login: 'reviewer' } },
+        ] },
+      },
+    ];
+
+    assert.deepStrictEqual(buildEntries(threads)[0].replies, []);
   });
 });
 
@@ -148,6 +182,109 @@ describe('renderMarkdown', () => {
     assert.match(md, /## 1\. \[bob\] src\/app\.js:10/);
     assert.match(md, /Thread: `PRRT_abc` \| Comment: `111`/);
     assert.match(md, /Fix this/);
+  });
+
+  it('should render follow-ups after the first comment with authors and stripped noise', () => {
+    const entries = [
+      {
+        path: 'src/app.js', line: 10, author: 'bob', threadId: 'PRRT_abc', commentId: 111,
+        body: 'Original finding\n<details><summary>Tools</summary>first tool output</details>',
+        replies: [
+          { author: 'reply-author-one', body: 'First follow-up\n<details><summary>Tools</summary>reply tool output</details>' },
+          { author: 'reply-author-two', body: 'Second follow-up' },
+        ],
+      },
+    ];
+    const md = renderMarkdown(1, 'Title', 1, entries);
+    const section = md.slice(md.indexOf('## 1.'));
+    const originalPosition = section.indexOf('Original finding');
+    const firstAuthorPosition = section.indexOf('reply-author-one');
+    const firstReplyPosition = section.indexOf('First follow-up');
+    const secondAuthorPosition = section.indexOf('reply-author-two');
+    const secondReplyPosition = section.indexOf('Second follow-up');
+
+    assert.ok(originalPosition >= 0);
+    assert.ok(firstAuthorPosition > originalPosition);
+    assert.ok(firstReplyPosition > originalPosition);
+    assert.ok(Math.abs(firstAuthorPosition - firstReplyPosition) < 100);
+    assert.ok(secondAuthorPosition > firstAuthorPosition);
+    assert.ok(secondReplyPosition > firstReplyPosition);
+    assert.ok(Math.min(secondAuthorPosition, secondReplyPosition) > Math.max(firstAuthorPosition, firstReplyPosition));
+    assert.ok(Math.abs(secondAuthorPosition - secondReplyPosition) < 100);
+    assert.doesNotMatch(section, /first tool output|reply tool output|<summary>Tools<\/summary>/);
+  });
+
+  it('should identify the viewer and mark only their follow-up replies as theirs', () => {
+    const entries = [
+      {
+        path: 'src/app.js', line: 10, author: 'bob', threadId: 'PRRT_abc', commentId: 111,
+        body: 'Original finding',
+        replies: [
+          { author: 'viewer-login', body: 'First follow-up' },
+          { author: 'another-user', body: 'Second follow-up' },
+          { author: 'viewer-login', body: 'Third follow-up' },
+        ],
+      },
+    ];
+    const md = renderMarkdown(1, 'Title', 1, entries, 'viewer-login');
+    const header = md.slice(0, md.indexOf('\n| # |'));
+    const replyHeadings = md.match(/\*\*Reply from [^*]+:\*\*/g);
+
+    assert.match(header, /\byou\b/i);
+    assert.match(header, /viewer-login/);
+    assert.deepStrictEqual(replyHeadings, [
+      '**Reply from viewer-login (you):**',
+      '**Reply from another-user:**',
+      '**Reply from viewer-login (you):**',
+    ]);
+  });
+
+  it('should preserve the existing output when viewer is omitted', () => {
+    const entries = [
+      {
+        path: 'src/app.js', line: 10, author: 'bob', threadId: 'PRRT_abc', commentId: 111,
+        body: 'Original finding',
+        replies: [{ author: 'viewer-login', body: 'Follow-up' }],
+      },
+    ];
+    const md = renderMarkdown(1, 'Title', 1, entries);
+
+    assert.strictEqual(md.replace(/Generated: .+/, 'Generated: TIMESTAMP'), [
+      '# PR #1 — Title',
+      'Iteration: 1 | Generated: TIMESTAMP',
+      '',
+      '| # | Action | File:Line | Reviewer | Thread ID | Reply |',
+      '|---|--------|-----------|----------|-----------|-------|',
+      '| 1 | | src/app.js:10 | bob | PRRT_abc | |',
+      '',
+      'Actions: `resolve` (dismiss on GitHub) | `fix` (will address) | `skip` (leave open; posts Reply if filled)',
+      '',
+      '## 1. [bob] src/app.js:10',
+      'Thread: `PRRT_abc` | Comment: `111`',
+      '',
+      'Original finding',
+      '',
+      '**Reply from viewer-login:**',
+      '',
+      'Follow-up',
+      '',
+    ].join('\n'));
+  });
+
+  it('should not render a follow-up block when there are no replies', () => {
+    const entries = [
+      { path: 'src/app.js', line: 10, author: 'bob', threadId: 'PRRT_abc', commentId: 111, body: 'Original finding', replies: [] },
+    ];
+    const md = renderMarkdown(1, 'Title', 1, entries);
+    const section = md.slice(md.indexOf('## 1.'));
+
+    assert.strictEqual(section, [
+      '## 1. [bob] src/app.js:10',
+      'Thread: `PRRT_abc` | Comment: `111`',
+      '',
+      'Original finding',
+      '',
+    ].join('\n'));
   });
 
   it('should use general for missing path', () => {

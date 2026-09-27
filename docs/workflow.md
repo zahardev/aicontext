@@ -119,30 +119,27 @@ Use `/draft-pr` to generate a PR title and description from your task file and g
 
 After your PR receives review comments, use `/gh-review-check` to handle them efficiently:
 
-**1. Fetch** — the AI runs `pr-reviews.cjs` to fetch all unresolved review threads from GitHub and saves them to `.aicontext/data/code-reviews/`.
+**1. Fetch** — the AI runs `pr-reviews.cjs` to fetch all unresolved review threads, including earlier replies, into `.aicontext/data/github-pr-reviews/`.
 
-**2. Analyze** — the AI reads each comment, inspects the actual code, and classifies findings:
-- **Valid** — real issues worth fixing
-- **False positive** — explain why
-- **Low priority** — valid but not worth addressing now
+**2. Triage** — the AI checks each thread against the code, fills the Action and Reply columns, and asks you to confirm:
 
-**3. Fill actions** — the AI fills the Action column in the review file:
-
-| # | Action | File:Line | Reviewer | Reply |
-|---|--------|-----------|----------|-------|
-| 1 | `fix` | src/api.js:42 | coderabbit | |
-| 2 | `resolve` | src/db.js:15 | coderabbit | Already handled in abc123 |
-| 3 | `resolve` | src/utils.js:8 | coderabbit | |
+| # | Action | File:Line | Reviewer | Thread ID | Reply |
+|---|--------|-----------|----------|-----------|-------|
+| 1 | `fix` | src/api.js:42 | coderabbit | PRRT_… | Fixed null check |
+| 2 | `resolve` | src/db.js:15 | coderabbit | PRRT_… | Already handled in abc123 |
+| 3 | `skip` | src/utils.js:8 | alice | PRRT_… | Intentional, see spec |
 
 - `fix` — will address in code
-- `resolve` — dismiss on GitHub (with optional reply)
-- `skip` — leave for human discussion (only for human reviewer comments)
+- `resolve` — reply (if filled) and close the thread
+- `skip` — reply (if filled) and leave the thread open for the reviewer; never used for bots
 
-**4. Resolve** — the AI runs `pr-resolve.cjs` to bulk-resolve all threads marked `resolve` on GitHub, posting replies where provided.
+**3. Resolve** — the AI runs `pr-resolve.cjs` to post replies and close `resolve` threads. Processed rows are marked in the file, so a rerun never posts twice.
 
-**5. Fix** — the AI fixes all items marked `fix`.
+**4. Fix** — the AI fixes all items marked `fix`.
 
-**6. Repeat** — after pushing fixes, run `/gh-review-check` again if new review comments arrive.
+**5. Repeat** — after pushing fixes, run `/gh-review-check` again if new review comments arrive.
+
+`/gh-review-fix-loop` uses the same triage and resolves automatically.
 
 ### Automated Review Cycle
 
