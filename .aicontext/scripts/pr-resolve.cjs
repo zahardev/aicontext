@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * Process PR review threads marked in a review file:
+ * Process PR review threads marked in a review file's summary table:
  * 'resolve' posts the Reply (if filled) and resolves the thread;
  * 'skip' posts the Reply (if filled) and leaves the thread open.
  * Processed rows are marked in the file so a rerun never repeats them.
@@ -18,6 +18,16 @@ mutation($threadId: ID!) {
   }
 }`;
 
+const REPLY_MUTATION = `
+mutation($threadId: ID!, $body: String!) {
+  addPullRequestReviewThreadReply(input: { pullRequestReviewThreadId: $threadId, body: $body }) {
+    comment { id }
+  }
+}`;
+
+const TABLE_HEADER = /^\|\s*#\s*\|\s*Action\s*\|/;
+const UNESCAPED_PIPE = /(?<!\\)\|/;
+
 function checkGhCli() {
   try {
     execFileSync('gh', ['--version'], { stdio: 'pipe' });
@@ -29,107 +39,72 @@ function checkGhCli() {
   }
 }
 
-function gh(args) {
+function graphql(query, variables) {
+  const args = ['api', 'graphql', '-f', `query=${query}`];
+  for (const [key, value] of Object.entries(variables)) args.push('-f', `${key}=${value}`);
   try {
-    return execFileSync('gh', args, { encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] });
-  } catch (err) {
-    const message = err.stderr ? err.stderr.trim() : err.message;
-    console.error(message);
-    process.exit(1);
-  }
-}
-
-function getRepoInfo() {
-  const owner = gh(['repo', 'view', '--json', 'owner', '-q', '.owner.login']).trim();
-  const name = gh(['repo', 'view', '--json', 'name', '-q', '.name']).trim();
-  return { owner, name };
-}
-
-function postReply(owner, repo, prNumber, commentId, body) {
-  try {
-    execFileSync(
-      'gh',
-      [
-        'api',
-        `repos/${owner}/${repo}/pulls/${prNumber}/comments/${commentId}/replies`,
-        '--method',
-        'POST',
-        '-f',
-        `body=${body}`,
-      ],
-      { stdio: ['pipe', 'pipe', 'pipe'] }
-    );
+    const data = JSON.parse(execFileSync('gh', args, { encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] }));
+    if (data.errors) return { ok: false, error: data.errors[0].message || 'Unknown error' };
     return { ok: true };
   } catch (err) {
     return { ok: false, error: (err.stderr || err.message).toString().trim() };
   }
+}
+
+function postReply(threadId, body) {
+  return graphql(REPLY_MUTATION, { threadId, body });
 }
 
 function resolveThread(threadId) {
-  try {
-    const result = execFileSync(
-      'gh',
-      ['api', 'graphql', '-f', `threadId=${threadId}`, '-f', `query=${RESOLVE_MUTATION}`],
-      { encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] }
-    );
-
-    const data = JSON.parse(result);
-    if (data.errors) {
-      return { ok: false, error: data.errors[0].message || 'Unknown error' };
-    }
-    return { ok: true };
-  } catch (err) {
-    return { ok: false, error: (err.stderr || err.message).toString().trim() };
-  }
+  return graphql(RESOLVE_MUTATION, { threadId });
 }
 
-function parsePrNumber(content) {
-  const match = content.match(/^#\s*PR\s*#(\d+)/m);
-  return match ? parseInt(match[1], 10) : null;
+function splitCells(line) {
+  return line.split(UNESCAPED_PIPE).slice(1, -1).map((cell) => cell.trim());
 }
 
-function parseCommentIds(content) {
-  const ids = {};
-  const regex = /^## (\d+)\.\s.*\nThread:.*Comment:\s*`(\d+)`/gm;
-  let match;
-  while ((match = regex.exec(content)) !== null) {
-    ids[parseInt(match[1], 10)] = match[2];
-  }
-  return ids;
+function findTableRows(lines) {
+  const header = lines.findIndex((line) => TABLE_HEADER.test(line));
+  const rows = [];
+  if (header === -1) return rows;
+  for (let i = header + 2; i < lines.length && lines[i].startsWith('|'); i++) rows.push(i);
+  return rows;
 }
 
 function parseEntries(content) {
+  const lines = content.split('\n');
   const entries = [];
-  const regex = /\|\s*(\d+)\s*\|\s*(resolve|skip)\s*\|.*\|\s*(PRRT_\S+)\s*\|\s*(.*?)\s*\|/gi;
-  let match;
-  while ((match = regex.exec(content)) !== null) {
-    const action = match[2].toLowerCase();
-    const reply = match[4].trim();
+  for (const i of findTableRows(lines)) {
+    const cells = splitCells(lines[i]);
+    const [number, rawAction, , , threadId, rawReply] = cells;
+    const action = (rawAction || '').toLowerCase();
+    if (!['resolve', 'skip'].includes(action)) continue;
+    if (cells.length !== 6 || !/^PRRT_\S+$/.test(threadId)) {
+      console.warn(`  Skipped malformed row #${number}: expected 6 cells; escape | in Reply as \\|`);
+      continue;
+    }
+    const reply = rawReply.replace(/\\\|/g, '|');
     if (action === 'skip' && !reply) continue;
-    entries.push({
-      number: parseInt(match[1], 10),
-      action,
-      threadId: match[3],
-      reply,
-    });
+    entries.push({ number: parseInt(number, 10), action, threadId, reply });
   }
   return entries;
 }
 
 function updateRow(content, number, changes) {
-  const rowStart = new RegExp(`^\\|\\s*${number}\\s*\\|`);
-  let updated = false;
-  return content
-    .split('\n')
-    .map((line) => {
-      if (updated || !rowStart.test(line)) return line;
-      updated = true;
-      const cells = line.split('|').slice(1, -1).map((cell) => cell.trim());
-      if (changes.action !== undefined) cells[1] = changes.action;
-      if (changes.reply !== undefined) cells[5] = changes.reply;
-      return `| ${cells.join(' | ')} |`;
-    })
-    .join('\n');
+  const lines = content.split('\n');
+  const row = findTableRows(lines).find((i) => parseInt(splitCells(lines[i])[0], 10) === number);
+  if (row === undefined) return content;
+  const cells = splitCells(lines[row]);
+  if (changes.action !== undefined) cells[1] = changes.action;
+  if (changes.reply !== undefined) cells[5] = changes.reply.replace(/\|/g, '\\|');
+  lines[row] = `| ${cells.join(' | ')} |`;
+  return lines.join('\n');
+}
+
+function writeAtomic(filepath, content) {
+  const tmp = `${filepath}.tmp`;
+  fs.writeFileSync(tmp, content);
+  fs.renameSync(tmp, filepath);
 }
 
 function main() {
@@ -144,7 +119,7 @@ function main() {
   let content = fs.readFileSync(filepath, 'utf8');
   const record = (number, changes) => {
     content = updateRow(content, number, changes);
-    fs.writeFileSync(filepath, content);
+    writeAtomic(filepath, content);
   };
 
   const entries = parseEntries(content);
@@ -153,39 +128,19 @@ function main() {
     return;
   }
 
-  const hasReplies = entries.some((e) => e.reply);
-  let prNumber = null;
-  let commentIds = {};
-  let owner, repo;
-
-  if (hasReplies) {
-    prNumber = parsePrNumber(content);
-    commentIds = parseCommentIds(content);
-    if (!prNumber) {
-      console.error('Could not parse PR number from file.');
-      process.exit(1);
-    }
-    ({ owner, name: repo } = getRepoInfo());
-  }
-
   const toResolve = entries.filter((e) => e.action === 'resolve').length;
   console.log(`Processing ${entries.length} thread(s)...\n`);
 
   let resolved = 0;
   for (const e of entries) {
     if (e.reply) {
-      const cid = commentIds[e.number];
-      if (cid) {
-        const { ok, error } = postReply(owner, repo, prNumber, cid, e.reply);
-        if (ok) {
-          console.log(`  Replied:  #${e.number} — ${e.reply.slice(0, 60)}`);
-          record(e.number, e.action === 'skip' ? { action: 'replied' } : { reply: '' });
-        } else {
-          console.log(`  Reply failed: #${e.number} — ${error}`);
-        }
-      } else {
-        console.log(`  No comment ID for #${e.number}, skipping reply`);
+      const { ok, error } = postReply(e.threadId, e.reply);
+      if (!ok) {
+        console.log(`  Reply failed: #${e.number} — ${error}; left pending`);
+        continue;
       }
+      console.log(`  Replied:  #${e.number} — ${e.reply.slice(0, 60)}`);
+      record(e.number, e.action === 'skip' ? { action: 'replied' } : { reply: '' });
     }
 
     if (e.action !== 'resolve') continue;
@@ -204,7 +159,7 @@ function main() {
 }
 
 // Export for testing
-module.exports = { parsePrNumber, parseCommentIds, parseEntries, updateRow };
+module.exports = { parseEntries, updateRow };
 
 if (require.main === module) {
   main();

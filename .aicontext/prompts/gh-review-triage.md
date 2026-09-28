@@ -7,7 +7,7 @@ Evaluate each unresolved thread in the review file against the actual code, then
 - `resolve`: false positive, irrelevant, or already addressed; explain why.
 - `skip`: needs human judgment; leave open. Never for automated bot threads.
 
-Fill the Reply column for `fix` and `resolve` rows. For `skip` rows, fill Reply only to answer the reviewer, and not when your earlier reply (marked `(you)`) still awaits their response.
+Fill the Reply column for `fix` and `resolve` rows; escape `|` as `\|`. For `skip` rows, fill Reply only to answer the reviewer, and not when your earlier reply (marked `(you)`) still awaits their response.
 
 ## Resolve
 

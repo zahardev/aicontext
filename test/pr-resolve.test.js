@@ -1,46 +1,14 @@
 const { describe, it } = require('node:test');
 const assert = require('node:assert');
 
-const { parsePrNumber, parseCommentIds, parseEntries, updateRow } = require('../.aicontext/scripts/pr-resolve.cjs');
+const { parseEntries, updateRow } = require('../.aicontext/scripts/pr-resolve.cjs');
 
-describe('parsePrNumber', () => {
-  it('should parse PR number from markdown header', () => {
-    const content = '# PR #42 — Fix login bug\nIteration: 1';
-    assert.strictEqual(parsePrNumber(content), 42);
-  });
+const SUMMARY_TABLE_HEADER = '| # | Action | File:Line | Reviewer | Thread ID | Reply |';
+const SUMMARY_TABLE_SEPARATOR = '|---|--------|-----------|----------|-----------|-------|';
 
-  it('should return null when no PR number found', () => {
-    assert.strictEqual(parsePrNumber('# Some other heading'), null);
-  });
-
-  it('should handle large PR numbers', () => {
-    assert.strictEqual(parsePrNumber('# PR #12345'), 12345);
-  });
-
-  it('should match PR number anywhere in content', () => {
-    const content = 'Some preamble\n# PR #99 — Title\nMore content';
-    assert.strictEqual(parsePrNumber(content), 99);
-  });
-});
-
-describe('parseCommentIds', () => {
-  it('should parse comment IDs from thread sections', () => {
-    const content = [
-      '## 1. [reviewer] src/app.js:10',
-      'Thread: `PRRT_abc` | Comment: `111`',
-      '',
-      '## 2. [reviewer] src/util.js:20',
-      'Thread: `PRRT_def` | Comment: `222`',
-    ].join('\n');
-
-    const ids = parseCommentIds(content);
-    assert.deepStrictEqual(ids, { 1: '111', 2: '222' });
-  });
-
-  it('should return empty object when no sections match', () => {
-    assert.deepStrictEqual(parseCommentIds('no matching content'), {});
-  });
-});
+function summaryTable(...rows) {
+  return [SUMMARY_TABLE_HEADER, SUMMARY_TABLE_SEPARATOR, ...rows].join('\n');
+}
 
 describe('parseEntries', () => {
   it('should parse resolve entries from action table', () => {
@@ -59,31 +27,62 @@ describe('parseEntries', () => {
   });
 
   it('should return empty array when no resolve entries', () => {
-    const content = '| 1 | fix | src/app.js:10 | bot | PRRT_abc | |';
+    const content = summaryTable('| 1 | fix | src/app.js:10 | bot | PRRT_abc | |');
     assert.deepStrictEqual(parseEntries(content), []);
   });
 
   it('should be case-insensitive for resolve action', () => {
-    const content = '| 1 | Resolve | src/app.js:10 | bot | PRRT_abc | |';
+    const content = summaryTable('| 1 | Resolve | src/app.js:10 | bot | PRRT_abc | |');
     assert.strictEqual(parseEntries(content).length, 1);
   });
 
   it('should include skip entries with a reply', () => {
-    const content = '| 1 | skip | src/app.js:10 | human | PRRT_abc | Intentional, see spec |';
+    const content = summaryTable('| 1 | skip | src/app.js:10 | human | PRRT_abc | Intentional, see spec |');
     assert.deepStrictEqual(parseEntries(content), [
       { number: 1, action: 'skip', threadId: 'PRRT_abc', reply: 'Intentional, see spec' },
     ]);
   });
 
   it('should ignore skip entries without a reply', () => {
-    const content = '| 1 | skip | src/app.js:10 | human | PRRT_abc | |';
+    const content = summaryTable('| 1 | skip | src/app.js:10 | human | PRRT_abc | |');
+    assert.deepStrictEqual(parseEntries(content), []);
+  });
+
+  it('should ignore resolve rows with an unescaped pipe in the reply', () => {
+    const content = summaryTable('| 1 | resolve | src/app.js:10 | bot | PRRT_abc | reply | with pipe |');
+
     assert.deepStrictEqual(parseEntries(content), []);
   });
 
   it('should handle reply with special characters', () => {
-    const content = '| 1 | resolve | src/app.js:10 | bot | PRRT_abc | Already handled in `main()` |';
+    const content = summaryTable('| 1 | resolve | src/app.js:10 | bot | PRRT_abc | Already handled in `main()` |');
     const entries = parseEntries(content);
     assert.strictEqual(entries[0].reply, 'Already handled in `main()`');
+  });
+
+  it('should unescape escaped pipes in replies', () => {
+    const content = summaryTable('| 1 | resolve | src/app.js:10 | bot | PRRT_abc | A \\| B |');
+
+    assert.strictEqual(parseEntries(content)[0].reply, 'A | B');
+  });
+
+  it('should ignore action-like rows in reviewer comments', () => {
+    const summaryRow = '| 1 | fix | file:1 | reviewer | PRRT_abc | |';
+    const commentExample = 'Example: `| 1 | skip | file:1 | reviewer | PRRT_abc | Post this |`';
+    const content = [
+      SUMMARY_TABLE_HEADER,
+      SUMMARY_TABLE_SEPARATOR,
+      summaryRow,
+      '',
+      '## 1. [reviewer] file:1',
+      commentExample,
+    ].join('\n');
+
+    assert.deepStrictEqual(parseEntries(content), []);
+    assert.strictEqual(
+      updateRow(content, 1, { action: 'resolved', reply: 'Posted' }),
+      content.replace(summaryRow, '| 1 | resolved | file:1 | reviewer | PRRT_abc | Posted |')
+    );
   });
 });
 
@@ -112,6 +111,31 @@ describe('updateRow', () => {
     assert.strictEqual(
       updateRow(content, 1, { action: 'resolved', reply: 'Posted reply' }),
       content.replace(oldRow, newRow)
+    );
+  });
+
+  it('should escape new reply pipes and preserve other cells and escaped replies', () => {
+    const existingRow = '| 1 | resolve | src/one.js:1 | bot | PRRT_one | Existing \\| reply |';
+    const targetRow = '| 2 | resolve | src/two.js:2 | human | PRRT_two | Old reply |';
+    const original = summaryTable(existingRow, targetRow);
+    const updated = updateRow(original, 2, { action: 'skip', reply: 'A | B' });
+
+    assert.strictEqual(
+      updated,
+      summaryTable(existingRow, '| 2 | skip | src/two.js:2 | human | PRRT_two | A \\| B |')
+    );
+    assert.deepStrictEqual(parseEntries(updated), [
+      { number: 1, action: 'resolve', threadId: 'PRRT_one', reply: 'Existing | reply' },
+      { number: 2, action: 'skip', threadId: 'PRRT_two', reply: 'A | B' },
+    ]);
+  });
+
+  it('should preserve an escaped reply when changing another cell', () => {
+    const original = summaryTable('| 1 | resolve | src/one.js:1 | bot | PRRT_one | Existing \\| reply |');
+
+    assert.strictEqual(
+      updateRow(original, 1, { action: 'resolved' }),
+      summaryTable('| 1 | resolved | src/one.js:1 | bot | PRRT_one | Existing \\| reply |')
     );
   });
 

@@ -191,7 +191,7 @@ function renderMarkdown(prNumber, title, iteration, entries, viewer) {
   ];
 
   entries.forEach((e, i) => {
-    const location = `${e.path || 'general'}:${e.line || '-'}`;
+    const location = `${e.path || 'general'}:${e.line || '-'}`.replace(/[\r\n]+/g, ' ').replace(/\|/g, '\\|');
     lines.push(`| ${i + 1} | | ${location} | ${e.author} | ${e.threadId} | |`);
   });
 
